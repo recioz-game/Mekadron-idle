@@ -26,6 +26,14 @@ jobs:
       - name: Build Project 🔨
         run: npm run build
 
+      - name: Inspect dist folder 🔍
+        run: |
+          echo "--- Listing files in dist folder ---"
+          ls -R dist
+          echo "--- Content of dist/index.html ---"
+          cat dist/index.html
+          echo "--- End of inspection ---"
+
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
