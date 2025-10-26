@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mekadron Idle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+      .floating-text {
+        position: fixed; /* Usar fixed para posicionar respecto a la ventana */
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #E5E7EB;
+        text-shadow: 1px 1px 2px black;
+        pointer-events: none; /* Para que no interfiera con los clics */
+        user-select: none; /* Para que no se pueda seleccionar */
+        animation: float-up 1.5s ease-out forwards;
+      }
+
+      @keyframes float-up {
+        from {
+          transform: translateY(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateY(-70px);
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
