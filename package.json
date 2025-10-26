@@ -1,5 +1,6 @@
 {
   "name": "mekadron-idle",
+  "homepage": "https://recioz-game.github.io/Mekadron-idle",
   "type": "module",
   "scripts": {
     "dev": "npx vite",
