@@ -1228,6 +1228,14 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         techCenter: { ...prev.techCenter, researchPoints: newResearchPoints },
       };
 
+      // Lógica de desbloqueo de módulos por recursos
+      if (finalState.resources.scrap >= 50 && !finalState.modules.energy) {
+        finalState.modules = { ...finalState.modules, energy: true };
+      }
+      if (finalState.resources.scrap >= 75 && !finalState.modules.storage) {
+        finalState.modules = { ...finalState.modules, storage: true };
+      }
+
       // Lógica de desbloqueo del Centro Técnico
       if (
         finalState.drones.medium >= 3 &&
