@@ -17,10 +17,11 @@ jobs:
         with:
           node-version: '18' # Usamos una versión estable de Node.js
 
-      - name: Install and Build 🔨
-        run: |
-          npm install
-          npm run build
+      - name: Install Dependencies 📦
+        run: npm ci
+
+      - name: Build Project 🔨
+        run: npm run build
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
