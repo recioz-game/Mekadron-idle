@@ -329,10 +329,10 @@ const GameScene: React.FC = () => {
     }
   };
 
-  return (
+    return (
     <div style={{
       backgroundColor: '#0F172A',
-      backgroundImage: 'url(/assets/main-background.png)',
+      backgroundImage: 'url(assets/main-background.png)',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
