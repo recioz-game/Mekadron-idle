@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import mainBackgroundUrl from '../assets/main-background.png';
 import { ExpeditionId } from '../types/gameState';
 import { useGame } from '../context/GameContext';
 import ResourceBar from './ResourceBar';
@@ -332,7 +333,7 @@ const GameScene: React.FC = () => {
     return (
     <div style={{
       backgroundColor: '#0F172A',
-      backgroundImage: 'url(assets/main-background.png)',
+      backgroundImage: `url(${mainBackgroundUrl})`,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',

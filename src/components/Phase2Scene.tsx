@@ -1,4 +1,5 @@
 import React from 'react';
+import phase2BackgroundUrl from '../assets/phase2-background.png';
 import SettingsMenu from './SettingsMenu';
 import Phase2ResourceBar from './Phase2ResourceBar';
 import { useGame } from '../context/GameContext';
@@ -7,7 +8,7 @@ import Armory from './Armory';
 
 const Phase2Scene: React.FC = () => {
   const { gameState, dispatch } = useGame();
-  const { resources, rates, drones, modules, shipyard, currentView } = gameState;
+  const { resources, currentView } = gameState;
 
   const handleCloseView = () => {
     dispatch({ type: 'CLOSE_CURRENT_VIEW' });
@@ -15,7 +16,7 @@ const Phase2Scene: React.FC = () => {
 
   return (
     <div style={{
-      backgroundImage: 'url(/assets/phase2-background.png)',
+      backgroundImage: `url(${phase2BackgroundUrl})`,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
