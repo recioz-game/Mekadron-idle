@@ -1,4 +1,6 @@
 import React from 'react';
+import coverImageUrl from '/assets/cover.png';
+import playButtonUrl from '/assets/play-button.png';
 
 interface StartMenuProps {
   onStartGame: () => void;
@@ -14,7 +16,7 @@ const StartMenu: React.FC<StartMenuProps> = ({ onStartGame }) => {
             height: '100vh',
                   backgroundColor: '#0F172A',
       color: '#E5E7EB',
-      backgroundImage: `url(assets/cover.png)`,
+      backgroundImage: `url(${coverImageUrl})`,
             backgroundSize: 'cover',
       backgroundPosition: 'center',
       position: 'relative'
@@ -22,7 +24,7 @@ const StartMenu: React.FC<StartMenuProps> = ({ onStartGame }) => {
             <button 
         onClick={onStartGame}
         style={{
-          background: `url(assets/play-button.png) no-repeat center center`,
+          background: `url(${playButtonUrl}) no-repeat center center`,
           backgroundSize: 'contain',
           width: '200px',
           height: '80px',
