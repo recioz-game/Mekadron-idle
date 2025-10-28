@@ -34,8 +34,8 @@ const CollectionButton: React.FC<CollectionButtonProps> = ({
     }}>
       <button 
         onClick={handleClick}
-                style={{
-          background: `url(/assets/scrap-button.png) no-repeat center center`,
+                        style={{
+          background: `url(assets/scrap-button.png) no-repeat center center`,
           backgroundSize: 'contain',
           width: '400px',
           height: '400px',
