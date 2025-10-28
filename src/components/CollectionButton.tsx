@@ -27,8 +27,8 @@ const CollectionButton: React.FC<CollectionButtonProps> = ({
   return (
     <div style={{
       position: 'absolute',
-      bottom: '2rem',
-      left: '2rem',
+      bottom: '5rem',
+      left: '6rem',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center'
@@ -38,8 +38,8 @@ const CollectionButton: React.FC<CollectionButtonProps> = ({
                         style={{
           background: `url(${scrapButtonUrl}) no-repeat center center`,
           backgroundSize: 'contain',
-                              width: '100px',
-          height: '100px',
+                                        width: '200px',
+          height: '200px',
           border: 'none',
           cursor: 'pointer',
           backgroundColor: 'transparent',
