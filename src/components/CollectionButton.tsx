@@ -1,5 +1,5 @@
 import React from 'react';
-import scrapButtonUrl from '../assets/play-button.png';
+import scrapButtonUrl from '../assets/scrap-button.png';
 
 interface CollectionButtonProps {
   onCollectScrap: (event: React.MouseEvent<HTMLButtonElement>) => void;
