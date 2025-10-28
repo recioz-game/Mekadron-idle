@@ -48,7 +48,7 @@ const CollectionButton: React.FC<CollectionButtonProps> = ({
         aria-label={`Recolectar +${scrapPerClick} chatarra`}
       />
             <div style={{
-        marginTop: '-1rem',
+        marginTop: '0.5rem',
         color: '#E5E7EB', // Un color de texto claro y legible
         fontSize: '1rem',
         fontWeight: 'bold',
