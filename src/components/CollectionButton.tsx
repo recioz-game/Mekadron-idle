@@ -38,8 +38,8 @@ const CollectionButton: React.FC<CollectionButtonProps> = ({
                         style={{
           background: `url(${scrapButtonUrl}) no-repeat center center`,
           backgroundSize: 'contain',
-                    width: '200px',
-          height: '200px',
+                              width: '100px',
+          height: '100px',
           border: 'none',
           cursor: 'pointer',
           backgroundColor: 'transparent',
