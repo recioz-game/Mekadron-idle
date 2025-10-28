@@ -15,7 +15,7 @@ const Phase2Scene: React.FC = () => {
 
   return (
     <div style={{
-      backgroundImage: 'url(assets/phase2-background.png)',
+      backgroundImage: 'url(/assets/phase2-background.png)',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',

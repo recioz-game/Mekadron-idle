@@ -12,9 +12,9 @@ const StartMenu: React.FC<StartMenuProps> = ({ onStartGame }) => {
       alignItems: 'center', 
       justifyContent: 'center', 
             height: '100vh',
-            backgroundColor: '#0F172A',
+                  backgroundColor: '#0F172A',
       color: '#E5E7EB',
-      backgroundImage: `url(assets/cover.png)`,
+      backgroundImage: `url(/assets/cover.png)`,
             backgroundSize: 'cover',
       backgroundPosition: 'center',
       position: 'relative'
@@ -22,7 +22,7 @@ const StartMenu: React.FC<StartMenuProps> = ({ onStartGame }) => {
             <button 
         onClick={onStartGame}
         style={{
-          background: `url(assets/play-button.png) no-repeat center center`,
+          background: `url(/assets/play-button.png) no-repeat center center`,
           backgroundSize: 'contain',
           width: '200px',
           height: '80px',
