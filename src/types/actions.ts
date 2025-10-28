@@ -13,7 +13,7 @@ export type ActionType =
   | { type: 'CLOSE_AURORA_MESSAGE' }
   | { type: 'ADD_AURORA_MESSAGE'; payload: { message: string; messageKey: string } }
   | { type: 'GAME_TICK' }
-  | { type: 'UPDATE_MISSION_PROGRESS' }
+    | { type: 'UPDATE_MISSION_PROGRESS' }
   | { type: 'CLAIM_REWARD'; payload: string }
   | { type: 'RESEARCH_UPGRADE'; payload: { upgradeName: string; cost: number } }
   | { type: 'SET_WORKSHOP_BUY_AMOUNT'; payload: number | 'max' }
@@ -49,4 +49,15 @@ export type ActionType =
   | { type: 'CLAIM_EXPEDITION_REWARDS'; payload: ExpeditionId }
   | { type: 'DONATE_TO_SHIPYARD'; payload: { component: string; resource: string; amount: number } }
   | { type: 'DISMISS_NOTIFICATION' }
-  | { type: 'DEBUG_UNLOCK_TECH_CENTER' };
+  | { type: 'DEBUG_UNLOCK_TECH_CENTER' }
+    | { type: 'DEBUG_COMPLETE_VINDICATOR' }
+  | { type: 'DEBUG_FINISH_EXPEDITIONS' }
+    | { type: 'PROCESS_OFFLINE_PROGRESS'; payload: { secondsOffline: number } }
+  | { type: 'START_PHASE_2' }
+  | { type: 'RETURN_TO_PHASE_1' }
+  | { type: 'GO_TO_PHASE_2' }
+  | { type: 'SELECT_BATTLE_DESTINATION'; payload: number }
+  | { type: 'START_BATTLE' }
+  | { type: 'PLAYER_ATTACK' }
+  | { type: 'CANCEL_QUEUE_ITEM'; payload: { category: string; itemName: string; amount: number | 'all' } };
+

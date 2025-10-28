@@ -75,6 +75,4 @@ git push origin main
 ──────────────────────────────
 
 
-Arrancar el server: g
-
-
+Arrancar el server: npm run dev

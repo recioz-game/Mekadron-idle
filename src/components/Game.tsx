@@ -13,9 +13,10 @@ const Game: React.FC = () => {
   // Guardado automático en localStorage
   useEffect(() => {
     try {
-      // Preparamos el estado para la serialización
+            // Preparamos el estado para la serialización
       const stateToSave = {
         ...gameState,
+        lastSaveTimestamp: Date.now(),
         aurora: {
           ...gameState.aurora,
           // Convertimos el Set a un Array para que sea compatible con JSON
@@ -35,19 +36,26 @@ const Game: React.FC = () => {
         dispatch({ type: 'ADD_AURORA_MESSAGE', payload: { message: "Modo desarrollo activado. Centro Técnico y Fundición desbloqueados.", messageKey: "debug_unlock" } });
     };
 
+        
     window.addEventListener('debugUnlockTechCenter', handleDebugUnlockTechCenter);
 
-    const handleResetGame = () => {
-      dispatch({ type: 'RESET_GAME' });
-      // También podrías querer redirigir al menú principal
-      // O simplemente dejar que el estado reiniciado lo haga.
+    const handleDebugCompleteVindicator = () => {
+      dispatch({ type: 'DEBUG_COMPLETE_VINDICATOR' });
+      dispatch({ type: 'ADD_AURORA_MESSAGE', payload: { message: "Modo desarrollo: 'Vindicator' completado.", messageKey: "debug_vindicator" } });
     };
 
-    window.addEventListener('resetGame', handleResetGame);
+    const handleDebugFinishExpeditions = () => {
+      dispatch({ type: 'DEBUG_FINISH_EXPEDITIONS' });
+                  dispatch({ type: 'ADD_AURORA_MESSAGE', payload: { message: "Modo desarrollo: Expediciones en curso finalizadas.", messageKey: "debug_expeditions" } });
+    };
+
+    window.addEventListener('debugCompleteVindicator', handleDebugCompleteVindicator);
+    window.addEventListener('debugFinishExpeditions', handleDebugFinishExpeditions);
     
     return () => {
       window.removeEventListener('debugUnlockTechCenter', handleDebugUnlockTechCenter);
-      window.removeEventListener('resetGame', handleResetGame);
+      window.removeEventListener('debugCompleteVindicator', handleDebugCompleteVindicator);
+      window.removeEventListener('debugFinishExpeditions', handleDebugFinishExpeditions);
     };
   }, [dispatch]);
 

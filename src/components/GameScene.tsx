@@ -32,17 +32,22 @@ const GameScene: React.FC = () => {
     techCenter,
     storage,
     activeExpeditions,
-    shipyard,
+        shipyard,
     foundry,
     rates,
-    notificationQueue
+    notificationQueue,
+    phase2Unlocked // <-- OBTENER EL NUEVO ESTADO
   } = gameState;
   const onDismissNotification = useCallback(() => {
     dispatch({ type: 'DISMISS_NOTIFICATION' });
   }, [dispatch]);
 
-  const onModuleSelect = useCallback((module: string) => {
-    dispatch({ type: 'SET_CURRENT_VIEW', payload: module });
+    const onModuleSelect = useCallback((module: string) => {
+    if (module === 'goToPhase2') {
+      dispatch({ type: 'GO_TO_PHASE_2' });
+    } else {
+      dispatch({ type: 'SET_CURRENT_VIEW', payload: module });
+    }
   }, [dispatch]);
 
   const onClose = useCallback(() => dispatch({ type: 'CLOSE_CURRENT_VIEW' }), [dispatch]);
@@ -58,6 +63,9 @@ const GameScene: React.FC = () => {
   const onBuildExpeditionDrone = useCallback(() => dispatch({ type: 'BUILD_EXPEDITION_DRONE' }), [dispatch]);
   const onBuildWyrm = useCallback(() => dispatch({ type: 'BUILD_WYRM' }), [dispatch]);
   const onSetWorkshopBuyAmount = useCallback((amount: number | 'max') => dispatch({ type: 'SET_WORKSHOP_BUY_AMOUNT', payload: amount }), [dispatch]);
+  const onCancelWorkshopItem = useCallback((itemName: string, amount: number | 'all') => {
+    dispatch({ type: 'CANCEL_QUEUE_ITEM', payload: { category: 'workshop', itemName, amount } });
+  }, [dispatch]);
 
   // Energy Callbacks
   const onBuildSolarPanel = useCallback(() => dispatch({ type: 'BUILD_SOLAR_PANEL' }), [dispatch]);
@@ -65,6 +73,9 @@ const GameScene: React.FC = () => {
   const onBuildAdvancedSolar = useCallback(() => dispatch({ type: 'BUILD_ADVANCED_SOLAR' }), [dispatch]);
   const onBuildEnergyCore = useCallback(() => dispatch({ type: 'BUILD_ENERGY_CORE' }), [dispatch]);
   const onSetEnergyBuyAmount = useCallback((amount: number | 'max') => dispatch({ type: 'SET_ENERGY_BUY_AMOUNT', payload: amount }), [dispatch]);
+  const onCancelEnergyItem = useCallback((itemName: string, amount: number | 'all') => {
+    dispatch({ type: 'CANCEL_QUEUE_ITEM', payload: { category: 'energy', itemName, amount } });
+  }, [dispatch]);
 
   // Storage Callbacks
   const onBuildBasicStorage = useCallback(() => dispatch({ type: 'BUILD_BASIC_STORAGE' }), [dispatch]);
@@ -75,6 +86,9 @@ const GameScene: React.FC = () => {
   const onBuildPlasmaAccumulator = useCallback(() => dispatch({ type: 'BUILD_PLASMA_ACCUMULATOR' }), [dispatch]);
   const onBuildHarmonicContainmentField = useCallback(() => dispatch({ type: 'BUILD_HARMONIC_CONTAINMENT_FIELD' }), [dispatch]);
   const onSetStorageBuyAmount = useCallback((amount: number | 'max') => dispatch({ type: 'SET_STORAGE_BUY_AMOUNT', payload: amount }), [dispatch]);
+  const onCancelStorageItem = useCallback((itemName: string, amount: number | 'all') => {
+    dispatch({ type: 'CANCEL_QUEUE_ITEM', payload: { category: 'storage', itemName, amount } });
+  }, [dispatch]);
 
   const onClaimMissionReward = useCallback((missionId: string) => dispatch({ type: 'CLAIM_REWARD', payload: missionId }), [dispatch]);
   const onCloseView = useCallback(() => dispatch({ type: 'CLOSE_CURRENT_VIEW' }), [dispatch]);
@@ -93,6 +107,9 @@ const GameScene: React.FC = () => {
   const onCraftHullPlate = useCallback(() => dispatch({ type: 'CRAFT_HULL_PLATE' }), [dispatch]);
   const onCraftSuperconductorWiring = useCallback(() => dispatch({ type: 'CRAFT_SUPERCONDUCTOR_WIRING' }), [dispatch]);
   const onSetFoundryBuyAmount = useCallback((amount: number | 'max') => dispatch({ type: 'SET_FOUNDRY_BUY_AMOUNT', payload: amount }), [dispatch]);
+  const onCancelFoundryItem = useCallback((itemName: string, amount: number | 'all') => {
+    dispatch({ type: 'CANCEL_QUEUE_ITEM', payload: { category: 'foundry', itemName, amount } });
+  }, [dispatch]);
 
   const renderActiveModule = () => {
     switch (currentView) {
@@ -144,9 +161,10 @@ const GameScene: React.FC = () => {
             onBuildWyrm={onBuildWyrm}
 
             // Others
-            buyAmount={workshopBuyAmount}
+                        buyAmount={workshopBuyAmount}
             onSetBuyAmount={onSetWorkshopBuyAmount}
             onClose={onClose}
+            onCancel={onCancelWorkshopItem}
           />
         );
       case 'energy':
@@ -168,9 +186,10 @@ const GameScene: React.FC = () => {
             onBuildMediumSolar={onBuildMediumSolar}
             onBuildAdvancedSolar={onBuildAdvancedSolar}
             onBuildEnergyCore={onBuildEnergyCore}
-            buyAmount={energyBuyAmount}
+                        buyAmount={energyBuyAmount}
             onSetBuyAmount={onSetEnergyBuyAmount}
             onClose={onClose}
+            onCancel={onCancelEnergyItem}
           />
         );
       case 'storage':
@@ -211,9 +230,10 @@ const GameScene: React.FC = () => {
             onBuildHarmonicContainmentField={onBuildHarmonicContainmentField}
             
             // Others
-            buyAmount={storageBuyAmount}
+                        buyAmount={storageBuyAmount}
             onSetBuyAmount={onSetStorageBuyAmount}
             onClose={onClose}
+            onCancel={onCancelStorageItem}
           />
         );
       case 'missions':
@@ -260,9 +280,10 @@ const GameScene: React.FC = () => {
             onCraftStructuralSteel={onCraftStructuralSteel}
             onCraftHullPlate={onCraftHullPlate}
             onCraftSuperconductorWiring={onCraftSuperconductorWiring}
-            buyAmount={foundryBuyAmount}
+                        buyAmount={foundryBuyAmount}
             onSetBuyAmount={onSetFoundryBuyAmount}
             onClose={onClose}
+            onCancel={onCancelFoundryItem}
           />
         );
       case 'expeditions':
@@ -292,15 +313,15 @@ const GameScene: React.FC = () => {
         );
       default:
         return (
-          <div style={{
+                    <div style={{
             display: 'flex',
             alignItems: 'flex-end',
             justifyContent: 'flex-start',
             height: '100%',
             padding: '2rem'
           }}>
-            <CollectionButton
-              onCollectScrap={() => dispatch({ type: 'COLLECT_SCRAP' })}
+                        <CollectionButton
+              onCollectScrap={(e) => dispatch({ type: 'COLLECT_SCRAP' })}
               scrapPerClick={gameState.rates.scrapPerClick}
             />
           </div>
@@ -311,6 +332,10 @@ const GameScene: React.FC = () => {
   return (
     <div style={{
       backgroundColor: '#0F172A',
+      backgroundImage: 'url(/assets/main-background.png)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
       color: '#E5E7EB',
       minHeight: '100vh',
       fontFamily: 'Inter, sans-serif',
@@ -332,8 +357,21 @@ const GameScene: React.FC = () => {
         energyConsumption={resources.energyConsumption}
         drones={drones} // Pasamos drones temporalmente para simplificar
         modules={modules}
-        shipyardUnlocked={shipyard.unlocked}
+                shipyardUnlocked={shipyard.unlocked}
       />
+      
+      {resources.energy <= 0 && resources.energyProduction < resources.energyConsumption && (
+        <div style={{
+          padding: '0.5rem 1rem',
+          backgroundColor: '#450A0A',
+          color: '#FEE2E2',
+          textAlign: 'center',
+          fontSize: '0.9rem',
+          borderBottom: '2px solid #7F1D1D'
+        }}>
+          <strong>Advertencia:</strong> Balance energético negativo. La producción de recursos está detenida.
+        </div>
+      )}
       
       <div style={{
         flex: 1,
@@ -350,10 +388,11 @@ const GameScene: React.FC = () => {
         <ModulesPanel 
           energyUnlocked={modules.energy}
           storageUnlocked={modules.storage}
-          techCenterUnlocked={modules.techCenter}
+                    techCenterUnlocked={modules.techCenter}
           foundryUnlocked={modules.foundry}
           expeditionsUnlocked={modules.expeditions}
           shipyardUnlocked={modules.shipyard}
+          phase2Unlocked={phase2Unlocked} // <-- PASAR LA NUEVA PROP
           currentView={currentView}
           onModuleSelect={onModuleSelect}
           scrapForUnlock={resources.scrap}

@@ -41,8 +41,9 @@ interface StorageViewProps {
 
   // Others
   buyAmount: number | 'max';
-  onSetBuyAmount: (amount: number | 'max') => void;
+    onSetBuyAmount: (amount: number | 'max') => void;
   onClose: () => void;
+  onCancel: (itemName: string, amount: number | 'all') => void;
 }
 
 const ProgressBar = ({ progress, time }: { progress: number; time: number }) => (
@@ -62,7 +63,7 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
   basicStorageQueue, mediumStorageQueue, advancedStorageQueue, quantumHoardUnitQueue, lithiumIonBatteryQueue, plasmaAccumulatorQueue, harmonicContainmentFieldQueue,
   energyCores,
   onBuildBasicStorage, onBuildMediumStorage, onBuildAdvancedStorage, onBuildQuantumHoardUnit, onBuildLithiumIonBattery, onBuildPlasmaAccumulator, onBuildHarmonicContainmentField,
-  buyAmount, onSetBuyAmount, onClose 
+  buyAmount, onSetBuyAmount, onClose, onCancel 
 }) => {
 
   const getTooltipText = (requirements: { resource?: string, amount: number, current: number, text: string }[]): string => {
@@ -158,6 +159,12 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
         <p>📈 Capacidad: +{formatNumber(50)} chatarra máxima</p>
         <p>💰 Coste: {formatNumber(basicStorageCost)} chatarra</p>
         <p>🏗️ Construidos: {basicStorage} | 📦 En cola: {basicStorageQueue.queue}</p>
+        {basicStorageQueue.queue > 0 && (
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+            <button onClick={() => onCancel('basicStorage', 1)} style={{ flexGrow: 1, backgroundColor: '#FBBF24', border: 'none', padding: '0.5rem', borderRadius: '4px', cursor: 'pointer', color: '#1F2937' }}>Cancelar 1</button>
+            <button onClick={() => onCancel('basicStorage', 'all')} style={{ flexGrow: 1, backgroundColor: '#FBBF24', border: 'none', padding: '0.5rem', borderRadius: '4px', cursor: 'pointer', color: '#1F2937' }}>Cancelar Todo</button>
+          </div>
+        )}
         <p>⏱️ T/U: {basicStorageQueue.time}s</p>
         
         {basicStorageQueue.queue > 0 && <ProgressBar progress={basicStorageQueue.progress} time={basicStorageQueue.time} />}
@@ -194,6 +201,12 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
         <p>📈 Capacidad: +{formatNumber(500)} chatarra máxima</p>
         <p>💰 Coste: {formatNumber(mediumStorageCost)} chatarra</p>
         <p>🏗️ Construidos: {mediumStorage} | 📦 En cola: {mediumStorageQueue.queue}</p>
+        {mediumStorageQueue.queue > 0 && (
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+            <button onClick={() => onCancel('mediumStorage', 1)} style={{ flexGrow: 1, backgroundColor: '#FBBF24', border: 'none', padding: '0.5rem', borderRadius: '4px', cursor: 'pointer', color: '#1F2937' }}>Cancelar 1</button>
+            <button onClick={() => onCancel('mediumStorage', 'all')} style={{ flexGrow: 1, backgroundColor: '#FBBF24', border: 'none', padding: '0.5rem', borderRadius: '4px', cursor: 'pointer', color: '#1F2937' }}>Cancelar Todo</button>
+          </div>
+        )}
         <p>⏱️ T/U: {mediumStorageQueue.time}s</p>
         <p>📋 Requisitos: 3 Almacenes Básicos</p>
 
@@ -239,6 +252,12 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
         <p>📈 Capacidad: +{formatNumber(5000)} chatarra máxima</p>
         <p>💰 Coste: {formatNumber(advancedStorageCost)} chatarra</p>
         <p>🏗️ Construidos: {advancedStorage} | 📦 En cola: {advancedStorageQueue.queue}</p>
+        {advancedStorageQueue.queue > 0 && (
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+            <button onClick={() => onCancel('advancedStorage', 1)} style={{ flexGrow: 1, backgroundColor: '#FBBF24', border: 'none', padding: '0.5rem', borderRadius: '4px', cursor: 'pointer', color: '#1F2937' }}>Cancelar 1</button>
+            <button onClick={() => onCancel('advancedStorage', 'all')} style={{ flexGrow: 1, backgroundColor: '#FBBF24', border: 'none', padding: '0.5rem', borderRadius: '4px', cursor: 'pointer', color: '#1F2937' }}>Cancelar Todo</button>
+          </div>
+        )}
         <p>⏱️ T/U: {advancedStorageQueue.time}s</p>
         <p>📋 Requisitos: 1 Almacén Medio</p>
 
@@ -284,6 +303,12 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
         <p>📈 Capacidad: +{formatNumber(50000)} chatarra máxima</p>
         <p>💰 Coste: {formatNumber(quantumHoardUnitScrapCost)} chatarra y {formatNumber(quantumHoardUnitMetalCost)} metal refinado</p>
         <p>🏗️ Construidos: {quantumHoardUnit} | 📦 En cola: {quantumHoardUnitQueue.queue}</p>
+        {quantumHoardUnitQueue.queue > 0 && (
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+            <button onClick={() => onCancel('quantumHoardUnit', 1)} style={{ flexGrow: 1, backgroundColor: '#FBBF24', border: 'none', padding: '0.5rem', borderRadius: '4px', cursor: 'pointer', color: '#1F2937' }}>Cancelar 1</button>
+            <button onClick={() => onCancel('quantumHoardUnit', 'all')} style={{ flexGrow: 1, backgroundColor: '#FBBF24', border: 'none', padding: '0.5rem', borderRadius: '4px', cursor: 'pointer', color: '#1F2937' }}>Cancelar Todo</button>
+          </div>
+        )}
         <p>⏱️ T/U: {quantumHoardUnitQueue.time}s</p>
         <p>📋 Requisitos: 3 Almacenes Avanzados</p>
         
@@ -332,6 +357,12 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
         <p>📈 Capacidad: +{formatNumber(50)} energía máxima</p>
         <p>💰 Coste: {formatNumber(lithiumIonBatteryCost)} chatarra</p>
         <p>🏗️ Construidos: {lithiumIonBattery} | 📦 En cola: {lithiumIonBatteryQueue.queue}</p>
+        {lithiumIonBatteryQueue.queue > 0 && (
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+            <button onClick={() => onCancel('lithiumIonBattery', 1)} style={{ flexGrow: 1, backgroundColor: '#FBBF24', border: 'none', padding: '0.5rem', borderRadius: '4px', cursor: 'pointer', color: '#1F2937' }}>Cancelar 1</button>
+            <button onClick={() => onCancel('lithiumIonBattery', 'all')} style={{ flexGrow: 1, backgroundColor: '#FBBF24', border: 'none', padding: '0.5rem', borderRadius: '4px', cursor: 'pointer', color: '#1F2937' }}>Cancelar Todo</button>
+          </div>
+        )}
         <p>⏱️ T/U: {lithiumIonBatteryQueue.time}s</p>
 
         {lithiumIonBatteryQueue.queue > 0 && <ProgressBar progress={lithiumIonBatteryQueue.progress} time={lithiumIonBatteryQueue.time} />}
@@ -368,6 +399,12 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
         <p>📈 Capacidad: +{formatNumber(250)} energía máxima</p>
         <p>💰 Coste: {formatNumber(plasmaAccumulatorCost)} chatarra</p>
         <p>🏗️ Construidos: {plasmaAccumulator} | 📦 En cola: {plasmaAccumulatorQueue.queue}</p>
+        {plasmaAccumulatorQueue.queue > 0 && (
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+            <button onClick={() => onCancel('plasmaAccumulator', 1)} style={{ flexGrow: 1, backgroundColor: '#FBBF24', border: 'none', padding: '0.5rem', borderRadius: '4px', cursor: 'pointer', color: '#1F2937' }}>Cancelar 1</button>
+            <button onClick={() => onCancel('plasmaAccumulator', 'all')} style={{ flexGrow: 1, backgroundColor: '#FBBF24', border: 'none', padding: '0.5rem', borderRadius: '4px', cursor: 'pointer', color: '#1F2937' }}>Cancelar Todo</button>
+          </div>
+        )}
         <p>⏱️ T/U: {plasmaAccumulatorQueue.time}s</p>
         <p>📋 Requisitos: 5 Baterías de Iones de Litio</p>
 
@@ -413,6 +450,12 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
         <p>📈 Capacidad: +{formatNumber(1200)} energía máxima</p>
         <p>💰 Coste: {formatNumber(harmonicContainmentFieldScrapCost)} chatarra y {formatNumber(harmonicContainmentFieldMetalCost)} metal refinado</p>
         <p>🏗️ Construidos: {harmonicContainmentField} | 📦 En cola: {harmonicContainmentFieldQueue.queue}</p>
+        {harmonicContainmentFieldQueue.queue > 0 && (
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+            <button onClick={() => onCancel('harmonicContainmentField', 1)} style={{ flexGrow: 1, backgroundColor: '#FBBF24', border: 'none', padding: '0.5rem', borderRadius: '4px', cursor: 'pointer', color: '#1F2937' }}>Cancelar 1</button>
+            <button onClick={() => onCancel('harmonicContainmentField', 'all')} style={{ flexGrow: 1, backgroundColor: '#FBBF24', border: 'none', padding: '0.5rem', borderRadius: '4px', cursor: 'pointer', color: '#1F2937' }}>Cancelar Todo</button>
+          </div>
+        )}
         <p>⏱️ T/U: {harmonicContainmentFieldQueue.time}s</p>
         <p>📋 Requisitos: 3 Acumuladores de Plasma</p>
         

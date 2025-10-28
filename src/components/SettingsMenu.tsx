@@ -9,12 +9,24 @@ const SettingsMenu: React.FC = () => {
     setIsOpen(false); // Cerrar el menú después de hacer clic
   };
 
-  const handleResetGame = () => {
+    const handleResetGame = () => {
     if (window.confirm('¿Estás seguro de que quieres reiniciar todo el progreso? Esta acción no se puede deshacer.')) {
       const event = new CustomEvent('resetGame');
       window.dispatchEvent(event);
       setIsOpen(false);
     }
+  };
+
+  const handleDebugCompleteVindicator = () => {
+            const event = new CustomEvent('debugCompleteVindicator');
+    window.dispatchEvent(event);
+    setIsOpen(false);
+  };
+
+  const handleDebugFinishExpeditions = () => {
+    const event = new CustomEvent('debugFinishExpeditions');
+    window.dispatchEvent(event);
+    setIsOpen(false);
   };
 
   return (
@@ -48,8 +60,40 @@ const SettingsMenu: React.FC = () => {
               marginTop: '1rem',
               width: '100%'
             }}
-          >
+                    >
             Desbloquear Módulos
+          </button>
+          <button
+            onClick={handleDebugCompleteVindicator}
+            style={{
+              padding: '0.5rem',
+              backgroundColor: '#F59E0B', // Amarillo
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              marginTop: '0.5rem',
+              width: '100%'
+            }}
+          >
+            Completar Vindicator
+          </button>
+          <button
+            onClick={handleDebugFinishExpeditions}
+            style={{
+              padding: '0.5rem',
+              backgroundColor: '#10B981', // Verde
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              marginTop: '0.5rem',
+              width: '100%'
+            }}
+          >
+            Finalizar Expediciones
           </button>
           <button 
             onClick={handleResetGame}

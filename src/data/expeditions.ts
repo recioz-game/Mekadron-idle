@@ -11,7 +11,7 @@ export const expeditionsData: Record<ExpeditionId, Expedition> = {
     },
     rewards: {
       scrap: [10000, 15000],
-      fragmentosPlaca: [1, 5], 
+      fragmentosPlaca: [5, 15], 
     },
     risk: {
       chance: 0,
@@ -28,10 +28,9 @@ export const expeditionsData: Record<ExpeditionId, Expedition> = {
       metalRefinado: 50,
     },
     rewards: {
-      metalRefinado: [50, 75],
-      aceroEstructural: [5, 10],
-      fragmentosPlaca: [10, 20],
-      circuitosDañados: [1, 5],
+      fragmentosPlaca: [20, 35],
+      circuitosDañados: [5, 15],
+      metalRefinado: [25, 40],
     },
     risk: {
       chance: 0.25,
@@ -48,9 +47,11 @@ export const expeditionsData: Record<ExpeditionId, Expedition> = {
       aceroEstructural: 25,
     },
     rewards: {
-      aceroEstructural: [20, 30],
-      circuitosDañados: [10, 20],
-      nucleoSingularidad: [1, 1],
+      fragmentosPlaca: [50, 75],
+      circuitosDañados: [25, 40],
+      aceroEstructural: [15, 25],
+      aleacionReforzada: [1, 3],
+      neuroChipCorrupto: [1, 3],
     },
     risk: {
       chance: 0.5,

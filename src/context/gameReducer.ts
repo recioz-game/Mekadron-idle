@@ -1,6 +1,56 @@
-import { GameState, ExpeditionId, initialGameState } from '../types/gameState';
+import { GameState, ExpeditionId, initialGameState, Mission } from '../types/gameState';
 import { ActionType } from '../types/actions';
 import { expeditionsData } from '../data/expeditions';
+import { gameData } from '../data/gameData';
+import { battleDestinations } from '../data/battleData';
+import { allMissions } from '../data/missionsData';
+
+// Interfaz para la configuración de construcción genérica
+interface BuildConfiguration {
+  costs: Partial<Record<keyof GameState['resources'], number>>;
+  buyAmount: number | 'max';
+  queuePath: [keyof GameState, 'queues', string];
+  prerequisites?: (state: GameState) => boolean;
+}
+
+// Función genérica para manejar la construcción y el crafteo
+const handleBuild = (state: GameState, config: BuildConfiguration): GameState => {
+  // 1. Comprobar prerrequisitos
+  if (config.prerequisites && !config.prerequisites(state)) {
+    return state;
+  }
+
+  // 2. Calcular la cantidad máxima que se puede permitir
+  const costEntries = Object.entries(config.costs);
+  if (costEntries.length === 0) return state;
+
+  const maxAffordableAmounts = costEntries.map(([resource, cost]) => {
+    // Asegurarse de que el costo no sea cero para evitar la división por cero
+    if (cost === 0) return Infinity;
+    return Math.floor((state.resources as any)[resource] / cost);
+  });
+  const maxAffordable = Math.min(...maxAffordableAmounts);
+
+  // 3. Determinar la cantidad final a construir
+  const amount = config.buyAmount === 'max' ? maxAffordable : Math.min(config.buyAmount, maxAffordable);
+
+  if (amount <= 0) {
+    return state;
+  }
+
+  // 4. Crear el nuevo estado y restar recursos
+  const newState = JSON.parse(JSON.stringify(state)); // Copia profunda para seguridad
+
+  for (const [resource, cost] of costEntries) {
+    (newState.resources as any)[resource] -= amount * cost;
+  }
+
+    // 5. Añadir a la cola de producción
+  const [category, queuesProp, itemName] = config.queuePath;
+    (newState[category as keyof GameState] as any)[queuesProp][itemName].queue += amount;
+  
+  return newState;
+};
 
 // Interface para los datos de expedición
 interface ExpeditionData {
@@ -13,7 +63,7 @@ interface ExpeditionData {
     metalRefinado?: number;
     aceroEstructural?: number;
   };
-  rewards: {
+    rewards: {
     [key: string]: [number, number];
   };
   risk: {
@@ -44,256 +94,32 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         notificationQueue: state.notificationQueue.slice(1),
       };
 
-    case 'BUILD_BASIC_DRONE': {
-      const cost = 15;
-      const maxAffordable = Math.floor(state.resources.scrap / cost);
-      const amount = state.workshopBuyAmount === 'max' ? maxAffordable : Math.min(state.workshopBuyAmount, maxAffordable);
+    case 'BUILD_BASIC_DRONE':
+      return handleBuild(state, { ...gameData.drones.basic, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'basic'] });
 
-      if (amount > 0) {
-        return {
-          ...state,
-          resources: { ...state.resources, scrap: state.resources.scrap - (amount * cost) },
-          workshop: {
-            ...state.workshop,
-            queues: {
-              ...state.workshop.queues,
-              basic: { ...state.workshop.queues.basic, queue: state.workshop.queues.basic.queue + amount }
-            }
-          }
-        };
-      }
-      return state;
-    }
+    case 'BUILD_MEDIUM_DRONE':
+      return handleBuild(state, { ...gameData.drones.medium, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'medium'] });
 
-    case 'BUILD_MEDIUM_DRONE': {
-      const cost = 250;
-      if (state.drones.basic < 5) return state;
-      const maxAffordable = Math.floor(state.resources.scrap / cost);
-      const amount = state.workshopBuyAmount === 'max' ? maxAffordable : Math.min(state.workshopBuyAmount, maxAffordable);
+    case 'BUILD_ADVANCED_DRONE':
+      return handleBuild(state, { ...gameData.drones.advanced, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'advanced'] });
 
-      if (amount > 0) {
-        return {
-          ...state,
-          resources: { ...state.resources, scrap: state.resources.scrap - (amount * cost) },
-          workshop: {
-            ...state.workshop,
-            queues: {
-              ...state.workshop.queues,
-              medium: { ...state.workshop.queues.medium, queue: state.workshop.queues.medium.queue + amount }
-            }
-          }
-        };
-      }
-      return state;
-    }
+    case 'BUILD_REINFORCED_BASIC':
+      return handleBuild(state, { ...gameData.drones.reinforcedBasic, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'reinforcedBasic'] });
 
-    case 'BUILD_ADVANCED_DRONE': {
-      const cost = 1500;
-      if (state.drones.medium < 3) return state;
-      const maxAffordable = Math.floor(state.resources.scrap / cost);
-      const amount = state.workshopBuyAmount === 'max' ? maxAffordable : Math.min(state.workshopBuyAmount, maxAffordable);
+    case 'BUILD_REINFORCED_MEDIUM':
+      return handleBuild(state, { ...gameData.drones.reinforcedMedium, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'reinforcedMedium'] });
 
-      if (amount > 0) {
-        return {
-          ...state,
-          resources: { ...state.resources, scrap: state.resources.scrap - (amount * cost) },
-          workshop: {
-            ...state.workshop,
-            queues: {
-              ...state.workshop.queues,
-              advanced: { ...state.workshop.queues.advanced, queue: state.workshop.queues.advanced.queue + amount }
-            }
-          }
-        };
-      }
-      return state;
-    }
+    case 'BUILD_REINFORCED_ADVANCED':
+      return handleBuild(state, { ...gameData.drones.reinforcedAdvanced, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'reinforcedAdvanced'] });
 
-    case 'BUILD_REINFORCED_BASIC': {
-        const scrapCost = 600;
-        const metalCost = 5;
-        if (state.techCenter.upgrades.reinforcedBasicDrones === 0) return state;
+    case 'BUILD_GOLEM_DRONE':
+      return handleBuild(state, { ...gameData.drones.golem, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'golem'] });
 
-        const maxAffordableByScrap = Math.floor(state.resources.scrap / scrapCost);
-        const maxAffordableByMetal = Math.floor(state.resources.metalRefinado / metalCost);
-        const maxAffordable = Math.min(maxAffordableByScrap, maxAffordableByMetal);
+    case 'BUILD_EXPEDITION_DRONE':
+      return handleBuild(state, { ...gameData.drones.expeditionDrone, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'expeditionDrone'] });
 
-        const amount = state.workshopBuyAmount === 'max' ? maxAffordable : Math.min(state.workshopBuyAmount, maxAffordable);
-  
-        if (amount > 0) {
-          return {
-            ...state,
-            resources: { 
-              ...state.resources, 
-              scrap: state.resources.scrap - (amount * scrapCost),
-              metalRefinado: state.resources.metalRefinado - (amount * metalCost)
-            },
-            workshop: {
-              ...state.workshop,
-              queues: {
-                ...state.workshop.queues,
-                reinforcedBasic: { ...state.workshop.queues.reinforcedBasic, queue: state.workshop.queues.reinforcedBasic.queue + amount }
-              }
-            }
-          };
-        }
-        return state;
-    }
-
-    case 'BUILD_REINFORCED_MEDIUM': {
-        const scrapCost = 2500;
-        const metalCost = 15;
-        if (state.techCenter.upgrades.reinforcedMediumDrones === 0) return state;
-
-        const maxAffordableByScrap = Math.floor(state.resources.scrap / scrapCost);
-        const maxAffordableByMetal = Math.floor(state.resources.metalRefinado / metalCost);
-        const maxAffordable = Math.min(maxAffordableByScrap, maxAffordableByMetal);
-
-        const amount = state.workshopBuyAmount === 'max' ? maxAffordable : Math.min(state.workshopBuyAmount, maxAffordable);
-  
-        if (amount > 0) {
-          return {
-            ...state,
-            resources: { 
-              ...state.resources, 
-              scrap: state.resources.scrap - (amount * scrapCost),
-              metalRefinado: state.resources.metalRefinado - (amount * metalCost)
-            },
-            workshop: {
-              ...state.workshop,
-              queues: {
-                ...state.workshop.queues,
-                reinforcedMedium: { ...state.workshop.queues.reinforcedMedium, queue: state.workshop.queues.reinforcedMedium.queue + amount }
-              }
-            }
-          };
-        }
-        return state;
-    }
-
-    case 'BUILD_REINFORCED_ADVANCED': {
-        const scrapCost = 7000;
-        const metalCost = 30;
-        if (state.techCenter.upgrades.reinforcedAdvancedDrones === 0) return state;
-
-        const maxAffordableByScrap = Math.floor(state.resources.scrap / scrapCost);
-        const maxAffordableByMetal = Math.floor(state.resources.metalRefinado / metalCost);
-        const maxAffordable = Math.min(maxAffordableByScrap, maxAffordableByMetal);
-
-        const amount = state.workshopBuyAmount === 'max' ? maxAffordable : Math.min(state.workshopBuyAmount, maxAffordable);
-  
-        if (amount > 0) {
-          return {
-            ...state,
-            resources: { 
-              ...state.resources, 
-              scrap: state.resources.scrap - (amount * scrapCost),
-              metalRefinado: state.resources.metalRefinado - (amount * metalCost)
-            },
-            workshop: {
-              ...state.workshop,
-              queues: {
-                ...state.workshop.queues,
-                reinforcedAdvanced: { ...state.workshop.queues.reinforcedAdvanced, queue: state.workshop.queues.reinforcedAdvanced.queue + amount }
-              }
-            }
-          };
-        }
-        return state;
-    }
-
-    case 'BUILD_GOLEM_DRONE': {
-        const scrapCost = 75000;
-        const steelCost = 5;
-        if (state.techCenter.upgrades.golemChassis === 0 || state.drones.reinforcedAdvanced < 5) return state;
-  
-        const maxAffordableByScrap = Math.floor(state.resources.scrap / scrapCost);
-        const maxAffordableBySteel = Math.floor(state.resources.aceroEstructural / steelCost);
-        const maxAffordable = Math.min(maxAffordableByScrap, maxAffordableBySteel);
-        
-        const amount = state.workshopBuyAmount === 'max' ? maxAffordable : Math.min(state.workshopBuyAmount, maxAffordable);
-  
-        if (amount > 0) {
-          return {
-            ...state,
-            resources: { 
-              ...state.resources, 
-              scrap: state.resources.scrap - (amount * scrapCost),
-              aceroEstructural: state.resources.aceroEstructural - (amount * steelCost)
-            },
-            workshop: {
-              ...state.workshop,
-              queues: {
-                ...state.workshop.queues,
-                golem: { ...state.workshop.queues.golem, queue: state.workshop.queues.golem.queue + amount }
-              }
-            }
-          };
-        }
-        return state;
-    }
-
-    case 'BUILD_EXPEDITION_DRONE': {
-        const scrapCost = 3000;
-        const metalCost = 20;
-        if (state.drones.reinforcedMedium < 3) return state;
-  
-        const maxAffordableByScrap = Math.floor(state.resources.scrap / scrapCost);
-        const maxAffordableByMetal = Math.floor(state.resources.metalRefinado / metalCost);
-        const maxAffordable = Math.min(maxAffordableByScrap, maxAffordableByMetal);
-        
-        const amount = state.workshopBuyAmount === 'max' ? maxAffordable : Math.min(state.workshopBuyAmount, maxAffordable);
-  
-        if (amount > 0) {
-          return {
-            ...state,
-            resources: { 
-              ...state.resources, 
-              scrap: state.resources.scrap - (amount * scrapCost),
-              metalRefinado: state.resources.metalRefinado - (amount * metalCost)
-            },
-            workshop: {
-              ...state.workshop,
-              queues: {
-                ...state.workshop.queues,
-                expeditionDrone: { ...state.workshop.queues.expeditionDrone, queue: state.workshop.queues.expeditionDrone.queue + amount }
-              }
-            }
-          };
-        }
-        return state;
-    }
-
-    case 'BUILD_WYRM': {
-        const scrapCost = 250000;
-        const steelCost = 25;
-        if (state.drones.golem < 1) return state;
-  
-        const maxAffordableByScrap = Math.floor(state.resources.scrap / scrapCost);
-        const maxAffordableBySteel = Math.floor(state.resources.aceroEstructural / steelCost);
-        const maxAffordable = Math.min(maxAffordableByScrap, maxAffordableBySteel);
-        
-        const amount = state.workshopBuyAmount === 'max' ? maxAffordable : Math.min(state.workshopBuyAmount, maxAffordable);
-  
-        if (amount > 0) {
-          return {
-            ...state,
-            resources: { 
-              ...state.resources, 
-              scrap: state.resources.scrap - (amount * scrapCost),
-              aceroEstructural: state.resources.aceroEstructural - (amount * steelCost)
-            },
-            workshop: {
-              ...state.workshop,
-              queues: {
-                ...state.workshop.queues,
-                wyrm: { ...state.workshop.queues.wyrm, queue: state.workshop.queues.wyrm.queue + amount }
-              }
-            }
-          };
-        }
-        return state;
-    }
+    case 'BUILD_WYRM':
+      return handleBuild(state, { ...gameData.drones.wyrm, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'wyrm'] });
 
     case 'SET_ENERGY_BUY_AMOUNT':
       return {
@@ -307,262 +133,38 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
           storageBuyAmount: action.payload,
         };
 
-    case 'BUILD_SOLAR_PANEL': {
-      const cost = 50;
-      const maxAffordable = Math.floor(state.resources.scrap / cost);
-      const amount = state.energyBuyAmount === 'max' ? maxAffordable : Math.min(state.energyBuyAmount, maxAffordable);
+    case 'BUILD_SOLAR_PANEL':
+      return handleBuild(state, { ...gameData.energy.solarPanels, buyAmount: state.energyBuyAmount, queuePath: ['energy', 'queues', 'solarPanels'] });
 
-      if (amount > 0) {
-        return {
-          ...state,
-          resources: { ...state.resources, scrap: state.resources.scrap - (amount * cost) },
-          energy: { 
-            ...state.energy,
-            queues: {
-              ...state.energy.queues,
-              solarPanels: { ...state.energy.queues.solarPanels, queue: state.energy.queues.solarPanels.queue + amount }
-            }
-          }
-        };
-      }
-      return state;
-    }
+    case 'BUILD_MEDIUM_SOLAR':
+      return handleBuild(state, { ...gameData.energy.mediumSolarPanels, buyAmount: state.energyBuyAmount, queuePath: ['energy', 'queues', 'mediumSolarPanels'] });
 
-    case 'BUILD_MEDIUM_SOLAR': {
-      const cost = 200;
-      if (state.energy.solarPanels < 5) return state;
-      const maxAffordable = Math.floor(state.resources.scrap / cost);
-      const amount = state.energyBuyAmount === 'max' ? maxAffordable : Math.min(state.energyBuyAmount, maxAffordable);
+    case 'BUILD_ADVANCED_SOLAR':
+      return handleBuild(state, { ...gameData.energy.advancedSolar, buyAmount: state.energyBuyAmount, queuePath: ['energy', 'queues', 'advancedSolar'] });
 
-      if (amount > 0) {
-        return {
-          ...state,
-          resources: { ...state.resources, scrap: state.resources.scrap - (amount * cost) },
-          energy: { 
-            ...state.energy,
-            queues: {
-              ...state.energy.queues,
-              mediumSolarPanels: { ...state.energy.queues.mediumSolarPanels, queue: state.energy.queues.mediumSolarPanels.queue + amount }
-            }
-          }
-        };
-      }
-      return state;
-    }
+    case 'BUILD_ENERGY_CORE':
+      return handleBuild(state, { ...gameData.energy.energyCores, buyAmount: state.energyBuyAmount, queuePath: ['energy', 'queues', 'energyCores'] });
 
-    case 'BUILD_ADVANCED_SOLAR': {
-      const cost = 500;
-      if (state.energy.mediumSolarPanels < 1) return state;
-      const maxAffordable = Math.floor(state.resources.scrap / cost);
-      const amount = state.energyBuyAmount === 'max' ? maxAffordable : Math.min(state.energyBuyAmount, maxAffordable);
+    case 'BUILD_BASIC_STORAGE':
+      return handleBuild(state, { ...gameData.storage.basicStorage, buyAmount: state.storageBuyAmount, queuePath: ['storage', 'queues', 'basicStorage'] });
 
-      if (amount > 0) {
-        return {
-          ...state,
-          resources: { ...state.resources, scrap: state.resources.scrap - (amount * cost) },
-          energy: { 
-            ...state.energy,
-            queues: {
-              ...state.energy.queues,
-              advancedSolar: { ...state.energy.queues.advancedSolar, queue: state.energy.queues.advancedSolar.queue + amount }
-            }
-          }
-        };
-      }
-      return state;
-    }
+    case 'BUILD_MEDIUM_STORAGE':
+      return handleBuild(state, { ...gameData.storage.mediumStorage, buyAmount: state.storageBuyAmount, queuePath: ['storage', 'queues', 'mediumStorage'] });
 
-    case 'BUILD_ENERGY_CORE': {
-      const cost = 2000;
-      if (state.energy.advancedSolar < 3) return state;
-      const maxAffordable = Math.floor(state.resources.scrap / cost);
-      const amount = state.energyBuyAmount === 'max' ? maxAffordable : Math.min(state.energyBuyAmount, maxAffordable);
+    case 'BUILD_ADVANCED_STORAGE':
+      return handleBuild(state, { ...gameData.storage.advancedStorage, buyAmount: state.storageBuyAmount, queuePath: ['storage', 'queues', 'advancedStorage'] });
 
-      if (amount > 0) {
-        return {
-          ...state,
-          resources: { ...state.resources, scrap: state.resources.scrap - (amount * cost) },
-          energy: { 
-            ...state.energy,
-            queues: {
-              ...state.energy.queues,
-              energyCores: { ...state.energy.queues.energyCores, queue: state.energy.queues.energyCores.queue + amount }
-            }
-          }
-        };
-      }
-      return state;
-    }
+    case 'BUILD_QUANTUM_HOARD_UNIT':
+      return handleBuild(state, { ...gameData.storage.quantumHoardUnit, buyAmount: state.storageBuyAmount, queuePath: ['storage', 'queues', 'quantumHoardUnit'] });
 
-    case 'BUILD_BASIC_STORAGE': {
-      const cost = 100;
-      const maxAffordable = Math.floor(state.resources.scrap / cost);
-      const amount = state.storageBuyAmount === 'max' ? maxAffordable : Math.min(state.storageBuyAmount, maxAffordable);
+    case 'BUILD_LITHIUM_ION_BATTERY':
+      return handleBuild(state, { ...gameData.storage.lithiumIonBattery, buyAmount: state.storageBuyAmount, queuePath: ['storage', 'queues', 'lithiumIonBattery'] });
 
-      if (amount > 0) {
-        return {
-          ...state,
-          resources: { ...state.resources, scrap: state.resources.scrap - (amount * cost) },
-          storage: {
-            ...state.storage,
-            queues: {
-              ...state.storage.queues,
-              basicStorage: { ...state.storage.queues.basicStorage, queue: state.storage.queues.basicStorage.queue + amount }
-            }
-          }
-        };
-      }
-      return state;
-    }
+    case 'BUILD_PLASMA_ACCUMULATOR':
+      return handleBuild(state, { ...gameData.storage.plasmaAccumulator, buyAmount: state.storageBuyAmount, queuePath: ['storage', 'queues', 'plasmaAccumulator'] });
 
-    case 'BUILD_MEDIUM_STORAGE': {
-      const cost = 1000;
-      if (state.storage.basicStorage < 3) return state;
-      const maxAffordable = Math.floor(state.resources.scrap / cost);
-      const amount = state.storageBuyAmount === 'max' ? maxAffordable : Math.min(state.storageBuyAmount, maxAffordable);
-
-      if (amount > 0) {
-        return {
-          ...state,
-          resources: { ...state.resources, scrap: state.resources.scrap - (amount * cost) },
-          storage: {
-            ...state.storage,
-            queues: {
-              ...state.storage.queues,
-              mediumStorage: { ...state.storage.queues.mediumStorage, queue: state.storage.queues.mediumStorage.queue + amount }
-            }
-          }
-        };
-      }
-      return state;
-    }
-
-    case 'BUILD_ADVANCED_STORAGE': {
-      const cost = 10000;
-      if (state.storage.mediumStorage < 1) return state;
-      const maxAffordable = Math.floor(state.resources.scrap / cost);
-      const amount = state.storageBuyAmount === 'max' ? maxAffordable : Math.min(state.storageBuyAmount, maxAffordable);
-
-      if (amount > 0) {
-        return {
-          ...state,
-          resources: { ...state.resources, scrap: state.resources.scrap - (amount * cost) },
-          storage: {
-            ...state.storage,
-            queues: {
-              ...state.storage.queues,
-              advancedStorage: { ...state.storage.queues.advancedStorage, queue: state.storage.queues.advancedStorage.queue + amount }
-            }
-          }
-        };
-      }
-      return state;
-    }
-
-    case 'BUILD_QUANTUM_HOARD_UNIT': {
-      const scrapCost = 75000;
-      const metalCost = 50;
-      if (state.storage.advancedStorage < 3) return state;
-
-      const maxAffordableByScrap = Math.floor(state.resources.scrap / scrapCost);
-      const maxAffordableByMetal = Math.floor(state.resources.metalRefinado / metalCost);
-      const maxAffordable = Math.min(maxAffordableByScrap, maxAffordableByMetal);
-
-      const amount = state.storageBuyAmount === 'max' ? maxAffordable : Math.min(state.storageBuyAmount, maxAffordable);
-
-      if (amount > 0) {
-        return {
-          ...state,
-          resources: { 
-            ...state.resources, 
-            scrap: state.resources.scrap - (amount * scrapCost),
-            metalRefinado: state.resources.metalRefinado - (amount * metalCost)
-          },
-          storage: {
-            ...state.storage,
-            queues: {
-              ...state.storage.queues,
-              quantumHoardUnit: { ...state.storage.queues.quantumHoardUnit, queue: state.storage.queues.quantumHoardUnit.queue + amount }
-            }
-          }
-        };
-      }
-      return state;
-    }
-
-    case 'BUILD_LITHIUM_ION_BATTERY': {
-      const cost = 150;
-      const maxAffordable = Math.floor(state.resources.scrap / cost);
-      const amount = state.storageBuyAmount === 'max' ? maxAffordable : Math.min(state.storageBuyAmount, maxAffordable);
-
-      if (amount > 0) {
-        return {
-          ...state,
-          resources: { ...state.resources, scrap: state.resources.scrap - (amount * cost) },
-          storage: {
-            ...state.storage,
-            queues: {
-              ...state.storage.queues,
-              lithiumIonBattery: { ...state.storage.queues.lithiumIonBattery, queue: state.storage.queues.lithiumIonBattery.queue + amount }
-            }
-          }
-        };
-      }
-      return state;
-    }
-
-    case 'BUILD_PLASMA_ACCUMULATOR': {
-      const cost = 750;
-      if (state.storage.lithiumIonBattery < 5) return state;
-      const maxAffordable = Math.floor(state.resources.scrap / cost);
-      const amount = state.storageBuyAmount === 'max' ? maxAffordable : Math.min(state.storageBuyAmount, maxAffordable);
-
-      if (amount > 0) {
-        return {
-          ...state,
-          resources: { ...state.resources, scrap: state.resources.scrap - (amount * cost) },
-          storage: {
-            ...state.storage,
-            queues: {
-              ...state.storage.queues,
-              plasmaAccumulator: { ...state.storage.queues.plasmaAccumulator, queue: state.storage.queues.plasmaAccumulator.queue + amount }
-            }
-          }
-        };
-      }
-      return state;
-    }
-
-    case 'BUILD_HARMONIC_CONTAINMENT_FIELD': {
-      const scrapCost = 3000;
-      const metalCost = 10;
-      if (state.storage.plasmaAccumulator < 3) return state;
-
-      const maxAffordableByScrap = Math.floor(state.resources.scrap / scrapCost);
-      const maxAffordableByMetal = Math.floor(state.resources.metalRefinado / metalCost);
-      const maxAffordable = Math.min(maxAffordableByScrap, maxAffordableByMetal);
-
-      const amount = state.storageBuyAmount === 'max' ? maxAffordable : Math.min(state.storageBuyAmount, maxAffordable);
-
-      if (amount > 0) {
-        return {
-          ...state,
-          resources: { 
-            ...state.resources, 
-            scrap: state.resources.scrap - (amount * scrapCost),
-            metalRefinado: state.resources.metalRefinado - (amount * metalCost)
-          },
-          storage: {
-            ...state.storage,
-            queues: {
-              ...state.storage.queues,
-              harmonicContainmentField: { ...state.storage.queues.harmonicContainmentField, queue: state.storage.queues.harmonicContainmentField.queue + amount }
-            }
-          }
-        };
-      }
-      return state;
-    }
+    case 'BUILD_HARMONIC_CONTAINMENT_FIELD':
+      return handleBuild(state, { ...gameData.storage.harmonicContainmentField, buyAmount: state.storageBuyAmount, queuePath: ['storage', 'queues', 'harmonicContainmentField'] });
 
     case 'SET_FOUNDRY_BUY_AMOUNT':
         return {
@@ -582,227 +184,17 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         return state;
     }
 
-    case 'CRAFT_REFINED_METAL': {
-        const scrapCost = 1000;
-        const energyCost = 100;
-        const maxAffordableByScrap = Math.floor(state.resources.scrap / scrapCost);
-        const maxAffordableByEnergy = Math.floor(state.resources.energy / energyCost);
-        const maxAffordable = Math.min(maxAffordableByScrap, maxAffordableByEnergy);
-        
-        const amount = state.foundryBuyAmount === 'max' ? maxAffordable : Math.min(state.foundryBuyAmount, maxAffordable);
+    case 'CRAFT_REFINED_METAL':
+      return handleBuild(state, { ...gameData.foundry.metalRefinado, buyAmount: state.foundryBuyAmount, queuePath: ['foundry', 'queues', 'metalRefinado'] });
 
-        if (amount > 0) {
-            return {
-                ...state,
-                resources: { 
-                    ...state.resources, 
-                    scrap: state.resources.scrap - (amount * scrapCost),
-                    energy: state.resources.energy - (amount * energyCost),
-                },
-                foundry: {
-                    ...state.foundry,
-                    queues: {
-                        ...state.foundry.queues,
-                        metalRefinado: { ...state.foundry.queues.metalRefinado, queue: state.foundry.queues.metalRefinado.queue + amount }
-                    }
-                }
-            };
-        }
-        return state;
-    }
+    case 'CRAFT_STRUCTURAL_STEEL':
+      return handleBuild(state, { ...gameData.foundry.aceroEstructural, buyAmount: state.foundryBuyAmount, queuePath: ['foundry', 'queues', 'aceroEstructural'] });
 
-    case 'CLAIM_EXPEDITION_REWARDS': {
-      const expeditionId = action.payload;
-      const activeExpedition = state.activeExpeditions.find(e => e.id === expeditionId);
-      
-      if (!activeExpedition || activeExpedition.completionTimestamp > Date.now()) {
-        return state;
-      }
+    case 'CRAFT_HULL_PLATE':
+      return handleBuild(state, { ...gameData.foundry.placasCasco, buyAmount: state.foundryBuyAmount, queuePath: ['foundry', 'queues', 'placasCasco'] });
 
-      const expeditionData = Object.values(expeditionsData).find(exp => exp.id === expeditionId);
-      if (!expeditionData) return state;
-
-      const newResources = { ...state.resources };
-      let newDrones = { ...state.drones };
-
-      // Calcular el multiplicador de recompensa basado en los drones enviados
-      const rewardMultiplier = activeExpedition.dronesSent / expeditionData.costs.drones;
-
-      // Calcular recompensas aleatorias escaladas
-      for (const key in expeditionData.rewards) {
-        const resource = key as keyof typeof expeditionData.rewards;
-        const rewardRange = expeditionData.rewards[resource];
-        if (rewardRange) {
-          const [min, max] = rewardRange;
-          // Aplicar multiplicador a la recompensa base
-          const scaledMin = Math.floor(min * rewardMultiplier);
-          const scaledMax = Math.floor(max * rewardMultiplier);
-          const amount = Math.floor(Math.random() * (scaledMax - scaledMin + 1)) + scaledMin;
-          (newResources as any)[resource] += amount;
-        }
-      }
-      
-      // Calcular riesgo y pérdida de drones
-      let dronesLost = 0;
-      if (Math.random() < expeditionData.risk.chance) {
-        dronesLost = Math.floor(activeExpedition.dronesSent * expeditionData.risk.droneLossPercentage);
-        newDrones.expeditionDrone = Math.max(0, newDrones.expeditionDrone - dronesLost);
-      }
-
-      // Actualizar misión de expedición si existe
-      const newMissions = { ...state.missions };
-      const expeditionMission = newMissions.activeMissions.find(m => m.id === 'main_3_expeditions');
-      if (expeditionMission) {
-        expeditionMission.current = 1;
-      }
-
-      return {
-        ...state,
-        resources: newResources,
-        drones: newDrones,
-        activeExpeditions: state.activeExpeditions.filter(e => e.id !== expeditionId),
-        missions: newMissions,
-      };
-    }
-
-    case 'START_EXPEDITION': {
-      const { expeditionId, droneCount } = action.payload;
-      
-      const expeditionData = Object.values(expeditionsData).find(exp => exp.id === expeditionId);
-      if (!expeditionData) return state;
-      
-      const totalExpeditionDronesInUse = state.activeExpeditions.reduce((sum, exp) => sum + exp.dronesSent, 0);
-      const availableDrones = state.drones.expeditionDrone - totalExpeditionDronesInUse;
-
-      // Verificar costes y requisitos de drones
-      const minDronesRequired = expeditionData.costs.drones;
-      const costMetal = expeditionData.costs.metalRefinado ?? 0;
-      const costAcero = expeditionData.costs.aceroEstructural ?? 0;
-
-      if (
-        droneCount < minDronesRequired || // No se envían los drones mínimos
-        availableDrones < droneCount || // No se tienen suficientes drones disponibles
-        state.resources.metalRefinado < costMetal ||
-        state.resources.aceroEstructural < costAcero
-      ) {
-        return state;
-      }
-
-      const newActiveExpedition = {
-        id: expeditionId,
-        completionTimestamp: Date.now() + expeditionData.duration * 1000,
-        dronesSent: droneCount,
-      };
-
-      return {
-        ...state,
-        resources: {
-          ...state.resources,
-          metalRefinado: state.resources.metalRefinado - costMetal,
-          aceroEstructural: state.resources.aceroEstructural - costAcero,
-        },
-        activeExpeditions: [...state.activeExpeditions, newActiveExpedition],
-      };
-    }
-
-    case 'CRAFT_STRUCTURAL_STEEL': {
-        const scrapCost = 1000;
-        const metalCost = 10;
-        const energyCost = 250;
-        
-        const maxAffordableByScrap = Math.floor(state.resources.scrap / scrapCost);
-        const maxAffordableByMetal = Math.floor(state.resources.metalRefinado / metalCost);
-        const maxAffordableByEnergy = Math.floor(state.resources.energy / energyCost);
-        const maxAffordable = Math.min(maxAffordableByScrap, maxAffordableByMetal, maxAffordableByEnergy);
-        
-        const amount = state.foundryBuyAmount === 'max' ? maxAffordable : Math.min(state.foundryBuyAmount, maxAffordable);
-
-        if (amount > 0) {
-            return {
-                ...state,
-                resources: { 
-                    ...state.resources, 
-                    scrap: state.resources.scrap - (amount * scrapCost),
-                    metalRefinado: state.resources.metalRefinado - (amount * metalCost),
-                    energy: state.resources.energy - (amount * energyCost),
-                },
-                foundry: {
-                    ...state.foundry,
-                    queues: {
-                        ...state.foundry.queues,
-                        aceroEstructural: { ...state.foundry.queues.aceroEstructural, queue: state.foundry.queues.aceroEstructural.queue + amount }
-                    }
-                }
-            };
-        }
-        return state;
-    }
-
-    case 'CRAFT_HULL_PLATE': {
-      const fragmentosCost = 10;
-      const aceroCost = 5;
-      const energyCost = 500;
-
-      const maxAffordableByFragmentos = Math.floor(state.resources.fragmentosPlaca / fragmentosCost);
-      const maxAffordableByAcero = Math.floor(state.resources.aceroEstructural / aceroCost);
-      const maxAffordableByEnergy = Math.floor(state.resources.energy / energyCost);
-      const maxAffordable = Math.min(maxAffordableByFragmentos, maxAffordableByAcero, maxAffordableByEnergy);
-      
-      const amount = state.foundryBuyAmount === 'max' ? maxAffordable : Math.min(state.foundryBuyAmount, maxAffordable);
-
-      if (amount > 0) {
-        return {
-          ...state,
-          resources: { 
-            ...state.resources, 
-            fragmentosPlaca: state.resources.fragmentosPlaca - (amount * fragmentosCost),
-            aceroEstructural: state.resources.aceroEstructural - (amount * aceroCost),
-            energy: state.resources.energy - (amount * energyCost),
-          },
-          foundry: {
-            ...state.foundry,
-            queues: {
-              ...state.foundry.queues,
-              placasCasco: { ...state.foundry.queues.placasCasco, queue: state.foundry.queues.placasCasco.queue + amount }
-            }
-          }
-        };
-      }
-      return state;
-    }
-
-    case 'CRAFT_SUPERCONDUCTOR_WIRING': {
-      const circuitosCost = 10;
-      const metalCost = 25;
-      const energyCost = 1000;
-      
-      const maxAffordableByCircuitos = Math.floor(state.resources.circuitosDañados / circuitosCost);
-      const maxAffordableByMetal = Math.floor(state.resources.metalRefinado / metalCost);
-      const maxAffordableByEnergy = Math.floor(state.resources.energy / energyCost);
-      const maxAffordable = Math.min(maxAffordableByCircuitos, maxAffordableByMetal, maxAffordableByEnergy);
-      
-      const amount = state.foundryBuyAmount === 'max' ? maxAffordable : Math.min(state.foundryBuyAmount, maxAffordable);
-
-      if (amount > 0) {
-        return {
-          ...state,
-          resources: { 
-            ...state.resources, 
-            circuitosDañados: state.resources.circuitosDañados - (amount * circuitosCost),
-            metalRefinado: state.resources.metalRefinado - (amount * metalCost),
-            energy: state.resources.energy - (amount * energyCost),
-          },
-          foundry: {
-            ...state.foundry,
-            queues: {
-              ...state.foundry.queues,
-              cableadoSuperconductor: { ...state.foundry.queues.cableadoSuperconductor, queue: state.foundry.queues.cableadoSuperconductor.queue + amount }
-            }
-          }
-        };
-      }
-      return state;
-    }
+    case 'CRAFT_SUPERCONDUCTOR_WIRING':
+      return handleBuild(state, { ...gameData.foundry.cableadoSuperconductor, buyAmount: state.foundryBuyAmount, queuePath: ['foundry', 'queues', 'cableadoSuperconductor'] });
 
     case 'START_GAME':
         return {
@@ -813,8 +205,26 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
     case 'SHOW_MAIN_SCENE':
         return {
             ...state,
-            currentScene: 'main'
+                        currentScene: 'main'
         };
+
+    case 'START_PHASE_2':
+      return {
+        ...state,
+        currentScene: 'phase2Main'
+      };
+
+    case 'RETURN_TO_PHASE_1':
+      return {
+        ...state,
+                currentScene: 'main'
+      };
+
+    case 'GO_TO_PHASE_2':
+      return {
+        ...state,
+        currentScene: 'phase2Main'
+      };
 
     case 'COLLECT_SCRAP': {
         const newScrap = state.resources.scrap + state.rates.scrapPerClick;
@@ -875,102 +285,187 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
             currentView: ''
         };
 
-    case 'UPDATE_MISSION_PROGRESS': {
-      const { resources, drones, energy, storage, techCenter, modules, shipyard } = state;
-      const totalReinforcedDrones = drones.reinforcedBasic + drones.reinforcedMedium + drones.reinforcedAdvanced;
+    // LÓGICA DE MISIONES NUEVA Y CORREGIDA
+        case 'UPDATE_MISSION_PROGRESS': {
+      const { resources, drones, energy, storage, techCenter, modules, shipyard, missions, rates } = state;
+      let vindicatorCompletedThisTick = false;
 
-      const shipyardProgress = (Object.keys(state.shipyard.progress) as Array<keyof GameState['shipyard']['progress']>).every(componentKey => {
-        const progress = state.shipyard.progress[componentKey];
-        const costs = state.shipyard.costs[componentKey];
-        return (Object.keys(costs) as Array<keyof typeof costs>).every(
-            resourceKey => (progress as any)[resourceKey] >= (costs as any)[resourceKey]
-        );
-      }) ? 1 : 0;
-
-      const updatedMissions = state.missions.activeMissions.map(mission => {
+      const missionsWithUpdatedProgress = missions.activeMissions.map(mission => {
         if (mission.completed) return mission;
 
-        let current = mission.current;
+        let currentProgress = mission.current;
         
         switch (mission.id) {
-          // Misiones Principales
           case 'main_1_unlock_tech':
-            current = (techCenter.unlocked ? 1 : 0) + (modules.foundry ? 1 : 0);
+            currentProgress = (techCenter.unlocked ? 1 : 0) + (modules.foundry ? 1 : 0);
             break;
           case 'main_2_produce_alloys':
-            current = resources.metalRefinado + resources.aceroEstructural;
+            currentProgress = resources.metalRefinado + resources.aceroEstructural;
             break;
           case 'main_3_expeditions':
-            // Este se completará cuando se reclame la recompensa de una expedición.
-            // Necesitaremos añadir una lógica en 'CLAIM_EXPEDITION_REWARDS'
+            currentProgress = state.activeExpeditions.filter(exp => exp.completionTimestamp > 0).length;
             break;
           case 'main_4_fabricate_components':
-            current = resources.placasCasco + resources.cableadoSuperconductor;
+            currentProgress = resources.placasCasco + resources.cableadoSuperconductor;
+            break;
+          case 'main_5_final_assembly': {
+            const componentKeys = Object.keys(shipyard.costs) as Array<keyof typeof shipyard.costs>;
+            const isComplete = componentKeys.every(key => {
+              const costSpec = shipyard.costs[key];
+              const progressSpec = shipyard.progress[key];
+              const resourceKeys = Object.keys(costSpec) as Array<keyof typeof costSpec>;
+              return resourceKeys.every(resourceKey => (progressSpec as Record<string, number>)[resourceKey] >= (costSpec as Record<string, number>)[resourceKey]);
+            });
+            currentProgress = isComplete ? 1 : 0;
+
+                        // Transición automática a Fase 2
+            if (isComplete && !mission.completed) {
+              vindicatorCompletedThisTick = true;
+              return { ...mission, current: 1, completed: true }; 
+            }
+            break;
+          }
+          
+                    // --- MISIONES SECUNDARIAS ---
+          
+          // Cat 1: Crecimiento y Estabilidad
+          case 'sec_1_1_basic_fleet':
+            currentProgress = drones.basic;
+            break;
+          case 'sec_1_2_scrap_engine_i':
+            currentProgress = rates.scrapPerSecond;
+            break;
+          case 'sec_1_3_power_surplus_i':
+            if (resources.energyProduction - resources.energyConsumption >= 20) {
+              currentProgress = (mission.current || 0) + 1;
+            } else {
+              currentProgress = 0; // Se resetea si no se cumple la condición
+            }
+            break;
+          case 'sec_1_4_scrap_reserves':
+            currentProgress = resources.maxScrap;
+            break;
+          case 'sec_1_5_charged_batteries':
+            currentProgress = resources.maxEnergy;
+            break;
+          case 'sec_1_6_expanding_force':
+            currentProgress = drones.medium > 0 ? 1 : 0;
+            break;
+          case 'sec_1_7_continuous_operation':
+            if (resources.energy > 0) {
+              currentProgress = (mission.current || 0) + 1;
+            } else {
+              currentProgress = 0; // Se resetea si la energía llega a 0
+            }
+            break;
+          case 'sec_1_8_scrap_engine_ii':
+            currentProgress = rates.scrapPerSecond;
+            break;
+          case 'sec_1_9_first_gigawatt':
+            currentProgress = energy.solarPanels + energy.mediumSolarPanels + energy.advancedSolar;
+            break;
+          case 'sec_1_10_self_sufficiency':
+            currentProgress = (drones.basic > 0 ? 1 : 0) + (drones.medium > 0 ? 1 : 0) + (energy.solarPanels > 0 ? 1 : 0) + (storage.basicStorage > 0 ? 1 : 0);
             break;
 
-          case 'main_5_final_assembly':
-              current = shipyardProgress;
-              break;
-
-          // Drones
-          case 'build_basic_drones_1':
-            current = drones.basic;
+          // Cat 2: Especialización y Tecnología
+          case 'sec_2_1_collective_mind_i':
+            currentProgress = techCenter.researchPoints;
             break;
-          case 'build_medium_drones_1':
-            current = drones.medium;
+          case 'sec_2_2_first_alloy':
+            currentProgress = resources.metalRefinado > 0 ? 1 : 0;
             break;
-          case 'build_advanced_drones_1':
-            current = drones.advanced;
+          case 'sec_2_3_always_optimizing':
+            currentProgress = Object.values(techCenter.upgrades).filter(level => level > 0).length;
             break;
-          case 'build_reinforced_drones_1':
-            current = totalReinforcedDrones;
+          case 'sec_2_4_balanced_fleet':
+            if (drones.basic >= 20 && drones.medium >= 10 && drones.advanced >= 5) {
+              currentProgress = 35;
+            } else {
+              currentProgress = 0;
+            }
             break;
-          case 'build_golem_1':
-            current = drones.golem;
+          case 'sec_2_5_basic_metallurgy':
+            currentProgress = resources.metalRefinado;
             break;
-
-          // Energía
-          case 'build_solar_panels_1':
-            current = energy.solarPanels;
+          case 'sec_2_6_one_step_ahead':
+            currentProgress = drones.advanced > 0 ? 1 : 0;
             break;
-          case 'build_medium_solar_panels_1':
-            current = energy.mediumSolarPanels;
+          case 'sec_2_7_efficiency_master':
+            currentProgress = Math.max(0, ...Object.values(techCenter.upgrades));
             break;
-          case 'build_energy_cores_1':
-            current = energy.energyCores;
+          case 'sec_2_8_front_line':
+            currentProgress = drones.reinforcedBasic + drones.reinforcedMedium + drones.reinforcedAdvanced;
             break;
-
-          // Almacenamiento
-          case 'build_basic_storage_1':
-            current = storage.basicStorage;
+          case 'sec_2_9_advanced_siderurgy':
+            currentProgress = resources.aceroEstructural;
             break;
-          case 'build_lithium_batteries_1':
-            current = storage.lithiumIonBattery;
+          case 'sec_2_10_collective_mind_ii':
+            currentProgress = techCenter.researchPoints;
             break;
 
-          // Producción
-          case 'prod_scrap_1':
-            current = state.rates.scrapPerSecond;
+          // Cat 3: Dominio y Expedición
+          case 'sec_3_1_rookie_explorer':
+            // Se maneja externamente o con un contador de estadísticas
             break;
-          case 'prod_energy_1':
-            current = resources.energyProduction - resources.energyConsumption;
+          case 'sec_3_2_a_titan_is_born':
+            currentProgress = drones.golem > 0 ? 1 : 0;
             break;
-
-          default:
+          case 'sec_3_3_seasoned_adventurer':
+            // Se maneja externamente o con un contador de estadísticas
+            break;
+          case 'sec_3_4_dragons_hoard':
+            currentProgress = resources.scrap;
+            break;
+          case 'sec_3_5_final_preparations':
+            if(resources.metalRefinado >= 500 && resources.aceroEstructural >= 100){
+              currentProgress = 600;
+            } else {
+              currentProgress = 0;
+            }
+            break;
+          case 'sec_3_6_steel_army':
+            currentProgress = Object.values(drones).reduce((a, b) => a + b, 0);
+            break;
+          case 'sec_3_7_the_great_wyrm':
+            currentProgress = drones.wyrm > 0 ? 1 : 0;
+            break;
+          case 'sec_3_8_legendary_treasure_hunter':
+            // Se maneja externamente o con un contador de estadísticas
+            break;
+          case 'sec_3_9_mass_production':
+            currentProgress = resources.metalRefinado + resources.aceroEstructural;
+            break;
+          case 'sec_3_10_industrial_empire':
+            currentProgress = rates.scrapPerSecond;
             break;
         }
-
-        return {
-          ...mission,
-          current: Math.min(current, mission.target),
-        };
+        
+        const newCurrent = Math.min(currentProgress, mission.target);
+        if (newCurrent !== mission.current) {
+            return { ...mission, current: newCurrent };
+        }
+        return mission;
       });
 
+      if (vindicatorCompletedThisTick) {
+        return {
+          ...state,
+          currentScene: 'phase2Intro',
+          phase2Unlocked: true,
+          missions: {
+            ...state.missions,
+            activeMissions: missionsWithUpdatedProgress.filter(m => m.id !== 'main_5_final_assembly'),
+            completedMissions: [...state.missions.completedMissions, 'main_5_final_assembly'],
+          }
+        };
+      }
+      
       return {
         ...state,
         missions: {
           ...state.missions,
-          activeMissions: updatedMissions
+          activeMissions: missionsWithUpdatedProgress,
         }
       };
     }
@@ -978,7 +473,10 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
     case 'CLAIM_REWARD': {
       const missionId = action.payload;
       const mission = state.missions.activeMissions.find(m => m.id === missionId);
-      if (!mission || mission.completed || mission.current < mission.target) return state;
+      
+      if (!mission || mission.current < mission.target) {
+        return state;
+      }
 
       let canClaim = true;
       switch (mission.reward.type) {
@@ -997,26 +495,41 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       }
 
       const newResources = { ...state.resources };
-      switch (mission.reward.type) {
+            switch (mission.reward.type) {
         case 'scrap':
           newResources.scrap += mission.reward.value;
           break;
         case 'energy':
           newResources.energy += mission.reward.value;
           break;
+        case 'nucleoSingularidad':
+          newResources.nucleoSingularidad += mission.reward.value;
+          break;
       }
+      
+      const updatedActiveMissions = state.missions.activeMissions.filter(m => m.id !== missionId);
+      const newCompletedMissions = [...state.missions.completedMissions, missionId];
+      const missionsToAdd: Mission[] = [];
 
-      const updatedMissions = state.missions.activeMissions.map(m => 
-        m.id === missionId ? { ...m, completed: true } : m
-      );
+      if (mission.isMain) {
+        const missionIndex = allMissions.findIndex(m => m.id === missionId);
+        if (missionIndex !== -1 && missionIndex + 1 < allMissions.length) {
+          const nextMission = allMissions[missionIndex + 1];
+          if (!state.missions.activeMissions.some(m => m.id === nextMission.id) && !state.missions.completedMissions.includes(nextMission.id)) {
+            missionsToAdd.push({ ...nextMission, current: 0, completed: false });
+          }
+        }
+      }
+      
+      const finalActiveMissions = [...updatedActiveMissions, ...missionsToAdd];
 
       return {
         ...state,
         resources: newResources,
         missions: {
           ...state.missions,
-          activeMissions: updatedMissions.filter(m => !m.completed),
-          completedMissions: [...state.missions.completedMissions, missionId]
+          activeMissions: finalActiveMissions,
+          completedMissions: newCompletedMissions,
         }
       };
     }
@@ -1027,8 +540,8 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         const newUpgrades = { ...state.techCenter.upgrades };
         let newModules = { ...state.modules };
         
-        if (upgradeName in newUpgrades && typeof newUpgrades[upgradeName as keyof typeof newUpgrades] === 'number') {
-          (newUpgrades[upgradeName as keyof typeof newUpgrades] as number) += 1;
+                if (upgradeName in newUpgrades && typeof (newUpgrades as any)[upgradeName] === 'number') {
+          ((newUpgrades as any)[upgradeName] as number) += 1;
         }
 
         if (upgradeName === 'foundryProtocols') {
@@ -1100,7 +613,7 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       }, upgrades.energyCalibration * 0.05);
       
       const storageInventory = Object.keys(newState.storage.queues).reduce((acc, key) => {
-        acc[key as keyof typeof newState.storage.queues] = newState.storage[key as keyof typeof newState.storage] as number;
+        (acc as any)[key] = (newState.storage as any)[key];
         return acc;
       }, {} as Record<keyof typeof newState.storage.queues, number>);
       const storageResult = processQueue(newState.storage.queues, storageInventory, upgrades.storageConstruction * 0.05);
@@ -1330,11 +843,33 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
             resources: { 
               ...state.resources, 
               scrap: Math.max(state.resources.scrap, 150000),
-              metalRefinado: Math.max(state.resources.metalRefinado, 5000)
+                            metalRefinado: Math.max(state.resources.metalRefinado, 5000),
             }
         };
 
-    case 'DONATE_TO_SHIPYARD': {
+        case 'DEBUG_COMPLETE_VINDICATOR': {
+      const newProgress = JSON.parse(JSON.stringify(state.shipyard.costs));
+      return {
+        ...state,
+        shipyard: {
+          ...state.shipyard,
+          progress: newProgress
+        }
+      };
+    }
+
+    case 'DEBUG_FINISH_EXPEDITIONS': {
+      const finishedExpeditions = state.activeExpeditions.map(exp => ({
+        ...exp,
+        completionTimestamp: Date.now()
+      }));
+      return {
+        ...state,
+        activeExpeditions: finishedExpeditions
+      };
+    }
+
+        case 'DONATE_TO_SHIPYARD': {
       const { component, resource, amount } = action.payload as { 
         component: keyof GameState['shipyard']['costs'], 
         resource: string, 
@@ -1345,8 +880,8 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         return state;
       }
       
-      const cost = (state.shipyard.costs[component] as any)[resource];
-      const progress = (state.shipyard.progress[component] as any)[resource];
+            const cost = (state.shipyard.costs[component] as Record<string, number>)[resource];
+      const progress = (state.shipyard.progress[component] as Record<string, number>)[resource];
 
       if (cost === undefined || progress === undefined) {
         return state;
@@ -1354,15 +889,15 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       
       let amountToDonate: number;
       let newResources = { ...state.resources };
-      let newTechCenter = { ...state.techCenter };
+            let newTechCenter = { ...state.techCenter };
 
       if (resource === 'researchPoints') {
         amountToDonate = Math.min(amount, state.techCenter.researchPoints, cost - progress);
         if (amountToDonate > 0) {
           newTechCenter.researchPoints -= amountToDonate;
         }
-      } else if (resource in state.resources) {
-        amountToDonate = Math.min(amount, (state.resources as any)[resource], cost - progress);
+      } else if (Object.keys(state.resources).includes(resource)) {
+                amountToDonate = Math.min(amount, (state.resources as any)[resource], cost - progress);
         if (amountToDonate > 0) {
           (newResources as any)[resource] -= amountToDonate;
         }
@@ -1386,7 +921,214 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       };
     }
 
-    default:
+    case 'SELECT_BATTLE_DESTINATION':
+      return {
+        ...state,
+        battleRoom: {
+          ...state.battleRoom,
+          selectedDestination: action.payload,
+        },
+      };
+
+        case 'START_BATTLE': {
+      if (state.battleRoom.selectedDestination === null) {
+        return state;
+      }
+
+      const destinationIndex = state.battleRoom.selectedDestination;
+      const destination = battleDestinations[destinationIndex];
+      const battleIndex = state.battleRoom.battlesCompleted[destinationIndex] || 0;
+
+      if (battleIndex >= destination.battles.length) {
+        return state; // Todas las batallas en este destino ya están completadas
+      }
+
+      const enemy = destination.battles[battleIndex];
+
+      return {
+        ...state,
+        currentScene: 'combatScene', // ¡Cambiamos a la nueva escena de combate!
+        activeBattle: {
+          destinationIndex,
+          battleIndex,
+          enemyName: enemy.enemyName,
+          enemyMaxHealth: enemy.health,
+          enemyCurrentHealth: enemy.health,
+          enemyMaxShield: enemy.shield,
+          enemyCurrentShield: enemy.shield,
+        },
+        // Opcional: Regenerar completamente el escudo del Vindicator al empezar una batalla
+        vindicator: {
+          ...state.vindicator,
+          currentShield: state.vindicator.maxShield,
+                },
+      };
+    }
+
+    case 'PLAYER_ATTACK': {
+      if (!state.activeBattle) {
+        return state; // No se puede atacar si no hay batalla
+      }
+      
+      const { activeBattle, vindicator } = state;
+      const enemy = battleDestinations[activeBattle.destinationIndex].battles[activeBattle.battleIndex];
+
+      const applyDamage = (
+        damage: number,
+        targetShield: number,
+        targetHealth: number
+      ): { newShield: number; newHealth: number } => {
+        let remainingDamage = damage;
+        let newShield = targetShield;
+        let newHealth = targetHealth;
+
+        const shieldDamage = Math.min(newShield, remainingDamage);
+        newShield -= shieldDamage;
+        remainingDamage -= shieldDamage;
+
+        if (remainingDamage > 0) {
+          newHealth = Math.max(0, newHealth - remainingDamage);
+        }
+        return { newShield, newHealth };
+      };
+
+      // Vindicator ataca al enemigo
+      const enemyDamageResult = applyDamage(
+        vindicator.damage,
+        activeBattle.enemyCurrentShield,
+        activeBattle.enemyCurrentHealth
+      );
+
+      // Si el enemigo sobrevive al ataque, contraataca
+      let vindicatorDamageResult = { newShield: vindicator.currentShield, newHealth: vindicator.currentHealth };
+      if (enemyDamageResult.newHealth > 0) {
+        vindicatorDamageResult = applyDamage(
+          enemy.damage,
+          vindicator.currentShield,
+          vindicator.currentHealth
+        );
+      }
+      
+      const updatedVindicator = {
+        ...vindicator,
+        currentShield: vindicatorDamageResult.newShield,
+        currentHealth: vindicatorDamageResult.newHealth,
+      };
+
+      const updatedActiveBattle = {
+        ...activeBattle,
+        enemyCurrentShield: enemyDamageResult.newShield,
+        enemyCurrentHealth: enemyDamageResult.newHealth,
+      };
+
+      // Comprobar fin de la batalla
+      if (updatedVindicator.currentHealth <= 0) {
+        // --- DERROTA ---
+        return {
+          ...state,
+          currentScene: 'phase2Main',
+          activeBattle: null,
+          vindicator: {
+            ...vindicator,
+            currentHealth: vindicator.maxHealth,
+            currentShield: 0,
+          }
+        };
+      } else if (updatedActiveBattle.enemyCurrentHealth <= 0) {
+        // --- VICTORIA ---
+        const newBattlesCompleted = [...state.battleRoom.battlesCompleted];
+        newBattlesCompleted[activeBattle.destinationIndex]++;
+        
+                return {
+          ...state,
+          currentScene: 'phase2Main',
+          activeBattle: null,
+                    resources: {
+            ...state.resources,
+            scrap: state.resources.scrap + (enemy.reward.scrap || 0),
+            aleacionReforzada: state.resources.aleacionReforzada + (enemy.reward.aleacionReforzada || 0),
+            neuroChipCorrupto: state.resources.neuroChipCorrupto + (enemy.reward.neuroChipCorrupto || 0),
+          },
+          battleRoom: {
+            ...state.battleRoom,
+            battlesCompleted: newBattlesCompleted,
+          },
+          vindicator: updatedVindicator,
+        };
+      } else {
+        // --- LA BATALLA CONTINÚA ---
+        return {
+          ...state,
+          vindicator: updatedVindicator,
+          activeBattle: updatedActiveBattle,
+        };
+      }
+    }
+
+    case 'CANCEL_QUEUE_ITEM': {
+      const { category, itemName, amount } = action.payload;
+
+      // Crear una copia profunda del estado para evitar mutaciones inesperadas
+      const newState = JSON.parse(JSON.stringify(state));
+
+      // Obtener la cola específica
+      const queue = (newState[category as keyof GameState] as any)?.queues?.[itemName];
+
+      if (!queue) {
       return state;
   }
-};
+
+      // Calcular la cantidad a cancelar
+      const amountToCancel = amount === 'all' ? queue.queue : Math.min(amount, queue.queue);
+
+      if (amountToCancel <= 0) {
+        return state;
+} 
+
+      // Obtener los costos del item para devolver los recursos
+      // Usamos gameData para una fuente única de verdad
+                        const getItemCosts = (cat: string, item: string): Record<string, number> => {
+        const categoryData = (gameData as any)[cat];
+        if (categoryData && categoryData[item] && categoryData[item].costs) {
+          return categoryData[item].costs;
+        }
+        // Casos especiales
+        if (cat === 'workshop' && gameData.drones[item as keyof typeof gameData.drones]) {
+            return gameData.drones[item as keyof typeof gameData.drones].costs;
+        }
+        if (cat === 'foundry') {
+            const foundryItem = Object.values(gameData.foundry).find(
+                (foundryItem) => (foundryItem as any).id.toLowerCase() === item.toLowerCase()
+            );
+            if (foundryItem) {
+                return foundryItem.costs;
+            }
+        }
+        return {};
+    };
+
+      const costs = getItemCosts(category, itemName);
+
+      // Devolver los recursos
+      Object.entries(costs).forEach(([resource, cost]) => {
+        if (resource in newState.resources) {
+          (newState.resources as any)[resource] += (cost as number) * amountToCancel;
+        }
+      });
+
+      // Reducir la cola
+      queue.queue -= amountToCancel;
+
+      // Si la cola queda vacía, reiniciar el progreso
+      if (queue.queue === 0) {
+        queue.progress = 0;
+      }
+
+      return newState;
+    }
+
+        default:
+      return state;
+  }
+}
+

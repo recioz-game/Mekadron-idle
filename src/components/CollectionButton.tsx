@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface CollectionButtonProps {
-  onCollectScrap: () => void;
+  onCollectScrap: (event: React.MouseEvent<HTMLButtonElement>) => void;
   scrapPerClick: number;
 }
 
@@ -9,29 +9,53 @@ const CollectionButton: React.FC<CollectionButtonProps> = ({
   onCollectScrap, 
   scrapPerClick 
 }) => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Llama a la lógica original del juego
+    onCollectScrap(e);
+
+    // Crea y dispara el evento personalizado para el texto flotante
+    const event = new CustomEvent('showFloatingText', {
+      detail: {
+        text: `+${scrapPerClick}`,
+        originalEvent: e.nativeEvent, // Usamos el evento nativo del navegador
+      }
+    });
+    document.dispatchEvent(event);
+  };
+
   return (
     <div style={{
       position: 'absolute',
       bottom: '2rem',
-      left: '2rem'
+      left: '2rem',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center'
     }}>
-          <button 
-      id="collection-button"
-      onClick={onCollectScrap}
-        style={{
-          padding: '2rem 3rem',
-          fontSize: '1.5rem',
-          backgroundColor: '#F59E0B',
-          color: '#0F172A',
+      <button 
+        onClick={handleClick}
+                style={{
+          background: `url(/assets/scrap-button.png) no-repeat center center`,
+          backgroundSize: 'contain',
+          width: '400px',
+          height: '400px',
           border: 'none',
-          borderRadius: '12px',
           cursor: 'pointer',
-          fontWeight: 'bold',
-          boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
-        }}
-      >
-        RECOLECTAR<br />+{scrapPerClick}
-      </button>
+          backgroundColor: 'transparent',
+          position: 'relative'
+                        }}
+        aria-label={`Recolectar +${scrapPerClick} chatarra`}
+      />
+            <div style={{
+        marginTop: '-1rem',
+        color: '#E5E7EB', // Un color de texto claro y legible
+        fontSize: '1rem',
+        fontWeight: 'bold',
+        textShadow: '1px 1px 3px rgba(0, 0, 0, 0.7)',
+        textAlign: 'center'
+      }}>
+        Recolecta Chatarra
+      </div>
     </div>
   );
 };

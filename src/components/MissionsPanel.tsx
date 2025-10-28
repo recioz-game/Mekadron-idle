@@ -62,7 +62,7 @@ const MissionsPanel: React.FC<MissionsPanelProps> = React.memo(({
   const secondaryMissions = activeMissions.filter(m => !m.isMain && !m.completed);
 
   const renderMission = (mission: Mission, isMain: boolean) => {
-    const progress = getMissionProgress(mission);
+            const progress = getMissionProgress(mission);
     const canClaim = progress >= 100 && canClaimReward(mission);
     const isCompletedButNotClaimed = progress >= 100 && !canClaim;
 
@@ -161,12 +161,12 @@ const MissionsPanel: React.FC<MissionsPanelProps> = React.memo(({
               </span>
             )}
             <button 
-              onClick={() => onClaimReward(mission.id)}
+                            onClick={() => onClaimReward(mission.id)}
               disabled={!canClaim}
               style={{
                 padding: '0.5rem 1rem',
                 backgroundColor: canClaim ? '#22C55E' : '#9CA3AF',
-                color: '#0F172A',
+                color: canClaim ? '#1F2937' : '#0F172A',
                 border: 'none',
                 borderRadius: '4px',
                 cursor: canClaim ? 'pointer' : 'not-allowed',
@@ -174,7 +174,7 @@ const MissionsPanel: React.FC<MissionsPanelProps> = React.memo(({
                 fontSize: '0.8rem'
               }}
             >
-              {canClaim ? '🎁 Reclamar' : '⏳ Esperando'}
+              {canClaim ? '🎁 Reclamar' : (isCompletedButNotClaimed ? 'Completar' : '⏳ Esperando')}
             </button>
           </div>
         )}

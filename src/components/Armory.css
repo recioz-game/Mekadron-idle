@@ -1,0 +1,25 @@
+.armory-view {
+  background-color: #111827;
+  color: #E5E7EB;
+  min-height: 100vh;
+  padding: 1rem;
+  font-family: 'Inter', sans-serif;
+  width: 100%; /* Ocupa el espacio disponible */
+}
+
+.armory-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.armory-view-header h2 {
+  margin: 0;
+}
+
+.armory-content {
+  padding: 1rem;
+  background-color: #1F2937;
+  border-radius: 4px;
+}

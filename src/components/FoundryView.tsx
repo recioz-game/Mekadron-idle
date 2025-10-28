@@ -2,6 +2,7 @@ import React from 'react';
 import { GameState } from '../types/gameState';
 import BuyAmountSelector from './BuyAmountSelector';
 import { formatNumber } from '../utils/formatNumber';
+import QueueControls from './QueueControls';
 
 interface FoundryViewProps {
   scrap: number;
@@ -23,8 +24,9 @@ interface FoundryViewProps {
   onCraftHullPlate: () => void;
   onCraftSuperconductorWiring: () => void;
   buyAmount: number | 'max';
-  onSetBuyAmount: (amount: number | 'max') => void;
+    onSetBuyAmount: (amount: number | 'max') => void;
   onClose: () => void;
+  onCancel: (itemName: string, amount: number | 'all') => void;
 }
 
 const ProgressBar = ({ progress, time }: { progress: number; time: number }) => (
@@ -42,7 +44,7 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
   scrap, energy, metalRefinado, aceroEstructural, fragmentosPlaca, circuitosDañados, placasCasco, cableadoSuperconductor,
   metalRefinadoQueue, aceroEstructuralQueue, placasCascoQueue, cableadoSuperconductorQueue,
   onCraftRefinedMetal, onCraftStructuralSteel, onCraftHullPlate, onCraftSuperconductorWiring,
-  buyAmount, onSetBuyAmount, onClose 
+  buyAmount, onSetBuyAmount, onClose, onCancel 
 }) => {
 
   // Costes y máximos
@@ -76,11 +78,10 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
       {/* Metal Refinado */}
       <div style={{ padding: '1rem', backgroundColor: '#1F2937', borderRadius: '4px', marginBottom: '1rem', border: maxMetal > 0 ? '2px solid #22C55E' : '2px solid #374151' }}>
         <h4 style={{ color: '#F59E0B', marginTop: 0 }}>🔩 Metal Refinado</h4>
-        <p>💰 Coste: {formatNumber(metalCost.scrap)} Chatarra + {formatNumber(metalCost.energy)} Energía</p>
+                <p>💰 Coste: {formatNumber(metalCost.scrap)} Chatarra + {formatNumber(metalCost.energy)} Energía</p>
         <p>🏗️ En Posesión: {formatNumber(metalRefinado)}</p>
         <p>📦 En cola: {metalRefinadoQueue.queue}</p>
-        <p>⏱️ T/U: {metalRefinadoQueue.time}s</p>
-        {metalRefinadoQueue.queue > 0 && <ProgressBar progress={metalRefinadoQueue.progress} time={metalRefinadoQueue.time} />}
+        <QueueControls queue={metalRefinadoQueue} itemName='metalRefinado' onCancel={onCancel} />
         <button 
           onClick={onCraftRefinedMetal} 
           disabled={maxMetal <= 0}
@@ -105,8 +106,7 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
         <p>💰 Coste: {formatNumber(steelCost.scrap)} Chatarra + {steelCost.metal} Metal + {steelCost.energy} Energía</p>
         <p>🏗️ En Posesión: {formatNumber(aceroEstructural)}</p>
         <p>📦 En cola: {aceroEstructuralQueue.queue}</p>
-        <p>⏱️ T/U: {aceroEstructuralQueue.time}s</p>
-        {aceroEstructuralQueue.queue > 0 && <ProgressBar progress={aceroEstructuralQueue.progress} time={aceroEstructuralQueue.time} />}
+        <QueueControls queue={aceroEstructuralQueue} itemName='aceroEstructural' onCancel={onCancel} />
         <button 
           onClick={onCraftStructuralSteel} 
           disabled={maxSteel <= 0}
@@ -134,8 +134,7 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
         <p>ℹ️ Fragmentos: {formatNumber(fragmentosPlaca)}</p>
         <p>🏗️ En Posesión: {formatNumber(placasCasco)}</p>
         <p>📦 En cola: {placasCascoQueue.queue}</p>
-        <p>⏱️ T/U: {placasCascoQueue.time}s</p>
-        {placasCascoQueue.queue > 0 && <ProgressBar progress={placasCascoQueue.progress} time={placasCascoQueue.time} />}
+        <QueueControls queue={placasCascoQueue} itemName='placasCasco' onCancel={onCancel} />
         <button 
           onClick={onCraftHullPlate} 
           disabled={maxPlate <= 0}
@@ -161,8 +160,7 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
         <p>ℹ️ Circuitos: {formatNumber(circuitosDañados)}</p>
         <p>🏗️ En Posesión: {formatNumber(cableadoSuperconductor)}</p>
         <p>📦 En cola: {cableadoSuperconductorQueue.queue}</p>
-        <p>⏱️ T/U: {cableadoSuperconductorQueue.time}s</p>
-        {cableadoSuperconductorQueue.queue > 0 && <ProgressBar progress={cableadoSuperconductorQueue.progress} time={cableadoSuperconductorQueue.time} />}
+        <QueueControls queue={cableadoSuperconductorQueue} itemName='cableadoSuperconductor' onCancel={onCancel} />
         <button 
           onClick={onCraftSuperconductorWiring} 
           disabled={maxWiring <= 0}

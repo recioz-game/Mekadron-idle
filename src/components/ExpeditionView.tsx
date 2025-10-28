@@ -96,6 +96,17 @@ const DroneSelector: React.FC<{
 };
 
 
+// Objeto para mapear los IDs de recursos a nombres e iconos amigables
+const rewardDisplayMap: Record<string, { name: string; icon: string }> = {
+  scrap: { name: 'Chatarra', icon: '💰' },
+  metalRefinado: { name: 'Metal Refinado', icon: '🔩' },
+  aceroEstructural: { name: 'Acero Estructural', icon: '🏗️' },
+  fragmentosPlaca: { name: 'Fragmentos de Placa', icon: '🧱' },
+  circuitosDañados: { name: 'Circuitos Dañados', icon: '🔌' },
+  aleacionReforzada: { name: 'Aleación Reforzada', icon: '🛡️' },
+  neuroChipCorrupto: { name: 'Neuro-Chip Corrupto', icon: '🧠' },
+};
+
 const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({ 
   metalRefinado,
   aceroEstructural,
@@ -184,12 +195,32 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
               <h4>{exp.title}</h4>
               <p>{exp.description}</p>
               <p><strong>Duración:</strong> {exp.duration / 60} minutos</p>
-              <p><strong>Requisitos Mínimos:</strong></p>
-              <ul style={{listStyle: 'none', paddingLeft: '1rem'}}>
-                <li style={{color: availableDrones >= costDrones ? '#E5E7EB' : '#EF4444'}}>Drones de Expedición: {costDrones}</li>
-                {costMetal > 0 && <li style={{color: hasEnoughMetal ? '#E5E7EB' : '#EF4444'}}>Metal Refinado: {formatNumber(costMetal)}</li>}
-                {costAcero > 0 && <li style={{color: hasEnoughAcero ? '#E5E7EB' : '#EF4444'}}>Acero Estructural: {formatNumber(costAcero)}</li>}
-              </ul>
+              
+              <div>
+                <strong>Requisitos Mínimos:</strong>
+                <ul style={{listStyle: 'none', paddingLeft: '1rem', margin: '0.5rem 0'}}>
+                  <li style={{color: availableDrones >= costDrones ? '#E5E7EB' : '#EF4444'}}>Drones de Expedición: {costDrones}</li>
+                  {costMetal > 0 && <li style={{color: hasEnoughMetal ? '#E5E7EB' : '#EF4444'}}>Metal Refinado: {formatNumber(costMetal)}</li>}
+                  {costAcero > 0 && <li style={{color: hasEnoughAcero ? '#E5E7EB' : '#EF4444'}}>Acero Estructural: {formatNumber(costAcero)}</li>}
+                </ul>
+              </div>
+
+              <div>
+                <strong>Posibles Recompensas:</strong>
+                <ul style={{listStyle: 'none', paddingLeft: '1rem', margin: '0.5rem 0'}}>
+                  {Object.entries(exp.rewards).map(([key, value]) => {
+                    const display = rewardDisplayMap[key];
+                    if (!display) return null;
+                    const [min, max] = value;
+                    return (
+                      <li key={key}>
+                        {display.icon} {display.name}: {formatNumber(min)} - {formatNumber(max)}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+
               <p><strong>Riesgo:</strong> {exp.risk.chance * 100}% de posibilidad de perder {exp.risk.droneLossPercentage * 100}% de los drones.</p>
               
               <DroneSelector 

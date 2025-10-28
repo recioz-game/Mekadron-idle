@@ -7,6 +7,7 @@ interface ModulesPanelProps {
   foundryUnlocked: boolean;
   expeditionsUnlocked: boolean;
   shipyardUnlocked: boolean;
+  phase2Unlocked: boolean; // <-- NUEVA PROP
   currentView: string;
   onModuleSelect: (module: string) => void;
     scrapForUnlock: number;
@@ -22,6 +23,7 @@ const ModulesPanel: React.FC<ModulesPanelProps> = React.memo(({
   foundryUnlocked,
   expeditionsUnlocked,
   shipyardUnlocked,
+  phase2Unlocked, // <-- NUEVA PROP
   currentView,
   onModuleSelect,
     scrapForUnlock,
@@ -33,8 +35,9 @@ const ModulesPanel: React.FC<ModulesPanelProps> = React.memo(({
   
 
   return (
-    <div style={{
-      backgroundColor: '#1F2937',
+        <div style={{
+      backgroundColor: 'rgba(31, 41, 55, 0.8)',
+      backdropFilter: 'blur(5px)',
       color: '#E5E7EB',
       padding: '1rem',
       minHeight: '100vh',
@@ -203,8 +206,28 @@ const ModulesPanel: React.FC<ModulesPanelProps> = React.memo(({
             width: '100%',
             textAlign: 'left',
           }}
-        >
+                >
           🛠️ Astillero
+        </button>
+      )}
+
+      {/* Navegación a Fase 2 */}
+            {phase2Unlocked && (
+        <button 
+          onClick={() => onModuleSelect('goToPhase2')}
+          style={{
+            padding: '0.75rem 1rem',
+            backgroundColor: '#374151', // Estilo estándar
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            marginBottom: '0.5rem',
+            width: '100%',
+            textAlign: 'left',
+          }}
+        >
+          🚀 Vindicator
         </button>
       )}
 

@@ -3,6 +3,7 @@ import { GameState } from '../types/gameState';
 import BuyAmountSelector from './BuyAmountSelector';
 import { formatNumber } from '../utils/formatNumber';
 import BotonConTooltip from './BotonConTooltip';
+import QueueControls from './QueueControls';
 
 interface EnergyViewProps {
   scrap: number;
@@ -22,8 +23,9 @@ interface EnergyViewProps {
   onBuildAdvancedSolar: () => void;
   onBuildEnergyCore: () => void;
   buyAmount: number | 'max';
-  onSetBuyAmount: (amount: number | 'max') => void;
+    onSetBuyAmount: (amount: number | 'max') => void;
   onClose: () => void;
+  onCancel: (itemName: string, amount: number | 'all') => void;
 }
 
 const ProgressBar = ({ progress, time }: { progress: number; time: number }) => (
@@ -42,7 +44,7 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
   solarPanels, mediumSolarPanels, advancedSolar, energyCores,
   solarPanelsQueue, mediumSolarPanelsQueue, advancedSolarQueue, energyCoresQueue,
   onBuildSolarPanel, onBuildMediumSolar, onBuildAdvancedSolar, onBuildEnergyCore,
-  buyAmount, onSetBuyAmount, onClose 
+  buyAmount, onSetBuyAmount, onClose, onCancel 
 }) => {
 
   const getTooltipText = (requirements: { resource?: string, amount: number, current: number, text: string }[]): string => {
@@ -130,14 +132,11 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
         border: scrap >= solarPanelCost ? '2px solid #22C55E' : '2px solid #374151'
       }}>
         <h3 style={{ color: '#F59E0B', marginTop: 0 }}>☀️ Panel Solar Básico</h3>
-        <p>⚡ Producción: +{formatNumber(3)} energía/segundo</p>
+                <p>⚡ Producción: +{formatNumber(3)} energía/segundo</p>
         <p>💰 Coste: {formatNumber(solarPanelCost)} chatarra</p>
         <p>🏗️ Instalados: {solarPanels} | 📦 En cola: {solarPanelsQueue.queue}</p>
-        <p>⏱️ T/U: {solarPanelsQueue.time}s</p>
-        
-        {solarPanelsQueue.queue > 0 && <ProgressBar progress={solarPanelsQueue.progress} time={solarPanelsQueue.time} />}
-        
-                <BotonConTooltip
+        <QueueControls queue={solarPanelsQueue} itemName='solarPanels' onCancel={onCancel} />
+        <BotonConTooltip
           onClick={onBuildSolarPanel}
           disabled={scrap < solarPanelCost}
           tooltipText={getTooltipText([{ amount: solarPanelCost, current: scrap, text: 'Chatarra' }])}
@@ -169,12 +168,9 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
         <p>⚡ Producción: +{formatNumber(10)} energía/segundo</p>
         <p>💰 Coste: {formatNumber(mediumSolarCost)} chatarra</p>
         <p>🏗️ Instalados: {mediumSolarPanels} | 📦 En cola: {mediumSolarPanelsQueue.queue}</p>
-        <p>⏱️ T/U: {mediumSolarPanelsQueue.time}s</p>
+        <QueueControls queue={mediumSolarPanelsQueue} itemName='mediumSolarPanels' onCancel={onCancel} />
         <p>📋 Requisitos: 5 Paneles Solares Básicos</p>
-        
-        {mediumSolarPanelsQueue.queue > 0 && <ProgressBar progress={mediumSolarPanelsQueue.progress} time={mediumSolarPanelsQueue.time} />}
-        
-                <BotonConTooltip
+        <BotonConTooltip
           onClick={onBuildMediumSolar}
           disabled={scrap < mediumSolarCost || solarPanels < 5}
           tooltipText={getTooltipText([
@@ -214,12 +210,9 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
         <p>⚡ Producción: +{formatNumber(30)} energía/segundo</p>
         <p>💰 Coste: {formatNumber(advancedSolarCost)} chatarra</p>
         <p>🏗️ Instalados: {advancedSolar} | 📦 En cola: {advancedSolarQueue.queue}</p>
-        <p>⏱️ T/U: {advancedSolarQueue.time}s</p>
+        <QueueControls queue={advancedSolarQueue} itemName='advancedSolar' onCancel={onCancel} />
         <p>📋 Requisitos: 1 Panel Solar Medio</p>
-        
-        {advancedSolarQueue.queue > 0 && <ProgressBar progress={advancedSolarQueue.progress} time={advancedSolarQueue.time} />}
-        
-                <BotonConTooltip
+        <BotonConTooltip
           onClick={onBuildAdvancedSolar}
           disabled={scrap < advancedSolarCost || mediumSolarPanels < 1}
           tooltipText={getTooltipText([
@@ -260,12 +253,9 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
         <p>🔋 Capacidad: +{formatNumber(100)} energía máxima</p>
         <p>💰 Coste: {formatNumber(energyCoreCost)} chatarra</p>
         <p>🏗️ Instalados: {energyCores} | 📦 En cola: {energyCoresQueue.queue}</p>
-        <p>⏱️ T/U: {energyCoresQueue.time}s</p>
+        <QueueControls queue={energyCoresQueue} itemName='energyCores' onCancel={onCancel} />
         <p>📋 Requisitos: 3 Paneles Solares Avanzados</p>
-        
-        {energyCoresQueue.queue > 0 && <ProgressBar progress={energyCoresQueue.progress} time={energyCoresQueue.time} />}
-        
-                <BotonConTooltip
+        <BotonConTooltip
           onClick={onBuildEnergyCore}
           disabled={scrap < energyCoreCost || advancedSolar < 3}
           tooltipText={getTooltipText([

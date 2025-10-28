@@ -66,7 +66,7 @@ const NotificationToast: React.FC<NotificationToastProps> = ({ notification, onD
 
   return (
     <div style={toastStyle} onClick={handleDismiss}>
-      <h2 style={titleStyle}>🎉 {notification.title} 🎉</h2>
+      <h2 style={titleStyle}>{notification.title}</h2>
       <p style={messageStyle}>{notification.message}</p>
     </div>
   );

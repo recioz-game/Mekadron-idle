@@ -3,7 +3,7 @@
   "homepage": "https://recioz-game.github.io/Mekadron-idle",
   "type": "module",
   "scripts": {
-    "dev": "npx vite",
+    "dev": "node ./node_modules/vite/bin/vite.js",
     "build": "npx vite build",
     "preview": "npx vite preview"
   },
