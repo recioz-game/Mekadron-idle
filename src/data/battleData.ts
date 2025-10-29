@@ -14,6 +14,7 @@ export interface Destination {
   name: string;
   description: string;
   battles: Battle[];
+  isBoss?: boolean;
 }
 
 const generateBattles = (
@@ -40,6 +41,7 @@ const generateBattles = (
 };
 
 export const battleDestinations: Destination[] = [
+  // Capítulo 1 - Destinos Normales (50 batallas)
   {
     name: "Sector de Patrulla Dron",
     description: "Drones de reconocimiento renegados han infestado este sector. Despéjalo.",
@@ -61,8 +63,59 @@ export const battleDestinations: Destination[] = [
     battles: generateBattles(10, "Corbeta de Seguridad", 1000, 500, 150, 5000, 40, 30),
   },
   {
+    name: "Base de Operaciones",
+    description: "Una base avanzada que sirve como punto de mando para las fuerzas enemigas.",
+    battles: generateBattles(10, "Defensa de Base", 2000, 800, 200, 10000, 60, 45),
+  },
+  // Capítulo 1 - Jefe Final
+  {
     name: "El 'Leviatán'",
     description: "El origen de la corrupción. Una nave capital abandonada controlada por una IA hostil.",
-    battles: generateBattles(10, "Defensa del Leviatán", 2500, 1000, 300, 15000, 80, 60),
+    isBoss: true,
+    battles: [
+      {
+        enemyName: "El Leviatán - Núcleo Central",
+        health: 15000,
+        shield: 7500,
+        damage: 400,
+        reward: {
+          scrap: 50000,
+          aleacionReforzada: 200,
+          neuroChipCorrupto: 150,
+        },
+      }
+    ],
   },
 ];
+
+// Estructura para capítulos futuros
+export interface Chapter {
+  id: number;
+  name: string;
+  unlocked: boolean;
+  destinations: Destination[];
+  rewards: {
+    newNaveUnlocked?: string;
+    resources: Record<string, number>;
+    phase1Upgrades: string[];
+  };
+}
+
+export const battleChapters: Chapter[] = [
+  {
+    id: 1,
+    name: "La Amenaza del Leviatán",
+    unlocked: true,
+    destinations: battleDestinations,
+    rewards: {
+      newNaveUnlocked: "Vindicator Mk.II",
+      resources: {
+        tecnologiaAvanzada: 1,
+        nucleoSingularidad: 5
+      },
+      phase1Upgrades: ["dronesAvanzados", "fundicionMejorada"]
+    }
+  },
+  // Capítulos futuros se agregarán aquí
+];
+

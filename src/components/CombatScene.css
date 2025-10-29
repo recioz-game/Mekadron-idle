@@ -1,44 +1,189 @@
 .combat-scene {
   display: flex;
-  flex-direction: column; /* <-- Cambio a vertical */
-  justify-content: space-between; /* <-- Espacio entre elementos */
+  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
   height: 100vh;
-  padding: 2rem 0; /* <-- Añadir padding vertical */
+  padding: 1rem 0;
   background-color: #0F172A;
   color: #E5E7EB;
   font-family: 'Inter', sans-serif;
+  gap: 1rem;
+}
+
+.combat-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  padding: 1rem;
+  background-color: #1F2937;
+  border-radius: 8px;
+  border: 2px solid #374151;
+}
+
+.speed-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.speed-controls select {
+  padding: 0.5rem;
+  background-color: #374151;
+  color: #E5E7EB;
+  border: 1px solid #4B5563;
+  border-radius: 4px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-buttons button {
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.start-button {
+  background-color: #22C55E;
+  color: #0F172A;
+}
+
+.pause-button {
+  background-color: #F59E0B;
+  color: #0F172A;
+}
+
+.resume-button {
+  background-color: #22C55E;
+  color: #0F172A;
+}
+
+.stop-button {
+  background-color: #EF4444;
+  color: white;
+}
+
+.escape-button {
+  background-color: #6B7280;
+  color: white;
+}
+
+.escape-button:disabled {
+  background-color: #374151;
+  cursor: not-allowed;
+}
+
+.combat-status {
+  padding: 0.5rem 1rem;
+  background-color: #1F2937;
+  border-radius: 20px;
+  border: 1px solid #374151;
+}
+
+.status-indicator.running {
+  color: #22C55E;
+}
+
+.status-indicator.paused {
+  color: #F59E0B;
+}
+
+.status-indicator.finished {
+  color: #6B7280;
 }
 
 .combatant {
   border: 2px solid #374151;
-  padding: 2rem;
+  padding: 1.5rem;
   border-radius: 8px;
   text-align: center;
-  width: 400px; /* <-- Un poco más ancho */
+  width: 400px;
 }
 
 .vindicator {
-  border-color: #06B6D4; /* Cian para el jugador */
+  border-color: #06B6D4;
 }
 
 .enemy {
-  border-color: #EF4444; /* Rojo para el enemigo */
+  border-color: #EF4444;
 }
 
-.attack-button {
-  padding: 1rem 2rem;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #0F172A;
-  background-color: #F59E0B; /* Naranja para destacar */
-  border: none;
+.health-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.bar-container {
+  width: 100%;
+  height: 20px;
+  background-color: #374151;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.health-fill {
+  height: 100%;
+  background-color: #22C55E;
+  transition: width 0.3s ease;
+}
+
+.shield-fill {
+  height: 100%;
+  background-color: #3B82F6;
+  transition: width 0.3s ease;
+}
+
+.combat-log {
+  width: 90%;
+  max-height: 150px;
+  background-color: #1F2937;
+  border: 2px solid #374151;
   border-radius: 8px;
-  cursor: pointer;
-  margin: 1rem 0;
+  padding: 1rem;
+  overflow-y: auto;
 }
 
-.attack-button:hover {
-  background-color: #f9b542;
+.combat-log h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: #F59E0B;
 }
+
+.log-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.log-entry {
+  font-size: 0.9rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #374151;
+}
+
+.log-entry:last-child {
+  border-bottom: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .combat-controls {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .combatant {
+    width: 90%;
+  }
+}
+

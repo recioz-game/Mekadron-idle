@@ -26,6 +26,7 @@ export const gameData: GameData = {
     mediumSolarPanels: { costs: { scrap: 200 }, time: 25, prerequisites: (s) => s.energy.solarPanels >= 5 },
     advancedSolar: { costs: { scrap: 500 }, time: 70, prerequisites: (s) => s.energy.mediumSolarPanels >= 1 },
     energyCores: { costs: { scrap: 2000 }, time: 180, prerequisites: (s) => s.energy.advancedSolar >= 3 },
+    fusionReactor: { costs: { scrap: 10000, metalRefinado: 25 }, time: 1200, prerequisites: (s) => (s.techCenter.upgrades as any).fusionTech > 0 && s.energy.energyCores >= 10 },
   },
   storage: {
     basicStorage: { costs: { scrap: 100 }, time: 10 },
@@ -37,9 +38,10 @@ export const gameData: GameData = {
     harmonicContainmentField: { costs: { scrap: 3000, metalRefinado: 10 }, time: 450, prerequisites: (s) => s.storage.plasmaAccumulator >= 3 },
   },
   foundry: {
-    metalRefinado: { costs: { scrap: 1000, energy: 100 }, time: 5 },
-    aceroEstructural: { costs: { scrap: 1000, metalRefinado: 10, energy: 250 }, time: 30 },
-    placasCasco: { costs: { fragmentosPlaca: 10, aceroEstructural: 5, energy: 500 }, time: 50 },
-    cableadoSuperconductor: { costs: { circuitosDañados: 10, metalRefinado: 25, energy: 1000 }, time: 75 },
+    metalRefinado: { costs: { scrap: 1000, energy: 100 }, time: 5, produces: { resource: 'metalRefinado' } },
+    aceroEstructural: { costs: { scrap: 1000, metalRefinado: 10, energy: 250 }, time: 30, produces: { resource: 'aceroEstructural' } },
+    placasCasco: { costs: { fragmentosPlaca: 10, aceroEstructural: 5, energy: 500 }, time: 50, produces: { resource: 'placasCasco' } },
+    cableadoSuperconductor: { costs: { circuitosDañados: 10, metalRefinado: 25, energy: 1000 }, time: 75, produces: { resource: 'cableadoSuperconductor' } },
+    barraCombustible: { costs: { metalRefinado: 10, aceroEstructural: 5, energy: 1500 }, time: 120, produces: { resource: 'barraCombustible' } },
   },
 };

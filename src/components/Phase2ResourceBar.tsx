@@ -8,6 +8,7 @@ interface Phase2ResourceBarProps {
   cableadoSuperconductor: number;
   aleacionReforzada: number;
   neuroChipCorrupto: number;
+  barraCombustible: number;
 }
 
 const Phase2ResourceBar: React.FC<Phase2ResourceBarProps> = ({
@@ -17,6 +18,7 @@ const Phase2ResourceBar: React.FC<Phase2ResourceBarProps> = ({
   cableadoSuperconductor,
   aleacionReforzada,
   neuroChipCorrupto,
+  barraCombustible,
 }) => {
   return (
     <div style={{
@@ -63,6 +65,10 @@ const Phase2ResourceBar: React.FC<Phase2ResourceBarProps> = ({
         <div style={{ display: 'flex', alignItems: 'center' }} title="Neuro-Chip Corrupto">
           <span style={{ fontSize: '1.2rem', marginRight: '0.5rem' }}>🧠</span>
           <span>{formatNumber(neuroChipCorrupto)}</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center' }} title="Barras de Combustible">
+          <span style={{ fontSize: '1.2rem', marginRight: '0.5rem' }}>⛽</span>
+          <span>{formatNumber(barraCombustible)}</span>
         </div>
       </div>
     </div>

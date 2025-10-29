@@ -31,8 +31,9 @@ export type ActionType =
   | { type: 'BUILD_WYRM' }
   | { type: 'BUILD_SOLAR_PANEL' }
   | { type: 'BUILD_MEDIUM_SOLAR' }
-  | { type: 'BUILD_ADVANCED_SOLAR' }
+    | { type: 'BUILD_ADVANCED_SOLAR' }
   | { type: 'BUILD_ENERGY_CORE' }
+  | { type: 'BUILD_FUSION_REACTOR' }
   | { type: 'BUILD_BASIC_STORAGE' }
   | { type: 'BUILD_MEDIUM_STORAGE' }
   | { type: 'BUILD_ADVANCED_STORAGE' }
@@ -43,8 +44,9 @@ export type ActionType =
   | { type: 'ACTIVATE_FOUNDRY' }
   | { type: 'CRAFT_REFINED_METAL' }
   | { type: 'CRAFT_STRUCTURAL_STEEL' }
-  | { type: 'CRAFT_HULL_PLATE' }
+    | { type: 'CRAFT_HULL_PLATE' }
   | { type: 'CRAFT_SUPERCONDUCTOR_WIRING' }
+  | { type: 'CRAFT_FUEL_ROD' }
   | { type: 'START_EXPEDITION'; payload: { expeditionId: ExpeditionId; droneCount: number } }
   | { type: 'CLAIM_EXPEDITION_REWARDS'; payload: ExpeditionId }
   | { type: 'DONATE_TO_SHIPYARD'; payload: { component: string; resource: string; amount: number } }
@@ -59,5 +61,8 @@ export type ActionType =
   | { type: 'SELECT_BATTLE_DESTINATION'; payload: number }
   | { type: 'START_BATTLE' }
   | { type: 'PLAYER_ATTACK' }
+  | { type: 'ESCAPE_COMBAT' }
+  | { type: 'CRAFT_PURIFIED_METAL' }
+  | { type: 'DISMANTLE_DRONE'; payload: { droneType: string; amount: number | 'max' } }
   | { type: 'CANCEL_QUEUE_ITEM'; payload: { category: string; itemName: string; amount: number | 'all' } };
 

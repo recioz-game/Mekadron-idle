@@ -13,19 +13,25 @@ interface EnergyViewProps {
   solarPanels: number;
   mediumSolarPanels: number;
   advancedSolar: number;
-  energyCores: number;
+    energyCores: number;
+  fusionReactors: number; // Nuevo
   solarPanelsQueue: { progress: number; queue: number; time: number };
   mediumSolarPanelsQueue: { progress: number; queue: number; time: number };
   advancedSolarQueue: { progress: number; queue: number; time: number };
   energyCoresQueue: { progress: number; queue: number; time: number };
+  fusionReactorQueue: { progress: number; queue: number; time: number }; // Nuevo
   onBuildSolarPanel: () => void;
   onBuildMediumSolar: () => void;
   onBuildAdvancedSolar: () => void;
   onBuildEnergyCore: () => void;
+  onBuildFusionReactor: () => void; // Nuevo
   buyAmount: number | 'max';
     onSetBuyAmount: (amount: number | 'max') => void;
   onClose: () => void;
   onCancel: (itemName: string, amount: number | 'all') => void;
+  upgrades: GameState['techCenter']['upgrades']; // Nuevo
+  energyCoresCount: number; // Nuevo
+  metalRefinado: number; // Nuevo
 }
 
 const ProgressBar = ({ progress, time }: { progress: number; time: number }) => (
@@ -41,10 +47,11 @@ const ProgressBar = ({ progress, time }: { progress: number; time: number }) => 
 
 const EnergyView: React.FC<EnergyViewProps> = React.memo(({ 
   scrap, currentEnergy, maxEnergy, energyConsumption,
-  solarPanels, mediumSolarPanels, advancedSolar, energyCores,
-  solarPanelsQueue, mediumSolarPanelsQueue, advancedSolarQueue, energyCoresQueue,
-  onBuildSolarPanel, onBuildMediumSolar, onBuildAdvancedSolar, onBuildEnergyCore,
-  buyAmount, onSetBuyAmount, onClose, onCancel 
+  solarPanels, mediumSolarPanels, advancedSolar, energyCores, fusionReactors,
+  solarPanelsQueue, mediumSolarPanelsQueue, advancedSolarQueue, energyCoresQueue, fusionReactorQueue,
+  onBuildSolarPanel, onBuildMediumSolar, onBuildAdvancedSolar, onBuildEnergyCore, onBuildFusionReactor,
+  buyAmount, onSetBuyAmount, onClose, onCancel,
+  upgrades, energyCoresCount, metalRefinado
 }) => {
 
   const getTooltipText = (requirements: { resource?: string, amount: number, current: number, text: string }[]): string => {
@@ -55,23 +62,29 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
 
   const solarPanelCost = 50;
   const mediumSolarCost = 200;
-  const advancedSolarCost = 500;
+    const advancedSolarCost = 500;
   const energyCoreCost = 2000;
+  const fusionReactorCost = { scrap: 10000, metalRefinado: 25 };
 
   const getMaxAffordable = (cost: number) => {
     return Math.floor(scrap / cost);
   }
 
   const solarPanelMax = getMaxAffordable(solarPanelCost);
-  const mediumSolarMax = getMaxAffordable(mediumSolarCost);
+    const mediumSolarMax = getMaxAffordable(mediumSolarCost);
   const advancedSolarMax = getMaxAffordable(advancedSolarCost);
   const energyCoreMax = getMaxAffordable(energyCoreCost);
+  const fusionReactorMax = Math.min(
+    Math.floor(scrap / fusionReactorCost.scrap),
+    Math.floor(metalRefinado / fusionReactorCost.metalRefinado)
+  );
 
   const totalEnergyProduction = 
     solarPanels * 3 + 
     mediumSolarPanels * 10 +
     advancedSolar * 30 + 
-    energyCores * 50;
+    energyCores * 50 +
+    fusionReactors * 250;
 
   return (
     <div style={{
@@ -279,8 +292,54 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
                     <p style={{ color: '#F59E0B', fontSize: '0.9rem', marginTop: '0.5rem' }}>
             ⚠️ Necesitas 3 Paneles Solares Avanzados
           </p>
-        )}
+                )}
       </div>
+
+      {/* Reactor de Fusión (Condicional) */}
+      {(upgrades as any).fusionTech > 0 && (
+        <div style={{
+          padding: '1rem',
+          backgroundColor: '#1F2937',
+          borderRadius: '4px',
+          marginBottom: '1rem',
+          border: scrap >= fusionReactorCost.scrap && metalRefinado >= fusionReactorCost.metalRefinado && energyCoresCount >= 10 ? '2px solid #8B5CF6' : '2px solid #374151',
+          opacity: energyCoresCount >= 10 ? 1 : 0.6
+        }}>
+          <h3 style={{ color: '#8B5CF6', marginTop: 0 }}>⚛️ Reactor de Fusión</h3>
+          <p>⚡ Producción: +{formatNumber(250)} energía/segundo</p>
+          <p>🔋 Capacidad: +{formatNumber(1000)} energía máxima</p>
+          <p>💰 Coste: {formatNumber(fusionReactorCost.scrap)} Chatarra + {formatNumber(fusionReactorCost.metalRefinado)} Metal Refinado</p>
+          <p>🏗️ Construidos: {fusionReactors} | 📦 En cola: {fusionReactorQueue.queue}</p>
+          <QueueControls queue={fusionReactorQueue} itemName='fusionReactor' onCancel={onCancel} />
+          <p>📋 Requisitos: 10 Núcleos Energéticos</p>
+          <BotonConTooltip
+            onClick={onBuildFusionReactor}
+            disabled={scrap < fusionReactorCost.scrap || metalRefinado < fusionReactorCost.metalRefinado || energyCoresCount < 10}
+            tooltipText={getTooltipText([
+              { amount: fusionReactorCost.scrap, current: scrap, text: 'Chatarra' },
+              { amount: fusionReactorCost.metalRefinado, current: metalRefinado, text: 'Metal Refinado' },
+              { amount: 10, current: energyCoresCount, text: 'Núcleos Energéticos' }
+            ])}
+            style={{
+              padding: '0.75rem 1.5rem',
+              backgroundColor: scrap >= fusionReactorCost.scrap && metalRefinado >= fusionReactorCost.metalRefinado && energyCoresCount >= 10 ? '#8B5CF6' : '#9CA3AF',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              fontWeight: 'bold',
+              marginTop: '0.5rem',
+              width: '100%'
+            }}
+          >
+            Encargar Reactor de Fusión {buyAmount === 'max' && `(${fusionReactorMax})`}
+          </BotonConTooltip>
+          {energyCoresCount < 10 && (
+            <p style={{ color: '#F59E0B', fontSize: '0.9rem', marginTop: '0.5rem' }}>
+              ⚠️ Necesitas 10 Núcleos Energéticos
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 });

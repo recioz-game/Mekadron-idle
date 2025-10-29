@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import mainBackgroundUrl from '../assets/main-background.png';
 import { ExpeditionId } from '../types/gameState';
-import { useGame } from '../context/GameContext';
+import { useGameState, useGameDispatch } from '../context/GameContext';
 import ResourceBar from './ResourceBar';
 import CollectionButton from './CollectionButton';
 import ModulesPanel from './ModulesPanel';
@@ -18,7 +18,8 @@ import NotificationToast from './NotificationToast';
 import FloatingTextHandler from './FloatingTextHandler';
 
 const GameScene: React.FC = () => {
-  const { gameState, dispatch } = useGame();
+  const gameState = useGameState();
+  const dispatch = useGameDispatch();
   const { 
     currentView, 
     workshopBuyAmount, 
@@ -63,9 +64,12 @@ const GameScene: React.FC = () => {
   const onBuildGolemDrone = useCallback(() => dispatch({ type: 'BUILD_GOLEM_DRONE' }), [dispatch]);
   const onBuildExpeditionDrone = useCallback(() => dispatch({ type: 'BUILD_EXPEDITION_DRONE' }), [dispatch]);
   const onBuildWyrm = useCallback(() => dispatch({ type: 'BUILD_WYRM' }), [dispatch]);
-  const onSetWorkshopBuyAmount = useCallback((amount: number | 'max') => dispatch({ type: 'SET_WORKSHOP_BUY_AMOUNT', payload: amount }), [dispatch]);
+    const onSetWorkshopBuyAmount = useCallback((amount: number | 'max') => dispatch({ type: 'SET_WORKSHOP_BUY_AMOUNT', payload: amount }), [dispatch]);
   const onCancelWorkshopItem = useCallback((itemName: string, amount: number | 'all') => {
     dispatch({ type: 'CANCEL_QUEUE_ITEM', payload: { category: 'workshop', itemName, amount } });
+  }, [dispatch]);
+  const onDismantleDrone = useCallback((droneType: string, amount: number | 'max') => {
+    dispatch({ type: 'DISMANTLE_DRONE', payload: { droneType, amount } });
   }, [dispatch]);
 
   // Energy Callbacks
@@ -73,6 +77,7 @@ const GameScene: React.FC = () => {
   const onBuildMediumSolar = useCallback(() => dispatch({ type: 'BUILD_MEDIUM_SOLAR' }), [dispatch]);
   const onBuildAdvancedSolar = useCallback(() => dispatch({ type: 'BUILD_ADVANCED_SOLAR' }), [dispatch]);
   const onBuildEnergyCore = useCallback(() => dispatch({ type: 'BUILD_ENERGY_CORE' }), [dispatch]);
+  const onBuildFusionReactor = useCallback(() => dispatch({ type: 'BUILD_FUSION_REACTOR' }), [dispatch]);
   const onSetEnergyBuyAmount = useCallback((amount: number | 'max') => dispatch({ type: 'SET_ENERGY_BUY_AMOUNT', payload: amount }), [dispatch]);
   const onCancelEnergyItem = useCallback((itemName: string, amount: number | 'all') => {
     dispatch({ type: 'CANCEL_QUEUE_ITEM', payload: { category: 'energy', itemName, amount } });
@@ -106,11 +111,13 @@ const GameScene: React.FC = () => {
   const onCraftRefinedMetal = useCallback(() => dispatch({ type: 'CRAFT_REFINED_METAL' }), [dispatch]);
   const onCraftStructuralSteel = useCallback(() => dispatch({ type: 'CRAFT_STRUCTURAL_STEEL' }), [dispatch]);
   const onCraftHullPlate = useCallback(() => dispatch({ type: 'CRAFT_HULL_PLATE' }), [dispatch]);
-  const onCraftSuperconductorWiring = useCallback(() => dispatch({ type: 'CRAFT_SUPERCONDUCTOR_WIRING' }), [dispatch]);
+    const onCraftSuperconductorWiring = useCallback(() => dispatch({ type: 'CRAFT_SUPERCONDUCTOR_WIRING' }), [dispatch]);
+  const onCraftFuelRod = useCallback(() => dispatch({ type: 'CRAFT_FUEL_ROD' }), [dispatch]);
   const onSetFoundryBuyAmount = useCallback((amount: number | 'max') => dispatch({ type: 'SET_FOUNDRY_BUY_AMOUNT', payload: amount }), [dispatch]);
   const onCancelFoundryItem = useCallback((itemName: string, amount: number | 'all') => {
     dispatch({ type: 'CANCEL_QUEUE_ITEM', payload: { category: 'foundry', itemName, amount } });
   }, [dispatch]);
+  const onCraftPurifiedMetal = useCallback(() => dispatch({ type: 'CRAFT_PURIFIED_METAL' }), [dispatch]);
 
   const renderActiveModule = () => {
     switch (currentView) {
@@ -145,10 +152,7 @@ const GameScene: React.FC = () => {
             wyrmDroneQueue={workshop.queues.wyrm}
             
             // Upgrades
-            reinforcedBasicDronesUpgrade={techCenter.upgrades.reinforcedBasicDrones}
-            reinforcedMediumDronesUpgrade={techCenter.upgrades.reinforcedMediumDrones}
-            reinforcedAdvancedDronesUpgrade={techCenter.upgrades.reinforcedAdvancedDrones}
-            golemChassisUpgrade={techCenter.upgrades.golemChassis}
+            upgrades={techCenter.upgrades}
 
             // Callbacks
             onBuildBasicDrone={onBuildBasicDrone}
@@ -160,6 +164,7 @@ const GameScene: React.FC = () => {
             onBuildGolemDrone={onBuildGolemDrone}
             onBuildExpeditionDrone={onBuildExpeditionDrone}
             onBuildWyrm={onBuildWyrm}
+            onDismantle={onDismantleDrone}
 
             // Others
                         buyAmount={workshopBuyAmount}
@@ -183,14 +188,20 @@ const GameScene: React.FC = () => {
             mediumSolarPanelsQueue={energy.queues.mediumSolarPanels}
             advancedSolarQueue={energy.queues.advancedSolar}
             energyCoresQueue={energy.queues.energyCores}
+            fusionReactorQueue={(energy.queues as any).fusionReactor}
             onBuildSolarPanel={onBuildSolarPanel}
             onBuildMediumSolar={onBuildMediumSolar}
-            onBuildAdvancedSolar={onBuildAdvancedSolar}
+                        onBuildAdvancedSolar={onBuildAdvancedSolar}
             onBuildEnergyCore={onBuildEnergyCore}
+            onBuildFusionReactor={onBuildFusionReactor}
                         buyAmount={energyBuyAmount}
             onSetBuyAmount={onSetEnergyBuyAmount}
             onClose={onClose}
             onCancel={onCancelEnergyItem}
+            upgrades={techCenter.upgrades}
+            energyCoresCount={energy.energyCores}
+            metalRefinado={resources.metalRefinado}
+            fusionReactors={energy.fusionReactor}
           />
         );
       case 'storage':
@@ -250,17 +261,15 @@ const GameScene: React.FC = () => {
             onClose={onCloseView}
           />
         );
-      case 'techCenter':
+            case 'techCenter':
         return (
           <TechCenter 
-            unlocked={techCenter.unlocked}
-            researchPoints={techCenter.researchPoints}
-            upgrades={techCenter.upgrades}
+            gameState={gameState}
             onResearchUpgrade={(upgradeName, cost) => dispatch({ type: 'RESEARCH_UPGRADE', payload: { upgradeName, cost } })}
             onClose={() => dispatch({ type: 'CLOSE_CURRENT_VIEW' })}
           />
         );
-      case 'foundry':
+            case 'foundry':
         return (
           <FoundryView
             scrap={resources.scrap}
@@ -271,17 +280,22 @@ const GameScene: React.FC = () => {
             circuitosDañados={resources.circuitosDañados}
             placasCasco={resources.placasCasco}
             cableadoSuperconductor={resources.cableadoSuperconductor}
+            barraCombustible={resources.barraCombustible}
 
             metalRefinadoQueue={foundry.queues.metalRefinado}
             aceroEstructuralQueue={foundry.queues.aceroEstructural}
             placasCascoQueue={foundry.queues.placasCasco}
             cableadoSuperconductorQueue={foundry.queues.cableadoSuperconductor}
+            barraCombustibleQueue={foundry.queues.barraCombustible}
             
             onCraftRefinedMetal={onCraftRefinedMetal}
             onCraftStructuralSteel={onCraftStructuralSteel}
             onCraftHullPlate={onCraftHullPlate}
             onCraftSuperconductorWiring={onCraftSuperconductorWiring}
-                        buyAmount={foundryBuyAmount}
+            onCraftFuelRod={onCraftFuelRod}
+            onCraftPurifiedMetal={onCraftPurifiedMetal}
+            upgrades={techCenter.upgrades}
+            buyAmount={foundryBuyAmount}
             onSetBuyAmount={onSetFoundryBuyAmount}
             onClose={onClose}
             onCancel={onCancelFoundryItem}
@@ -343,23 +357,7 @@ const GameScene: React.FC = () => {
       display: 'flex',
       flexDirection: 'column'
     }}>
-      <ResourceBar
-        scrap={resources.scrap}
-        maxScrap={resources.maxScrap}
-        energy={resources.energy}
-        maxEnergy={resources.maxEnergy}
-        metalRefinado={resources.metalRefinado}
-        aceroEstructural={resources.aceroEstructural}
-        fragmentosPlaca={resources.fragmentosPlaca}
-        circuitosDañados={resources.circuitosDañados}
-        nucleoSingularidad={resources.nucleoSingularidad}
-        scrapPerSecond={rates.scrapPerSecond}
-        energyProduction={resources.energyProduction}
-        energyConsumption={resources.energyConsumption}
-        drones={drones} // Pasamos drones temporalmente para simplificar
-        modules={modules}
-                shipyardUnlocked={shipyard.unlocked}
-      />
+            <ResourceBar />
       
       {resources.energy <= 0 && resources.energyProduction < resources.energyConsumption && (
         <div style={{

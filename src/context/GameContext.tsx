@@ -11,14 +11,13 @@ interface FloatingTextData {
   y: number;
 }
 
-interface GameContextProps {
-  gameState: GameState;
-  dispatch: React.Dispatch<ActionType>;
+// Dividimos el contexto en dos para optimizar los re-renders
+const GameStateContext = createContext<GameState | undefined>(undefined);
+const GameDispatchContext = createContext<React.Dispatch<ActionType> | undefined>(undefined);
+const FloatingTextContext = createContext<{
   showFloatingText: (text: string, x: number, y: number) => void;
   floatingTexts: FloatingTextData[];
-}
-
-const GameContext = createContext<GameContextProps | undefined>(undefined);
+} | undefined>(undefined);
 
 // Función para calcular recursos generados durante la ausencia
 const calculateOfflineResources = (loadedState: GameState): GameState => {
@@ -260,19 +259,37 @@ const loadState = (): GameState => {
     if (serializedState === null) {
       return initialGameState;
     }
-    const storedState = JSON.parse(serializedState);
+        const storedState = JSON.parse(serializedState);
 
-    // Fusionar el estado guardado con el inicial para asegurar compatibilidad
-    const mergedState = { ...initialGameState, ...storedState };
+    // Rehidratar el Set de mensajes de Aurora que se pierde en la serialización
+    if (storedState.aurora && Array.isArray(storedState.aurora.shownMessages)) {
+      storedState.aurora.shownMessages = new Set(storedState.aurora.shownMessages);
+    } else if (storedState.aurora) {
+      // Si existe pero no es un array (por un guardado antiguo o corrupto), se resetea
+      storedState.aurora.shownMessages = new Set();
+    }
 
-    // Recuperar el Set de mensajes de Aurora que no es serializable por defecto
-    // Asegurar que shownMessages sea siempre un Set
-    if (Array.isArray(storedState.aurora?.shownMessages)) {
-      mergedState.aurora.shownMessages = new Set(storedState.aurora.shownMessages);
-    } else if (storedState.aurora?.shownMessages instanceof Set) {
-      mergedState.aurora.shownMessages = storedState.aurora.shownMessages;
-    } else {
-      mergedState.aurora.shownMessages = new Set();
+        // Fusionar el estado guardado con el inicial de forma profunda para asegurar compatibilidad.
+    // Esto previene errores cuando se añaden nuevas propiedades (recursos, colas, etc.) al juego.
+    const mergedState = {
+      ...initialGameState,
+      ...storedState,
+      resources: { ...initialGameState.resources, ...(storedState.resources || {}) },
+      drones: { ...initialGameState.drones, ...(storedState.drones || {}) },
+      workshop: { ...initialGameState.workshop, ...(storedState.workshop || {}), queues: { ...initialGameState.workshop.queues, ...(storedState.workshop?.queues || {}) } },
+      energy: { ...initialGameState.energy, ...(storedState.energy || {}), queues: { ...initialGameState.energy.queues, ...(storedState.energy?.queues || {}) } },
+      storage: { ...initialGameState.storage, ...(storedState.storage || {}), queues: { ...initialGameState.storage.queues, ...(storedState.storage?.queues || {}) } },
+      foundry: { ...initialGameState.foundry, ...(storedState.foundry || {}), queues: { ...initialGameState.foundry.queues, ...(storedState.foundry?.queues || {}) } },
+      techCenter: { ...initialGameState.techCenter, ...(storedState.techCenter || {}), upgrades: { ...initialGameState.techCenter.upgrades, ...(storedState.techCenter?.upgrades || {}) } },
+      aurora: { ...initialGameState.aurora, ...(storedState.aurora || {}) },
+      battleRoom: { ...initialGameState.battleRoom, ...(storedState.battleRoom || {}) },
+      shipyard: { ...initialGameState.shipyard, ...(storedState.shipyard || {}) },
+      vindicator: { ...initialGameState.vindicator, ...(storedState.vindicator || {}) },
+    };
+    
+    // La rehidratación del Set se hace sobre el estado ya fusionado para mayor seguridad
+    if (Array.isArray(mergedState.aurora.shownMessages)) {
+      mergedState.aurora.shownMessages = new Set(mergedState.aurora.shownMessages);
     }
 
     // Calcular recursos generados durante la ausencia
@@ -306,17 +323,46 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   return (
-    <GameContext.Provider value={{ gameState, dispatch, showFloatingText, floatingTexts }}>
-      {children}
-    </GameContext.Provider>
+        <GameStateContext.Provider value={gameState}>
+      <GameDispatchContext.Provider value={dispatch}>
+        <FloatingTextContext.Provider value={{ showFloatingText, floatingTexts }}>
+          {children}
+        </FloatingTextContext.Provider>
+      </GameDispatchContext.Provider>
+    </GameStateContext.Provider>
   );
 };
 
-export const useGame = () => {
-  const context = useContext(GameContext);
+export const useGameState = () => {
+  const context = useContext(GameStateContext);
   if (context === undefined) {
-    throw new Error('useGame must be used within a GameProvider');
+    throw new Error('useGameState must be used within a GameProvider');
   }
   return context;
+};
+
+export const useGameDispatch = () => {
+  const context = useContext(GameDispatchContext);
+  if (context === undefined) {
+    throw new Error('useGameDispatch must be used within a GameProvider');
+  }
+  return context;
+};
+
+export const useFloatingText = () => {
+  const context = useContext(FloatingTextContext);
+  if (context === undefined) {
+    throw new Error('useFloatingText must be used within a GameProvider');
+  }
+  return context;
+};
+
+// Hook combinado para componentes que realmente necesitan ambos (usar con moderación)
+export const useGame = () => {
+  return {
+    gameState: useGameState(),
+    dispatch: useGameDispatch(),
+    ...useFloatingText(),
+  };
 };
 

@@ -30,12 +30,15 @@ const SettingsMenu: React.FC = () => {
   };
 
   return (
-    <div style={{
+        <div style={{
       position: 'fixed',
       bottom: '1rem',
       right: '1rem',
       zIndex: 1000,
-      fontFamily: 'Inter, sans-serif'
+      fontFamily: 'Inter, sans-serif',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'flex-end'
     }}>
       {isOpen && (
         <div style={{

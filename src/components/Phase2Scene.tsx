@@ -34,6 +34,7 @@ const Phase2Scene: React.FC = () => {
         cableadoSuperconductor={resources.cableadoSuperconductor}
         aleacionReforzada={resources.aleacionReforzada}
         neuroChipCorrupto={resources.neuroChipCorrupto}
+        barraCombustible={resources.barraCombustible}
       />
       
       <div style={{

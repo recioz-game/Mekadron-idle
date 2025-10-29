@@ -1,31 +1,21 @@
 import React from 'react';
-import { GameState } from '../types/gameState';
+import { useGameState } from '../context/GameContext';
+import { useResources } from '../hooks/useSelectors';
 import { formatNumber } from '../utils/formatNumber';
 
-interface ResourceBarProps {
-  scrap: number;
-  maxScrap: number;
-  energy: number;
-  maxEnergy: number;
-  metalRefinado: number;
-  aceroEstructural: number;
-  fragmentosPlaca: number;
-  circuitosDañados: number;
-  nucleoSingularidad: number;
-  scrapPerSecond: number;
-  energyProduction: number;
-  energyConsumption: number;
-  drones: GameState['drones']; // Temporalmente como objeto
-  modules: GameState['modules'];
-  shipyardUnlocked: boolean;
-}
+const ResourceBar: React.FC = React.memo(() => {
+  const { drones, modules, shipyard, rates } = useGameState();
+  const resources = useResources();
 
-const ResourceBar: React.FC<ResourceBarProps> = React.memo(({ 
-  scrap, maxScrap, energy, maxEnergy, metalRefinado, aceroEstructural, 
-  fragmentosPlaca, circuitosDañados, nucleoSingularidad,
-  scrapPerSecond, energyProduction, energyConsumption, 
-  drones, modules, shipyardUnlocked 
-}) => {
+  const {
+    scrap, maxScrap, energy, maxEnergy, metalRefinado, aceroEstructural,
+    fragmentosPlaca, circuitosDañados, nucleoSingularidad,
+    energyProduction, energyConsumption
+  } = resources;
+
+  const scrapPerSecond = rates.scrapPerSecond;
+  const shipyardUnlocked = shipyard.unlocked;
+
   const tier1Drones = drones.basic + drones.reinforcedBasic;
   const tier2Drones = drones.medium + drones.reinforcedMedium;
   const tier3Drones = drones.advanced + drones.reinforcedAdvanced + drones.golem + drones.wyrm;

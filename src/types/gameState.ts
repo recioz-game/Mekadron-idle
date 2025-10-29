@@ -82,6 +82,7 @@ export interface GameState {
   currentScene: 'startMenu' | 'introScene' | 'main' | 'phase2Intro' | 'phase2Main' | 'combatScene';
   phase2Unlocked: boolean;
   notificationQueue: GameNotification[];
+  battleCount: number;
   resources: {
     scrap: number;
     energy: number;
@@ -94,6 +95,7 @@ export interface GameState {
     cableadoSuperconductor: number;
     aleacionReforzada: number;
     neuroChipCorrupto: number;
+    barraCombustible: number;
     energyProduction: number;
     energyConsumption: number;
     maxEnergy: number;
@@ -136,6 +138,7 @@ export interface GameState {
     mediumSolarPanels: number;
     advancedSolar: number;
     energyCores: number;
+    fusionReactor: number; // Nueva propiedad
     queues: ReturnType<typeof createQueues<'energy'>>;
   };
   storage: {
@@ -149,7 +152,7 @@ export interface GameState {
     queues: ReturnType<typeof createQueues<'storage'>>;
   };
   aurora: {
-    currentMessage: string;
+    currentMessage: string | null;
     messageQueue: Array<{ message: string; key: string }>;
     shownMessages: Set<string>;
   };
@@ -175,8 +178,9 @@ export interface GameState {
       batteryTech: number;
       coreEfficiency: number;
       powerGrid: number;
-      geothermalEnergy: number;
+            geothermalEnergy: number;
       fusionTech: number;
+      poweredFabricators: number; // No estaba en la lista de upgrades
       researchEfficiency: number;
       advancedAnalysis: number;
       algorithmOptimization: number;
@@ -246,6 +250,7 @@ export const initialGameState: GameState = {
   currentScene: 'startMenu',
   phase2Unlocked: false,
   notificationQueue: [],
+  battleCount: 0,
   resources: {
     scrap: 0,
     energy: 25,
@@ -258,14 +263,15 @@ export const initialGameState: GameState = {
     cableadoSuperconductor: 0,
     aleacionReforzada: 0,
     neuroChipCorrupto: 0,
+    barraCombustible: 0,
     energyProduction: 0,
     energyConsumption: 0,
     maxEnergy: 50,
     maxScrap: 150
   },
-    battleRoom: {
+      battleRoom: {
     selectedDestination: null,
-    battlesCompleted: Array(5).fill(0)
+    battlesCompleted: Array(6).fill(0)
   },
   workshopBuyAmount: 1,
   drones: {
@@ -300,6 +306,7 @@ export const initialGameState: GameState = {
     mediumSolarPanels: 0,
     advancedSolar: 0,
     energyCores: 0,
+    fusionReactor: 0,
     queues: createQueues('energy')
   },
   storage: {
@@ -313,7 +320,7 @@ export const initialGameState: GameState = {
     queues: createQueues('storage')
   },
   aurora: {
-    currentMessage: '',
+    currentMessage: null,
     messageQueue: [],
     shownMessages: new Set()
   },
@@ -343,8 +350,9 @@ export const initialGameState: GameState = {
       batteryTech: 0,
       coreEfficiency: 0,
       powerGrid: 0,
-      geothermalEnergy: 0,
+            geothermalEnergy: 0,
       fusionTech: 0,
+      poweredFabricators: 0,
       researchEfficiency: 0,
       advancedAnalysis: 0,
       algorithmOptimization: 0,

@@ -1,13 +1,37 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { ActionType } from '../types/actions';
 
 export const useGameLoop = (dispatch: React.Dispatch<ActionType>) => {
-  useEffect(() => {
-    const interval = setInterval(() => {
-      dispatch({ type: 'GAME_TICK' });
-      dispatch({ type: 'UPDATE_MISSION_PROGRESS' });
-    }, 1000);
+  const lastTick = useRef<number | null>(null);
+  const tickInterval = 1000; // 1 tick por segundo
 
-    return () => clearInterval(interval);
+  useEffect(() => {
+    let frameId: number;
+
+    const gameLoop = (timestamp: number) => {
+      if (lastTick.current === null) {
+        lastTick.current = timestamp;
+      }
+
+      const delta = timestamp - lastTick.current;
+
+      if (delta >= tickInterval) {
+        const ticksToProcess = Math.floor(delta / tickInterval);
+        lastTick.current = timestamp - (delta % tickInterval);
+
+        // Procesar todos los ticks que han pasado
+        for (let i = 0; i < ticksToProcess; i++) {
+          dispatch({ type: 'GAME_TICK' });
+          dispatch({ type: 'UPDATE_MISSION_PROGRESS' });
+        }
+      }
+
+      frameId = requestAnimationFrame(gameLoop);
+    };
+
+    frameId = requestAnimationFrame(gameLoop);
+
+    return () => cancelAnimationFrame(frameId);
   }, [dispatch]);
 };
+

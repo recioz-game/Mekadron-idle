@@ -1,21 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { GameState } from '../types/gameState';
+import { formatNumber } from '../utils/formatNumber';
 
 interface TechCenterProps {
-  unlocked: boolean;
-  researchPoints: number;
-  upgrades: { [key: string]: number };
+  gameState: GameState; // Le pasamos el estado completo
   onResearchUpgrade: (upgradeName: string, cost: number) => void;
   onClose: () => void;
 }
 
 const TechCenter: React.FC<TechCenterProps> = ({ 
-  unlocked,
-  researchPoints,
-  upgrades,
+  gameState,
   onResearchUpgrade, 
   onClose 
 }) => {
+  const { techCenter, drones, resources } = gameState;
+  const { unlocked, researchPoints, upgrades } = techCenter;
 
+  // --- NUEVA LÓGICA PARA EL TOOLTIP ---
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  // Replicamos la lógica de cálculo de `tickLogic.ts` para mostrarla
+  const baseResearch = 0.1 * (1 + ((upgrades.researchEfficiency || 0) * 0.20));
+  const totalDrones = Object.values(drones).reduce((sum, count) => sum + count, 0);
+  const droneResearch = (totalDrones * 0.01) * (1 + ((upgrades.advancedAnalysis || 0) * 0.10));
+  const energySurplus = Math.max(0, resources.energyProduction - resources.energyConsumption);
+  const energyResearch = (energySurplus * 0.005) * (1 + ((upgrades.algorithmOptimization || 0) * 0.15));
+  const totalResearchPerSecond = (baseResearch + droneResearch + energyResearch) / (1 - ((upgrades.quantumComputing || 0) * 0.05));
+  // --- FIN DE LA NUEVA LÓGICA ---
+  
   const techTree = [
     // --- COLUMNA: DRONES ---
         { id: 'collectionEfficiency', category: 'Drones', title: 'Recolección Mejorada', description: 'Aumenta la chatarra recolectada por los drones.', effect: (level: number) => `+${level * 10}% Prod. Chatarra`, cost: 100, maxLevel: 5, requirements: [] },
@@ -24,7 +36,9 @@ const TechCenter: React.FC<TechCenterProps> = ({
     { id: 'reinforcedMediumDrones', category: 'Drones', title: 'Drones Reforzados II', description: 'Desbloquea drones medios reforzados.', effect: () => 'Desbloquea DMR-F', cost: 500, maxLevel: 1, requirements: ['reinforcedBasicDrones'] },
     { id: 'reinforcedAdvancedDrones', category: 'Drones', title: 'Drones Reforzados III', description: 'Desbloquea drones avanzados reforzados.', effect: () => 'Desbloquea DAR-F', cost: 1000, maxLevel: 1, requirements: ['reinforcedMediumDrones'] },
     { id: 'golemChassis', category: 'Drones', title: 'Chasis Golem', description: 'Desbloquea los poderosos Drones Golem.', effect: () => 'Desbloquea DG-1', cost: 2500, maxLevel: 1, requirements: ['reinforcedAdvancedDrones'] },
-    { id: 'swarmAI', category: 'Drones', title: 'IA de Enjambre', description: 'Por cada 50 drones, +1% a la producción global de chatarra (máx 10%).', effect: (level: number) => `Actualmente: +${level}%`, cost: 5000, maxLevel: 10, requirements: ['golemChassis'] },
+        { id: 'swarmAI', category: 'Drones', title: 'IA de Enjambre', description: 'Por cada 50 drones, +1% a la producción global de chatarra (máx 10%).', effect: (level: number) => `Actualmente: +${level}%`, cost: 5000, maxLevel: 10, requirements: ['golemChassis'] },
+    { id: 'reaasignProtocols', category: 'Drones', title: 'Protocolos de Reasignación', description: 'Desbloquea la capacidad de desmantelar drones en el Taller para recuperar el 75% de sus costes.', effect: () => 'Desbloquea Desmantelamiento', cost: 1200, maxLevel: 1, requirements: ['swarmAI'] },
+    { id: 'geologicalScanners', category: 'Drones', title: 'Scanners Geológicos', description: 'Los drones tienen una pequeña probabilidad de encontrar recursos raros al recolectar chatarra.', effect: (level: number) => `+${level * 0.01}% Prob. Recursos Raros`, cost: 3000, maxLevel: 5, requirements: ['reaasignProtocols'] },
 
     // --- COLUMNA: ENERGÍA ---
         { id: 'powerOptimization', category: 'Energia', title: 'Optimización Energética', description: 'Reduce el consumo de energía de los drones.', effect: (level: number) => `-${level * 5}% Consumo Energía`, cost: 120, maxLevel: 5, requirements: [] },
@@ -34,7 +48,8 @@ const TechCenter: React.FC<TechCenterProps> = ({
     { id: 'batteryTech', category: 'Energia', title: 'Tecnología de Baterías', description: 'Aumenta la capacidad máxima de energía.', effect: (level: number) => `+${level * 15}% Cap. Energía`, cost: 300, maxLevel: 5, requirements: ['powerGrid'] },
     { id: 'coreEfficiency', category: 'Energia', title: 'Eficiencia de Núcleos', description: 'Aumenta la producción de los Núcleos Energéticos.', effect: (level: number) => `+${level * 10}% Prod. Núcleos`, cost: 800, maxLevel: 3, requirements: ['batteryTech'] },
     { id: 'geothermalEnergy', category: 'Energia', title: 'Energía Geotérmica', description: 'Desbloquea el Generador Geotérmico (Próximamente).', effect: () => 'Desbloqueo', cost: 3000, maxLevel: 1, requirements: ['coreEfficiency'] },
-    { id: 'fusionTech', category: 'Energia', title: 'Reactores de Fusión (Próximamente)', description: 'Desbloquea una nueva fuente de energía.', effect: () => 'Próximamente', cost: 5000, maxLevel: 1, requirements: ['geothermalEnergy'] },
+        { id: 'fusionTech', category: 'Energia', title: 'Reactores de Fusión', description: 'Desbloquea el Reactor de Fusión, una fuente de energía masiva.', effect: () => 'Desbloquea Reactor', cost: 5000, maxLevel: 1, requirements: ['geothermalEnergy'] },
+    { id: 'poweredFabricators', category: 'Energia', title: 'Fabricadores Potenciados', description: 'Si la energía está por encima del 90%, la construcción y crafteo es un 10% más rápida.', effect: (level: number) => `+${level * 10}% Velocidad (Bono)`, cost: 2000, maxLevel: 3, requirements: ['fusionTech'] },
 
     // --- COLUMNA: INVESTIGACIÓN ---
     { id: 'researchEfficiency', category: 'Investigacion', title: 'Protocolos de Datos', description: 'Aumenta la generación base de Puntos de Investigación (RP).', effect: (level: number) => `+${level * 20}% RP Base`, cost: 150, maxLevel: 5, requirements: [] },
@@ -62,6 +77,7 @@ const TechCenter: React.FC<TechCenterProps> = ({
     { id: 'foundryEnergy', category: 'Fundicion', title: 'Eficiencia de Costes II', description: 'Reduce el coste de energía para crear Metal Refinado.', effect: (level: number) => `-${level * 5}% Coste Energía`, cost: 400, maxLevel: 4, requirements: ['smeltingEfficiency'] },
     { id: 'alloyCreation', category: 'Fundicion', title: 'Creación de Aleaciones (Próximamente)', description: 'Permite crear nuevos materiales.', effect: () => 'Próximamente', cost: 1800, maxLevel: 1, requirements: ['foundryEnergy'] },
     { id: 'selfReplication', category: 'Fundicion', title: 'Auto-Replicación (Próximamente)', description: 'La fundición genera sus propios recursos.', effect: () => 'Próximamente', cost: 7500, maxLevel: 1, requirements: ['alloyCreation'] },
+    { id: 'scrapPurification', category: 'Fundicion', title: 'Purificación de Chatarra', description: 'Desbloquea una receta ineficiente para convertir chatarra en Metal Refinado.', effect: () => 'Desbloquea Receta', cost: 1000, maxLevel: 1, requirements: ['selfReplication'] },
   ];
 
   const categories = ['Drones', 'Energia', 'Investigacion', 'Almacenamiento', 'Fundicion'];
@@ -155,11 +171,28 @@ const TechCenter: React.FC<TechCenterProps> = ({
         backgroundColor: '#1F2737',
         borderRadius: '4px',
         marginBottom: '2rem',
-        textAlign: 'center'
+        textAlign: 'center',
+        position: 'relative' // Necesario para el tooltip
       }}>
-                <h3 style={{ color: '#06B6D4', marginTop: 0 }}>
-          🧪 Puntos de Investigación: {Math.floor(researchPoints)}
+        <h3 
+          style={{ color: '#06B6D4', marginTop: 0, display: 'inline-flex', alignItems: 'center', gap: '1rem' }}
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+        >
+          <span>🧪 Puntos de Investigación: {formatNumber(researchPoints)}</span>
+          <span style={{ cursor: 'pointer', fontSize: '0.9rem', border: '1px solid #9CA3AF', borderRadius: '50%', width: '20px', height: '20px', display: 'inline-flex', justifyContent: 'center', alignItems: 'center' }}>
+            ⓘ
+          </span>
         </h3>
+        {showTooltip && (
+          <ResearchTooltip
+            base={baseResearch}
+            fromDrones={droneResearch}
+            fromEnergy={energyResearch}
+            total={totalResearchPerSecond}
+            quantumComputingLevel={upgrades.quantumComputing || 0}
+          />
+        )}
       </div>
       
       <div style={{
@@ -190,6 +223,41 @@ const TechCenter: React.FC<TechCenterProps> = ({
           </div>
                         ))}
       </div>
+    </div>
+  );
+};
+
+// --- NUEVO COMPONENTE TOOLTIP ---
+const ResearchTooltip: React.FC<{base: number, fromDrones: number, fromEnergy: number, total: number, quantumComputingLevel: number}> = 
+({ base, fromDrones, fromEnergy, total, quantumComputingLevel }) => {
+  return (
+    <div style={{
+      position: 'absolute',
+      bottom: '100%',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      backgroundColor: '#111827',
+      border: '1px solid #374151',
+      borderRadius: '8px',
+      padding: '1rem',
+      width: '300px',
+      textAlign: 'left',
+      fontSize: '0.9rem',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+      zIndex: 10,
+    }}>
+      <h4 style={{ margin: 0, color: '#06B6D4' }}>Generación de Investigación</h4>
+      <hr style={{ borderColor: '#374151', margin: '0.5rem 0' }} />
+      <p style={{ margin: '0.5rem 0' }}>Tasa Base: <strong>+{base.toFixed(2)} /s</strong></p>
+      <p style={{ margin: '0.5rem 0' }}>Análisis de Drones: <strong>+{fromDrones.toFixed(2)} /s</strong></p>
+      <p style={{ margin: '0.5rem 0' }}>Superávit Energético: <strong>+{fromEnergy.toFixed(2)} /s</strong></p>
+      {quantumComputingLevel > 0 && (
+         <p style={{ margin: '0.5rem 0', color: '#22C55E' }}>
+           Multiplicador Cuántico: <strong>x{(1 / (1 - (quantumComputingLevel * 0.05))).toFixed(2)}</strong>
+         </p>
+      )}
+      <hr style={{ borderColor: '#374151', margin: '0.5rem 0' }} />
+      <p style={{ margin: '0.5rem 0', fontWeight: 'bold' }}>Total: <strong>+{total.toFixed(2)} /s</strong></p>
     </div>
   );
 };
