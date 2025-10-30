@@ -109,21 +109,17 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         };
     }
 
-    case 'CLOSE_AURORA_MESSAGE':
-        const nextMessage = state.aurora.messageQueue.length > 0
-        ? state.aurora.messageQueue[0]
-        : null;
-
-    return {
-        ...state,
-        aurora: {
-            ...state.aurora,
-            currentMessage: nextMessage ? nextMessage.message : null,
-            messageQueue: nextMessage
-                ? state.aurora.messageQueue.slice(1)
-                : state.aurora.messageQueue
-        }
-    };
+        case 'CLOSE_AURORA_MESSAGE': {
+        const nextMessage = state.aurora.messageQueue.length > 0 ? state.aurora.messageQueue[0] : null;
+        return {
+            ...state,
+            aurora: {
+                ...state.aurora,
+                currentMessage: nextMessage ? nextMessage.message : null,
+                messageQueue: nextMessage ? state.aurora.messageQueue.slice(1) : [],
+            }
+        };
+    }
 
     case 'ADD_AURORA_MESSAGE': {
         const { message, messageKey } = action.payload;

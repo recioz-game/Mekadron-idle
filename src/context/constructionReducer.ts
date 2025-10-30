@@ -14,6 +14,7 @@ interface BuildConfiguration {
 const handleBuild = (state: GameState, config: BuildConfiguration): GameState => {
   // 1. Comprobar prerrequisitos
   if (config.prerequisites && !config.prerequisites(state)) {
+    console.warn(`Prerequisites not met for ${config.queuePath[2]}`);
     return state;
   }
 

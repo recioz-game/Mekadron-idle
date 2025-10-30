@@ -30,8 +30,8 @@ export const gameData: GameData = {
   },
   storage: {
     basicStorage: { costs: { scrap: 100 }, time: 10 },
-    mediumStorage: { costs: { scrap: 1000 }, time: 50, prerequisites: (s) => s.storage.basicStorage >= 3 },
-    advancedStorage: { costs: { scrap: 10000 }, time: 200, prerequisites: (s) => s.storage.mediumStorage >= 1 },
+    mediumStorage: { costs: { scrap: 1000 }, time: 40, prerequisites: (s) => s.storage.basicStorage >= 3 },
+    advancedStorage: { costs: { scrap: 10000 }, time: 170, prerequisites: (s) => s.storage.mediumStorage >= 1 },
     quantumHoardUnit: { costs: { scrap: 75000, metalRefinado: 50 }, time: 900, prerequisites: (s) => s.storage.advancedStorage >= 3 },
     lithiumIonBattery: { costs: { scrap: 150 }, time: 15 },
     plasmaAccumulator: { costs: { scrap: 750 }, time: 60, prerequisites: (s) => s.storage.lithiumIonBattery >= 5 },

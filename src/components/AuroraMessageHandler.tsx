@@ -35,12 +35,12 @@ const AuroraMessageHandler: React.FC = () => {
     if (drones.medium === 1 && !safeShownMessages.has("first_medium")) {
         addAuroraMessage("Eficiencia de recolección incrementada. Continué con la expansión de la flota.", "first_medium");
     }
-    if (resources.energy < 5 && !safeShownMessages.has("low_energy")) {
+        /* if (resources.energy < 5 && !safeShownMessages.has("low_energy")) {
         addAuroraMessage("Advertencia: Reservas energéticas críticas. Priorice la construcción de generadores.", "low_energy");
     }
     if (resources.scrap >= resources.maxScrap * 0.95 && !safeShownMessages.has("storage_full")) {
         addAuroraMessage("Capacidad de almacenamiento al 95%. Considere expandir las instalaciones de almacenamiento.", "storage_full");
-    }
+    } */
     if (storage.basicStorage === 1 && !safeShownMessages.has("first_storage")) {
         addAuroraMessage("Depósitos restaurados. Capacidad de almacenamiento incrementada.", "first_storage");
     }
