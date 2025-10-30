@@ -1,4 +1,4 @@
-import { ExpeditionId } from './gameState';
+import { ExpeditionId, ActiveExpedition } from './gameState';
 
 // src/types/actions.ts
 
@@ -28,6 +28,7 @@ export type ActionType =
   | { type: 'BUILD_REINFORCED_ADVANCED' }
   | { type: 'BUILD_GOLEM_DRONE' }
   | { type: 'BUILD_EXPEDITION_DRONE' }
+  | { type: 'BUILD_EXPEDITION_V2_DRONE' } // Nueva acción para el dron v2
   | { type: 'BUILD_WYRM' }
   | { type: 'BUILD_SOLAR_PANEL' }
   | { type: 'BUILD_MEDIUM_SOLAR' }
@@ -47,8 +48,8 @@ export type ActionType =
     | { type: 'CRAFT_HULL_PLATE' }
   | { type: 'CRAFT_SUPERCONDUCTOR_WIRING' }
   | { type: 'CRAFT_FUEL_ROD' }
-  | { type: 'START_EXPEDITION'; payload: { expeditionId: ExpeditionId; droneCount: number } }
-  | { type: 'CLAIM_EXPEDITION_REWARDS'; payload: ExpeditionId }
+  | { type: 'START_EXPEDITION'; payload: { expeditionId: ExpeditionId } }
+
   | { type: 'DONATE_TO_SHIPYARD'; payload: { component: string; resource: string; amount: number } }
   | { type: 'DISMISS_NOTIFICATION' }
   | { type: 'DEBUG_UNLOCK_TECH_CENTER' }
@@ -64,5 +65,12 @@ export type ActionType =
   | { type: 'ESCAPE_COMBAT' }
   | { type: 'CRAFT_PURIFIED_METAL' }
   | { type: 'DISMANTLE_DRONE'; payload: { droneType: string; amount: number | 'max' } }
-  | { type: 'CANCEL_QUEUE_ITEM'; payload: { category: string; itemName: string; amount: number | 'all' } };
-
+  | { type: 'CANCEL_QUEUE_ITEM'; payload: { category: string; itemName: string; amount: number | 'all' } }
+  // Nuevas acciones de reparación
+  | { type: 'REPAIR_VINDICATOR_HEALTH'; payload: { healthAmount: number; scrapCost: number } }
+  | { type: 'REPAIR_VINDICATOR_SHIELD'; payload: { shieldAmount: number; fuelCost: number } }
+    // Nuevas acciones para mejoras por estrellas
+    | { type: 'UPGRADE_VINDICATOR_STAR'; payload: { upgradeId: string } }
+    | { type: 'LEVEL_UP_VINDICATOR' }
+  | { type: 'CLAIM_EXPEDITION_REWARDS'; payload: ActiveExpedition }
+  | { type: 'SET_VOLUME'; payload: number };

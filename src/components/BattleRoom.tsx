@@ -152,10 +152,32 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
                       <p>Escudo: {formatNumber(nextBattle.shield)}</p>
                       <p>Daño: {formatNumber(nextBattle.damage)}</p>
                     </div>
-                    <p>Recompensa: {formatNumber(nextBattle.reward.scrap)} Chatarra</p>
+                    
+                    {/* Recompensas Mejoradas */}
+                    <div className="battle-rewards">
+                      <h5>🎁 Recompensas de Victoria:</h5>
+                      <div className="rewards-list">
+                        <div className="reward-item">
+                          <span className="reward-icon">💰</span>
+                          <span className="reward-amount">{formatNumber(nextBattle.reward.scrap)}</span>
+                          <span className="reward-name">Chatarra</span>
+                        </div>
+                        <div className="reward-item">
+                          <span className="reward-icon">🛡️</span>
+                          <span className="reward-amount">{formatNumber(nextBattle.reward.aleacionReforzada)}</span>
+                          <span className="reward-name">Aleación Reforzada</span>
+                        </div>
+                        <div className="reward-item">
+                          <span className="reward-icon">🧠</span>
+                          <span className="reward-amount">{formatNumber(nextBattle.reward.neuroChipCorrupto)}</span>
+                          <span className="reward-name">Neuro-Chip Corrupto</span>
+                        </div>
+                      </div>
+                    </div>
                     
                     <div className="fuel-cost">
-                      Coste: 1 ⛽ Barra de Combustible
+                      <span className="fuel-icon">⛽</span>
+                      Coste: 1 Barra de Combustible
                     </div>
                     
                     <div className="battle-warning">

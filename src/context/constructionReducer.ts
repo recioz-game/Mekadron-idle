@@ -44,7 +44,7 @@ const handleBuild = (state: GameState, config: BuildConfiguration): GameState =>
   // 5. Añadir a la cola de producción
   const [category, queuesProp, itemName] = config.queuePath;
   (newState[category as keyof GameState] as any)[queuesProp][itemName].queue += amount;
-  
+
   return newState;
 };
 
@@ -52,7 +52,7 @@ const handleBuild = (state: GameState, config: BuildConfiguration): GameState =>
 export const constructionReducer = (state: GameState, action: ActionType): GameState => {
   switch (action.type) {
     case 'BUILD_BASIC_DRONE':
-      return handleBuild(state, { ...gameData.drones.basic, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'basic'] });
+      return handleBuild(state, { ...gameData.drones.basic, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'basic' ] } );
     case 'BUILD_MEDIUM_DRONE':
       return handleBuild(state, { ...gameData.drones.medium, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'medium'] });
     case 'BUILD_ADVANCED_DRONE':
@@ -67,6 +67,8 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
       return handleBuild(state, { ...gameData.drones.golem, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'golem'] });
     case 'BUILD_EXPEDITION_DRONE':
       return handleBuild(state, { ...gameData.drones.expeditionDrone, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'expeditionDrone'] });
+    case 'BUILD_EXPEDITION_V2_DRONE':
+      return handleBuild(state, { ...gameData.drones.expeditionV2Drone, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'expeditionV2Drone'] });
     case 'BUILD_WYRM':
       return handleBuild(state, { ...gameData.drones.wyrm, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'wyrm'] });
     case 'BUILD_SOLAR_PANEL':
@@ -80,7 +82,6 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
 
     case 'BUILD_FUSION_REACTOR':
       return handleBuild(state, { ...gameData.energy.fusionReactor, buyAmount: state.energyBuyAmount, queuePath: ['energy', 'queues', 'fusionReactor'] });
-
     case 'BUILD_BASIC_STORAGE':
       return handleBuild(state, { ...gameData.storage.basicStorage, buyAmount: state.storageBuyAmount, queuePath: ['storage', 'queues', 'basicStorage'] });
     case 'BUILD_MEDIUM_STORAGE':
@@ -103,7 +104,7 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
       return handleBuild(state, { ...gameData.foundry.placasCasco, buyAmount: state.foundryBuyAmount, queuePath: ['foundry', 'queues', 'placasCasco'] });
     case 'CRAFT_SUPERCONDUCTOR_WIRING':
       return handleBuild(state, { ...gameData.foundry.cableadoSuperconductor, buyAmount: state.foundryBuyAmount, queuePath: ['foundry', 'queues', 'cableadoSuperconductor'] });
-    
+
     case 'CRAFT_FUEL_ROD':
       return handleBuild(state, { ...gameData.foundry.barraCombustible, buyAmount: state.foundryBuyAmount, queuePath: ['foundry', 'queues', 'barraCombustible'] });
 
@@ -121,9 +122,9 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
       if (!droneCount || droneCount <= 0) {
         return state;
       }
-      
+
       const amountToDismantle = amount === 'max' ? droneCount : Math.min(amount, droneCount);
-      
+
       const droneCosts = gameData.drones[droneType as keyof typeof gameData.drones]?.costs;
       if (!droneCosts) {
         return state;
@@ -142,7 +143,7 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
 
       return newState;
     }
-      
+
     case 'CANCEL_QUEUE_ITEM': {
       const { category, itemName, amount } = action.payload;
 

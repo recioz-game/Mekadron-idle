@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatNumber } from '../utils/formatNumber';
+import { useGame } from '../context/GameContext';
 
 interface Phase2ResourceBarProps {
   metalRefinado: number;
@@ -20,6 +21,9 @@ const Phase2ResourceBar: React.FC<Phase2ResourceBarProps> = ({
   neuroChipCorrupto,
   barraCombustible,
 }) => {
+  const { gameState } = useGame();
+  const { vindicator } = gameState;
+
   return (
     <div style={{
       backgroundColor: '#111827',
@@ -27,10 +31,11 @@ const Phase2ResourceBar: React.FC<Phase2ResourceBarProps> = ({
       padding: '1rem',
       borderBottom: '2px solid #1F2937',
       display: 'flex',
-      justifyContent: 'flex-start',
+      justifyContent: 'space-between',
       alignItems: 'center',
       fontFamily: 'Inter, sans-serif'
     }}>
+      {/* Recursos - Parte izquierda */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -71,9 +76,43 @@ const Phase2ResourceBar: React.FC<Phase2ResourceBarProps> = ({
           <span>{formatNumber(barraCombustible)}</span>
         </div>
       </div>
+
+      {/* Stats de la Nave Vindicator - Parte derecha */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '1.5rem',
+        backgroundColor: 'rgba(31, 41, 55, 0.8)',
+        padding: '0.5rem 1rem',
+        borderRadius: '8px',
+        border: '1px solid #374151'
+      }}>
+        {/* Salud */}
+        <div style={{ display: 'flex', alignItems: 'center' }} title="Salud">
+          <span style={{ fontSize: '1.2rem', color: '#EF4444', marginRight: '0.5rem' }}>❤️</span>
+          <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+            {formatNumber(vindicator.currentHealth)}/{formatNumber(vindicator.maxHealth)}
+          </span>
+        </div>
+
+        {/* Escudo */}
+        <div style={{ display: 'flex', alignItems: 'center' }} title="Escudo">
+          <span style={{ fontSize: '1.2rem', color: '#3B82F6', marginRight: '0.5rem' }}>🛡️</span>
+          <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+            {formatNumber(vindicator.currentShield)}/{formatNumber(vindicator.maxShield)}
+          </span>
+        </div>
+
+        {/* Daño */}
+        <div style={{ display: 'flex', alignItems: 'center' }} title="Daño">
+          <span style={{ fontSize: '1.2rem', color: '#F59E0B', marginRight: '0.5rem' }}>⚔️</span>
+          <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+            {formatNumber(vindicator.damage)}
+          </span>
+        </div>
+      </div>
     </div>
   );
 };
 
 export default Phase2ResourceBar;
-

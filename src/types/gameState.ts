@@ -11,36 +11,36 @@ interface QueueItem {
 const createQueues = <T extends keyof typeof gameData>(category: T): Record<string, QueueItem> => {
   const queues: Record<string, QueueItem> = {};
   const categoryData = gameData[category] as Record<string, { time: number }>;
-  
   for (const key in categoryData) {
     queues[key] = {
-      progress: 0, 
-      queue: 0, 
+      progress: 0,
+      queue: 0,
       time: categoryData[key].time
     };
   }
   return queues;
 };
 
-export type ExpeditionId = 'chatarreriaOrbital' | 'cinturonAsteroides' | 'cementerioAcorazados';
+export type ExpeditionId = 'chatarreriaOrbital' | 'cinturonAsteroides' | 'cementerioAcorazados' | 'incursionZonaCorrupta';
 
 export interface Expedition {
   id: ExpeditionId;
   title: string;
   description: string;
   duration: number; // en segundos
+  droneType: 'expeditionDrone' | 'expeditionV2Drone'; // Tipo de dron requerido
   costs: {
     drones: number;
-    metalRefinado?: number;
+        metalRefinado?: number;
     aceroEstructural?: number;
+    barraCombustible?: number;
   };
   rewards: {
     scrap?: [min: number, max: number];
-        metalRefinado?: [min: number, max: number];
+    metalRefinado?: [min: number, max: number];
     aceroEstructural?: [min: number, max: number];
         fragmentosPlaca?: [min: number, max: number];
     circuitosDañados?: [min: number, max: number];
-    nucleoSingularidad?: [min: number, max: number];
     aleacionReforzada?: [min: number, max: number];
     neuroChipCorrupto?: [min: number, max: number];
   };
@@ -78,6 +78,23 @@ export interface GameNotification {
   message: string;
 }
 
+export interface VindicatorUpgrade {
+  id: string;
+  name: string;
+  description: string;
+  maxStars: number;
+  currentStars: number;
+  costPerStar: {
+    phase1Resources: Record<string, number>;
+    phase2Resources: Record<string, number>;
+  };
+  statIncreasePerStar: {
+    health?: number;
+    shield?: number;
+    damage?: number;
+  };
+}
+
 export interface GameState {
   currentScene: 'startMenu' | 'introScene' | 'main' | 'phase2Intro' | 'phase2Main' | 'combatScene';
   phase2Unlocked: boolean;
@@ -101,7 +118,7 @@ export interface GameState {
     maxEnergy: number;
     maxScrap: number;
   };
-  battleRoom: {
+      battleRoom: {
     selectedDestination: number | null; // Indice del destino seleccionado (0-4) o null si no hay ninguno
     battlesCompleted: number[]; // Array de booleanos, uno por cada combate completado
   };
@@ -115,6 +132,7 @@ export interface GameState {
     reinforcedAdvanced: number;
     golem: number;
     expeditionDrone: number;
+    expeditionV2Drone: number; // Nuevo dron de expedición v2
     wyrm: number;
   };
   workshop: {
@@ -156,7 +174,7 @@ export interface GameState {
     messageQueue: Array<{ message: string; key: string }>;
     shownMessages: Set<string>;
   };
-  missions: {
+        missions: {
     activeMissions: Mission[];
     completedMissions: string[];
     currentMissionIndex: number;
@@ -212,7 +230,7 @@ export interface GameState {
   };
   currentView: string;
   activeExpeditions: ActiveExpedition[];
-    shipyard: {
+  shipyard: {
     unlocked: boolean;
     progress: {
       hull: { placasCasco: number };
@@ -220,7 +238,7 @@ export interface GameState {
       targetingSystem: { researchPoints: number; cableadoSuperconductor: number };
       warpDrive: { nucleoSingularidad: number };
     };
-    costs: {
+        costs: {
       hull: { placasCasco: number };
       powerCore: { cableadoSuperconductor: number };
       targetingSystem: { researchPoints: number; cableadoSuperconductor: number };
@@ -233,8 +251,16 @@ export interface GameState {
     maxShield: number;
     currentShield: number;
     damage: number;
+};
+  // Nuevas propiedades para el sistema de mejoras del Vindicator
+  vindicatorUpgrades: {
+    reinforcedArmor: VindicatorUpgrade;     // Blindaje Reforzado - Aumenta vida
+    shieldGenerator: VindicatorUpgrade;     // Generador de Escudos - Aumenta escudo
+    improvedCannons: VindicatorUpgrade;     // Cañones Mejorados - Aumenta daño
   };
-  activeBattle: {
+  blueprints: number; // Planos para subir de estrella
+  vindicatorLevel: number; // Nivel general del Vindicator
+    activeBattle: {
     destinationIndex: number;
     battleIndex: number;
     enemyName: string;
@@ -243,6 +269,9 @@ export interface GameState {
     enemyMaxShield: number;
     enemyCurrentShield: number;
   } | null;
+  settings: {
+    volume: number; // 0-100
+  };
   lastSaveTimestamp?: number;
 }
 
@@ -283,6 +312,7 @@ export const initialGameState: GameState = {
     reinforcedAdvanced: 0,
     golem: 0,
     expeditionDrone: 0,
+    expeditionV2Drone: 0, // Nuevo dron de expedición v2
     wyrm: 0
   },
   workshop: {
@@ -406,6 +436,50 @@ export const initialGameState: GameState = {
     currentShield: 250,  // Reducido de 500 a 250 (50%)
     damage: 50,
   },
+  // Nuevas propiedades iniciales para mejoras del Vindicator
+  vindicatorUpgrades: {
+    reinforcedArmor: {
+      id: 'reinforced_armor',
+      name: 'Blindaje Reforzado',
+      description: 'Aumenta la vida máxima del Vindicator',
+      maxStars: 5,
+      currentStars: 0,
+      costPerStar: {
+        phase1Resources: { aleacionReforzada: 50, neuroChipCorrupto: 25 },
+                phase2Resources: { fragmentosPlaca: 100, circuitosDañados: 50 },
+      },
+      statIncreasePerStar: { health: 100 }
+    },
+    shieldGenerator: {
+      id: 'shield_generator',
+      name: 'Generador de Escudos',
+      description: 'Aumenta el escudo máximo del Vindicator',
+      maxStars: 5,
+      currentStars: 0,
+      costPerStar: {
+        phase1Resources: { aleacionReforzada: 40, neuroChipCorrupto: 30 },
+                phase2Resources: { fragmentosPlaca: 80, circuitosDañados: 60 },
+      },
+      statIncreasePerStar: { shield: 50 }
+    },
+    improvedCannons: {
+      id: 'improved_cannons',
+      name: 'Cañones Mejorados',
+      description: 'Aumenta el daño del Vindicator',
+      maxStars: 5,
+      currentStars: 0,
+      costPerStar: {
+        phase1Resources: { aleacionReforzada: 60, neuroChipCorrupto: 20 },
+                phase2Resources: { fragmentosPlaca: 120, circuitosDañados: 40 },
+      },
+      statIncreasePerStar: { damage: 10 }
+    }
+  },
+  blueprints: 0,
+  vindicatorLevel: 1, // El Vindicator comienza en nivel 1
   activeBattle: null,
+  settings: {
+    volume: 75 // Valor por defecto del 75%
+  },
   lastSaveTimestamp: undefined
 };

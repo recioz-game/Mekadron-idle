@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { GameState, ExpeditionId, ActiveExpedition } from '../types/gameState';
-import { expeditionsData } from '../data/expeditions';
+import { allExpeditionsData } from '../data/expeditionsData';
 import { formatNumber } from '../utils/formatNumber';
 
 interface ExpeditionViewProps {
-  metalRefinado: number;
-  aceroEstructural: number;
-  expeditionDrones: number;
+  resources: GameState['resources'];
+  drones: GameState['drones'];
   activeExpeditions: ActiveExpedition[];
-  onStartExpedition: (expeditionId: ExpeditionId, droneCount: number) => void;
-  onClaimReward: (expeditionId: ExpeditionId) => void;
+  onStartExpedition: (expeditionId: ExpeditionId) => void;
+  onClaimReward: (expedition: ActiveExpedition) => void;
   onClose: () => void;
 }
 
@@ -29,71 +28,7 @@ const ExpeditionTimer: React.FC<{ completionTimestamp: number }> = ({ completion
   return <span>{minutes}m {seconds}s</span>;
 };
 
-// Nuevo componente para seleccionar drones
-const DroneSelector: React.FC<{
-  minDrones: number;
-  maxDrones: number;
-  availableDrones: number;
-  onStart: (droneCount: number) => void;
-  canStart: boolean;
-}> = ({ minDrones, maxDrones, availableDrones, onStart, canStart }) => {
-  const [droneCount, setDroneCount] = useState(minDrones);
 
-  useEffect(() => {
-    setDroneCount(minDrones);
-  }, [minDrones]);
-
-  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDroneCount(Number(e.target.value));
-  };
-
-  const effectiveMax = Math.min(maxDrones, availableDrones);
-
-  return (
-    <div style={{ marginTop: '1rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-        <input 
-          type="range" 
-          min={minDrones} 
-          max={effectiveMax} 
-          value={droneCount} 
-          onChange={handleSliderChange}
-          disabled={!canStart || minDrones >= effectiveMax}
-          style={{ flexGrow: 1 }}
-        />
-        <input 
-          type="number" 
-          value={droneCount} 
-          min={minDrones} 
-          max={effectiveMax} 
-          onChange={e => setDroneCount(Number(e.target.value))}
-          disabled={!canStart}
-          style={{ width: '60px', backgroundColor: '#374151', color: 'white', border: '1px solid #4B5563', borderRadius: '4px' }}
-        />
-      </div>
-      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-        <button onClick={() => setDroneCount(minDrones)} disabled={!canStart}>MIN</button>
-        <button onClick={() => setDroneCount(effectiveMax)} disabled={!canStart}>MAX</button>
-      </div>
-      <button
-        onClick={() => onStart(droneCount)}
-        disabled={!canStart || droneCount < minDrones || droneCount > availableDrones}
-        style={{ 
-          width: '100%',
-          padding: '0.75rem 1.5rem', 
-          marginTop: '1rem',
-          backgroundColor: canStart ? '#22C55E' : '#9CA3AF', 
-          color: 'white', 
-          border: 'none', 
-          borderRadius: '4px',
-          cursor: canStart ? 'pointer' : 'not-allowed'
-        }}
-      >
-        Enviar {droneCount} Drones
-      </button>
-    </div>
-  );
-};
 
 
 // Objeto para mapear los IDs de recursos a nombres e iconos amigables
@@ -108,17 +43,27 @@ const rewardDisplayMap: Record<string, { name: string; icon: string }> = {
 };
 
 const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({ 
-  metalRefinado,
-  aceroEstructural,
-  expeditionDrones,
+  resources,
+  drones,
   activeExpeditions,
   onStartExpedition,
   onClaimReward,
   onClose 
 }) => {
 
-  const totalExpeditionDronesInUse = activeExpeditions.reduce((sum, exp) => sum + exp.dronesSent, 0);
-  const availableDrones = expeditionDrones - totalExpeditionDronesInUse;
+  const dronesInUse = {
+    expeditionDrone: activeExpeditions
+      .filter(exp => allExpeditionsData.find(e => e.id === exp.id)?.droneType === 'expeditionDrone')
+      .reduce((sum, exp) => sum + exp.dronesSent, 0),
+    expeditionV2Drone: activeExpeditions
+      .filter(exp => allExpeditionsData.find(e => e.id === exp.id)?.droneType === 'expeditionV2Drone')
+      .reduce((sum, exp) => sum + exp.dronesSent, 0),
+  };
+
+  const availableDrones = {
+    expeditionDrone: drones.expeditionDrone - dronesInUse.expeditionDrone,
+    expeditionV2Drone: drones.expeditionV2Drone - dronesInUse.expeditionV2Drone,
+  };
   
   return (
     <div style={{
@@ -137,7 +82,8 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
 
       <div style={{ backgroundColor: '#1F2937', padding: '1rem', borderRadius: '8px', marginBottom: '2rem' }}>
         <h3>Estado de la Flota de Expedición</h3>
-        <p>Drones Disponibles: <strong style={{color: '#22C55E'}}>{availableDrones}</strong> / {expeditionDrones}</p>
+        <p>Drones de Expedición (DE-1) Disponibles: <strong style={{color: '#22C55E'}}>{availableDrones.expeditionDrone}</strong> / {drones.expeditionDrone}</p>
+        <p>Drones de Expedición (DE-2) Disponibles: <strong style={{color: '#10B981'}}>{availableDrones.expeditionV2Drone}</strong> / {drones.expeditionV2Drone}</p>
       </div>
 
       {/* EXPEDICIONES ACTIVAS */}
@@ -145,17 +91,18 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
         <div style={{ marginBottom: '2rem' }}>
           <h3 style={{ borderBottom: '1px solid #374151', paddingBottom: '0.5rem' }}>Expediciones en Curso</h3>
           {activeExpeditions.map(activeExp => {
-            const data = expeditionsData[activeExp.id];
+            const data = allExpeditionsData.find(e => e.id === activeExp.id);
+            if (!data) return null;
             const isComplete = activeExp.completionTimestamp <= Date.now();
             return (
               <div key={activeExp.id} style={{ backgroundColor: '#1F2937', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
                 <h4>{data.title}</h4>
-                <p>{activeExp.dronesSent} drones enviados.</p>
+                <p>{activeExp.dronesSent} {data.droneType === 'expeditionV2Drone' ? 'Drones (DE-2)' : 'Drones (DE-1)'} enviados.</p>
                 {isComplete ? (
                   <div>
                     <p style={{color: '#22C55E'}}>¡Expedición Completada!</p>
                     <button 
-                      onClick={() => onClaimReward(activeExp.id)}
+                      onClick={() => onClaimReward(activeExp)}
                       style={{ padding: '0.75rem 1.5rem', backgroundColor: '#F59E0B', color: 'white', border: 'none', borderRadius: '4px' }}
                     >
                       Reclamar Recompensa
@@ -173,15 +120,22 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
       {/* EXPEDICIONES DISPONIBLES */}
       <div>
         <h3 style={{ borderBottom: '1px solid #374151', paddingBottom: '0.5rem' }}>Destinos Disponibles</h3>
-        {Object.values(expeditionsData).map(exp => {
-          const costDrones = exp.costs.drones;
-          const costMetal = exp.costs.metalRefinado ?? 0;
-          const costAcero = exp.costs.aceroEstructural ?? 0;
-          
-          const hasEnoughMetal = metalRefinado >= costMetal;
-          const hasEnoughAcero = aceroEstructural >= costAcero;
-          // La validación de drones ahora solo comprueba el mínimo
-          const canAffordMinimum = availableDrones >= costDrones && hasEnoughMetal && hasEnoughAcero;
+        {allExpeditionsData.map(exp => {
+          const isActive = activeExpeditions.some(active => active.id === exp.id);
+          if (isActive) return null;
+
+          const droneType = exp.droneType;
+          const dronesRequired = exp.costs.drones;
+          const currentAvailableDrones = availableDrones[droneType];
+
+          let canAfford = currentAvailableDrones >= dronesRequired;
+          for (const [resource, cost] of Object.entries(exp.costs)) {
+            if (resource === 'drones') continue;
+            if ((resources as any)[resource] < cost) {
+              canAfford = false;
+              break;
+            }
+          }
 
           return (
             <div key={exp.id} style={{ 
@@ -189,19 +143,29 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
               padding: '1rem', 
               borderRadius: '8px', 
               marginBottom: '1rem',
-              opacity: canAffordMinimum ? 1 : 0.6,
-              border: `2px solid ${canAffordMinimum ? '#374151' : '#EF4444'}`
+              opacity: canAfford ? 1 : 0.6,
+              border: `2px solid ${canAfford ? '#374151' : '#EF4444'}`
             }}>
               <h4>{exp.title}</h4>
               <p>{exp.description}</p>
               <p><strong>Duración:</strong> {exp.duration / 60} minutos</p>
               
               <div>
-                <strong>Requisitos Mínimos:</strong>
+                <strong>Requisitos:</strong>
                 <ul style={{listStyle: 'none', paddingLeft: '1rem', margin: '0.5rem 0'}}>
-                  <li style={{color: availableDrones >= costDrones ? '#E5E7EB' : '#EF4444'}}>Drones de Expedición: {costDrones}</li>
-                  {costMetal > 0 && <li style={{color: hasEnoughMetal ? '#E5E7EB' : '#EF4444'}}>Metal Refinado: {formatNumber(costMetal)}</li>}
-                  {costAcero > 0 && <li style={{color: hasEnoughAcero ? '#E5E7EB' : '#EF4444'}}>Acero Estructural: {formatNumber(costAcero)}</li>}
+                  <li style={{color: currentAvailableDrones >= dronesRequired ? '#E5E7EB' : '#EF4444'}}>
+                    {droneType === 'expeditionV2Drone' ? 'Drones (DE-2):' : 'Drones (DE-1):'} {dronesRequired}
+                  </li>
+                  {Object.entries(exp.costs).map(([resource, cost]) => {
+                    if (resource === 'drones') return null;
+                    const hasEnough = (resources as any)[resource] >= cost;
+                    const display = rewardDisplayMap[resource] || { name: resource, icon: '❓' };
+                    return (
+                      <li key={resource} style={{color: hasEnough ? '#E5E7EB' : '#EF4444'}}>
+                        {display.icon} {display.name}: {formatNumber(cost)}
+                      </li>
+                    )
+                  })}
                 </ul>
               </div>
 
@@ -221,15 +185,24 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
                 </ul>
               </div>
 
-              <p><strong>Riesgo:</strong> {exp.risk.chance * 100}% de posibilidad de perder {exp.risk.droneLossPercentage * 100}% de los drones.</p>
+              <p><strong>Riesgo:</strong> {exp.risk.chance * 100}% de posibilidad de perder el dron.</p>
               
-              <DroneSelector 
-                minDrones={costDrones}
-                maxDrones={expeditionDrones} // Pasamos el total como máximo teórico
-                availableDrones={availableDrones}
-                onStart={(droneCount) => onStartExpedition(exp.id, droneCount)}
-                canStart={canAffordMinimum}
-              />
+              <button
+                onClick={() => onStartExpedition(exp.id)}
+                disabled={!canAfford}
+                style={{ 
+                  width: '100%',
+                  padding: '0.75rem 1.5rem', 
+                  marginTop: '1rem',
+                  backgroundColor: canAfford ? '#22C55E' : '#9CA3AF', 
+                  color: 'white', 
+                  border: 'none', 
+                  borderRadius: '4px',
+                  cursor: canAfford ? 'pointer' : 'not-allowed'
+                }}
+              >
+                Enviar {dronesRequired} {droneType === 'expeditionV2Drone' ? 'Dron (DE-2)' : 'Dron (DE-1)'}
+              </button>
 
             </div>
           );

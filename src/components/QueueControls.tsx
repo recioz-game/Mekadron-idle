@@ -23,14 +23,14 @@ const QueueControls: React.FC<QueueControlsProps> = ({ queue, itemName, onCancel
   }
 
   return (
-    <>
-      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+    <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      <div style={{ display: 'flex', gap: '0.5rem' }}>
         <button onClick={() => onCancel(itemName, 1)} style={{ flexGrow: 1, backgroundColor: '#FBBF24', border: 'none', padding: '0.5rem', borderRadius: '4px', cursor: 'pointer', color: '#1F2937' }}>Cancelar 1</button>
         <button onClick={() => onCancel(itemName, 'all')} style={{ flexGrow: 1, backgroundColor: '#FBBF24', border: 'none', padding: '0.5rem', borderRadius: '4px', cursor: 'pointer', color: '#1F2937' }}>Cancelar Todo</button>
       </div>
-      <p>⏱️ T/U: {queue.time}s</p>
+      <p style={{ margin: 0, fontSize: '0.8rem', textAlign: 'center' }}>⏱️ T/U: {queue.time}s</p>
       <ProgressBar progress={queue.progress} time={queue.time} />
-    </>
+    </div>
   );
 };
 

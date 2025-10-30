@@ -134,22 +134,58 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
         const newBattlesCompleted = [...state.battleRoom.battlesCompleted];
         newBattlesCompleted[activeBattle.destinationIndex]++;
 
-        return {
-          ...state,
-          currentScene: 'phase2Main',
-          activeBattle: null,
-          resources: {
-            ...state.resources,
-            scrap: state.resources.scrap + (enemy.reward.scrap || 0),
-            aleacionReforzada: state.resources.aleacionReforzada + (enemy.reward.aleacionReforzada || 0),
-            neuroChipCorrupto: state.resources.neuroChipCorrupto + (enemy.reward.neuroChipCorrupto || 0),
-          },
-          battleRoom: {
-            ...state.battleRoom,
-            battlesCompleted: newBattlesCompleted,
-          },
-          vindicator: updatedVindicator,
-        };
+        const destination = battleDestinations[activeBattle.destinationIndex];
+        const nextBattleIndex = newBattlesCompleted[activeBattle.destinationIndex];
+
+        // Verificar si hay más batallas en este destino
+        if (nextBattleIndex < destination.battles.length) {
+          // Hay más batallas - continuar con la siguiente
+          const nextEnemy = destination.battles[nextBattleIndex];
+          
+          return {
+            ...state,
+            resources: {
+              ...state.resources,
+              scrap: state.resources.scrap + (enemy.reward.scrap || 0),
+              aleacionReforzada: state.resources.aleacionReforzada + (enemy.reward.aleacionReforzada || 0),
+              neuroChipCorrupto: state.resources.neuroChipCorrupto + (enemy.reward.neuroChipCorrupto || 0)
+            },
+            blueprints: state.blueprints + (enemy.reward.blueprints || 0),
+            battleRoom: {
+              ...state.battleRoom,
+              battlesCompleted: newBattlesCompleted,
+            },
+            activeBattle: {
+              destinationIndex: activeBattle.destinationIndex,
+              battleIndex: nextBattleIndex,
+              enemyName: nextEnemy.enemyName,
+              enemyMaxHealth: nextEnemy.health,
+              enemyCurrentHealth: nextEnemy.health,
+              enemyMaxShield: nextEnemy.shield,
+              enemyCurrentShield: nextEnemy.shield,
+            },
+            vindicator: updatedVindicator, // Mantener el estado actual del Vindicator
+          };
+        } else {
+          // No hay más batallas - destino completado
+          return {
+            ...state,
+            currentScene: 'phase2Main',
+            activeBattle: null,
+            resources: {
+              ...state.resources,
+              scrap: state.resources.scrap + (enemy.reward.scrap || 0),
+              aleacionReforzada: state.resources.aleacionReforzada + (enemy.reward.aleacionReforzada || 0),
+              neuroChipCorrupto: state.resources.neuroChipCorrupto + (enemy.reward.neuroChipCorrupto || 0)
+            },
+            blueprints: state.blueprints + (enemy.reward.blueprints || 0),
+            battleRoom: {
+              ...state.battleRoom,
+              battlesCompleted: newBattlesCompleted,
+            },
+            vindicator: updatedVindicator,
+          };
+        }
       } else {
         // --- LA BATALLA CONTINÚA ---
         return {
@@ -190,4 +226,3 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
       return state;
   }
 };
-

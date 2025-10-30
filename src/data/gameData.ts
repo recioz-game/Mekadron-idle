@@ -1,5 +1,4 @@
 // src/data/gameData.ts
-import { GameState } from '../types/gameState';
 import { BuildableItem } from '../types/gameData';
 
 type GameData = {
@@ -19,6 +18,7 @@ export const gameData: GameData = {
     reinforcedAdvanced: { costs: { scrap: 7000, metalRefinado: 30 }, time: 300, prerequisites: (s) => s.techCenter.upgrades.reinforcedAdvancedDrones > 0 },
     golem: { costs: { scrap: 75000, aceroEstructural: 5 }, time: 600, prerequisites: (s) => s.techCenter.upgrades.golemChassis > 0 && s.drones.reinforcedAdvanced >= 5 },
     expeditionDrone: { costs: { scrap: 3000, metalRefinado: 20 }, time: 150, prerequisites: (s) => s.drones.reinforcedMedium >= 3 },
+    expeditionV2Drone: { costs: { scrap: 15000, metalRefinado: 100 }, time: 300, prerequisites: (s) => s.drones.expeditionDrone >= 5 }, // Nuevo dron v2
     wyrm: { costs: { scrap: 250000, aceroEstructural: 25 }, time: 1200, prerequisites: (s) => s.drones.golem >= 1 },
   },
   energy: {
@@ -45,3 +45,4 @@ export const gameData: GameData = {
     barraCombustible: { costs: { metalRefinado: 10, aceroEstructural: 5, energy: 1500 }, time: 120, produces: { resource: 'barraCombustible' } },
   },
 };
+

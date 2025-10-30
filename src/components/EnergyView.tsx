@@ -34,16 +34,7 @@ interface EnergyViewProps {
   metalRefinado: number; // Nuevo
 }
 
-const ProgressBar = ({ progress, time }: { progress: number; time: number }) => (
-  <div style={{ width: '100%', backgroundColor: '#374151', borderRadius: '4px', marginTop: '0.5rem' }}>
-    <div style={{ 
-      width: `${(progress / time) * 100}%`, 
-      backgroundColor: '#22C55E', 
-      height: '5px', 
-      borderRadius: '4px' 
-    }} />
-  </div>
-);
+
 
 const EnergyView: React.FC<EnergyViewProps> = React.memo(({ 
   scrap, currentEnergy, maxEnergy, energyConsumption,

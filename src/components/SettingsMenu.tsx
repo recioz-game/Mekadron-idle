@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
+import { useGame } from '../context/GameContext';
 
 const SettingsMenu: React.FC = () => {
+  const { gameState, dispatch } = useGame();
   const [isOpen, setIsOpen] = useState(false);
+  const { volume } = gameState.settings;
+
+  const handleVolumeChange = (newVolume: number) => {
+    dispatch({ type: 'SET_VOLUME', payload: newVolume });
+  };
 
   const handleDebugUnlock = () => {
     const event = new CustomEvent('debugUnlockTechCenter');
@@ -9,7 +16,7 @@ const SettingsMenu: React.FC = () => {
     setIsOpen(false); // Cerrar el menú después de hacer clic
   };
 
-    const handleResetGame = () => {
+  const handleResetGame = () => {
     if (window.confirm('¿Estás seguro de que quieres reiniciar todo el progreso? Esta acción no se puede deshacer.')) {
       const event = new CustomEvent('resetGame');
       window.dispatchEvent(event);
@@ -18,7 +25,7 @@ const SettingsMenu: React.FC = () => {
   };
 
   const handleDebugCompleteVindicator = () => {
-            const event = new CustomEvent('debugCompleteVindicator');
+    const event = new CustomEvent('debugCompleteVindicator');
     window.dispatchEvent(event);
     setIsOpen(false);
   };
@@ -30,7 +37,7 @@ const SettingsMenu: React.FC = () => {
   };
 
   return (
-        <div style={{
+    <div style={{
       position: 'fixed',
       bottom: '1rem',
       right: '1rem',
@@ -47,10 +54,50 @@ const SettingsMenu: React.FC = () => {
           borderRadius: '8px',
           border: '2px solid #374151',
           marginBottom: '0.5rem',
-          width: '200px'
+          width: '220px' // Ancho aumentado para acomodar los nuevos elementos
         }}>
+          {/* --- SECCIÓN DE AJUSTES GENERALES --- */}
+          <strong style={{ color: '#E5E7EB', fontSize: '0.9rem', display: 'block', marginBottom: '1rem' }}>AJUSTES</strong>
+
+          {/* Control de Volumen */}
+          <div style={{ marginBottom: '1rem' }}>
+            <label htmlFor="volume-slider" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+              Volumen: {volume}%
+            </label>
+                        <input
+              id="volume-slider"
+              type="range"
+              min="0"
+              max="100"
+              value={volume}
+              onChange={(e) => handleVolumeChange(Number(e.target.value))}
+              style={{ width: '100%' }}
+            />
+          </div>
+
+          {/* Botón de Créditos */}
+          <button
+            onClick={() => { /* Lógica de créditos aquí */ alert("Créditos: Próximamente..."); setIsOpen(false); }}
+            style={{
+              padding: '0.5rem',
+              backgroundColor: '#374151',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              width: '100%',
+              marginBottom: '1rem'
+            }}
+          >
+            Créditos
+          </button>
+          
+          <hr style={{ border: 'none', borderBottom: '1px solid #374151', marginBottom: '1rem' }} />
+
+          {/* --- SECCIÓN DE DESARROLLO --- */}
           <strong style={{ color: '#EF4444', fontSize: '0.9rem' }}>AJUSTES DE DESARROLLO</strong>
-          <button 
+          <button
             onClick={handleDebugUnlock}
             style={{
               padding: '0.5rem',
@@ -63,7 +110,7 @@ const SettingsMenu: React.FC = () => {
               marginTop: '1rem',
               width: '100%'
             }}
-                    >
+          >
             Desbloquear Módulos
           </button>
           <button
@@ -98,7 +145,7 @@ const SettingsMenu: React.FC = () => {
           >
             Finalizar Expediciones
           </button>
-          <button 
+          <button
             onClick={handleResetGame}
             style={{
               padding: '0.5rem',
@@ -116,7 +163,7 @@ const SettingsMenu: React.FC = () => {
           </button>
         </div>
       )}
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         title="Ajustes"
         style={{
@@ -140,3 +187,4 @@ const SettingsMenu: React.FC = () => {
 };
 
 export default SettingsMenu;
+

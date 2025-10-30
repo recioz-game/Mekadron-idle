@@ -16,6 +16,7 @@ interface WorkshopProps {
   reinforcedAdvancedDrones: number;
   golemDrones: number;
   expeditionDrones: number;
+  expeditionV2Drones: number; // Nuevo dron
   wyrmDrones: number;
   basicDroneQueue: { progress: number; queue: number; time: number };
   mediumDroneQueue: { progress: number; queue: number; time: number };
@@ -25,6 +26,7 @@ interface WorkshopProps {
     reinforcedAdvancedDroneQueue: { progress: number; queue: number; time: number };
   golemDroneQueue: { progress: number; queue: number; time: number };
   expeditionDroneQueue: { progress: number; queue: number; time: number };
+  expeditionV2DroneQueue: { progress: number; queue: number; time: number }; // Nueva cola
   wyrmDroneQueue: { progress: number; queue: number; time: number };
   upgrades: { [key: string]: number }; // Para el desmantelamiento
   onBuildBasicDrone: () => void;
@@ -35,6 +37,7 @@ interface WorkshopProps {
   onBuildReinforcedAdvanced: () => void;
   onBuildGolemDrone: () => void;
   onBuildExpeditionDrone: () => void;
+  onBuildExpeditionV2Drone: () => void; // Nueva acción
   onBuildWyrm: () => void;
   onDismantle: (droneType: string, amount: number | 'max') => void; // Nueva acción
   buyAmount: number | 'max';
@@ -45,10 +48,10 @@ interface WorkshopProps {
 
 const Workshop: React.FC<WorkshopProps> = React.memo(({ 
   scrap, metalRefinado, aceroEstructural,
-  basicDrones, mediumDrones, advancedDrones, reinforcedBasicDrones, reinforcedMediumDrones, reinforcedAdvancedDrones, golemDrones, expeditionDrones, wyrmDrones,
-  basicDroneQueue, mediumDroneQueue, advancedDroneQueue, reinforcedBasicDroneQueue, reinforcedMediumDroneQueue, reinforcedAdvancedDroneQueue, golemDroneQueue, expeditionDroneQueue, wyrmDroneQueue,
+  basicDrones, mediumDrones, advancedDrones, reinforcedBasicDrones, reinforcedMediumDrones, reinforcedAdvancedDrones, golemDrones, expeditionDrones, expeditionV2Drones, wyrmDrones,
+  basicDroneQueue, mediumDroneQueue, advancedDroneQueue, reinforcedBasicDroneQueue, reinforcedMediumDroneQueue, reinforcedAdvancedDroneQueue, golemDroneQueue, expeditionDroneQueue, expeditionV2DroneQueue, wyrmDroneQueue,
   upgrades,
-  onBuildBasicDrone, onBuildMediumDrone, onBuildAdvancedDrone, onBuildReinforcedBasic, onBuildReinforcedMedium, onBuildReinforcedAdvanced, onBuildGolemDrone, onBuildExpeditionDrone, onBuildWyrm, onDismantle,
+  onBuildBasicDrone, onBuildMediumDrone, onBuildAdvancedDrone, onBuildReinforcedBasic, onBuildReinforcedMedium, onBuildReinforcedAdvanced, onBuildGolemDrone, onBuildExpeditionDrone, onBuildExpeditionV2Drone, onBuildWyrm, onDismantle,
   buyAmount, onSetBuyAmount, onClose, onCancel 
 }) => {
 
@@ -59,6 +62,7 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
   const reinforcedMediumCost = { scrap: 2500, metal: 15 };
   const reinforcedAdvancedCost = { scrap: 7000, metal: 30 };
   const expeditionDroneCost = { scrap: 3000, metal: 20 };
+  const expeditionV2DroneCost = { scrap: 15000, metal: 100 }; // 5x el costo original
   const golemCost = { scrap: 75000, steel: 5 };
   const wyrmCost = { scrap: 250000, steel: 25 };
   
@@ -76,20 +80,17 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
   const reinforcedMediumMax = getMaxAffordable(reinforcedMediumCost);
   const reinforcedAdvancedMax = getMaxAffordable(reinforcedAdvancedCost);
   const expeditionDroneMax = getMaxAffordable(expeditionDroneCost);
+  const expeditionV2DroneMax = getMaxAffordable(expeditionV2DroneCost); // Nuevo máximo
   const golemMax = getMaxAffordable(golemCost);
   const wyrmMax = getMaxAffordable(wyrmCost);
   
-  const getTooltipText = (requirements: { resource?: string, amount: number, current: number, text: string }[]): string => {
+    const getTooltipText = (requirements: { resource?: string, amount: number, current: number, text: string }[]): string => {
     const missing = requirements.filter(req => req.current < req.amount);
     if (missing.length === 0) return '';
     return 'Requiere: ' + missing.map(req => `${req.text} (${formatNumber(req.amount)})`).join(', ');
   };
 
-  const ProgressBar = ({ progress, time }: { progress: number; time: number }) => (
-    <div style={{ width: '100%', backgroundColor: '#374151', borderRadius: '4px', marginTop: '0.5rem' }}>
-      <div style={{ width: `${(progress / time) * 100}%`, backgroundColor: '#22C55E', height: '5px', borderRadius: '4px' }} />
-    </div>
-  );
+  
 
   return (
     <div style={{ backgroundColor: '#111827', color: '#E5E7EB', minHeight: '100vh', padding: '1rem', fontFamily: 'Inter, sans-serif' }}>
@@ -111,7 +112,7 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
           <p>⚡ Consumo: {formatNumber(1)} energía</p>
                     <p>💰 Coste: {formatNumber(basicDroneCost)} chatarra</p>
                     <p>🏗️ Flota: {basicDrones} | 📦 En cola: {basicDroneQueue.queue}</p>
-          <div style={{display: 'flex', gap: '0.5rem'}}>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.5rem' }}>
             <QueueControls queue={basicDroneQueue} itemName='basic' onCancel={onCancel} />
             <DismantleControls upgrades={upgrades} droneType='basic' onDismantle={onDismantle} droneCount={basicDrones} buyAmount={buyAmount} />
           </div>
@@ -157,6 +158,65 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
                 </div>
       </div>
 
+      {/* --- DRONES DE EXPEDICIÓN --- */}
+      <div style={{ padding: '1rem', backgroundColor: '#1F2937', borderRadius: '4px', marginBottom: '2rem', border: '2px solid #10B981' }}>
+        <h3 style={{ color: '#10B981', marginTop: 0, textAlign: 'center' }}>🧭 DRONES DE EXPEDICIÓN</h3>
+
+        {/* Dron de Expedición */}
+        <div style={{ padding: '1rem', backgroundColor: '#111827', borderRadius: '4px', marginBottom: '1rem', border: scrap >= expeditionDroneCost.scrap && metalRefinado >= expeditionDroneCost.metal && advancedDrones >= 2 ? '2px solid #22C55E' : '2px solid #374151', opacity: advancedDrones >= 2 ? 1 : 0.6 }}>
+          <h4 style={{ color: '#10B981', marginTop: 0 }}>🧭 Dron de Expedición (DE-1)</h4>
+          <p>📊 Función: Realiza expediciones para obtener recursos especiales</p>
+          <p>⚡ Consumo: {formatNumber(2)} energía (en expediciones)</p>
+          <p>💰 Coste: {formatNumber(expeditionDroneCost.scrap)} chatarra, {formatNumber(expeditionDroneCost.metal)} metal refinado</p>
+          <p>📋 Requisitos: 2 Drones Avanzados</p>
+          <p>🏗️ Flota: {expeditionDrones} | 📦 En cola: {expeditionDroneQueue.queue}</p>
+                    <div style={{display: 'flex', gap: '0.5rem'}}>
+            <QueueControls queue={expeditionDroneQueue} itemName='expedition' onCancel={onCancel} />
+            <DismantleControls upgrades={upgrades} droneType='expedition' onDismantle={onDismantle} droneCount={expeditionDrones} buyAmount={buyAmount} />
+                    </div>
+                    <BotonConTooltip 
+            onClick={onBuildExpeditionDrone}
+            disabled={scrap < expeditionDroneCost.scrap || metalRefinado < expeditionDroneCost.metal || advancedDrones < 2}
+                        tooltipText={getTooltipText([
+              { amount: expeditionDroneCost.scrap, current: scrap, text: 'Chatarra' },
+              { amount: expeditionDroneCost.metal, current: metalRefinado, text: 'Metal Refinado' },
+              { amount: 2, current: advancedDrones, text: 'Drones Avanzados' }
+                        ])} 
+            style={{ padding: '0.75rem 1.5rem', backgroundColor: scrap >= expeditionDroneCost.scrap && metalRefinado >= expeditionDroneCost.metal && advancedDrones >= 2 ? '#22C55E' : '#9CA3AF', color: '#0F172A', border: 'none', borderRadius: '4px', fontWeight: 'bold', marginTop: '0.5rem', width: '100%' }}
+                    >
+            Encargar Dron de Expedición {buyAmount === 'max' && `(${expeditionDroneMax})`}
+                    </BotonConTooltip>
+          {advancedDrones < 2 && <p style={{ color: '#F59E0B', fontSize: '0.9rem', marginTop: '0.5rem' }}>⚠️ Necesitas 2 Drones Avanzados para desbloquear</p>}
+                </div>
+
+        {/* Dron de Expedición v2 */}
+        <div style={{ padding: '1rem', backgroundColor: '#111827', borderRadius: '4px', marginBottom: '1rem', border: scrap >= expeditionV2DroneCost.scrap && metalRefinado >= expeditionV2DroneCost.metal && expeditionDrones >= 5 ? '2px solid #22C55E' : '2px solid #374151', opacity: expeditionDrones >= 5 ? 1 : 0.6 }}>
+          <h4 style={{ color: '#059669', marginTop: 0 }}>🧭 Dron de Expedición v2 (DE-2)</h4>
+          <p>📊 Función: Realiza expediciones avanzadas para obtener recursos raros</p>
+          <p>⚡ Consumo: {formatNumber(5)} energía (en expediciones)</p>
+          <p>💰 Coste: {formatNumber(expeditionV2DroneCost.scrap)} chatarra, {formatNumber(expeditionV2DroneCost.metal)} metal refinado</p>
+          <p>📋 Requisitos: 5 Drones de Expedición</p>
+          <p>🏗️ Flota: {expeditionV2Drones} | 📦 En cola: {expeditionV2DroneQueue.queue}</p>
+                    <div style={{display: 'flex', gap: '0.5rem'}}>
+            <QueueControls queue={expeditionV2DroneQueue} itemName='expeditionV2' onCancel={onCancel} />
+            <DismantleControls upgrades={upgrades} droneType='expeditionV2' onDismantle={onDismantle} droneCount={expeditionV2Drones} buyAmount={buyAmount} />
+        </div>
+                    <BotonConTooltip
+            onClick={onBuildExpeditionV2Drone}
+            disabled={scrap < expeditionV2DroneCost.scrap || metalRefinado < expeditionV2DroneCost.metal || expeditionDrones < 5}
+                        tooltipText={getTooltipText([
+              { amount: expeditionV2DroneCost.scrap, current: scrap, text: 'Chatarra' },
+              { amount: expeditionV2DroneCost.metal, current: metalRefinado, text: 'Metal Refinado' },
+              { amount: 5, current: expeditionDrones, text: 'Drones de Expedición' }
+                        ])}
+            style={{ padding: '0.75rem 1.5rem', backgroundColor: scrap >= expeditionV2DroneCost.scrap && metalRefinado >= expeditionV2DroneCost.metal && expeditionDrones >= 5 ? '#22C55E' : '#9CA3AF', color: '#0F172A', border: 'none', borderRadius: '4px', fontWeight: 'bold', marginTop: '0.5rem', width: '100%' }}
+    >
+            Encargar Dron de Expedición v2 {buyAmount === 'max' && `(${expeditionV2DroneMax})`}
+                    </BotonConTooltip>
+          {expeditionDrones < 5 && <p style={{ color: '#F59E0B', fontSize: '0.9rem', marginTop: '0.5rem' }}>⚠️ Necesitas 5 Drones de Expedición para desbloquear</p>}
+                </div>
+                    </div>
+
       {/* --- DRONES REFORZADOS --- */}
       {(upgrades.reinforcedBasicDrones > 0 || upgrades.reinforcedMediumDrones > 0 || upgrades.reinforcedAdvancedDrones > 0) && (
         <div style={{ padding: '1rem', backgroundColor: '#1F2937', borderRadius: '4px', marginBottom: '2rem', border: '2px solid #8B5CF6' }}>
@@ -173,16 +233,16 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
                     <div style={{display: 'flex', gap: '0.5rem'}}>
                         <QueueControls queue={reinforcedBasicDroneQueue} itemName='reinforcedBasic' onCancel={onCancel} />
                         <DismantleControls upgrades={upgrades} droneType='reinforcedBasic' onDismantle={onDismantle} droneCount={reinforcedBasicDrones} buyAmount={buyAmount} />
-                    </div>
-                    <BotonConTooltip 
-                        onClick={onBuildReinforcedBasic} 
-                        disabled={scrap < reinforcedBasicCost.scrap || metalRefinado < reinforcedBasicCost.metal} 
-                        tooltipText={getTooltipText([
-                            { amount: reinforcedBasicCost.scrap, current: scrap, text: 'Chatarra' }, 
+        </div>
+                    <BotonConTooltip
+                        onClick={onBuildReinforcedBasic}
+                        disabled={scrap < reinforcedBasicCost.scrap || metalRefinado < reinforcedBasicCost.metal}
+                                                tooltipText={getTooltipText([
+                            { amount: reinforcedBasicCost.scrap, current: scrap, text: 'Chatarra' },
                             { amount: reinforcedBasicCost.metal, current: metalRefinado, text: 'Metal Refinado' }
-                        ])} 
+                        ])}
                         style={{ padding: '0.75rem 1.5rem', backgroundColor: scrap >= reinforcedBasicCost.scrap && metalRefinado >= reinforcedBasicCost.metal ? '#22C55E' : '#9CA3AF', color: '#0F172A', border: 'none', borderRadius: '4px', fontWeight: 'bold', marginTop: '0.5rem', width: '100%' }}
-                    >
+    >
                         Encargar Dron Básico Reforzado {buyAmount === 'max' && `(${reinforcedBasicMax})`}
                     </BotonConTooltip>
                 </div>
@@ -200,13 +260,13 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
                         <QueueControls queue={reinforcedMediumDroneQueue} itemName='reinforcedMedium' onCancel={onCancel} />
                         <DismantleControls upgrades={upgrades} droneType='reinforcedMedium' onDismantle={onDismantle} droneCount={reinforcedMediumDrones} buyAmount={buyAmount} />
                     </div>
-                    <BotonConTooltip 
-                        onClick={onBuildReinforcedMedium} 
-                        disabled={scrap < reinforcedMediumCost.scrap || metalRefinado < reinforcedMediumCost.metal} 
+                    <BotonConTooltip
+                        onClick={onBuildReinforcedMedium}
+                        disabled={scrap < reinforcedMediumCost.scrap || metalRefinado < reinforcedMediumCost.metal}
                         tooltipText={getTooltipText([
-                            { amount: reinforcedMediumCost.scrap, current: scrap, text: 'Chatarra' }, 
+                            { amount: reinforcedMediumCost.scrap, current: scrap, text: 'Chatarra' },
                             { amount: reinforcedMediumCost.metal, current: metalRefinado, text: 'Metal Refinado' }
-                        ])} 
+                        ])}
                         style={{ padding: '0.75rem 1.5rem', backgroundColor: scrap >= reinforcedMediumCost.scrap && metalRefinado >= reinforcedMediumCost.metal ? '#22C55E' : '#9CA3AF', color: '#0F172A', border: 'none', borderRadius: '4px', fontWeight: 'bold', marginTop: '0.5rem', width: '100%' }}
                     >
                         Encargar Dron Medio Reforzado {buyAmount === 'max' && `(${reinforcedMediumMax})`}
@@ -225,16 +285,16 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
                     <div style={{display: 'flex', gap: '0.5rem'}}>
                         <QueueControls queue={reinforcedAdvancedDroneQueue} itemName='reinforcedAdvanced' onCancel={onCancel} />
                         <DismantleControls upgrades={upgrades} droneType='reinforcedAdvanced' onDismantle={onDismantle} droneCount={reinforcedAdvancedDrones} buyAmount={buyAmount} />
-                    </div>
-                    <BotonConTooltip 
-                        onClick={onBuildReinforcedAdvanced} 
-                        disabled={scrap < reinforcedAdvancedCost.scrap || metalRefinado < reinforcedAdvancedCost.metal} 
+        </div>
+                    <BotonConTooltip
+                        onClick={onBuildReinforcedAdvanced}
+                        disabled={scrap < reinforcedAdvancedCost.scrap || metalRefinado < reinforcedAdvancedCost.metal}
                         tooltipText={getTooltipText([
-                            { amount: reinforcedAdvancedCost.scrap, current: scrap, text: 'Chatarra' }, 
+                            { amount: reinforcedAdvancedCost.scrap, current: scrap, text: 'Chatarra' },
                             { amount: reinforcedAdvancedCost.metal, current: metalRefinado, text: 'Metal Refinado' }
-                        ])} 
+                        ])}
                         style={{ padding: '0.75rem 1.5rem', backgroundColor: scrap >= reinforcedAdvancedCost.scrap && metalRefinado >= reinforcedAdvancedCost.metal ? '#22C55E' : '#9CA3AF', color: '#0F172A', border: 'none', borderRadius: '4px', fontWeight: 'bold', marginTop: '0.5rem', width: '100%' }}
-                    >
+    >
                         Encargar Dron Avanzado Reforzado {buyAmount === 'max' && `(${reinforcedAdvancedMax})`}
                     </BotonConTooltip>
                 </div>
@@ -260,20 +320,48 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
                         <QueueControls queue={golemDroneQueue} itemName='golem' onCancel={onCancel} />
                         <DismantleControls upgrades={upgrades} droneType='golem' onDismantle={onDismantle} droneCount={golemDrones} buyAmount={buyAmount} />
                     </div>
-                    <BotonConTooltip 
-                        onClick={onBuildGolemDrone} 
-                        disabled={scrap < golemCost.scrap || aceroEstructural < golemCost.steel || reinforcedAdvancedDrones < 5} 
+                    <BotonConTooltip
+                        onClick={onBuildGolemDrone}
+                        disabled={scrap < golemCost.scrap || aceroEstructural < golemCost.steel || reinforcedAdvancedDrones < 5}
                         tooltipText={getTooltipText([
-                            { amount: golemCost.scrap, current: scrap, text: 'Chatarra' }, 
+                            { amount: golemCost.scrap, current: scrap, text: 'Chatarra' },
                             { amount: golemCost.steel, current: aceroEstructural, text: 'Acero Estructural' },
                             { amount: 5, current: reinforcedAdvancedDrones, text: 'Drones Avanzados Reforzados'}
-                        ])} 
+                        ])}
                         style={{ padding: '0.75rem 1.5rem', backgroundColor: scrap >= golemCost.scrap && aceroEstructural >= golemCost.steel && reinforcedAdvancedDrones >= 5 ? '#22C55E' : '#9CA3AF', color: '#0F172A', border: 'none', borderRadius: '4px', fontWeight: 'bold', marginTop: '0.5rem', width: '100%' }}
                     >
                         Encargar Dron Golem {buyAmount === 'max' && `(${golemMax})`}
                     </BotonConTooltip>
                 </div>
-            )}
+                        )}
+        </div>
+      )}
+
+      {/* Dron Wyrm */}
+      {upgrades.golemChassis > 0 && golemDrones >= 1 && (
+        <div style={{ padding: '1rem', backgroundColor: '#111827', borderRadius: '4px', opacity: golemDrones >= 1 ? 1 : 0.6, border: scrap >= wyrmCost.scrap && aceroEstructural >= wyrmCost.steel && golemDrones >= 1 ? '2px solid #22C55E' : '2px solid #374151' }}>
+          <h4 style={{ color: '#F43F5E', marginTop: 0 }}>🐲 Dron Wyrm (DW-1)</h4>
+          <p>📊 Producción: +{formatNumber(1)} metal refinado/s, +{formatNumber(0.1)} acero/s</p>
+          <p>⚡ Consumo: {formatNumber(200)} energía</p>
+          <p>💰 Coste: {formatNumber(wyrmCost.scrap)} chatarra, {formatNumber(wyrmCost.steel)} acero</p>
+          <p>📋 Requisitos: 1 Dron Golem</p>
+          <p>🏗️ Flota: {wyrmDrones} | 📦 En cola: {wyrmDroneQueue.queue}</p>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <QueueControls queue={wyrmDroneQueue} itemName='wyrm' onCancel={onCancel} />
+            <DismantleControls upgrades={upgrades} droneType='wyrm' onDismantle={onDismantle} droneCount={wyrmDrones} buyAmount={buyAmount} />
+          </div>
+          <BotonConTooltip
+            onClick={onBuildWyrm}
+            disabled={scrap < wyrmCost.scrap || aceroEstructural < wyrmCost.steel || golemDrones < 1}
+            tooltipText={getTooltipText([
+              { amount: wyrmCost.scrap, current: scrap, text: 'Chatarra' },
+              { amount: wyrmCost.steel, current: aceroEstructural, text: 'Acero' },
+              { amount: 1, current: golemDrones, text: 'Drones Golem' }
+            ])}
+            style={{ padding: '0.75rem 1.5rem', backgroundColor: scrap >= wyrmCost.scrap && aceroEstructural >= wyrmCost.steel && golemDrones >= 1 ? '#22C55E' : '#9CA3AF', color: '#0F172A', border: 'none', borderRadius: '4px', fontWeight: 'bold', marginTop: '0.5rem', width: '100%' }}
+          >
+            Encargar Dron Wyrm {buyAmount === 'max' && `(${wyrmMax})`}
+          </BotonConTooltip>
         </div>
       )}
     </div>

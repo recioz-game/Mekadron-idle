@@ -1,6 +1,7 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import mainBackgroundUrl from '../assets/main-background.png';
-import { ExpeditionId } from '../types/gameState';
+import mainThemeAudio from '../assets/main-theme.wav'; // 1. Importar el audio
+import { ExpeditionId, ActiveExpedition } from '../types/gameState';
 import { useGameState, useGameDispatch } from '../context/GameContext';
 import ResourceBar from './ResourceBar';
 import CollectionButton from './CollectionButton';
@@ -18,9 +19,24 @@ import NotificationToast from './NotificationToast';
 import FloatingTextHandler from './FloatingTextHandler';
 
 const GameScene: React.FC = () => {
-  const gameState = useGameState();
+    const gameState = useGameState();
   const dispatch = useGameDispatch();
-  const { 
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = gameState.settings.volume / 100;
+    }
+  }, [gameState.settings.volume]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.play().catch(() => console.log("La reproducción automática fue bloqueada. Se requiere interacción del usuario."));
+    }
+  }, []);
+
+  const {  
     currentView, 
     workshopBuyAmount, 
     energyBuyAmount, 
@@ -63,6 +79,7 @@ const GameScene: React.FC = () => {
   const onBuildReinforcedAdvanced = useCallback(() => dispatch({ type: 'BUILD_REINFORCED_ADVANCED' }), [dispatch]);
   const onBuildGolemDrone = useCallback(() => dispatch({ type: 'BUILD_GOLEM_DRONE' }), [dispatch]);
   const onBuildExpeditionDrone = useCallback(() => dispatch({ type: 'BUILD_EXPEDITION_DRONE' }), [dispatch]);
+  const onBuildExpeditionV2Drone = useCallback(() => dispatch({ type: 'BUILD_EXPEDITION_V2_DRONE' }), [dispatch]);
   const onBuildWyrm = useCallback(() => dispatch({ type: 'BUILD_WYRM' }), [dispatch]);
     const onSetWorkshopBuyAmount = useCallback((amount: number | 'max') => dispatch({ type: 'SET_WORKSHOP_BUY_AMOUNT', payload: amount }), [dispatch]);
   const onCancelWorkshopItem = useCallback((itemName: string, amount: number | 'all') => {
@@ -100,11 +117,11 @@ const GameScene: React.FC = () => {
   const onCloseView = useCallback(() => dispatch({ type: 'CLOSE_CURRENT_VIEW' }), [dispatch]);
 
   // Expedition Callbacks
-  const onStartExpedition = useCallback((expeditionId: ExpeditionId, droneCount: number) => {
-    dispatch({ type: 'START_EXPEDITION', payload: { expeditionId, droneCount } });
+    const onStartExpedition = useCallback((expeditionId: ExpeditionId) => {
+    dispatch({ type: 'START_EXPEDITION', payload: { expeditionId } });
   }, [dispatch]);
-  const onClaimExpeditionReward = useCallback((expeditionId: ExpeditionId) => {
-    dispatch({ type: 'CLAIM_EXPEDITION_REWARDS', payload: expeditionId });
+  const onClaimExpeditionReward = useCallback((expedition: ActiveExpedition) => {
+    dispatch({ type: 'CLAIM_EXPEDITION_REWARDS', payload: expedition });
   }, [dispatch]);
 
   // Foundry Callbacks
@@ -137,7 +154,8 @@ const GameScene: React.FC = () => {
             reinforcedMediumDrones={drones.reinforcedMedium}
             reinforcedAdvancedDrones={drones.reinforcedAdvanced}
             golemDrones={drones.golem}
-            expeditionDrones={drones.expeditionDrone}
+                        expeditionDrones={drones.expeditionDrone}
+            expeditionV2Drones={drones.expeditionV2Drone}
             wyrmDrones={drones.wyrm}
 
             // Queues
@@ -149,6 +167,7 @@ const GameScene: React.FC = () => {
             reinforcedAdvancedDroneQueue={workshop.queues.reinforcedAdvanced}
             golemDroneQueue={workshop.queues.golem}
             expeditionDroneQueue={workshop.queues.expeditionDrone}
+            expeditionV2DroneQueue={workshop.queues.expeditionV2Drone}
             wyrmDroneQueue={workshop.queues.wyrm}
             
             // Upgrades
@@ -161,8 +180,9 @@ const GameScene: React.FC = () => {
             onBuildReinforcedBasic={onBuildReinforcedBasic}
             onBuildReinforcedMedium={onBuildReinforcedMedium}
             onBuildReinforcedAdvanced={onBuildReinforcedAdvanced}
-            onBuildGolemDrone={onBuildGolemDrone}
+                        onBuildGolemDrone={onBuildGolemDrone}
             onBuildExpeditionDrone={onBuildExpeditionDrone}
+            onBuildExpeditionV2Drone={onBuildExpeditionV2Drone}
             onBuildWyrm={onBuildWyrm}
             onDismantle={onDismantleDrone}
 
@@ -301,12 +321,11 @@ const GameScene: React.FC = () => {
             onCancel={onCancelFoundryItem}
           />
         );
-      case 'expeditions':
+            case 'expeditions':
         return (
           <ExpeditionView
-            metalRefinado={resources.metalRefinado}
-            aceroEstructural={resources.aceroEstructural}
-            expeditionDrones={drones.expeditionDrone}
+            resources={resources}
+            drones={drones}
             activeExpeditions={activeExpeditions}
             onStartExpedition={onStartExpedition}
             onClaimReward={onClaimExpeditionReward}
@@ -336,8 +355,8 @@ const GameScene: React.FC = () => {
             padding: '2rem'
           }}>
                         <CollectionButton
-              onCollectScrap={(e) => dispatch({ type: 'COLLECT_SCRAP' })}
-              scrapPerClick={gameState.rates.scrapPerClick}
+              onCollectScrap={() => dispatch({ type: 'COLLECT_SCRAP' })}
+              scrapPerClick={rates.scrapPerClick}
             />
           </div>
         );
@@ -406,6 +425,7 @@ const GameScene: React.FC = () => {
         onDismiss={onDismissNotification}
       />
       <FloatingTextHandler />
+      <audio ref={audioRef} src={mainThemeAudio} loop />
     </div>
   );
 };

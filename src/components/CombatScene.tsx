@@ -8,7 +8,6 @@ const CombatScene: React.FC = () => {
 
   const [combatState, setCombatState] = useState<'idle' | 'running' | 'paused' | 'finished'>('idle');
   const [combatSpeed, setCombatSpeed] = useState<'slow' | 'normal' | 'fast'>('normal');
-  const [combatLog, setCombatLog] = useState<string[]>([]);
   const [autoCombatInterval, setAutoCombatInterval] = useState<ReturnType<typeof setInterval> | null>(null);
 
   if (!activeBattle) {
@@ -22,19 +21,12 @@ const CombatScene: React.FC = () => {
     fast: 500
   };
 
-  const addToCombatLog = useCallback((message: string) => {
-    setCombatLog(prev => [...prev.slice(-9), message]); // Mantener solo los últimos 10 mensajes
-  }, []);
-
-  // NOTA: Se eliminó la dependencia de 'combatState' para evitar "stale closures".
-  // La existencia del intervalo es la única condición necesaria para atacar.
   const executeCombatTurn = useCallback(() => {
     dispatch({ type: 'PLAYER_ATTACK' });
   }, [dispatch]);
 
   const startAutoCombat = () => {
     setCombatState('running');
-    addToCombatLog('⚔️ Combate automático iniciado');
 
     const interval = setInterval(() => {
       executeCombatTurn();
@@ -49,12 +41,10 @@ const CombatScene: React.FC = () => {
       clearInterval(autoCombatInterval);
       setAutoCombatInterval(null);
     }
-    addToCombatLog('⏸️ Combate pausado');
   };
 
   const resumeAutoCombat = () => {
     setCombatState('running');
-    addToCombatLog('▶️ Combate reanudado');
 
     const interval = setInterval(() => {
       executeCombatTurn();
@@ -69,7 +59,6 @@ const CombatScene: React.FC = () => {
       clearInterval(autoCombatInterval);
       setAutoCombatInterval(null);
     }
-    addToCombatLog('⏹️ Combate detenido');
   };
 
   const escapeCombat = () => {
@@ -90,15 +79,142 @@ const CombatScene: React.FC = () => {
   useEffect(() => {
     if (!activeBattle && combatState === 'running') {
       stopAutoCombat();
-      addToCombatLog('🏁 Batalla finalizada');
     }
-  }, [activeBattle, combatState, stopAutoCombat, addToCombatLog]);
+  }, [activeBattle, combatState, stopAutoCombat]);
 
   return (
     <div className="combat-scene">
-      {/* Controles de Combate */}
-      <div className="combat-controls">
-        <div className="speed-controls">
+      {/* Status Indicator */}
+      <div className="combat-status">
+        <span className={`status-indicator ${combatState}`}>
+          Estado: {
+            combatState === 'idle' ? 'Listo' :
+            combatState === 'running' ? 'En combate' :
+            combatState === 'paused' ? 'Pausado' : 'Finalizado'
+          }
+        </span>
+      </div>
+
+      {/* Header with Health Bars - Advance Wars Style */}
+      <div className="combat-header">
+        {/* Vindicator Header */}
+        <div className="vindicator-header">
+          <div className="unit-name vindicator-name">VINDICATOR</div>
+          <div className="health-display">
+            <span className="health-label">VIDA:</span>
+            <div className="health-bar-container">
+              <div
+                className="health-fill vindicator-health"
+                style={{ width: `${(vindicator.currentHealth / vindicator.maxHealth) * 100}%` }}
+              ></div>
+            </div>
+            <span className="health-value">
+              {Math.round(vindicator.currentHealth)} / {Math.round(vindicator.maxHealth)}
+            </span>
+          </div>
+          <div className="health-display">
+            <span className="health-label">ESCUDO:</span>
+            <div className="health-bar-container">
+              <div
+                className="shield-fill"
+                style={{ width: `${(vindicator.currentShield / vindicator.maxShield) * 100}%` }}
+              ></div>
+            </div>
+            <span className="health-value">
+              {Math.round(vindicator.currentShield)} / {Math.round(vindicator.maxShield)}
+            </span>
+          </div>
+        </div>
+
+        {/* VS Separator */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          fontSize: '1.5rem',
+          fontWeight: 'bold',
+          color: '#ecc94b',
+          textShadow: '2px 2px 0px #000'
+        }}>
+          VS
+        </div>
+
+        {/* Enemy Header */}
+        <div className="enemy-header">
+          <div className="unit-name enemy-name">{activeBattle.enemyName.toUpperCase()}</div>
+          <div className="health-display">
+            <span className="health-label">VIDA:</span>
+            <div className="health-bar-container">
+              <div
+                className="health-fill enemy-health"
+                style={{ width: `${(activeBattle.enemyCurrentHealth / activeBattle.enemyMaxHealth) * 100}%` }}
+              ></div>
+            </div>
+            <span className="health-value">
+              {Math.round(activeBattle.enemyCurrentHealth)} / {Math.round(activeBattle.enemyMaxHealth)}
+            </span>
+          </div>
+          <div className="health-display">
+            <span className="health-label">ESCUDO:</span>
+            <div className="health-bar-container">
+              <div
+                className="shield-fill"
+                style={{ width: `${(activeBattle.enemyCurrentShield / activeBattle.enemyMaxShield) * 100}%` }}
+              ></div>
+            </div>
+            <span className="health-value">
+              {Math.round(activeBattle.enemyCurrentShield)} / {Math.round(activeBattle.enemyMaxShield)}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Combat Area - Split Screen */}
+      <div className="combat-area">
+        {/* Vindicator Side */}
+        <div className="combatant vindicator-combatant">
+          <div className="unit-sprite">🚀</div>
+          <div className="unit-stats">
+            <div className="stat-item">DAÑO: {vindicator.damage}</div>
+            <div className="stat-item">TIPO: ASALTO</div>
+            <div className="stat-item">MOV: 6</div>
+            <div className="stat-item">RANGO: 1-2</div>
+          </div>
+        </div>
+
+        {/* Enemy Side */}
+        <div className="combatant enemy-combatant">
+          <div className="unit-sprite">👾</div>
+          <div className="unit-stats">
+            <div className="stat-item">DAÑO: {activeBattle.enemyCurrentHealth > 0 ? '???' : '0'}</div>
+            <div className="stat-item">TIPO: ENEMIGO</div>
+            <div className="stat-item">MOV: 4</div>
+            <div className="stat-item">RANGO: 1</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Central Combat Controls */}
+      <div className="combat-controls-center">
+        {combatState === 'idle' && (
+          <button className="central-action-button" onClick={startAutoCombat}>
+            🚀 INICIAR COMBATE AUTOMÁTICO
+          </button>
+        )}
+
+        {combatState === 'running' && (
+          <button className="central-action-button" onClick={pauseAutoCombat}>
+            ⏸️ PAUSAR COMBATE
+          </button>
+        )}
+
+        {combatState === 'paused' && (
+          <button className="central-action-button" onClick={resumeAutoCombat}>
+            ▶️ REANUDAR COMBATE
+          </button>
+        )}
+
+        <div className="speed-controls-center">
           <label>Velocidad:</label>
           <select
             value={combatSpeed}
@@ -111,104 +227,19 @@ const CombatScene: React.FC = () => {
           </select>
         </div>
 
-        <div className="action-buttons">
-          {combatState === 'idle' && (
-            <button className="start-button" onClick={startAutoCombat}>
-              🚀 INICIAR COMBATE AUTOMÁTICO
+        <div className="secondary-actions">
+          {(combatState === 'paused' || combatState === 'idle') && (
+            <button className="secondary-button stop-button" onClick={stopAutoCombat}>
+              ⏹️ Detener
             </button>
           )}
-
-          {combatState === 'running' && (
-            <button className="pause-button" onClick={pauseAutoCombat}>
-              ⏸️ PAUSAR
-            </button>
-          )}
-
-          {combatState === 'paused' && (
-            <>
-              <button className="resume-button" onClick={resumeAutoCombat}>
-                ▶️ REANUDAR
-              </button>
-              <button className="stop-button" onClick={stopAutoCombat}>
-                ⏹️ DETENER
-              </button>
-            </>
-          )}
-
-          <button className="escape-button" onClick={escapeCombat} disabled={combatState === 'running'}>
-            🏃 ESCAPAR
+          <button 
+            className="secondary-button escape-button" 
+            onClick={escapeCombat} 
+            disabled={combatState === 'running'}
+          >
+            🏃 Escapar
           </button>
-        </div>
-      </div>
-
-      {/* Estado del Combate */}
-      <div className="combat-status">
-        <span className={`status-indicator ${combatState}`}>
-          Estado: {
-            combatState === 'idle' ? 'Listo' :
-            combatState === 'running' ? 'En combate' :
-            combatState === 'paused' ? 'Pausado' : 'Finalizado'
-          }
-        </span>
-      </div>
-
-      {/* Enemigo Arriba */}
-      <div className="combatant enemy">
-        <h2>{activeBattle.enemyName}</h2>
-        <div className="health-bars">
-          <div className="health-bar">
-            <span>Vida: {Math.round(activeBattle.enemyCurrentHealth)} / {Math.round(activeBattle.enemyMaxHealth)}</span>
-            <div className="bar-container">
-              <div
-                className="health-fill"
-                style={{ width: `${(activeBattle.enemyCurrentHealth / activeBattle.enemyMaxHealth) * 100}%` }}
-              ></div>
-            </div>
-          </div>
-          <div className="shield-bar">
-            <span>Escudo: {Math.round(activeBattle.enemyCurrentShield)} / {Math.round(activeBattle.enemyMaxShield)}</span>
-            <div className="bar-container">
-              <div
-                className="shield-fill"
-                style={{ width: `${(activeBattle.enemyCurrentShield / activeBattle.enemyMaxShield) * 100}%` }}
-              ></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Registro de Combate */}
-      <div className="combat-log">
-        <h3>📜 Registro de Combate</h3>
-        <div className="log-entries">
-          {combatLog.map((entry, index) => (
-            <div key={index} className="log-entry">{entry}</div>
-          ))}
-        </div>
-      </div>
-
-      {/* Vindicator Abajo */}
-      <div className="combatant vindicator">
-        <h2>Vindicator</h2>
-        <div className="health-bars">
-          <div className="health-bar">
-            <span>Vida: {Math.round(vindicator.currentHealth)} / {Math.round(vindicator.maxHealth)}</span>
-            <div className="bar-container">
-              <div
-                className="health-fill"
-                style={{ width: `${(vindicator.currentHealth / vindicator.maxHealth) * 100}%` }}
-              ></div>
-            </div>
-          </div>
-          <div className="shield-bar">
-            <span>Escudo: {Math.round(vindicator.currentShield)} / {Math.round(vindicator.maxShield)}</span>
-            <div className="bar-container">
-              <div
-                className="shield-fill"
-                style={{ width: `${(vindicator.currentShield / vindicator.maxShield) * 100}%` }}
-              ></div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
