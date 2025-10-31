@@ -1,5 +1,5 @@
 import React from 'react';
-import missionsButtonUrl from '../assets/misions-button.png';
+import missionsButtonUrl from '../assets/missions-button.png';
 import workshopButtonUrl from '../assets/workshop-button.png';
 import storageButtonUrl from '../assets/storage-button.png';
 import energyButtonUrl from '../assets/energy-button.png';
@@ -7,7 +7,7 @@ import techCenterButtonUrl from '../assets/tech-center-button.png';
 import foundryButtonUrl from '../assets/foundry-button.png';
 import expeditionsButtonUrl from '../assets/expeditions-button.png';
 import shipyardButtonUrl from '../assets/shipyard-button.png';
-import vindicatorButtonUrl from '../assets/vindicator-button.png';
+import vindicatorButtonUrl from '../assets/Vindicator-button.png';
 
 interface ModulesPanelProps {
   energyUnlocked: boolean;
