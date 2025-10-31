@@ -10,7 +10,7 @@ interface BuildConfiguration {
   prerequisites?: (state: GameState) => boolean;
 }
 
-// Función genérica para manejar la construcción y el crafteo
+// Función genérica para manejar la construcción y el crafteo (VERSIÓN INMUTABLE)
 const handleBuild = (state: GameState, config: BuildConfiguration): GameState => {
   // 1. Comprobar prerrequisitos
   if (config.prerequisites && !config.prerequisites(state)) {
@@ -24,7 +24,8 @@ const handleBuild = (state: GameState, config: BuildConfiguration): GameState =>
 
   const maxAffordableAmounts = costEntries.map(([resource, cost]) => {
     if (cost === 0) return Infinity;
-    return Math.floor((state.resources as any)[resource] / cost);
+    const currentResource = (state.resources as any)[resource] || 0;
+    return Math.floor(currentResource / cost);
   });
   const maxAffordable = Math.min(...maxAffordableAmounts);
 
@@ -35,18 +36,28 @@ const handleBuild = (state: GameState, config: BuildConfiguration): GameState =>
     return state;
   }
 
-  // 4. Crear el nuevo estado y restar recursos
-  const newState = JSON.parse(JSON.stringify(state));
-
+  // 4. Crear un nuevo objeto de recursos
+  const newResources = { ...state.resources };
   for (const [resource, cost] of costEntries) {
-    (newState.resources as any)[resource] -= amount * cost;
+    (newResources as any)[resource] -= amount * cost;
   }
 
-  // 5. Añadir a la cola de producción
+  // 5. Actualizar la cola de producción de forma inmutable
   const [category, queuesProp, itemName] = config.queuePath;
-  (newState[category as keyof GameState] as any)[queuesProp][itemName].queue += amount;
+  const categoryState = state[category as keyof GameState] as any;
+  const queues = categoryState[queuesProp];
+  const itemQueue = queues[itemName];
 
-  return newState;
+  const newItemQueue = { ...itemQueue, queue: itemQueue.queue + amount };
+  const newQueues = { ...queues, [itemName]: newItemQueue };
+  const newCategoryState = { ...categoryState, [queuesProp]: newQueues };
+
+  // 6. Devolver el nuevo objeto de estado
+  return {
+    ...state,
+    resources: newResources,
+    [category]: newCategoryState,
+  };
 };
 
 // Reducer para la construcción
@@ -97,8 +108,27 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
       return handleBuild(state, { ...gameData.storage.plasmaAccumulator, buyAmount: state.storageBuyAmount, queuePath: ['storage', 'queues', 'plasmaAccumulator'] });
     case 'BUILD_HARMONIC_CONTAINMENT_FIELD':
       return handleBuild(state, { ...gameData.storage.harmonicContainmentField, buyAmount: state.storageBuyAmount, queuePath: ['storage', 'queues', 'harmonicContainmentField'] });
-    case 'CRAFT_REFINED_METAL':
-      return handleBuild(state, { ...gameData.foundry.metalRefinado, buyAmount: state.foundryBuyAmount, queuePath: ['foundry', 'queues', 'metalRefinado'] });
+    case 'CRAFT_REFINED_METAL': {
+      const originalData = gameData.foundry.metalRefinado;
+      const smeltingEfficiencyBonus = (state.techCenter.upgrades.smeltingEfficiency || 0) * 0.05;
+      const foundryEnergyBonus = (state.techCenter.upgrades.foundryEnergy || 0) * 0.05;
+      
+      const originalScrapCost = originalData.costs.scrap || 0;
+      const originalEnergyCost = originalData.costs.energy || 0;
+
+      const modifiedCosts = { 
+        ...originalData.costs,
+        scrap: originalScrapCost * (1 - smeltingEfficiencyBonus),
+        energy: originalEnergyCost * (1 - foundryEnergyBonus)
+      };
+
+      return handleBuild(state, { 
+        ...originalData,
+        costs: modifiedCosts,
+        buyAmount: state.foundryBuyAmount, 
+        queuePath: ['foundry', 'queues', 'metalRefinado'] 
+      });
+    }
     case 'CRAFT_STRUCTURAL_STEEL':
       return handleBuild(state, { ...gameData.foundry.aceroEstructural, buyAmount: state.foundryBuyAmount, queuePath: ['foundry', 'queues', 'aceroEstructural'] });
     case 'CRAFT_HULL_PLATE':
@@ -126,33 +156,39 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
 
       const amountToDismantle = amount === 'max' ? droneCount : Math.min(amount, droneCount);
 
-      const droneCosts = gameData.drones[droneType as keyof typeof gameData.drones]?.costs;
-      if (!droneCosts) {
+      const droneData = gameData.drones[droneType as keyof typeof gameData.drones];
+      if (!droneData || !droneData.costs) {
         return state;
       }
 
-      const newState = JSON.parse(JSON.stringify(state));
-
-      // Devolver 75% de los recursos
-      for (const resource in droneCosts) {
-        const cost = droneCosts[resource as keyof typeof droneCosts] || 0;
-        newState.resources[resource as keyof typeof newState.resources] += Math.floor(cost * amountToDismantle * 0.75);
+      // 1. Crear un nuevo objeto de recursos con los materiales devueltos
+      const newResources = { ...state.resources };
+      for (const resource in droneData.costs) {
+        const cost = droneData.costs[resource as keyof typeof droneData.costs] || 0;
+        newResources[resource as keyof typeof newResources] += Math.floor(cost * amountToDismantle * 0.75);
       }
 
-      // Restar drones
-      newState.drones[droneType as keyof typeof newState.drones] -= amountToDismantle;
+      // 2. Crear un nuevo objeto de drones con el recuento actualizado
+      const newDrones = {
+        ...state.drones,
+        [droneType]: state.drones[droneType as keyof typeof state.drones] - amountToDismantle,
+      };
 
-      return newState;
+      // 3. Devolver el nuevo estado inmutable
+      return {
+        ...state,
+        resources: newResources,
+        drones: newDrones,
+      };
     }
 
     case 'CANCEL_QUEUE_ITEM': {
       const { category, itemName, amount } = action.payload;
 
-      const newState = JSON.parse(JSON.stringify(state));
+      const categoryState = state[category as keyof GameState] as any;
+      const queue = categoryState?.queues?.[itemName];
 
-      const queue = (newState[category as keyof GameState] as any)?.queues?.[itemName];
-
-      if (!queue) {
+      if (!queue || queue.queue <= 0) {
         return state;
       }
 
@@ -162,6 +198,7 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
         return state;
       }
 
+      // Función auxiliar para obtener los costos (ya existe, la reutilizamos)
       const getItemCosts = (cat: string, item: string): Record<string, number> => {
         const categoryData = (gameData as any)[cat];
         if (categoryData && categoryData[item] && categoryData[item].costs) {
@@ -172,7 +209,7 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
         }
         if (cat === 'foundry') {
             const foundryItem = Object.values(gameData.foundry).find(
-                (foundryItem) => (foundryItem as any).id.toLowerCase() === item.toLowerCase()
+                (foundryItem: any) => foundryItem.id?.toLowerCase() === item.toLowerCase()
             );
             if (foundryItem) {
                 return foundryItem.costs;
@@ -183,19 +220,33 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
 
       const costs = getItemCosts(category, itemName);
 
+      // 1. Crear nuevo objeto de recursos con los materiales devueltos
+      const newResources = { ...state.resources };
       Object.entries(costs).forEach(([resource, cost]) => {
-        if (resource in newState.resources) {
-          (newState.resources as any)[resource] += (cost as number) * amountToCancel;
+        if (resource in newResources) {
+          (newResources as any)[resource] += (cost as number) * amountToCancel;
         }
       });
 
-      queue.queue -= amountToCancel;
+      // 2. Crear la nueva cola actualizada de forma inmutable
+      const newQueue = { 
+        ...queue,
+        queue: queue.queue - amountToCancel,
+        progress: queue.queue - amountToCancel === 0 ? 0 : queue.progress,
+      };
 
-      if (queue.queue === 0) {
-        queue.progress = 0;
-      }
-
-      return newState;
+      // 3. Construir el nuevo estado final de forma inmutable
+      return {
+        ...state,
+        resources: newResources,
+        [category]: {
+          ...categoryState,
+          queues: {
+            ...categoryState.queues,
+            [itemName]: newQueue,
+          },
+        },
+      };
     }
 
     default:

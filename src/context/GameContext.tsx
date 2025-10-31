@@ -91,8 +91,8 @@ const calculateOfflineResources = (loadedState: GameState): GameState => {
         (resourcesGained.steel > 0 ? `• ${resourcesGained.steel.toLocaleString()} acero estructural\n` : '') +
         (resourcesGained.research > 0 ? `• ${resourcesGained.research.toLocaleString()} puntos de investigación` : '');
 
-      // Añadir el mensaje a la cola de Aurora
-      simulatedState.aurora.messageQueue.push({
+            // Añadir el mensaje a la cola de Aurora
+      simulatedState.aurora.pendingMessages.push({
         message: message.trim(),
         key: `offline_production_${Date.now()}`
       });
@@ -259,7 +259,29 @@ const loadState = (): GameState => {
     if (serializedState === null) {
       return initialGameState;
     }
-        const storedState = JSON.parse(serializedState);
+            const storedState = JSON.parse(serializedState);
+
+    // --- MIGRACIÓN DE DATOS DE AURORA ---
+    // Comprobar si es un guardado antiguo y migrar la estructura de Aurora
+    if (storedState.aurora && (storedState.aurora.currentMessage || storedState.aurora.messageQueue)) {
+      console.log("Detectado guardado antiguo de Aurora. Migrando...");
+      const migratedPendingMessages = [];
+      if (storedState.aurora.currentMessage) {
+        migratedPendingMessages.push({
+          message: storedState.aurora.currentMessage,
+          key: `migrated_${Date.now()}` // Asignar una clave genérica
+        });
+      }
+      if (Array.isArray(storedState.aurora.messageQueue)) {
+        migratedPendingMessages.push(...storedState.aurora.messageQueue);
+      }
+
+      // Crear la nueva estructura y limpiar la vieja
+      storedState.aurora.activeMessages = [];
+      storedState.aurora.pendingMessages = migratedPendingMessages;
+      delete storedState.aurora.currentMessage;
+      delete storedState.aurora.messageQueue;
+    }
 
     // Rehidratar el Set de mensajes de Aurora que se pierde en la serialización
     if (storedState.aurora && Array.isArray(storedState.aurora.shownMessages)) {

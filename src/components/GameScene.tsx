@@ -332,7 +332,7 @@ const GameScene: React.FC = () => {
             onClose={onClose}
           />
         );
-      case 'shipyard':
+            case 'shipyard':
         return (
           <ShipyardView 
             shipyardProgress={shipyard.progress}
@@ -345,6 +345,7 @@ const GameScene: React.FC = () => {
             onClose={() => dispatch({ type: 'CLOSE_CURRENT_VIEW' })}
           />
         );
+      case '': // Añadido: Manejar explícitamente la vista por defecto
       default:
         return (
                     <div style={{

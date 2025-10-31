@@ -13,29 +13,30 @@ const AuroraMessage: React.FC<AuroraMessageProps> = ({
 }) => {
   const [isVisible, setIsVisible] = useState(false);
 
+  // Animar la entrada al montar el componente
   useEffect(() => {
-    // Solo mostrar si hay un mensaje
-    if (message) {
-      setIsVisible(true);
-      
-      if (autoHide) {
-        const timer = setTimeout(() => {
-          setIsVisible(false);
-          setTimeout(onClose, 300); // Esperar a que termine la animación
-        }, 5000);
-        
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [message, autoHide, onClose]);
+    setIsVisible(true);
+  }, []);
 
-  if (!message) return null;
+  // Controlar el auto-cierre
+  useEffect(() => {
+    if (autoHide) {
+      const timer = setTimeout(() => {
+        handleClose();
+      }, 5000); // 5 segundos
+      
+      return () => clearTimeout(timer);
+    }
+  }, [autoHide, onClose]);
+
+  const handleClose = () => {
+    setIsVisible(false);
+    // Esperar a que termine la animación de salida antes de llamar a onClose
+    setTimeout(onClose, 300);
+  };
 
   return (
     <div style={{
-      position: 'fixed',
-      bottom: '20px', // CAMBIADO: de top a bottom
-      right: '20px',
       maxWidth: '400px',
       backgroundColor: '#111827',
       color: '#E5E7EB',
@@ -46,7 +47,6 @@ const AuroraMessage: React.FC<AuroraMessageProps> = ({
       transform: isVisible ? 'translateX(0)' : 'translateX(100%)',
       opacity: isVisible ? 1 : 0,
       transition: 'all 0.3s ease-in-out',
-      zIndex: 1000,
       fontFamily: 'Inter, sans-serif'
     }}>
       <div style={{
@@ -77,10 +77,7 @@ const AuroraMessage: React.FC<AuroraMessageProps> = ({
           }}>
             <strong style={{ color: '#06B6D4' }}>AURORA</strong>
             <button 
-              onClick={() => {
-                setIsVisible(false);
-                setTimeout(onClose, 300);
-              }}
+              onClick={handleClose}
               style={{
                 background: 'none',
                 border: 'none',

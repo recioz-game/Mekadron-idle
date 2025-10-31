@@ -21,15 +21,18 @@ const ResourceBar: React.FC = React.memo(() => {
   const tier3Drones = drones.advanced + drones.reinforcedAdvanced + drones.golem + drones.wyrm;
 
   return (
-    <div style={{
+        <div style={{
       backgroundColor: '#111827',
       color: '#E5E7EB',
       padding: '1rem',
-      borderBottom: '2px solid #1F2937',
+      border: '2px solid #1F2937',
+      borderRadius: '20px',
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      fontFamily: 'Inter, sans-serif'
+      fontFamily: 'Inter, sans-serif',
+      margin: '10px',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3)'
     }}>
       {/* CONTENEDOR IZQUIERDA: Recursos principales */}
       <div style={{ 

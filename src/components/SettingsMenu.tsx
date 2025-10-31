@@ -145,7 +145,7 @@ const SettingsMenu: React.FC = () => {
           >
             Finalizar Expediciones
           </button>
-          <button
+                    <button
             onClick={handleResetGame}
             style={{
               padding: '0.5rem',
@@ -160,6 +160,28 @@ const SettingsMenu: React.FC = () => {
             }}
           >
             Reiniciar Juego
+          </button>
+          
+          {/* Botón de Salir */}
+          <button
+            onClick={() => {
+              if (window.confirm('¿Estás seguro de que quieres salir del juego?')) {
+                window.close(); // Cierra la ventana/pestaña
+              }
+            }}
+            style={{
+              padding: '0.5rem',
+              backgroundColor: '#1E40AF', // Azul
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              marginTop: '0.5rem',
+              width: '100%'
+            }}
+                    >
+            Salir
           </button>
         </div>
       )}
@@ -187,4 +209,6 @@ const SettingsMenu: React.FC = () => {
 };
 
 export default SettingsMenu;
+
+
 

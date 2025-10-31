@@ -4,7 +4,6 @@ import { useGame } from '../context/GameContext';
 import GameScene from './GameScene';
 import AuroraMessage from './AuroraMessage';
 import { useGameLoop } from '../hooks/useGameLoop';
-import AuroraMessageHandler from './AuroraMessageHandler';
 
 const Game: React.FC = () => {
   const { gameState, dispatch } = useGame();
@@ -59,16 +58,31 @@ const Game: React.FC = () => {
     };
   }, [dispatch]);
 
-  return (
+    // Procesador de la cola de mensajes de Aurora
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Solo procesar si no hay demasiados mensajes en pantalla
+      if (gameState.aurora.pendingMessages.length > 0 && gameState.aurora.activeMessages.length < 3) {
+        dispatch({ type: 'PROCESS_AURORA_QUEUE' });
+      }
+    }, 1000); // Comprobar cada segundo
+
+    return () => clearInterval(interval);
+  }, [gameState.aurora.pendingMessages.length, gameState.aurora.activeMessages.length, dispatch]);
+
+    return (
     <>
       <GameScene />
-      <AuroraMessageHandler />
-      {gameState.aurora.currentMessage && (
-        <AuroraMessage
-          message={gameState.aurora.currentMessage}
-          onClose={() => dispatch({ type: 'CLOSE_AURORA_MESSAGE' })}
-        />
-      )}
+      <div style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000 }}>
+        {gameState.aurora.activeMessages.map((msg, index) => (
+          <div key={msg.id} style={{ marginBottom: index > 0 ? '1rem' : '0' }}>
+            <AuroraMessage
+              message={msg.text}
+              onClose={() => dispatch({ type: 'REMOVE_AURORA_MESSAGE', payload: { messageId: msg.id } })}
+            />
+          </div>
+        ))}
+      </div>
     </>
   );
 };

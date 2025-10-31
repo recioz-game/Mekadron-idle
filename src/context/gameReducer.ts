@@ -109,14 +109,34 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         };
     }
 
-        case 'CLOSE_AURORA_MESSAGE': {
-        const nextMessage = state.aurora.messageQueue.length > 0 ? state.aurora.messageQueue[0] : null;
+                case 'REMOVE_AURORA_MESSAGE': {
+            return {
+                ...state,
+                aurora: {
+                    ...state.aurora,
+                    activeMessages: state.aurora.activeMessages.filter(msg => msg.id !== action.payload.messageId),
+                }
+            };
+        }
+
+    case 'PROCESS_AURORA_QUEUE': {
+        if (state.aurora.pendingMessages.length === 0) {
+            return state;
+        }
+
+        const newMessageToAdd = state.aurora.pendingMessages[0];
+        const newActiveMessage = {
+            id: Date.now(),
+            text: newMessageToAdd.message,
+            key: newMessageToAdd.key,
+        };
+
         return {
             ...state,
             aurora: {
                 ...state.aurora,
-                currentMessage: nextMessage ? nextMessage.message : null,
-                messageQueue: nextMessage ? state.aurora.messageQueue.slice(1) : [],
+                activeMessages: [...state.aurora.activeMessages, newActiveMessage],
+                pendingMessages: state.aurora.pendingMessages.slice(1),
             }
         };
     }
@@ -128,21 +148,12 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         }
         const newShownMessages = new Set(state.aurora.shownMessages);
         newShownMessages.add(messageKey);
-        if (state.aurora.currentMessage !== null) {
-            return {
-                ...state,
-                aurora: {
-                    ...state.aurora,
-                    messageQueue: [...state.aurora.messageQueue, { message, key: messageKey }],
-                    shownMessages: newShownMessages,
-                }
-            };
-        }
+
         return {
             ...state,
             aurora: {
                 ...state.aurora,
-                currentMessage: message,
+                pendingMessages: [...state.aurora.pendingMessages, { message, key: messageKey }],
                 shownMessages: newShownMessages,
             }
         };
@@ -154,10 +165,10 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
             currentView: action.payload
         };
 
-    case 'CLOSE_CURRENT_VIEW':
+        case 'CLOSE_CURRENT_VIEW':
       return {
         ...state,
-        currentView: ''
+        currentView: '' // Asegurarse de que sea un string vacío
       };
 
     case 'START_EXPEDITION': {

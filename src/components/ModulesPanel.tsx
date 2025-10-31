@@ -1,4 +1,13 @@
 import React from 'react';
+import missionsButtonUrl from '../assets/misions-button.png';
+import workshopButtonUrl from '../assets/workshop-button.png';
+import storageButtonUrl from '../assets/storage-button.png';
+import energyButtonUrl from '../assets/energy-button.png';
+import techCenterButtonUrl from '../assets/tech-center-button.png';
+import foundryButtonUrl from '../assets/foundry-button.png';
+import expeditionsButtonUrl from '../assets/expeditions-button.png';
+import shipyardButtonUrl from '../assets/shipyard-button.png';
+import vindicatorButtonUrl from '../assets/vindicator-button.png';
 
 interface ModulesPanelProps {
   energyUnlocked: boolean;
@@ -44,190 +53,262 @@ const ModulesPanel: React.FC<ModulesPanelProps> = React.memo(({
       width: '300px',
       borderLeft: '2px solid #374151',
       fontFamily: 'Inter, sans-serif'
-    }}>
-      <h3 style={{ 
-        color: '#F59E0B', 
-        marginBottom: '1rem',
-        textAlign: 'center'
-      }}>
-        MÓDULOS
-      </h3>
+        }}>
 
-      {/* ORDEN CORREGIDO: Misiones primero */}
-
-      {/* Misiones - SIEMPRE DISPONIBLE - PRIMERA */}
+      {/* Misiones - SIEMPRE DISPONIBLE - PRIMERA - AHORA CON IMAGEN */}
       <button 
         onClick={() => onModuleSelect('missions')}
         style={{
-          padding: '0.75rem 1rem',
-          backgroundColor: currentView === 'missions' ? '#F59E0B' : '#374151',
-          color: 'white',
+          padding: '0',
+          backgroundColor: 'transparent',
           border: 'none',
           borderRadius: '4px',
           cursor: 'pointer',
           marginBottom: '0.5rem',
           width: '100%',
-          textAlign: 'left'
+          textAlign: 'center'
         }}
       >
-        🎯 Misiones
+        <img
+          src={missionsButtonUrl}
+          alt="Misiones"
+                              style={{
+          width: '80%',
+            height: 'auto',
+          borderRadius: '4px',
+            filter: currentView === 'missions' ? 'brightness(1.2)' : 'brightness(1)',
+            transition: 'filter 0.2s ease'
+        }}
+        />
       </button>
 
-      {/* Taller - SIEMPRE DISPONIBLE - SEGUNDA */}
+      {/* Taller - SIEMPRE DISPONIBLE - SEGUNDA - AHORA CON IMAGEN */}
       <button 
         onClick={() => onModuleSelect('workshop')}
         style={{
-          padding: '0.75rem 1rem',
-          backgroundColor: currentView === 'workshop' ? '#F59E0B' : '#374151',
-          color: 'white',
+          padding: '0',
+          backgroundColor: 'transparent',
           border: 'none',
           borderRadius: '4px',
-          cursor: 'pointer',
-          marginBottom: '0.5rem',
-          width: '100%',
-          textAlign: 'left'
-        }}
-      >
-        🏭 Taller
-      </button>
+            cursor: 'pointer',
+            marginBottom: '0.5rem',
+            width: '100%',
+          textAlign: 'center'
+          }}
+        >
+        <img
+          src={workshopButtonUrl}
+          alt="Taller"
+                                        style={{
+            width: '80%',
+            height: 'auto',
+            borderRadius: '4px',
+            filter: currentView === 'workshop' ? 'brightness(1.2)' : 'brightness(1)',
+            transition: 'filter 0.2s ease'
+          }}
+        />
+        </button>
 
-      {/* Energía - Se desbloquea con 50 chatarra - TERCERA */}
+            {/* Energía - SE DESBLOQUEA - CON IMAGEN */}
       <button 
-        onClick={() => onModuleSelect('energy')}
+        onClick={() => energyUnlocked && onModuleSelect('energy')}
         style={{
-          padding: '0.75rem 1rem',
-          backgroundColor: currentView === 'energy' ? '#F59E0B' : '#374151',
-          color: 'white',
+          padding: '0',
+          backgroundColor: 'transparent',
           border: 'none',
           borderRadius: '4px',
           cursor: energyUnlocked ? 'pointer' : 'not-allowed',
           marginBottom: '0.5rem',
           width: '100%',
-          textAlign: 'left',
-          opacity: energyUnlocked ? 1 : 0.5
+          textAlign: 'center'
         }}
         disabled={!energyUnlocked}
       >
-        ⚡ Energía {!energyUnlocked && '(🔒)'}
+        <img
+          src={energyButtonUrl}
+          alt="Energía"
+                                        style={{
+          width: '80%',
+            height: 'auto',
+          borderRadius: '4px',
+            filter: currentView === 'energy' ? 'brightness(1.2)' : energyUnlocked ? 'brightness(1)' : 'brightness(0.5)',
+            transition: 'filter 0.2s ease',
+            opacity: energyUnlocked ? 1 : 0.6
+        }}
+        />
       </button>
 
-      {/* Almacén - Se desbloquea con 75 chatarra - CUARTA */}
+            {/* Almacén - SE DESBLOQUEA - CON IMAGEN */}
       <button 
-        onClick={() => onModuleSelect('storage')}
+        onClick={() => storageUnlocked && onModuleSelect('storage')}
         style={{
-          padding: '0.75rem 1rem',
-          backgroundColor: currentView === 'storage' ? '#F59E0B' : '#374151',
-          color: 'white',
+          padding: '0',
+          backgroundColor: 'transparent',
           border: 'none',
           borderRadius: '4px',
           cursor: storageUnlocked ? 'pointer' : 'not-allowed',
           marginBottom: '0.5rem',
           width: '100%',
-          textAlign: 'left',
-          opacity: storageUnlocked ? 1 : 0.5
+          textAlign: 'center'
         }}
         disabled={!storageUnlocked}
       >
-        📦 Almacén {!storageUnlocked && '(🔒)'}
+        <img
+          src={storageButtonUrl}
+          alt="Almacén"
+                                        style={{
+          width: '80%',
+            height: 'auto',
+          borderRadius: '4px',
+            filter: currentView === 'storage' ? 'brightness(1.2)' : storageUnlocked ? 'brightness(1)' : 'brightness(0.5)',
+            transition: 'filter 0.2s ease',
+            opacity: storageUnlocked ? 1 : 0.6
+        }}
+        />
       </button>
 
-      {/* Centro Técnico - Se desbloquea con requisitos avanzados - QUINTA */}
+            {/* Centro Técnico - SE DESBLOQUEA - CON IMAGEN */}
       <button 
-        onClick={() => onModuleSelect('techCenter')}
+        onClick={() => techCenterUnlocked && onModuleSelect('techCenter')}
         style={{
-          padding: '0.75rem 1rem',
-          backgroundColor: currentView === 'techCenter' ? '#06B6D4' : '#374151',
-          color: 'white',
+          padding: '0',
+          backgroundColor: 'transparent',
           border: 'none',
           borderRadius: '4px',
           cursor: techCenterUnlocked ? 'pointer' : 'not-allowed',
           marginBottom: '0.5rem',
           width: '100%',
-          textAlign: 'left',
-          opacity: techCenterUnlocked ? 1 : 0.5
+          textAlign: 'center'
         }}
         disabled={!techCenterUnlocked}
       >
-        🔬 Centro Técnico {!techCenterUnlocked && '(🔒)'}
+        <img
+          src={techCenterButtonUrl}
+          alt="Centro Técnico"
+                                        style={{
+          width: '80%',
+            height: 'auto',
+          borderRadius: '4px',
+            filter: currentView === 'techCenter' ? 'brightness(1.2)' : techCenterUnlocked ? 'brightness(1)' : 'brightness(0.5)',
+            transition: 'filter 0.2s ease',
+            opacity: techCenterUnlocked ? 1 : 0.6
+        }}
+        />
       </button>
 
-      {/* Fundición - Se desbloquea con 100k de chatarra */}
+            {/* Fundición - SE DESBLOQUEA - CON IMAGEN */}
       {foundryUnlocked && (
-        <button 
+        <button
           onClick={() => onModuleSelect('foundry')}
           style={{
-            padding: '0.75rem 1rem',
-            backgroundColor: currentView === 'foundry' ? '#F59E0B' : '#374151',
-            color: 'white',
+            padding: '0',
+            backgroundColor: 'transparent',
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
             marginBottom: '0.5rem',
             width: '100%',
-            textAlign: 'left',
+            textAlign: 'center'
           }}
         >
-          🔥 Fundición
+          <img
+            src={foundryButtonUrl}
+            alt="Fundición"
+                                                style={{
+              width: '80%',
+              height: 'auto',
+              borderRadius: '4px',
+              filter: currentView === 'foundry' ? 'brightness(1.2)' : 'brightness(1)',
+              transition: 'filter 0.2s ease'
+            }}
+          />
         </button>
       )}
 
-      {/* Expediciones - Se desbloquea con el primer Dron de Expedición */}
+            {/* Expediciones - SE DESBLOQUEA - CON IMAGEN */}
       {expeditionsUnlocked && (
-        <button 
+        <button
           onClick={() => onModuleSelect('expeditions')}
           style={{
-            padding: '0.75rem 1rem',
-            backgroundColor: currentView === 'expeditions' ? '#D946EF' : '#374151',
-            color: 'white',
+            padding: '0',
+            backgroundColor: 'transparent',
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
             marginBottom: '0.5rem',
             width: '100%',
-            textAlign: 'left',
+            textAlign: 'center'
           }}
         >
-          🗺️ Expediciones
+          <img
+            src={expeditionsButtonUrl}
+            alt="Expediciones"
+                                                style={{
+              width: '80%',
+              height: 'auto',
+              borderRadius: '4px',
+              filter: currentView === 'expeditions' ? 'brightness(1.2)' : 'brightness(1)',
+              transition: 'filter 0.2s ease'
+            }}
+          />
         </button>
       )}
 
-      {/* Astillero - Se desbloquea con el primer Golem */}
+                                    {/* Astillero - SE DESBLOQUEA - CON IMAGEN */}
       {shipyardUnlocked && (
-        <button 
+        <button
           onClick={() => onModuleSelect('shipyard')}
           style={{
-            padding: '0.75rem 1rem',
-            backgroundColor: currentView === 'shipyard' ? '#06B6D4' : '#374151',
-            color: 'white',
+            padding: '0',
+            backgroundColor: 'transparent',
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
             marginBottom: '0.5rem',
             width: '100%',
-            textAlign: 'left',
+            textAlign: 'center'
           }}
-                >
-          🛠️ Astillero
+        >
+          <img
+            src={shipyardButtonUrl}
+            alt="Astillero"
+            style={{
+              width: '80%',
+              height: 'auto',
+              borderRadius: '4px',
+              filter: currentView === 'shipyard' ? 'brightness(1.2)' : 'brightness(1)',
+              transition: 'filter 0.2s ease'
+            }}
+          />
         </button>
       )}
 
-      {/* Navegación a Fase 2 */}
-            {phase2Unlocked && (
-        <button 
+            {/* Vindicator - SE DESBLOQUEA - CON IMAGEN */}
+      {phase2Unlocked && (
+        <button
           onClick={() => onModuleSelect('goToPhase2')}
           style={{
-            padding: '0.75rem 1rem',
-            backgroundColor: '#374151', // Estilo estándar
-            color: 'white',
+            padding: '0',
+            backgroundColor: 'transparent',
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
             marginBottom: '0.5rem',
             width: '100%',
-            textAlign: 'left',
+            textAlign: 'center'
           }}
         >
-          🚀 Vindicator
+          <img
+            src={vindicatorButtonUrl}
+            alt="Vindicator"
+            style={{
+              width: '80%',
+              height: 'auto',
+              borderRadius: '4px',
+              filter: currentView === 'goToPhase2' ? 'brightness(1.2)' : 'brightness(1)',
+              transition: 'filter 0.2s ease'
+            }}
+          />
         </button>
       )}
 
@@ -266,7 +347,7 @@ const ModulesPanel: React.FC<ModulesPanelProps> = React.memo(({
                   {scrapForUnlock >= 1000 ? '✅' : '❌'} 1000 Chatarra (para Centro Técnico)
                 </li>
               </>
-            )}
+      )}
             {!foundryUnlocked && (
               <li style={{ color: foundryProtocolsUpgrade > 0 ? '#22C55E' : '#EF4444' }}>
                 {foundryProtocolsUpgrade > 0 ? '✅' : '❌'} Investigación: Protocolos de Fundición
@@ -283,12 +364,16 @@ const ModulesPanel: React.FC<ModulesPanelProps> = React.memo(({
               </li>
             )}
           </ul>
-        </div>
+    </div>
       )}
 
-      
+
     </div>
   );
 });
 
 export default ModulesPanel;
+
+
+
+

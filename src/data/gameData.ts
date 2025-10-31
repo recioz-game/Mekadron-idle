@@ -17,7 +17,7 @@ export const gameData: GameData = {
     reinforcedMedium: { costs: { scrap: 2500, metalRefinado: 15 }, time: 120, prerequisites: (s) => s.techCenter.upgrades.reinforcedMediumDrones > 0 },
     reinforcedAdvanced: { costs: { scrap: 7000, metalRefinado: 30 }, time: 300, prerequisites: (s) => s.techCenter.upgrades.reinforcedAdvancedDrones > 0 },
     golem: { costs: { scrap: 75000, aceroEstructural: 5 }, time: 600, prerequisites: (s) => s.techCenter.upgrades.golemChassis > 0 && s.drones.reinforcedAdvanced >= 5 },
-    expeditionDrone: { costs: { scrap: 3000, metalRefinado: 20 }, time: 150, prerequisites: (s) => s.drones.reinforcedMedium >= 3 },
+    expeditionDrone: { costs: { scrap: 3000, metalRefinado: 20 }, time: 150, prerequisites: (s) => s.drones.advanced >= 2 },
     expeditionV2Drone: { costs: { scrap: 15000, metalRefinado: 100 }, time: 300, prerequisites: (s) => s.drones.expeditionDrone >= 5 }, // Nuevo dron v2
     wyrm: { costs: { scrap: 250000, aceroEstructural: 25 }, time: 1200, prerequisites: (s) => s.drones.golem >= 1 },
   },

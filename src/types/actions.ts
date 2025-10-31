@@ -8,9 +8,10 @@ export type ActionType =
   | { type: 'SHOW_MAIN_SCENE' }
   | { type: 'RESET_GAME' }
   | { type: 'COLLECT_SCRAP' }
-  | { type: 'SET_CURRENT_VIEW'; payload: string }
+    | { type: 'SET_CURRENT_VIEW'; payload: string }
   | { type: 'CLOSE_CURRENT_VIEW' }
-  | { type: 'CLOSE_AURORA_MESSAGE' }
+  | { type: 'REMOVE_AURORA_MESSAGE'; payload: { messageId: number } }
+  | { type: 'PROCESS_AURORA_QUEUE' }
   | { type: 'ADD_AURORA_MESSAGE'; payload: { message: string; messageKey: string } }
   | { type: 'GAME_TICK' }
     | { type: 'UPDATE_MISSION_PROGRESS' }

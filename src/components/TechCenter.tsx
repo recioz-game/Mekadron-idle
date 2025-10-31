@@ -37,7 +37,7 @@ const TechCenter: React.FC<TechCenterProps> = ({
     { id: 'reinforcedAdvancedDrones', category: 'Drones', title: 'Drones Reforzados III', description: 'Desbloquea drones avanzados reforzados.', effect: () => 'Desbloquea DAR-F', cost: 1000, maxLevel: 1, requirements: ['reinforcedMediumDrones'] },
     { id: 'golemChassis', category: 'Drones', title: 'Chasis Golem', description: 'Desbloquea los poderosos Drones Golem.', effect: () => 'Desbloquea DG-1', cost: 2500, maxLevel: 1, requirements: ['reinforcedAdvancedDrones'] },
         { id: 'swarmAI', category: 'Drones', title: 'IA de Enjambre', description: 'Por cada 50 drones, +1% a la producción global de chatarra (máx 10%).', effect: (level: number) => `Actualmente: +${level}%`, cost: 5000, maxLevel: 10, requirements: ['golemChassis'] },
-    { id: 'reaasignProtocols', category: 'Drones', title: 'Protocolos de Reasignación', description: 'Desbloquea la capacidad de desmantelar drones en el Taller para recuperar el 75% de sus costes.', effect: () => 'Desbloquea Desmantelamiento', cost: 1200, maxLevel: 1, requirements: ['swarmAI'] },
+    { id: 'reassignProtocols', category: 'Drones', title: 'Protocolos de Reasignación', description: 'Desbloquea la capacidad de desmantelar drones en el Taller para recuperar el 75% de sus costes.', effect: () => 'Desbloquea Desmantelamiento', cost: 1200, maxLevel: 1, requirements: ['swarmAI'] },
     { id: 'geologicalScanners', category: 'Drones', title: 'Scanners Geológicos', description: 'Los drones tienen una pequeña probabilidad de encontrar recursos raros al recolectar chatarra.', effect: (level: number) => `+${level * 0.01}% Prob. Recursos Raros`, cost: 3000, maxLevel: 5, requirements: ['reaasignProtocols'] },
 
     // --- COLUMNA: ENERGÍA ---

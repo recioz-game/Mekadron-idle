@@ -95,6 +95,13 @@ export interface VindicatorUpgrade {
   };
 }
 
+// Nueva interfaz para un mensaje de Aurora
+export interface AuroraMessageState {
+  id: number;
+  text: string;
+  key: string;
+}
+
 export interface GameState {
   currentScene: 'startMenu' | 'introScene' | 'main' | 'phase2Intro' | 'phase2Main' | 'combatScene';
   phase2Unlocked: boolean;
@@ -170,8 +177,8 @@ export interface GameState {
     queues: ReturnType<typeof createQueues<'storage'>>;
   };
   aurora: {
-    currentMessage: string | null;
-    messageQueue: Array<{ message: string; key: string }>;
+    activeMessages: AuroraMessageState[];
+    pendingMessages: Array<{ message: string; key: string }>;
     shownMessages: Set<string>;
   };
         missions: {
@@ -350,8 +357,8 @@ export const initialGameState: GameState = {
     queues: createQueues('storage')
   },
   aurora: {
-    currentMessage: null,
-    messageQueue: [],
+    activeMessages: [],
+    pendingMessages: [],
     shownMessages: new Set()
   },
         missions: {

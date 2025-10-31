@@ -7,16 +7,12 @@ const AuroraMessageHandler: React.FC = () => {
   // Sistema de mensajes basado en el progreso
   useEffect(() => {
     const { aurora, drones, resources, energy, storage, techCenter, currentScene } = gameState;
-    const { shownMessages, currentMessage } = aurora;
+    const { shownMessages } = aurora;
 
     // Verificación defensiva: asegurar que shownMessages sea un Set
     const safeShownMessages = shownMessages instanceof Set ? shownMessages : new Set();
 
-    if (currentMessage) {
-      return;
-    }
-
-    const addAuroraMessage = (message: string, key: string) => {
+            const addAuroraMessage = (message: string, key: string) => {
       dispatch({ type: 'ADD_AURORA_MESSAGE', payload: { message, messageKey: key } });
     };
 
@@ -67,15 +63,6 @@ const AuroraMessageHandler: React.FC = () => {
         addAuroraMessage("Optimización algorítmica completada. La energía sobrante genera significativamente más puntos de investigación.", "algorithm_optimization_unlocked");
     }
   }, [gameState, dispatch]);
-
-  // Procesador de la cola de mensajes de Aurora
-  useEffect(() => {
-    const { aurora } = gameState;
-    if (aurora.messageQueue.length > 0 && !aurora.currentMessage) {
-      const { message, key } = aurora.messageQueue[0];
-      dispatch({ type: 'ADD_AURORA_MESSAGE', payload: { message, messageKey: key } });
-    }
-  }, [gameState.aurora, dispatch]);
 
   return null;
 };
