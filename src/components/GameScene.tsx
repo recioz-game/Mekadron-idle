@@ -139,8 +139,8 @@ const GameScene: React.FC = () => {
   const onCraftPurifiedMetal = useCallback(() => dispatch({ type: 'CRAFT_PURIFIED_METAL' }), [dispatch]);
 
   // Función para obtener la URL del fondo según el estado actual
-      const getBackgroundUrl = () => {
-    return new URL(`../assets/Phase${gameState.phase}-background.png`, import.meta.url).href
+          const getBackgroundUrl = () => {
+    return new URL(`../assets/Phase${gameState.currentBackground - 1}-background.png`, import.meta.url).href
   };
 
   const renderActiveModule = () => {
