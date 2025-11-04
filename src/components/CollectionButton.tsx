@@ -24,39 +24,30 @@ const CollectionButton: React.FC<CollectionButtonProps> = ({
     document.dispatchEvent(event);
   };
 
-  return (
+      return (
     <div style={{
       position: 'absolute',
       bottom: '5rem',
-      left: '6rem',
+      left: '50%',
+      transform: 'translateX(-50%)',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center'
     }}>
       <button 
-                onClick={handleClick}
-                        style={{
+        onClick={handleClick}
+        style={{
           background: `url(${scrapButtonUrl}) no-repeat center center`,
           backgroundSize: 'contain',
-                                        width: '200px',
-          height: '200px',
+          width: '24.2rem', /* Aumentado otro 10% */
+          height: '24.2rem', /* Aumentado otro 10% */
           border: 'none',
           cursor: 'pointer',
           backgroundColor: 'transparent',
           position: 'relative'
-                        }}
+        }}
         aria-label={`Recolectar +${scrapPerClick} chatarra`}
       />
-            <div style={{
-        marginTop: '0.5rem',
-        color: '#E5E7EB', // Un color de texto claro y legible
-        fontSize: '1rem',
-        fontWeight: 'bold',
-        textShadow: '1px 1px 3px rgba(0, 0, 0, 0.7)',
-        textAlign: 'center'
-      }}>
-        Recolecta Chatarra
-      </div>
     </div>
   );
 };

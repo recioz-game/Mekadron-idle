@@ -1,4 +1,5 @@
 import React from 'react';
+import './App.css';
 import { useGame } from './context/GameContext';
 import StartMenu from './components/StartMenu';
 import IntroScene from './components/IntroScene';
@@ -43,10 +44,12 @@ const App: React.FC = () => {
     }
   };
 
-  return (
-    <ErrorBoundary>
-      {renderCurrentScene()}
-    </ErrorBoundary>
+    return (
+    <div className="game-container">
+      <ErrorBoundary>
+        {renderCurrentScene()}
+      </ErrorBoundary>
+    </div>
   );
 };
 

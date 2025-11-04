@@ -36,44 +36,44 @@ const AuroraMessage: React.FC<AuroraMessageProps> = ({
   };
 
   return (
-    <div style={{
-      maxWidth: '400px',
+        <div style={{
+      maxWidth: '40rem',
       backgroundColor: '#111827',
       color: '#E5E7EB',
-      padding: '1rem',
-      borderRadius: '8px',
+      padding: '1.6rem',
+      borderRadius: '0.8rem',
       border: '2px solid #06B6D4',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+      boxShadow: '0 0.4rem 1.2rem rgba(0,0,0,0.5)',
       transform: isVisible ? 'translateX(0)' : 'translateX(100%)',
       opacity: isVisible ? 1 : 0,
       transition: 'all 0.3s ease-in-out',
       fontFamily: 'Inter, sans-serif'
     }}>
       <div style={{
-        display: 'flex',
+                display: 'flex',
         alignItems: 'flex-start',
-        gap: '0.75rem'
+        gap: '1.2rem'
       }}>
-        <div style={{
-          width: '32px',
-          height: '32px',
+                <div style={{
+          width: '3.2rem',
+          height: '3.2rem',
           backgroundColor: '#06B6D4',
           borderRadius: '50%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
-          fontSize: '1.2rem',
+          fontSize: '1.8rem',
           fontWeight: 'bold'
         }}>
           A
         </div>
         <div style={{ flex: 1 }}>
           <div style={{
-            display: 'flex',
+                        display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'flex-start',
-            marginBottom: '0.5rem'
+            marginBottom: '0.8rem'
           }}>
             <strong style={{ color: '#06B6D4' }}>AURORA</strong>
             <button 
@@ -81,20 +81,20 @@ const AuroraMessage: React.FC<AuroraMessageProps> = ({
               style={{
                 background: 'none',
                 border: 'none',
-                color: '#9CA3AF',
+                                color: '#9CA3AF',
                 cursor: 'pointer',
-                fontSize: '1.2rem',
-                padding: '0 0.25rem',
-                marginLeft: '1rem'
+                fontSize: '2rem',
+                padding: '0 0.4rem',
+                marginLeft: '1.6rem'
               }}
             >
               ×
             </button>
           </div>
-          <p style={{ 
+                    <p style={{ 
             margin: 0, 
             lineHeight: '1.4',
-            fontSize: '0.9rem'
+            fontSize: '1.4rem'
           }}>
             {message}
           </p>

@@ -1,0 +1,120 @@
+/* src/components/StorageView.css */
+.storage-view-container {
+  background-color: #111827;
+  color: #E5E7EB;
+  padding: 1.6rem;
+  font-family: Inter, sans-serif;
+}
+
+.storage-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3.2rem;
+}
+
+.storage-view-header h2 {
+  font-size: 2.4rem;
+}
+
+.close-button {
+  padding: 0.8rem 1.6rem;
+  background-color: #EF4444;
+  color: white;
+  border: none;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-size: 1.4rem;
+}
+
+.storage-item {
+  padding: 1.6rem;
+  background-color: #1F2937;
+  border-radius: 0.4rem;
+  margin-bottom: 1.6rem;
+  border: 2px solid #374151;
+}
+
+.storage-item.unlocked {
+  border-color: #22C55E;
+}
+
+.storage-item.locked {
+  opacity: 0.6;
+}
+
+.storage-item h3 {
+  margin-top: 0;
+  font-size: 1.8rem;
+}
+
+.storage-item p {
+  margin: 0.8rem 0;
+  font-size: 1.4rem;
+}
+
+.queue-controls {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+}
+
+.queue-controls button {
+  flex-grow: 1;
+  background-color: #FBBF24;
+  border: none;
+  padding: 0.8rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  color: #1F2937;
+  font-size: 1.4rem;
+}
+
+.progress-bar-container {
+  width: 100%;
+  background-color: #374151;
+  border-radius: 0.4rem;
+  margin-top: 0.8rem;
+}
+
+.progress-bar {
+  background-color: #22C55E;
+  height: 0.5rem;
+  border-radius: 0.4rem;
+}
+
+.build-button {
+  padding: 1.2rem 2.4rem;
+  background-color: #9CA3AF;
+  color: #0F172A;
+  border: none;
+  border-radius: 0.4rem;
+  font-weight: bold;
+  font-size: 1.6rem;
+  margin-top: 0.8rem;
+  width: 100%;
+}
+
+.build-button.unlocked {
+  background-color: #22C55E;
+}
+
+.requirement-warning {
+  color: #F59E0B;
+  font-size: 1.4rem;
+  margin-top: 0.8rem;
+}
+
+@media (max-width: 768px) {
+  .storage-view-container {
+    padding: 1.2rem;
+  }
+
+  .storage-view-header {
+    margin-bottom: 1.6rem;
+  }
+
+  .storage-item {
+    padding: 1.2rem;
+  }
+}

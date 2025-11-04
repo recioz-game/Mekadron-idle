@@ -1,0 +1,30 @@
+/* src/components/BuyAmountSelector.css */
+.buy-amount-selector {
+  display: flex;
+  gap: 0.8rem;
+  margin-bottom: 1.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.buy-amount-label {
+  color: #9CA3AF;
+  font-size: 1.4rem;
+}
+
+.amount-button {
+  padding: 0.8rem;
+  background-color: #374151;
+  color: white;
+  border: 1px solid #4B5563;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  min-width: 4rem;
+  text-align: center;
+  font-size: 1.4rem;
+}
+
+.amount-button.active {
+  background-color: #F59E0B;
+  border-color: #F59E0B;
+}

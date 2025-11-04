@@ -107,6 +107,7 @@ export interface GameState {
   phase2Unlocked: boolean;
   notificationQueue: GameNotification[];
   battleCount: number;
+  currentBackground: number; // <-- NUEVA PROP: Fondo actual (1-4)
   resources: {
     scrap: number;
     energy: number;
@@ -287,6 +288,7 @@ export const initialGameState: GameState = {
   phase2Unlocked: false,
   notificationQueue: [],
   battleCount: 0,
+  currentBackground: 1, // <-- NUEVA PROP: Fondo inicial (1)
   resources: {
     scrap: 0,
     energy: 25,
@@ -490,3 +492,4 @@ export const initialGameState: GameState = {
   },
   lastSaveTimestamp: undefined
 };
+

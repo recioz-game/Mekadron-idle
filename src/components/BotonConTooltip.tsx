@@ -6,6 +6,7 @@ interface BotonConTooltipProps {
   tooltipText: string;
   children: React.ReactNode;
   style?: React.CSSProperties;
+  className?: string;
 }
 
 const BotonConTooltip: React.FC<BotonConTooltipProps> = ({ 
@@ -13,7 +14,8 @@ const BotonConTooltip: React.FC<BotonConTooltipProps> = ({
   disabled, 
   tooltipText, 
   children,
-  style
+  style,
+  className
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -47,10 +49,11 @@ const BotonConTooltip: React.FC<BotonConTooltipProps> = ({
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
-      <button
+            <button
         onClick={onClick}
         disabled={disabled}
         style={buttonStyle}
+        className={className}
       >
         {children}
       </button>

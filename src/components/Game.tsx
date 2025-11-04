@@ -73,9 +73,9 @@ const Game: React.FC = () => {
     return (
     <>
       <GameScene />
-      <div style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000 }}>
+            <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 1000 }}>
         {gameState.aurora.activeMessages.map((msg, index) => (
-          <div key={msg.id} style={{ marginBottom: index > 0 ? '1rem' : '0' }}>
+          <div key={msg.id} style={{ marginBottom: index > 0 ? '1.6rem' : '0' }}>
             <AuroraMessage
               message={msg.text}
               onClose={() => dispatch({ type: 'REMOVE_AURORA_MESSAGE', payload: { messageId: msg.id } })}

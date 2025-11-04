@@ -1,0 +1,50 @@
+/* src/components/NotificationToast.css */
+.notification-toast {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -10rem);
+  background-color: #1F2937;
+  color: #E5E7EB;
+  padding: 2.4rem;
+  border-radius: 0.8rem;
+  border: 2px solid #F59E0B;
+  z-index: 1000;
+  text-align: center;
+  box-shadow: 0px 1rem 3rem rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  opacity: 0;
+  max-width: 50rem;
+  width: 90%;
+}
+
+.notification-toast.visible {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
+.notification-title {
+  color: #F59E0B;
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+  font-size: 2.4rem;
+}
+
+.notification-message {
+  margin: 0;
+  color: #D1D5DB;
+}
+
+@media (max-width: 768px) {
+  .notification-toast {
+    padding: 1.6rem;
+  }
+
+  .notification-title {
+    font-size: 2rem;
+  }
+
+  .notification-message {
+    font-size: 1.4rem;
+  }
+}

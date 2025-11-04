@@ -10,9 +10,8 @@ import { ActionType } from '../types/actions';
 export const gameReducer = (state: GameState, action: ActionType): GameState => {
   let newState = { ...state };
 
-  // Call sub-reducers
+    // Call sub-reducers
   newState = combatReducer(newState, action);
-  newState = missionsReducer(newState, action);
   newState = constructionReducer(newState, action);
 
   // The rest of the switch handles non-combat actions
@@ -218,15 +217,24 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         };
       }
 
-    case 'RESEARCH_UPGRADE': {
+        case 'RESEARCH_UPGRADE': {
       const { upgradeName, cost } = action.payload;
       if (state.techCenter.researchPoints >= cost) {
         const newUpgrades = {
           ...state.techCenter.upgrades,
           [upgradeName]: (state.techCenter.upgrades[upgradeName as keyof typeof state.techCenter.upgrades] || 0) + 1
         };
+
+        // --- Lógica de Cambio de Fondo ---
+        // Transición a Phase 3 (fondo 4) al investigar Foundry
+        let newBackground = state.currentBackground;
+        if (upgradeName === 'foundryProtocols' && state.currentBackground < 4) {
+          newBackground = 4;
+        }
+
         return {
           ...state,
+          currentBackground: newBackground,
           modules: { ...state.modules, ...(upgradeName === 'foundryProtocols' && { foundry: true }) },
           techCenter: { ...state.techCenter, researchPoints: state.techCenter.researchPoints - cost, upgrades: newUpgrades }
         };
@@ -234,8 +242,23 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       return state;
     }
 
-    case 'GAME_TICK':
-      return processGameTick(state);
+            case 'GAME_TICK': {
+      let stateAfterTick = processGameTick(state);
+
+      // --- Lógica de Cambio de Fondo ---
+            // Transición a Phase 1 (fondo 2)
+      if (stateAfterTick.currentBackground === 1 && stateAfterTick.modules.energy && stateAfterTick.resources.scrap >= 75) {
+        stateAfterTick.currentBackground = 2;
+      }
+      // Transición a Phase 2 (fondo 3)
+      if (stateAfterTick.currentBackground === 2 && stateAfterTick.modules.techCenter) {
+        stateAfterTick.currentBackground = 3;
+      }
+      
+      // Después de procesar el tick, actualizamos el progreso de las misiones.
+      stateAfterTick = missionsReducer(stateAfterTick, { type: 'UPDATE_MISSION_PROGRESS' });
+      return stateAfterTick;
+    }
 
     case 'DEBUG_UNLOCK_TECH_CENTER':
         return {
@@ -256,7 +279,7 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       return { ...state, activeExpeditions: finishedExpeditions };
     }
 
-    case 'DONATE_TO_SHIPYARD': {
+        case 'DONATE_TO_SHIPYARD': {
         const { component, resource, amount } = action.payload as { component: keyof GameState['shipyard']['costs'], resource: string, amount: number };
         if (!state.shipyard.costs[component] || !(resource in (state.shipyard.costs[component] as Record<string, number>))) return state;
         const cost = (state.shipyard.costs[component] as Record<string, number>)[resource];
@@ -265,7 +288,25 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         const currentResourceAmount = resource === 'researchPoints' ? state.techCenter.researchPoints : (state.resources as any)[resource] || 0;
         const amountToDonate = Math.min(amount, currentResourceAmount, cost - progress);
         if (amountToDonate <= 0) return state;
-        return { ...state, resources: resource !== 'researchPoints' ? { ...state.resources, [(resource as keyof GameState['resources'])]: currentResourceAmount - amountToDonate } : state.resources, techCenter: resource === 'researchPoints' ? { ...state.techCenter, researchPoints: currentResourceAmount - amountToDonate } : state.techCenter, shipyard: { ...state.shipyard, progress: { ...state.shipyard.progress, [component]: { ...(state.shipyard.progress[component] as Record<string, number>), [resource]: progress + amountToDonate } } } };
+
+        const newState = { ...state, resources: resource !== 'researchPoints' ? { ...state.resources, [(resource as keyof GameState['resources'])]: currentResourceAmount - amountToDonate } : state.resources, techCenter: resource === 'researchPoints' ? { ...state.techCenter, researchPoints: currentResourceAmount - amountToDonate } : state.techCenter, shipyard: { ...state.shipyard, progress: { ...state.shipyard.progress, [component]: { ...(state.shipyard.progress[component] as Record<string, number>), [resource]: progress + amountToDonate } } } };
+
+        // --- Lógica de Cambio de Fondo ---
+        // Transición a Phase 4 (fondo 5) al completar el Vindicator
+        const { hull, powerCore, targetingSystem, warpDrive } = newState.shipyard.progress;
+        const costs = newState.shipyard.costs;
+        if (
+          hull.placasCasco >= costs.hull.placasCasco &&
+          powerCore.cableadoSuperconductor >= costs.powerCore.cableadoSuperconductor &&
+          targetingSystem.researchPoints >= costs.targetingSystem.researchPoints &&
+          targetingSystem.cableadoSuperconductor >= costs.targetingSystem.cableadoSuperconductor &&
+          warpDrive.nucleoSingularidad >= costs.warpDrive.nucleoSingularidad &&
+          newState.currentBackground < 5
+        ) {
+          newState.currentBackground = 5;
+        }
+        
+        return newState;
     }
 
     case 'REPAIR_VINDICATOR_HEALTH': {

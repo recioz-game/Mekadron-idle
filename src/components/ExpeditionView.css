@@ -1,0 +1,111 @@
+/* src/components/ExpeditionView.css */
+.expedition-view-container {
+  background-color: #111827;
+  color: #E5E7EB;
+  padding: 1.6rem;
+  font-family: Inter, sans-serif;
+}
+
+.expedition-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3.2rem;
+}
+
+.expedition-view-header h2 {
+  font-size: 2.4rem;
+}
+
+.close-button {
+  padding: 0.8rem 1.6rem;
+  background-color: #EF4444;
+  color: white;
+  border: none;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-size: 1.4rem;
+}
+
+.fleet-status {
+  background-color: #1F2937;
+  padding: 1.6rem;
+  border-radius: 0.8rem;
+  margin-bottom: 3.2rem;
+  font-size: 1.6rem; /* Aumentado para el texto de drones */
+}
+
+.fleet-status h3 {
+  margin-top: 0;
+  font-size: 2rem;
+}
+
+.active-expeditions,
+.available-expeditions {
+  margin-bottom: 3.2rem;
+}
+
+.section-title {
+  border-bottom: 1px solid #374151;
+  padding-bottom: 0.8rem;
+  margin-bottom: 1.6rem;
+  font-size: 1.8rem;
+}
+
+.expedition-item {
+  background-color: #1F2937;
+  padding: 1.6rem;
+  border-radius: 0.8rem;
+  margin-bottom: 1.6rem;
+  font-size: 1.5rem; /* Aumentado para el texto de los items */
+}
+
+.expedition-item.unavailable {
+  opacity: 0.6;
+  border: 2px solid #EF4444;
+}
+
+.expedition-item ul {
+  list-style: none;
+  padding-left: 1.6rem;
+  margin: 0.8rem 0;
+  font-size: 1.4rem;
+}
+
+.requirement.met {
+  color: #E5E7EB;
+}
+
+.requirement.unmet {
+  color: #EF4444;
+}
+
+.send-button {
+  width: 100%;
+  padding: 1rem 2rem; /* Reducido */
+  margin-top: 1.6rem;
+  color: white;
+  border: none;
+  border-radius: 0.4rem;
+  font-size: 1.4rem; /* Reducido */
+}
+
+.send-button:disabled {
+  background-color: #9CA3AF;
+  cursor: not-allowed;
+}
+
+.send-button:not(:disabled) {
+  background-color: #22C55E;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .expedition-view-container {
+    padding: 1.2rem;
+  }
+
+  .expedition-view-header {
+    margin-bottom: 1.6rem;
+  }
+}

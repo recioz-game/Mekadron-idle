@@ -1,4 +1,5 @@
 import React from 'react';
+import './BuyAmountSelector.css'; // Importar el archivo CSS
 
 interface BuyAmountSelectorProps {
   buyAmount: number | 'max';
@@ -9,22 +10,13 @@ const BuyAmountSelector: React.FC<BuyAmountSelectorProps> = ({ buyAmount, onSetB
   const amounts: (number | 'max')[] = [1, 10, 100, 'max'];
 
   return (
-    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', alignItems: 'center' }}>
-      <span style={{ color: '#9CA3AF', fontSize: '0.9rem' }}>Cantidad:</span>
+    <div className="buy-amount-selector">
+      <span className="buy-amount-label">Cantidad:</span>
       {amounts.map(amount => (
         <button
           key={amount}
           onClick={() => onSetBuyAmount(amount)}
-          style={{
-            padding: '0.5rem',
-            backgroundColor: buyAmount === amount ? '#F59E0B' : '#374151',
-            color: 'white',
-            border: `1px solid ${buyAmount === amount ? '#F59E0B' : '#4B5563'}`,
-            borderRadius: '4px',
-            cursor: 'pointer',
-            minWidth: '40px',
-            textAlign: 'center'
-          }}
+          className={`amount-button ${buyAmount === amount ? 'active' : ''}`}
         >
           {amount === 'max' ? 'Máx' : `x${amount}`}
         </button>

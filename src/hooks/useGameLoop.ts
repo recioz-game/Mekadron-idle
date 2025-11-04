@@ -20,9 +20,8 @@ export const useGameLoop = (dispatch: React.Dispatch<ActionType>) => {
         lastTick.current = timestamp - (delta % tickInterval);
 
         // Procesar todos los ticks que han pasado
-        for (let i = 0; i < ticksToProcess; i++) {
+                for (let i = 0; i < ticksToProcess; i++) {
           dispatch({ type: 'GAME_TICK' });
-          dispatch({ type: 'UPDATE_MISSION_PROGRESS' });
         }
       }
 

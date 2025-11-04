@@ -1,5 +1,10 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import mainBackgroundUrl from '../assets/main-background.png';
+import './GameScene.css'; // Importar el archivo CSS
+import background0 from '../assets/Phase0-background.png';
+import background1 from '../assets/Phase1-background.png';
+import background2 from '../assets/Phase2-background.png';
+import background3 from '../assets/Phase3-background.png';
+import background4 from '../assets/Phase4-background.png';
 import mainThemeAudio from '../assets/main-theme.wav'; // 1. Importar el audio
 import { ExpeditionId, ActiveExpedition } from '../types/gameState';
 import { useGameState, useGameDispatch } from '../context/GameContext';
@@ -10,7 +15,7 @@ import Workshop from './Workshop';
 import EnergyView from './EnergyView';
 import StorageView from './StorageView';
 import MissionsPanel from './MissionsPanel';
-import TechCenter from './TechCenter';
+import Laboratory from './Laboratory';
 import FoundryView from './FoundryView';
 import ShipyardView from './ShipyardView';
 import ExpeditionView from './ExpeditionView';
@@ -54,7 +59,8 @@ const GameScene: React.FC = () => {
     foundry,
     rates,
     notificationQueue,
-    phase2Unlocked // <-- OBTENER EL NUEVO ESTADO
+    phase2Unlocked, // <-- OBTENER EL NUEVO ESTADO
+    currentBackground // <-- NUEVO: Obtener el fondo actual
   } = gameState;
   const onDismissNotification = useCallback(() => {
     dispatch({ type: 'DISMISS_NOTIFICATION' });
@@ -136,6 +142,24 @@ const GameScene: React.FC = () => {
   }, [dispatch]);
   const onCraftPurifiedMetal = useCallback(() => dispatch({ type: 'CRAFT_PURIFIED_METAL' }), [dispatch]);
 
+  // Función para obtener la URL del fondo según el estado actual
+    const getBackgroundUrl = () => {
+    switch (currentBackground) {
+      case 1:
+        return background0;
+      case 2:
+        return background1;
+      case 3:
+        return background2;
+      case 4:
+        return background3;
+      case 5:
+        return background4;
+      default:
+        return background0;
+    }
+  };
+
   const renderActiveModule = () => {
     switch (currentView) {
       case 'workshop':
@@ -169,7 +193,7 @@ const GameScene: React.FC = () => {
             expeditionDroneQueue={workshop.queues.expeditionDrone}
             expeditionV2DroneQueue={workshop.queues.expeditionV2Drone}
             wyrmDroneQueue={workshop.queues.wyrm}
-            
+
             // Upgrades
             upgrades={techCenter.upgrades}
 
@@ -251,7 +275,7 @@ const GameScene: React.FC = () => {
 
             // Energy Units for calculation
             energyCores={energy.energyCores}
-            
+
             // Callbacks
             onBuildBasicStorage={onBuildBasicStorage}
             onBuildMediumStorage={onBuildMediumStorage}
@@ -260,7 +284,7 @@ const GameScene: React.FC = () => {
             onBuildLithiumIonBattery={onBuildLithiumIonBattery}
             onBuildPlasmaAccumulator={onBuildPlasmaAccumulator}
             onBuildHarmonicContainmentField={onBuildHarmonicContainmentField}
-            
+
             // Others
                         buyAmount={storageBuyAmount}
             onSetBuyAmount={onSetStorageBuyAmount}
@@ -281,9 +305,9 @@ const GameScene: React.FC = () => {
             onClose={onCloseView}
           />
         );
-            case 'techCenter':
+                  case 'laboratory':
         return (
-          <TechCenter 
+          <Laboratory
             gameState={gameState}
             onResearchUpgrade={(upgradeName, cost) => dispatch({ type: 'RESEARCH_UPGRADE', payload: { upgradeName, cost } })}
             onClose={() => dispatch({ type: 'CLOSE_CURRENT_VIEW' })}
@@ -307,7 +331,7 @@ const GameScene: React.FC = () => {
             placasCascoQueue={foundry.queues.placasCasco}
             cableadoSuperconductorQueue={foundry.queues.cableadoSuperconductor}
             barraCombustibleQueue={foundry.queues.barraCombustible}
-            
+
             onCraftRefinedMetal={onCraftRefinedMetal}
             onCraftStructuralSteel={onCraftStructuralSteel}
             onCraftHullPlate={onCraftHullPlate}
@@ -334,7 +358,7 @@ const GameScene: React.FC = () => {
         );
             case 'shipyard':
         return (
-          <ShipyardView 
+          <ShipyardView
             shipyardProgress={shipyard.progress}
             shipyardCosts={shipyard.costs}
             placasCasco={resources.placasCasco}
@@ -348,14 +372,8 @@ const GameScene: React.FC = () => {
       case '': // Añadido: Manejar explícitamente la vista por defecto
       default:
         return (
-                    <div style={{
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'flex-start',
-            height: '100%',
-            padding: '2rem'
-          }}>
-                        <CollectionButton
+                    <div className="collection-button-container">
+            <CollectionButton
               onCollectScrap={() => dispatch({ type: 'COLLECT_SCRAP' })}
               scrapPerClick={rates.scrapPerClick}
             />
@@ -365,53 +383,29 @@ const GameScene: React.FC = () => {
   };
 
     return (
-    <div style={{
-      backgroundColor: '#0F172A',
-      backgroundImage: `url(${mainBackgroundUrl})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat',
-      color: '#E5E7EB',
-      minHeight: '100vh',
-      fontFamily: 'Inter, sans-serif',
-      display: 'flex',
-      flexDirection: 'column'
-    }}>
-            <ResourceBar />
-      
+    <div className="game-scene-container" style={{ backgroundImage: `url(${getBackgroundUrl()})` }}>
+      <ResourceBar />
+
       {resources.energy <= 0 && resources.energyProduction < resources.energyConsumption && (
-        <div style={{
-          padding: '0.5rem 1rem',
-          backgroundColor: '#450A0A',
-          color: '#FEE2E2',
-          textAlign: 'center',
-          fontSize: '0.9rem',
-          borderBottom: '2px solid #7F1D1D'
-        }}>
+        <div className="energy-warning">
           <strong>Advertencia:</strong> Balance energético negativo. La producción de recursos está detenida.
         </div>
       )}
-      
-      <div style={{
-        flex: 1,
-        display: 'flex'
-      }}>
-        <div style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
+
+      <div className="main-content">
+        <div className="module-container">
           {renderActiveModule()}
         </div>
-        
-        <ModulesPanel 
+
+        <ModulesPanel
+          workshopUnlocked={resources.scrap >= 75} // <-- NUEVA PROP: Taller desbloqueado con 75 chatarra
           energyUnlocked={modules.energy}
           storageUnlocked={modules.storage}
-                    techCenterUnlocked={modules.techCenter}
+          laboratoryUnlocked={modules.techCenter}
           foundryUnlocked={modules.foundry}
           expeditionsUnlocked={modules.expeditions}
           shipyardUnlocked={modules.shipyard}
-          phase2Unlocked={phase2Unlocked} // <-- PASAR LA NUEVA PROP
+          phase2Unlocked={phase2Unlocked}
           currentView={currentView}
           onModuleSelect={onModuleSelect}
           scrapForUnlock={resources.scrap}
@@ -420,8 +414,9 @@ const GameScene: React.FC = () => {
           foundryProtocolsUpgrade={techCenter.upgrades.foundryProtocols}
         />
       </div>
+
       <SettingsMenu />
-      <NotificationToast 
+            <NotificationToast
         notification={notificationQueue && notificationQueue.length > 0 ? notificationQueue[0] : null}
         onDismiss={onDismissNotification}
       />

@@ -324,8 +324,10 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .combat-scene {
-    grid-template-rows: auto auto 1fr auto auto;
-    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
   }
   
   .combat-header {
@@ -338,9 +340,14 @@
     gap: 1rem;
   }
 
+  .unit-stats {
+    grid-template-columns: 1fr;
+  }
+
   .central-action-button {
     min-width: 200px;
     font-size: 1rem;
     padding: 0.75rem 1.5rem;
   }
 }
+

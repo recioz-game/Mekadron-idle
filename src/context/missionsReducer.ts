@@ -38,7 +38,6 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
 
             if (isComplete && !mission.completed) {
               vindicatorCompletedThisTick = true;
-              return { ...mission, current: 1, completed: true }; 
             }
             break;
           }
@@ -232,7 +231,7 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
 
       const finalActiveMissions = [...updatedActiveMissions, ...missionsToAdd];
 
-      return {
+      let newState = {
         ...state,
         resources: newResources,
         missions: {
@@ -241,6 +240,15 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
           completedMissions: newCompletedMissions,
         }
       };
+
+      if (mission.isMain) {
+        newState.aurora.pendingMessages.push({
+          message: `Misión principal completada: ${mission.title}. Nuevos objetivos disponibles.`,
+          key: `mission_complete_${mission.id}`
+        });
+      }
+
+      return newState;
     }
 
     default:

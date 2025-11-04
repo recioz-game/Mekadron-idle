@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './ExpeditionView.css'; // Importar el archivo CSS
 import { GameState, ExpeditionId, ActiveExpedition } from '../types/gameState';
 import { allExpeditionsData } from '../data/expeditionsData';
 import { formatNumber } from '../utils/formatNumber';
@@ -66,21 +67,15 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
   };
   
   return (
-    <div style={{
-      backgroundColor: '#111827',
-      color: '#E5E7EB',
-      minHeight: '100vh',
-      padding: '1rem',
-      fontFamily: 'Inter, sans-serif'
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+    <div className="expedition-view-container">
+      <div className="expedition-view-header">
         <h2>🗺️ MÓDULO DE EXPEDICIONES</h2>
-        <button onClick={onClose} style={{ padding: '0.5rem 1rem', backgroundColor: '#EF4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+        <button onClick={onClose} className="close-button">
           Cerrar
         </button>
       </div>
 
-      <div style={{ backgroundColor: '#1F2937', padding: '1rem', borderRadius: '8px', marginBottom: '2rem' }}>
+      <div className="fleet-status">
         <h3>Estado de la Flota de Expedición</h3>
         <p>Drones de Expedición (DE-1) Disponibles: <strong style={{color: '#22C55E'}}>{availableDrones.expeditionDrone}</strong> / {drones.expeditionDrone}</p>
         <p>Drones de Expedición (DE-2) Disponibles: <strong style={{color: '#10B981'}}>{availableDrones.expeditionV2Drone}</strong> / {drones.expeditionV2Drone}</p>
@@ -88,14 +83,14 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
 
       {/* EXPEDICIONES ACTIVAS */}
       {activeExpeditions.length > 0 && (
-        <div style={{ marginBottom: '2rem' }}>
-          <h3 style={{ borderBottom: '1px solid #374151', paddingBottom: '0.5rem' }}>Expediciones en Curso</h3>
+        <div className="active-expeditions">
+          <h3 className="section-title">Expediciones en Curso</h3>
           {activeExpeditions.map(activeExp => {
             const data = allExpeditionsData.find(e => e.id === activeExp.id);
             if (!data) return null;
             const isComplete = activeExp.completionTimestamp <= Date.now();
             return (
-              <div key={activeExp.id} style={{ backgroundColor: '#1F2937', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
+              <div key={activeExp.id} className="expedition-item">
                 <h4>{data.title}</h4>
                 <p>{activeExp.dronesSent} {data.droneType === 'expeditionV2Drone' ? 'Drones (DE-2)' : 'Drones (DE-1)'} enviados.</p>
                 {isComplete ? (
@@ -103,7 +98,7 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
                     <p style={{color: '#22C55E'}}>¡Expedición Completada!</p>
                     <button 
                       onClick={() => onClaimReward(activeExp)}
-                      style={{ padding: '0.75rem 1.5rem', backgroundColor: '#F59E0B', color: 'white', border: 'none', borderRadius: '4px' }}
+                      className="claim-button"
                     >
                       Reclamar Recompensa
                     </button>
@@ -118,8 +113,8 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
       )}
 
       {/* EXPEDICIONES DISPONIBLES */}
-      <div>
-        <h3 style={{ borderBottom: '1px solid #374151', paddingBottom: '0.5rem' }}>Destinos Disponibles</h3>
+      <div className="available-expeditions">
+        <h3 className="section-title">Destinos Disponibles</h3>
         {allExpeditionsData.map(exp => {
           const isActive = activeExpeditions.some(active => active.id === exp.id);
           if (isActive) return null;
@@ -138,22 +133,15 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
           }
 
           return (
-            <div key={exp.id} style={{ 
-              backgroundColor: '#1F2937', 
-              padding: '1rem', 
-              borderRadius: '8px', 
-              marginBottom: '1rem',
-              opacity: canAfford ? 1 : 0.6,
-              border: `2px solid ${canAfford ? '#374151' : '#EF4444'}`
-            }}>
+            <div key={exp.id} className={`expedition-item ${!canAfford ? 'unavailable' : ''}`}>
               <h4>{exp.title}</h4>
               <p>{exp.description}</p>
               <p><strong>Duración:</strong> {exp.duration / 60} minutos</p>
               
               <div>
                 <strong>Requisitos:</strong>
-                <ul style={{listStyle: 'none', paddingLeft: '1rem', margin: '0.5rem 0'}}>
-                  <li style={{color: currentAvailableDrones >= dronesRequired ? '#E5E7EB' : '#EF4444'}}>
+                <ul>
+                  <li className={currentAvailableDrones >= dronesRequired ? 'requirement met' : 'requirement unmet'}>
                     {droneType === 'expeditionV2Drone' ? 'Drones (DE-2):' : 'Drones (DE-1):'} {dronesRequired}
                   </li>
                   {Object.entries(exp.costs).map(([resource, cost]) => {
@@ -161,7 +149,7 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
                     const hasEnough = (resources as any)[resource] >= cost;
                     const display = rewardDisplayMap[resource] || { name: resource, icon: '❓' };
                     return (
-                      <li key={resource} style={{color: hasEnough ? '#E5E7EB' : '#EF4444'}}>
+                      <li key={resource} className={hasEnough ? 'requirement met' : 'requirement unmet'}>
                         {display.icon} {display.name}: {formatNumber(cost)}
                       </li>
                     )
@@ -171,7 +159,7 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
 
               <div>
                 <strong>Posibles Recompensas:</strong>
-                <ul style={{listStyle: 'none', paddingLeft: '1rem', margin: '0.5rem 0'}}>
+                <ul>
                   {Object.entries(exp.rewards).map(([key, value]) => {
                     const display = rewardDisplayMap[key];
                     if (!display) return null;
@@ -190,16 +178,7 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
               <button
                 onClick={() => onStartExpedition(exp.id)}
                 disabled={!canAfford}
-                style={{ 
-                  width: '100%',
-                  padding: '0.75rem 1.5rem', 
-                  marginTop: '1rem',
-                  backgroundColor: canAfford ? '#22C55E' : '#9CA3AF', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '4px',
-                  cursor: canAfford ? 'pointer' : 'not-allowed'
-                }}
+                className="send-button"
               >
                 Enviar {dronesRequired} {droneType === 'expeditionV2Drone' ? 'Dron (DE-2)' : 'Dron (DE-1)'}
               </button>

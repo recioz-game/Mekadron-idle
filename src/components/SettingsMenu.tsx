@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './SettingsMenu.css'; // Importar el archivo CSS
 import { useGame } from '../context/GameContext';
 
 const SettingsMenu: React.FC = () => {
@@ -37,58 +38,31 @@ const SettingsMenu: React.FC = () => {
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      bottom: '1rem',
-      right: '1rem',
-      zIndex: 1000,
-      fontFamily: 'Inter, sans-serif',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'flex-end'
-    }}>
+    <div className="settings-menu-container">
       {isOpen && (
-        <div style={{
-          padding: '1rem',
-          backgroundColor: '#111827',
-          borderRadius: '8px',
-          border: '2px solid #374151',
-          marginBottom: '0.5rem',
-          width: '220px' // Ancho aumentado para acomodar los nuevos elementos
-        }}>
+        <div className="settings-menu-content">
           {/* --- SECCIÓN DE AJUSTES GENERALES --- */}
-          <strong style={{ color: '#E5E7EB', fontSize: '0.9rem', display: 'block', marginBottom: '1rem' }}>AJUSTES</strong>
+          <strong className="settings-section-title">AJUSTES</strong>
 
           {/* Control de Volumen */}
-          <div style={{ marginBottom: '1rem' }}>
-            <label htmlFor="volume-slider" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+          <div className="volume-control">
+            <label htmlFor="volume-slider">
               Volumen: {volume}%
             </label>
-                        <input
+            <input
               id="volume-slider"
               type="range"
               min="0"
               max="100"
               value={volume}
               onChange={(e) => handleVolumeChange(Number(e.target.value))}
-              style={{ width: '100%' }}
             />
           </div>
 
           {/* Botón de Créditos */}
           <button
             onClick={() => { /* Lógica de créditos aquí */ alert("Créditos: Próximamente..."); setIsOpen(false); }}
-            style={{
-              padding: '0.5rem',
-              backgroundColor: '#374151',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '0.8rem',
-              width: '100%',
-              marginBottom: '1rem'
-            }}
+            className="settings-button credits-button"
           >
             Créditos
           </button>
@@ -96,68 +70,28 @@ const SettingsMenu: React.FC = () => {
           <hr style={{ border: 'none', borderBottom: '1px solid #374151', marginBottom: '1rem' }} />
 
           {/* --- SECCIÓN DE DESARROLLO --- */}
-          <strong style={{ color: '#EF4444', fontSize: '0.9rem' }}>AJUSTES DE DESARROLLO</strong>
+          <strong className="dev-section-title">AJUSTES DE DESARROLLO</strong>
           <button
             onClick={handleDebugUnlock}
-            style={{
-              padding: '0.5rem',
-              backgroundColor: '#EF4444',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '0.8rem',
-              marginTop: '1rem',
-              width: '100%'
-            }}
+            className="dev-button unlock-button"
           >
             Desbloquear Módulos
           </button>
           <button
             onClick={handleDebugCompleteVindicator}
-            style={{
-              padding: '0.5rem',
-              backgroundColor: '#F59E0B', // Amarillo
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '0.8rem',
-              marginTop: '0.5rem',
-              width: '100%'
-            }}
+            className="dev-button complete-vindicator-button"
           >
             Completar Vindicator
           </button>
           <button
             onClick={handleDebugFinishExpeditions}
-            style={{
-              padding: '0.5rem',
-              backgroundColor: '#10B981', // Verde
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '0.8rem',
-              marginTop: '0.5rem',
-              width: '100%'
-            }}
+            className="dev-button finish-expeditions-button"
           >
             Finalizar Expediciones
           </button>
-                    <button
+          <button
             onClick={handleResetGame}
-            style={{
-              padding: '0.5rem',
-              backgroundColor: '#991B1B', // Un rojo más oscuro
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '0.8rem',
-              marginTop: '0.5rem',
-              width: '100%'
-            }}
+            className="dev-button reset-button"
           >
             Reiniciar Juego
           </button>
@@ -169,18 +103,8 @@ const SettingsMenu: React.FC = () => {
                 window.close(); // Cierra la ventana/pestaña
               }
             }}
-            style={{
-              padding: '0.5rem',
-              backgroundColor: '#1E40AF', // Azul
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '0.8rem',
-              marginTop: '0.5rem',
-              width: '100%'
-            }}
-                    >
+            className="dev-button exit-button"
+          >
             Salir
           </button>
         </div>
@@ -188,19 +112,7 @@ const SettingsMenu: React.FC = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         title="Ajustes"
-        style={{
-          width: '50px',
-          height: '50px',
-          borderRadius: '50%',
-          border: '2px solid #374151',
-          backgroundColor: '#1F2937',
-          color: 'white',
-          fontSize: '1.5rem',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
+        className="settings-toggle-button"
       >
         ⚙️
       </button>

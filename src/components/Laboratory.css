@@ -1,0 +1,148 @@
+/* src/components/TechCenter.css */
+.tech-center-container {
+  background-color: #111827;
+  color: #E5E7EB;
+  padding: 1.6rem;
+  font-family: Inter, sans-serif;
+}
+
+.tech-center-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3.2rem;
+}
+
+.tech-center-header h2 {
+  font-size: 2.4rem;
+}
+
+.close-button {
+  padding: 0.8rem 1.6rem;
+  background-color: #EF4444;
+  color: white;
+  border: none;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-size: 1.4rem;
+}
+
+.research-points-summary {
+  padding: 1.6rem;
+  background-color: #1F2737;
+  border-radius: 0.4rem;
+  margin-bottom: 3.2rem;
+  text-align: center;
+  position: relative;
+}
+
+.research-points-summary h3 {
+  color: #06B6D4;
+  margin-top: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 1.6rem;
+  font-size: 2rem;
+}
+
+.info-icon {
+  cursor: pointer;
+  font-size: 1.4rem;
+  border: 1px solid #9CA3AF;
+  border-radius: 50%;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tech-tree-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.6rem;
+}
+
+.tech-category {
+  flex: 1;
+  background-color: #1F2737;
+  border-radius: 0.8rem;
+  padding: 1.6rem;
+}
+
+.tech-category h3 {
+  text-align: center;
+  color: #F59E0B;
+  margin-top: 0;
+  font-size: 1.8rem;
+}
+
+.tech-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+
+.tech-card {
+  padding: 1.6rem;
+  background-color: #111827;
+  border-radius: 0.8rem;
+  border: 2px solid #374151;
+}
+
+.tech-card.available {
+  border-color: #22C55E;
+}
+
+.tech-card.researched {
+  border-color: #F59E0B;
+}
+
+.tech-card.locked {
+  opacity: 0.5;
+}
+
+.tech-card h4 {
+  margin: 0 0 0.8rem 0;
+  font-size: 1.6rem;
+}
+
+.tech-card-description {
+  font-size: 1.3rem;
+  color: #9CA3AF;
+  margin: 0 0 0.8rem 0;
+}
+
+.tech-card-effect {
+  font-size: 1.4rem;
+  color: #22C55E;
+  margin: 0 0 1.6rem 0;
+  font-weight: bold;
+}
+
+.tech-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.research-button {
+  padding: 0.8rem 1.6rem;
+  background-color: #374151;
+  color: white;
+  border: none;
+  border-radius: 0.4rem;
+  cursor: not-allowed;
+  font-size: 1.4rem;
+}
+
+.research-button.can-research {
+  background-color: #22C55E;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .tech-tree-container {
+    flex-direction: column;
+  }
+}

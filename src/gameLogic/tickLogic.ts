@@ -1,12 +1,35 @@
 import { GameState } from '../types/gameState';
 import { gameData } from '../data/gameData';
 
+// Función para actualizar el fondo según el progreso del juego
+const updateBackground = (state: GameState): GameState => {
+  const { modules, currentBackground } = state;
+
+  // Solo actualizar si el fondo actual es menor al que debería ser
+  if (!modules.techCenter && currentBackground < 2) {
+    // Fondo 1: Inicio del juego
+    return state;
+  } else if (modules.techCenter && !modules.foundry && currentBackground < 3) {
+    // Fondo 2: Laboratorio desbloqueado
+    return { ...state, currentBackground: 2 };
+  } else if (modules.foundry && !modules.shipyard && currentBackground < 4) {
+    // Fondo 3: Fundición desbloqueada
+    return { ...state, currentBackground: 3 };
+  } else if (modules.shipyard && currentBackground < 5) {
+    // Fondo 4: Astillero desbloqueado
+    return { ...state, currentBackground: 4 };
+  }
+
+  return state;
+};
+
 // Función auxiliar para los mensajes de Aurora (100% inmutable)
 const checkAuroraMessages = (state: GameState): GameState => {
   const { aurora, drones, resources, energy, storage, techCenter, currentScene } = state;
   const { shownMessages, pendingMessages } = aurora;
 
-  const originalShownMessages = shownMessages instanceof Set ? shownMessages : new Set<string>(shownMessages);
+  // Asegurarse de que shownMessages es siempre un Set válido
+  const originalShownMessages = shownMessages instanceof Set ? shownMessages : new Set<string>();
   let newPendingMessages = [...pendingMessages];
   let newShownMessages = new Set(originalShownMessages);
   let stateChanged = false;
@@ -20,7 +43,7 @@ const checkAuroraMessages = (state: GameState): GameState => {
   };
 
   if (currentScene === 'main' && drones.basic === 0 && resources.scrap < 10 && !newShownMessages.has("initial")) {
-    addMessage("Sistema de reactivación iniciado. Consulta las Misiones para tus primeros objetivos.", "initial");
+    addMessage("Sistema de reactivación iniciado. Recolecta chatarra para reparar los sistemas dañados de la estación. Consulta las Misiones para tus primeros objetivos.", "initial");
   }
     if (drones.basic === 1 && !newShownMessages.has("first_drone")) {
         addMessage("Unidad de reparación funcional. Eficiencia: 12%. Buen inicio, técnico.", "first_drone");
@@ -38,8 +61,8 @@ const checkAuroraMessages = (state: GameState): GameState => {
         addMessage("Depósitos restaurados. Capacidad de almacenamiento incrementada.", "first_storage");
     }
     if (drones.medium >= 3 && energy.advancedSolar >= 1 && 
-        !techCenter.unlocked && !newShownMessages.has("tech_center_available")) {
-        addMessage("He detectado que cumples los requisitos para reactivar el Centro Técnico. Podríamos optimizar todos nuestros sistemas desde allí.", "tech_center_available");
+        !techCenter.unlocked && !newShownMessages.has("laboratory_available")) {
+        addMessage("He detectado que cumples los requisitos para reactivar el Laboratorio. Podríamos optimizar todos nuestros sistemas desde allí.", "laboratory_available");
     }
     if (techCenter.upgrades.reinforcedBasicDrones === 1 && !newShownMessages.has("reinforced_basic_unlocked")) {
         addMessage("Protocolos de drones reforzados básicos desbloqueados. Ahora podemos construir unidades más resistentes en el Taller.", "reinforced_basic_unlocked");
@@ -73,7 +96,7 @@ const checkAuroraMessages = (state: GameState): GameState => {
     },
   };
 };
-
+  
 
 export const processGameTick = (state: GameState): GameState => {
 
@@ -261,7 +284,7 @@ export const processGameTick = (state: GameState): GameState => {
   let newNotifications = [...stateAfterStats.notificationQueue];
   if (!modulesBefore.energy && newModules.energy) newNotifications.push({ id: `energy-${Date.now()}`, title: 'Módulo de Energía Desbloqueado', message: 'Ahora puedes construir paneles solares para generar energía y alimentar más drones.' });
   if (!modulesBefore.storage && newModules.storage) newNotifications.push({ id: `storage-${Date.now()}`, title: 'Módulo de Almacenamiento Desbloqueado', message: 'Construye unidades de almacén para aumentar tu capacidad máxima de chatarra y energía.' });
-  if (!modulesBefore.techCenter && newModules.techCenter) newNotifications.push({ id: `tech-center-${Date.now()}`, title: 'Centro Técnico Desbloqueado', message: 'Investiga nuevas tecnologías para mejorar tus drones, la producción de energía y mucho más.' });
+  if (!modulesBefore.techCenter && newModules.techCenter) newNotifications.push({ id: `laboratory-${Date.now()}`, title: 'Laboratorio Desbloqueado', message: 'Investiga nuevas tecnologías para mejorar tus drones, la producción de energía y mucho más.' });
   if (!modulesBefore.foundry && newModules.foundry) newNotifications.push({ id: `foundry-${Date.now()}`, title: 'Fundición Desbloqueada', message: 'Refina chatarra en materiales avanzados para construir estructuras y drones más potentes.' });
   if (!modulesBefore.expeditions && newModules.expeditions) newNotifications.push({ id: `expeditions-${Date.now()}`, title: 'Módulo de Expediciones Desbloqueado', message: 'Envía drones a lo desconocido para encontrar recursos que no se pueden fabricar.' });
   if (!modulesBefore.shipyard && newModules.shipyard) newNotifications.push({ id: `shipyard-${Date.now()}`, title: 'Astillero Desbloqueado', message: '¡El objetivo final! Dona componentes para reconstruir la nave "Vindicator".' });
@@ -273,6 +296,9 @@ export const processGameTick = (state: GameState): GameState => {
     notificationQueue: newNotifications
   };
   
+  // Actualizar el fondo según el progreso
+  finalState = updateBackground(finalState);
+
   finalState = checkAuroraMessages(finalState);
 
   return finalState;

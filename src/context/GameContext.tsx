@@ -51,18 +51,8 @@ const calculateOfflineResources = (loadedState: GameState): GameState => {
   // Crear una copia del estado para simular el cálculo
   let simulatedState = JSON.parse(JSON.stringify(loadedState));
 
-  // Simular múltiples ticks de juego
-  const ticksToSimulate = Math.min(effectiveSeconds, 3600); // Máximo 1 hora de ticks individuales
-
-  for (let i = 0; i < ticksToSimulate; i++) {
-    simulatedState = simulateGameTick(simulatedState);
-  }
-
-  // Si hay más tiempo, calcular el resto en bloques más grandes
-  if (effectiveSeconds > ticksToSimulate) {
-    const remainingSeconds = effectiveSeconds - ticksToSimulate;
-    simulatedState = applyBulkOfflineProduction(simulatedState, remainingSeconds);
-  }
+  // OPTIMIZACIÓN: Usar cálculo directo en lugar de loop intensivo
+  simulatedState = applyBulkOfflineProduction(simulatedState, effectiveSeconds);
 
   // Añadir mensaje de Aurora informando sobre los recursos generados
   if (effectiveSeconds > 60) { // Solo mostrar mensaje si estuvo fuera más de 1 minuto
@@ -291,7 +281,7 @@ const loadState = (): GameState => {
       storedState.aurora.shownMessages = new Set();
     }
 
-        // Fusionar el estado guardado con el inicial de forma profunda para asegurar compatibilidad.
+            // Fusionar el estado guardado con el inicial de forma profunda para asegurar compatibilidad.
     // Esto previene errores cuando se añaden nuevas propiedades (recursos, colas, etc.) al juego.
     const mergedState = {
       ...initialGameState,
@@ -310,7 +300,7 @@ const loadState = (): GameState => {
     };
     
     // La rehidratación del Set se hace sobre el estado ya fusionado para mayor seguridad
-    if (Array.isArray(mergedState.aurora.shownMessages)) {
+    if (mergedState.aurora && Array.isArray(mergedState.aurora.shownMessages)) {
       mergedState.aurora.shownMessages = new Set(mergedState.aurora.shownMessages);
     }
 

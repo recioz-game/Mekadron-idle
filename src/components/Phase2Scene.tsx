@@ -1,10 +1,16 @@
 import React from 'react';
-import phase2BackgroundUrl from '../assets/phase2-background.png';
+import './Phase2Scene.css'; // Importar el archivo CSS
+import phase2BackgroundUrl from '../assets/Vindicator-background.png';
 import SettingsMenu from './SettingsMenu';
 import Phase2ResourceBar from './Phase2ResourceBar';
 import { useGame } from '../context/GameContext';
 import BattleRoom from './BattleRoom';
 import Armory from './Armory';
+
+// Importar las imágenes para los botones
+import battleRoomImage from '../assets/battle-room-button.png';
+import armoryImage from '../assets/armory-button.png';
+import returnStationImage from '../assets/return-station-button.png';
 
 const Phase2Scene: React.FC = () => {
   const { gameState, dispatch } = useGame();
@@ -15,17 +21,7 @@ const Phase2Scene: React.FC = () => {
   };
 
   return (
-    <div style={{
-      backgroundImage: `url(${phase2BackgroundUrl})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat',
-      color: '#E5E7EB',
-      minHeight: '100vh',
-      fontFamily: 'Inter, sans-serif',
-      display: 'flex',
-      flexDirection: 'column'
-    }}>
+    <div className="phase2-scene-container" style={{ backgroundImage: `url(${phase2BackgroundUrl})` }}>
       {/* 1. Barra de Recursos Simplificada para Fase 2 */}
       <Phase2ResourceBar
         metalRefinado={resources.metalRefinado}
@@ -37,88 +33,35 @@ const Phase2Scene: React.FC = () => {
         barraCombustible={resources.barraCombustible}
       />
       
-      <div style={{
-        flex: 1,
-        display: 'flex'
-      }}>
+      <div className="main-content">
         {/* 2. Área de Contenido Principal */}
-        <div style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '2rem'
-        }}>
+        <div className="content-area">
           {currentView === 'battleRoom' && <BattleRoom onClose={handleCloseView} />}
           {currentView === 'armory' && <Armory onClose={handleCloseView} />}
         </div>
         
         {/* 3. Panel de Módulos */}
-        <div style={{
-          backgroundColor: 'rgba(31, 41, 55, 0.8)', // Fondo semitransparente
-          padding: '1rem',
-          width: '300px',
-          borderLeft: '2px solid #374151',
-          backdropFilter: 'blur(5px)' // Efecto de desenfoque para mejor legibilidad
-        }}>
-          <h3 style={{ 
-            color: '#93C5FD',
-            marginBottom: '1rem',
-            textAlign: 'center'
-          }}>
-            Vindicator
-          </h3>
-          {/* Módulos de Fase 2 */}
+        <div className="modules-panel">
+          {/* Módulos de Fase 2 - Ahora con imágenes sin texto ni bordes */}
           <button
             onClick={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'battleRoom' })}
-            style={{
-              padding: '0.75rem 1rem',
-              backgroundColor: currentView === 'battleRoom' ? '#F59E0B' : '#374151',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              marginBottom: '0.5rem',
-              width: '100%',
-              textAlign: 'left'
-            }}
+            className={`image-button ${currentView === 'battleRoom' ? 'active' : ''}`}
           >
-            ⚔️ Sala de Batalla
+            <img src={battleRoomImage} alt="Sala de Batalla" className="button-image" />
           </button>
           <button
             onClick={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'armory' })}
-            style={{
-              padding: '0.75rem 1rem',
-              backgroundColor: currentView === 'armory' ? '#F59E0B' : '#374151',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              marginBottom: '0.5rem',
-              width: '100%',
-              textAlign: 'left'
-            }}
+            className={`image-button ${currentView === 'armory' ? 'active' : ''}`}
           >
-            🛡️ Armería
+            <img src={armoryImage} alt="Armería" className="button-image" />
           </button>
 
-          {/* Navegación */}
+          {/* Navegación - Ahora con imagen */}
           <button
             onClick={() => dispatch({ type: 'RETURN_TO_PHASE_1' })}
-            style={{
-              padding: '0.75rem 1rem',
-              backgroundColor: '#374151',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              marginTop: '1rem',
-              width: '100%',
-              textAlign: 'left'
-            }}
+            className="image-button"
           >
-            🛰️ Volver a la Estación
+            <img src={returnStationImage} alt="Volver a la Estación" className="button-image" />
           </button>
         </div>
       </div>

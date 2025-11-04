@@ -141,9 +141,10 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
 
     case 'CRAFT_PURIFIED_METAL':
       return handleBuild(state, {
+        ...gameData.foundry.metalRefinado,
         costs: { scrap: 5000, energy: 500 },
         buyAmount: state.foundryBuyAmount,
-        queuePath: ['foundry', 'queues', 'metalRefinado'] // Añade a la misma cola que el metal normal
+        queuePath: ['foundry', 'queues', 'metalRefinado']
       });
 
     case 'DISMANTLE_DRONE': {

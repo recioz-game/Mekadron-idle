@@ -1,4 +1,5 @@
 import React from 'react';
+import './ShipyardView.css'; // Importar el archivo CSS
 import { GameState } from '../types/gameState';
 import { formatNumber } from '../utils/formatNumber';
 import { ActionType } from '../types/actions';
@@ -70,14 +71,8 @@ const ShipyardView: React.FC<ShipyardViewProps> = ({
     );
 
     return (
-      <div style={{
-        backgroundColor: '#111827',
-        padding: '1rem',
-        borderRadius: '8px',
-        border: isCompleted ? '2px solid #22C55E' : '2px solid #374151',
-        marginBottom: '1rem'
-      }}>
-        <h3 style={{ color: '#F59E0B', marginTop: 0 }}>{title} {isCompleted && '✅'}</h3>
+      <div className={`component-progress ${isCompleted ? 'completed' : ''}`}>
+        <h3 className="component-title">{title} {isCompleted && '✅'}</h3>
         {Object.keys(costs).map(resourceKey => {
           const resource = resourceKey as keyof typeof resourcesForDonation;
           const label = resourceLabels[resource] || resource;
@@ -85,44 +80,27 @@ const ShipyardView: React.FC<ShipyardViewProps> = ({
           const requiredAmount = (costs as any)[resource];
 
           return (
-            <div key={resource} style={{ marginBottom: '1rem' }}>
-              <p style={{ textTransform: 'capitalize' }}>{label}: {formatNumber(currentAmount)} / {formatNumber(requiredAmount)}</p>
-              <div style={{ width: '100%', backgroundColor: '#374151', borderRadius: '4px' }}>
-                <div style={{
-                  width: `${Math.min((currentAmount / requiredAmount) * 100, 100)}%`,
-                  backgroundColor: '#06B6D4',
-                  height: '10px',
-                  borderRadius: '4px'
-                }} />
+            <div key={resource} className="resource-progress">
+              <p>{label}: {formatNumber(currentAmount)} / {formatNumber(requiredAmount)}</p>
+              <div className="progress-bar-container">
+                <div 
+                  className="progress-bar"
+                  style={{ width: `${Math.min((currentAmount / requiredAmount) * 100, 100)}%` }} 
+                />
               </div>
               {!isCompleted && (
-                <div style={{marginTop: '0.5rem'}}>
+                <div className="donation-buttons">
                   <button 
                     onClick={() => handleDonate(componentKey, resource)}
                     disabled={resourcesForDonation[resource] < 1}
-                    style={{
-                      marginRight: '0.5rem',
-                      padding: '0.5rem 1rem',
-                      backgroundColor: resourcesForDonation[resource] >= 1 ? '#22C55E' : '#9CA3AF',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: resourcesForDonation[resource] >= 1 ? 'pointer' : 'not-allowed'
-                    }}
+                    className="donate-button"
                   >
                     Donar 1
                   </button>
                   <button 
                     onClick={() => handleDonateMax(componentKey, resource)}
                     disabled={resourcesForDonation[resource] <= 0}
-                    style={{
-                      padding: '0.5rem 1rem',
-                      backgroundColor: resourcesForDonation[resource] > 0 ? '#F59E0B' : '#9CA3AF',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: resourcesForDonation[resource] > 0 ? 'pointer' : 'not-allowed'
-                    }}
+                    className="donate-max-button"
                   >
                     Donar MAX ({formatNumber(resourcesForDonation[resource as keyof typeof resourcesForDonation])})
                   </button>
@@ -136,28 +114,16 @@ const ShipyardView: React.FC<ShipyardViewProps> = ({
   };
 
   return (
-    <div style={{
-      backgroundColor: '#111827',
-      color: '#E5E7EB',
-      minHeight: '100vh',
-      padding: '1rem',
-      fontFamily: 'Inter, sans-serif'
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+    <div className="shipyard-view-container">
+      <div className="shipyard-view-header">
         <h2>🛠️ ASTILLERO - PROYECTO "VINDICATOR"</h2>
-        <button onClick={onClose} style={{ padding: '0.5rem 1rem', backgroundColor: '#EF4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+        <button onClick={onClose} className="close-button">
           Cerrar
         </button>
       </div>
 
-      <div style={{
-        padding: '1rem',
-        backgroundColor: '#1F2937',
-        borderRadius: '4px',
-        marginBottom: '2rem',
-        border: '2px solid #06B6D4'
-      }}>
-        <p style={{textAlign: 'center', color: '#9CA3AF'}}>
+      <div className="shipyard-intro">
+        <p>
           Aurora: "Reconstruir el acorazado 'Vindicator' es nuestra única opción. Los componentes clave solo se pueden recuperar de los restos de antiguas batallas. Envía expediciones para encontrarlos."
         </p>
       </div>

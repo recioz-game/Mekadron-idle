@@ -1,0 +1,32 @@
+/* src/components/StartMenu.css */
+.start-menu-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around; /* Cambiado para mejor distribución */
+  flex: 1; /* Ocupa el espacio disponible */
+  background-color: #0F172A;
+  color: #E5E7EB;
+  background-size: cover;
+  background-position: center;
+}
+
+.play-button {
+  background: no-repeat center center;
+  background-size: contain;
+  width: 200px;
+  height: 80px;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+  margin-top: auto; /* Empuja el botón hacia la parte inferior */
+  margin-bottom: 15vh; /* Un margen inferior relativo a la altura de la pantalla */
+}
+
+@media (max-width: 768px) {
+  .play-button {
+    width: 150px;
+    height: 60px;
+    margin-bottom: 20vh; /* Ajusta el margen para móviles si es necesario */
+  }
+}

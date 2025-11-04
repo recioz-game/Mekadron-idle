@@ -1,4 +1,5 @@
 import React from 'react';
+import './Phase2ResourceBar.css'; // Importar el archivo CSS
 import { formatNumber } from '../utils/formatNumber';
 import { useGame } from '../context/GameContext';
 
@@ -25,88 +26,67 @@ const Phase2ResourceBar: React.FC<Phase2ResourceBarProps> = ({
   const { vindicator } = gameState;
 
   return (
-    <div style={{
-      backgroundColor: '#111827',
-      color: '#E5E7EB',
-      padding: '1rem',
-      borderBottom: '2px solid #1F2937',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      fontFamily: 'Inter, sans-serif'
-    }}>
+    <div className="phase2-resource-bar">
       {/* Recursos - Parte izquierda */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1.5rem'
-      }}>
+      <div className="resource-group">
         {/* Materiales Industriales (Fase 1) */}
-        <div style={{ display: 'flex', alignItems: 'center' }} title="Metal Refinado">
-          <span style={{ fontSize: '1.2rem', color: '#F59E0B', marginRight: '0.5rem' }}>🔩</span>
+        <div className="resource-item" title="Metal Refinado">
+          <span className="icon" style={{ color: '#F59E0B' }}>🔩</span>
           <span>{formatNumber(metalRefinado)}</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center' }} title="Acero Estructural">
-          <span style={{ fontSize: '1.2rem', color: '#94A3B8', marginRight: '0.5rem' }}>🏗️</span>
+        <div className="resource-item" title="Acero Estructural">
+          <span className="icon" style={{ color: '#94A3B8' }}>🏗️</span>
           <span>{formatNumber(aceroEstructural)}</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center' }} title="Placas de Casco">
-            <span style={{ fontSize: '1.2rem', marginRight: '0.5rem' }}>🧱</span>
+        <div className="resource-item" title="Placas de Casco">
+            <span className="icon">🧱</span>
             <span>{formatNumber(placasCasco)}</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center' }} title="Cableado Superconductor">
-            <span style={{ fontSize: '1.2rem', marginRight: '0.5rem' }}>🔌</span>
+        <div className="resource-item" title="Cableado Superconductor">
+            <span className="icon">🔌</span>
             <span>{formatNumber(cableadoSuperconductor)}</span>
         </div>
         
         {/* Separador Visual */}
-        <div style={{ borderLeft: '2px solid #374151', height: '24px' }}></div>
+        <div className="separator"></div>
 
         {/* Materiales de Combate (Fase 2) */}
-        <div style={{ display: 'flex', alignItems: 'center' }} title="Aleación Reforzada">
-          <span style={{ fontSize: '1.2rem', marginRight: '0.5rem' }}>🛡️</span>
+        <div className="resource-item" title="Aleación Reforzada">
+          <span className="icon">🛡️</span>
           <span>{formatNumber(aleacionReforzada)}</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center' }} title="Neuro-Chip Corrupto">
-          <span style={{ fontSize: '1.2rem', marginRight: '0.5rem' }}>🧠</span>
+        <div className="resource-item" title="Neuro-Chip Corrupto">
+          <span className="icon">🧠</span>
           <span>{formatNumber(neuroChipCorrupto)}</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center' }} title="Barras de Combustible">
-          <span style={{ fontSize: '1.2rem', marginRight: '0.5rem' }}>⛽</span>
+        <div className="resource-item" title="Barras de Combustible">
+          <span className="icon">⛽</span>
           <span>{formatNumber(barraCombustible)}</span>
         </div>
       </div>
 
       {/* Stats de la Nave Vindicator - Parte derecha */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1.5rem',
-        backgroundColor: 'rgba(31, 41, 55, 0.8)',
-        padding: '0.5rem 1rem',
-        borderRadius: '8px',
-        border: '1px solid #374151'
-      }}>
+      <div className="vindicator-stats">
         {/* Salud */}
-        <div style={{ display: 'flex', alignItems: 'center' }} title="Salud">
-          <span style={{ fontSize: '1.2rem', color: '#EF4444', marginRight: '0.5rem' }}>❤️</span>
-          <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+        <div className="stat-item" title="Salud">
+          <span className="icon" style={{ color: '#EF4444' }}>❤️</span>
+          <span className="value">
             {formatNumber(vindicator.currentHealth)}/{formatNumber(vindicator.maxHealth)}
           </span>
         </div>
 
         {/* Escudo */}
-        <div style={{ display: 'flex', alignItems: 'center' }} title="Escudo">
-          <span style={{ fontSize: '1.2rem', color: '#3B82F6', marginRight: '0.5rem' }}>🛡️</span>
-          <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+        <div className="stat-item" title="Escudo">
+          <span className="icon" style={{ color: '#3B82F6' }}>🛡️</span>
+          <span className="value">
             {formatNumber(vindicator.currentShield)}/{formatNumber(vindicator.maxShield)}
           </span>
         </div>
 
         {/* Daño */}
-        <div style={{ display: 'flex', alignItems: 'center' }} title="Daño">
-          <span style={{ fontSize: '1.2rem', color: '#F59E0B', marginRight: '0.5rem' }}>⚔️</span>
-          <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+        <div className="stat-item" title="Daño">
+          <span className="icon" style={{ color: '#F59E0B' }}>⚔️</span>
+          <span className="value">
             {formatNumber(vindicator.damage)}
           </span>
         </div>
