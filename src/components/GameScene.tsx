@@ -1,10 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import './GameScene.css'; // Importar el archivo CSS
-import background0 from '../assets/Phase0-background.png';
-import background1 from '../assets/Phase1-background.png';
-import background2 from '../assets/Phase2-background.png';
-import background3 from '../assets/Phase3-background.png';
-import background4 from '../assets/Phase4-background.png';
+
 import mainThemeAudio from '../assets/main-theme.wav'; // 1. Importar el audio
 import { ExpeditionId, ActiveExpedition } from '../types/gameState';
 import { useGameState, useGameDispatch } from '../context/GameContext';
@@ -143,21 +139,8 @@ const GameScene: React.FC = () => {
   const onCraftPurifiedMetal = useCallback(() => dispatch({ type: 'CRAFT_PURIFIED_METAL' }), [dispatch]);
 
   // Función para obtener la URL del fondo según el estado actual
-    const getBackgroundUrl = () => {
-    switch (currentBackground) {
-      case 1:
-        return background0;
-      case 2:
-        return background1;
-      case 3:
-        return background2;
-      case 4:
-        return background3;
-      case 5:
-        return background4;
-      default:
-        return background0;
-    }
+      const getBackgroundUrl = () => {
+    return new URL(`../assets/Phase${gameState.phase}-background.png`, import.meta.url).href
   };
 
   const renderActiveModule = () => {
