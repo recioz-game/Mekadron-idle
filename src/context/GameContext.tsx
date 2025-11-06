@@ -229,12 +229,11 @@ const loadState = (): GameState => {
       ...initialGameState,
       ...storedState,
       resources: { ...initialGameState.resources, ...(storedState.resources || {}) },
-      workshop: { 
-        ...initialGameState.workshop, 
-        ...(storedState.workshop || {}), 
-        drones: { ...initialGameState.workshop.drones, ...(storedState.workshop?.drones || {}) },
-        queues: { ...initialGameState.workshop.queues, ...(storedState.workshop?.queues || {}) } 
-      },
+      workshop: storedState.workshop ? { 
+          ...initialGameState.workshop, 
+          ...storedState.workshop,
+          queues: { ...initialGameState.workshop.queues, ...(storedState.workshop.queues || {}) }
+      } : initialGameState.workshop,
       energy: { ...initialGameState.energy, ...(storedState.energy || {}), queues: { ...initialGameState.energy.queues, ...(storedState.energy?.queues || {}) } },
       storage: { ...initialGameState.storage, ...(storedState.storage || {}), queues: { ...initialGameState.storage.queues, ...(storedState.storage?.queues || {}) } },
       foundry: { ...initialGameState.foundry, ...(storedState.foundry || {}), queues: { ...initialGameState.foundry.queues, ...(storedState.foundry?.queues || {}) } },
