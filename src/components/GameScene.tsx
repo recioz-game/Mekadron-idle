@@ -45,9 +45,8 @@ const GameScene: React.FC = () => {
     foundryBuyAmount, 
     modules, 
     resources, 
-    drones, 
-    energy, 
     workshop, 
+    energy, 
     techCenter,
     storage,
     activeExpeditions,
@@ -58,6 +57,7 @@ const GameScene: React.FC = () => {
     phase2Unlocked, // <-- OBTENER EL NUEVO ESTADO
     currentBackground // <-- NUEVO: Obtener el fondo actual
   } = gameState;
+  const { drones, queues: workshopQueues } = workshop;
   const onDismissNotification = useCallback(() => {
     dispatch({ type: 'DISMISS_NOTIFICATION' });
   }, [dispatch]);
@@ -140,7 +140,7 @@ const GameScene: React.FC = () => {
 
   // Función para obtener la URL del fondo según el estado actual
           const getBackgroundUrl = () => {
-    return new URL(`../assets/Phase${gameState.currentBackground - 1}-background.png`, import.meta.url).href
+    return new URL(`../assets/Phase${currentBackground - 1}-background.png`, import.meta.url).href
   };
 
   const renderActiveModule = () => {
@@ -148,53 +148,24 @@ const GameScene: React.FC = () => {
       case 'workshop':
         return (
           <Workshop
-            // Resources
             scrap={resources.scrap}
             metalRefinado={resources.metalRefinado}
             aceroEstructural={resources.aceroEstructural}
-
-            // Drones
-            basicDrones={drones.basic}
-            mediumDrones={drones.medium}
-            advancedDrones={drones.advanced}
-            reinforcedBasicDrones={drones.reinforcedBasic}
-            reinforcedMediumDrones={drones.reinforcedMedium}
-            reinforcedAdvancedDrones={drones.reinforcedAdvanced}
-            golemDrones={drones.golem}
-                        expeditionDrones={drones.expeditionDrone}
-            expeditionV2Drones={drones.expeditionV2Drone}
-            wyrmDrones={drones.wyrm}
-
-            // Queues
-            basicDroneQueue={workshop.queues.basic}
-            mediumDroneQueue={workshop.queues.medium}
-            advancedDroneQueue={workshop.queues.advanced}
-            reinforcedBasicDroneQueue={workshop.queues.reinforcedBasic}
-            reinforcedMediumDroneQueue={workshop.queues.reinforcedMedium}
-            reinforcedAdvancedDroneQueue={workshop.queues.reinforcedAdvanced}
-            golemDroneQueue={workshop.queues.golem}
-            expeditionDroneQueue={workshop.queues.expeditionDrone}
-            expeditionV2DroneQueue={workshop.queues.expeditionV2Drone}
-            wyrmDroneQueue={workshop.queues.wyrm}
-
-            // Upgrades
+            drones={drones}
+            queues={workshopQueues}
             upgrades={techCenter.upgrades}
-
-            // Callbacks
             onBuildBasicDrone={onBuildBasicDrone}
             onBuildMediumDrone={onBuildMediumDrone}
             onBuildAdvancedDrone={onBuildAdvancedDrone}
             onBuildReinforcedBasic={onBuildReinforcedBasic}
             onBuildReinforcedMedium={onBuildReinforcedMedium}
             onBuildReinforcedAdvanced={onBuildReinforcedAdvanced}
-                        onBuildGolemDrone={onBuildGolemDrone}
+            onBuildGolemDrone={onBuildGolemDrone}
             onBuildExpeditionDrone={onBuildExpeditionDrone}
             onBuildExpeditionV2Drone={onBuildExpeditionV2Drone}
             onBuildWyrm={onBuildWyrm}
             onDismantle={onDismantleDrone}
-
-            // Others
-                        buyAmount={workshopBuyAmount}
+            buyAmount={workshopBuyAmount}
             onSetBuyAmount={onSetWorkshopBuyAmount}
             onClose={onClose}
             onCancel={onCancelWorkshopItem}

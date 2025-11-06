@@ -38,7 +38,7 @@ git add .
 ──────────────────────────────
 🔹 5. Crear un commit con descripción
 ──────────────────────────────
-git commit -m "Actualización: limpieza App y TTS externo"
+git commit -m "Actualización:"
 
 (Usa un mensaje breve y claro.)
 

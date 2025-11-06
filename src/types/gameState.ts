@@ -37,7 +37,7 @@ export interface Expedition {
   };
   rewards: {
     scrap?: [min: number, max: number];
-    metalRefinado?: [min: number, max: number];
+    metalRefinado?: [min: number, max: number],
     aceroEstructural?: [min: number, max: number];
         fragmentosPlaca?: [min: number, max: number];
     circuitosDañados?: [min: number, max: number];
@@ -131,20 +131,20 @@ export interface GameState {
     battlesCompleted: number[]; // Array de booleanos, uno por cada combate completado
   };
   workshopBuyAmount: number | 'max';
-  drones: {
-    basic: number;
-    medium: number;
-    advanced: number;
-    reinforcedBasic: number;
-    reinforcedMedium: number;
-    reinforcedAdvanced: number;
-    golem: number;
-    expeditionDrone: number;
-    expeditionV2Drone: number; // Nuevo dron de expedición v2
-    wyrm: number;
-  };
-  workshop: {
-    queues: ReturnType<typeof createQueues<'drones'>>;
+    workshop: {
+    drones: {
+      basic: number;
+      medium: number;
+      advanced: number;
+      reinforcedBasic: number;
+      reinforcedMedium: number;
+      reinforcedAdvanced: number;
+      golem: number;
+      expeditionDrone: number;
+      expeditionV2Drone: number;
+      wyrm: number;
+    };
+    queues: ReturnType<typeof createQueues<'workshop'>>;
   };
   rates: {
     scrapPerClick: number;
@@ -223,6 +223,9 @@ export interface GameState {
       foundryProtocols: number;
       metalSmeltingSpeed: number;
       steelProductionSpeed: number;
+      hullPlateProduction: number;
+      wiringProduction: number;
+      fuelRodProduction: number;
       smeltingEfficiency: number;
       foundryEnergy: number;
       alloyCreation: number;
@@ -312,20 +315,20 @@ export const initialGameState: GameState = {
     battlesCompleted: Array(6).fill(0)
   },
   workshopBuyAmount: 1,
-  drones: {
-    basic: 0,
-    medium: 0,
-    advanced: 0,
-    reinforcedBasic: 0,
-    reinforcedMedium: 0,
-    reinforcedAdvanced: 0,
-    golem: 0,
-    expeditionDrone: 0,
-    expeditionV2Drone: 0, // Nuevo dron de expedición v2
-    wyrm: 0
-  },
-  workshop: {
-    queues: createQueues('drones')
+    workshop: {
+    drones: {
+      basic: 0,
+      medium: 0,
+      advanced: 0,
+      reinforcedBasic: 0,
+      reinforcedMedium: 0,
+      reinforcedAdvanced: 0,
+      golem: 0,
+      expeditionDrone: 0,
+      expeditionV2Drone: 0,
+      wyrm: 0
+    },
+    queues: createQueues('workshop')
   },
   rates: {
     scrapPerClick: 1,
@@ -408,6 +411,9 @@ export const initialGameState: GameState = {
       foundryProtocols: 0,
       metalSmeltingSpeed: 0,
       steelProductionSpeed: 0,
+      hullPlateProduction: 0,
+      wiringProduction: 0,
+      fuelRodProduction: 0,
       smeltingEfficiency: 0,
       foundryEnergy: 0,
       alloyCreation: 0,

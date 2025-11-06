@@ -1,25 +1,25 @@
 // src/data/gameData.ts
 import { BuildableItem } from '../types/gameData';
 
-type GameData = {
-  drones: Record<string, BuildableItem>;
+export type GameData = {
+  workshop: Record<string, BuildableItem>;
   energy: Record<string, BuildableItem>;
   storage: Record<string, BuildableItem>;
   foundry: Record<string, BuildableItem>;
 };
 
 export const gameData: GameData = {
-  drones: {
+  workshop: {
     basic: { costs: { scrap: 15 }, time: 5 },
-    medium: { costs: { scrap: 250 }, time: 20, prerequisites: (s) => s.drones.basic >= 5 },
-    advanced: { costs: { scrap: 1500 }, time: 60, prerequisites: (s) => s.drones.medium >= 3 },
+    medium: { costs: { scrap: 250 }, time: 20, prerequisites: (s) => s.workshop.drones.basic >= 5 },
+    advanced: { costs: { scrap: 1500 }, time: 60, prerequisites: (s) => s.workshop.drones.medium >= 3 },
     reinforcedBasic: { costs: { scrap: 600, metalRefinado: 5 }, time: 45, prerequisites: (s) => s.techCenter.upgrades.reinforcedBasicDrones > 0 },
     reinforcedMedium: { costs: { scrap: 2500, metalRefinado: 15 }, time: 120, prerequisites: (s) => s.techCenter.upgrades.reinforcedMediumDrones > 0 },
     reinforcedAdvanced: { costs: { scrap: 7000, metalRefinado: 30 }, time: 300, prerequisites: (s) => s.techCenter.upgrades.reinforcedAdvancedDrones > 0 },
-    golem: { costs: { scrap: 75000, aceroEstructural: 5 }, time: 600, prerequisites: (s) => s.techCenter.upgrades.golemChassis > 0 && s.drones.reinforcedAdvanced >= 5 },
-    expeditionDrone: { costs: { scrap: 3000, metalRefinado: 20 }, time: 150, prerequisites: (s) => s.drones.advanced >= 2 },
-    expeditionV2Drone: { costs: { scrap: 15000, metalRefinado: 100 }, time: 300, prerequisites: (s) => s.drones.expeditionDrone >= 5 }, // Nuevo dron v2
-    wyrm: { costs: { scrap: 250000, aceroEstructural: 25 }, time: 1200, prerequisites: (s) => s.drones.golem >= 1 },
+    golem: { costs: { scrap: 75000, aceroEstructural: 5 }, time: 600, prerequisites: (s) => s.techCenter.upgrades.golemChassis > 0 && s.workshop.drones.reinforcedAdvanced >= 5 },
+    expeditionDrone: { costs: { scrap: 3000, metalRefinado: 20 }, time: 150, prerequisites: (s) => s.workshop.drones.advanced >= 2 },
+    expeditionV2Drone: { costs: { scrap: 15000, metalRefinado: 100 }, time: 300, prerequisites: (s) => s.workshop.drones.expeditionDrone >= 5 }, // Nuevo dron v2
+    wyrm: { costs: { scrap: 250000, aceroEstructural: 25 }, time: 1200, prerequisites: (s) => s.workshop.drones.golem >= 1 },
   },
   energy: {
     solarPanels: { costs: { scrap: 50 }, time: 8 },

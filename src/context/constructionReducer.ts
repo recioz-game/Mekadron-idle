@@ -64,25 +64,25 @@ const handleBuild = (state: GameState, config: BuildConfiguration): GameState =>
 export const constructionReducer = (state: GameState, action: ActionType): GameState => {
   switch (action.type) {
     case 'BUILD_BASIC_DRONE':
-      return handleBuild(state, { ...gameData.drones.basic, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'basic' ] } );
+      return handleBuild(state, { ...gameData.workshop.basic, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'basic' ] } );
     case 'BUILD_MEDIUM_DRONE':
-      return handleBuild(state, { ...gameData.drones.medium, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'medium'] });
+      return handleBuild(state, { ...gameData.workshop.medium, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'medium'] });
     case 'BUILD_ADVANCED_DRONE':
-      return handleBuild(state, { ...gameData.drones.advanced, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'advanced'] });
+      return handleBuild(state, { ...gameData.workshop.advanced, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'advanced'] });
     case 'BUILD_REINFORCED_BASIC':
-      return handleBuild(state, { ...gameData.drones.reinforcedBasic, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'reinforcedBasic'] });
+      return handleBuild(state, { ...gameData.workshop.reinforcedBasic, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'reinforcedBasic'] });
     case 'BUILD_REINFORCED_MEDIUM':
-      return handleBuild(state, { ...gameData.drones.reinforcedMedium, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'reinforcedMedium'] });
+      return handleBuild(state, { ...gameData.workshop.reinforcedMedium, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'reinforcedMedium'] });
     case 'BUILD_REINFORCED_ADVANCED':
-      return handleBuild(state, { ...gameData.drones.reinforcedAdvanced, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'reinforcedAdvanced'] });
+      return handleBuild(state, { ...gameData.workshop.reinforcedAdvanced, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'reinforcedAdvanced'] });
     case 'BUILD_GOLEM_DRONE':
-      return handleBuild(state, { ...gameData.drones.golem, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'golem'] });
+      return handleBuild(state, { ...gameData.workshop.golem, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'golem'] });
     case 'BUILD_EXPEDITION_DRONE':
-      return handleBuild(state, { ...gameData.drones.expeditionDrone, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'expeditionDrone'] });
+      return handleBuild(state, { ...gameData.workshop.expeditionDrone, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'expeditionDrone'] });
     case 'BUILD_EXPEDITION_V2_DRONE':
-      return handleBuild(state, { ...gameData.drones.expeditionV2Drone, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'expeditionV2Drone'] });
+      return handleBuild(state, { ...gameData.workshop.expeditionV2Drone, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'expeditionV2Drone'] });
     case 'BUILD_WYRM':
-      return handleBuild(state, { ...gameData.drones.wyrm, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'wyrm'] });
+      return handleBuild(state, { ...gameData.workshop.wyrm, buyAmount: state.workshopBuyAmount, queuePath: ['workshop', 'queues', 'wyrm'] });
     case 'BUILD_SOLAR_PANEL':
       return handleBuild(state, { ...gameData.energy.solarPanels, buyAmount: state.energyBuyAmount, queuePath: ['energy', 'queues', 'solarPanels'] });
     case 'BUILD_MEDIUM_SOLAR':
@@ -149,7 +149,7 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
 
     case 'DISMANTLE_DRONE': {
       const { droneType, amount } = action.payload;
-      const droneCount = state.drones[droneType as keyof typeof state.drones];
+      const droneCount = state.workshop.drones[droneType as keyof typeof state.workshop.drones];
 
       if (!droneCount || droneCount <= 0) {
         return state;
@@ -157,7 +157,7 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
 
       const amountToDismantle = amount === 'max' ? droneCount : Math.min(amount, droneCount);
 
-      const droneData = gameData.drones[droneType as keyof typeof gameData.drones];
+      const droneData = gameData.workshop[droneType as keyof typeof gameData.workshop];
       if (!droneData || !droneData.costs) {
         return state;
       }
@@ -171,15 +171,18 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
 
       // 2. Crear un nuevo objeto de drones con el recuento actualizado
       const newDrones = {
-        ...state.drones,
-        [droneType]: state.drones[droneType as keyof typeof state.drones] - amountToDismantle,
+        ...state.workshop.drones,
+        [droneType]: state.workshop.drones[droneType as keyof typeof state.workshop.drones] - amountToDismantle,
       };
 
       // 3. Devolver el nuevo estado inmutable
       return {
         ...state,
         resources: newResources,
-        drones: newDrones,
+        workshop: {
+          ...state.workshop,
+          drones: newDrones,
+        },
       };
     }
 
@@ -205,8 +208,8 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
         if (categoryData && categoryData[item] && categoryData[item].costs) {
           return categoryData[item].costs;
         }
-        if (cat === 'workshop' && gameData.drones[item as keyof typeof gameData.drones]) {
-            return gameData.drones[item as keyof typeof gameData.drones].costs;
+        if (cat === 'workshop' && gameData.workshop[item as keyof typeof gameData.workshop]) {
+            return gameData.workshop[item as keyof typeof gameData.workshop].costs;
         }
         if (cat === 'foundry') {
             const foundryItem = Object.values(gameData.foundry).find(

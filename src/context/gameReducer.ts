@@ -182,7 +182,7 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         const dronesInUse = state.activeExpeditions
           .filter(exp => allExpeditionsData.find(e => e.id === exp.id)?.droneType === droneType)
           .reduce((sum, exp) => sum + exp.dronesSent, 0);
-        const availableDrones = state.drones[droneType] - dronesInUse;
+        const availableDrones = state.workshop.drones[droneType] - dronesInUse;
         if (availableDrones < dronesRequired) {
           console.warn(`Not enough ${droneType} available.`);
           return state;
@@ -266,7 +266,10 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
             modules: { ...state.modules, techCenter: true, foundry: true, shipyard: true, expeditions: true },
             techCenter: { ...state.techCenter, unlocked: true, upgrades: { ...state.techCenter.upgrades, collectionEfficiency: 1, droneAssembly: 1, reinforcedBasicDrones: 1, reinforcedMediumDrones: 1, reinforcedAdvancedDrones: 1, golemChassis: 1, } },
             shipyard: { ...state.shipyard, unlocked: true },
-            drones: { ...state.drones, medium: Math.max(state.drones.medium, 3), reinforcedMedium: Math.max(state.drones.reinforcedMedium, 3), reinforcedAdvanced: Math.max(state.drones.reinforcedAdvanced, 5), golem: Math.max(state.drones.golem, 1), expeditionDrone: Math.max(state.drones.expeditionDrone, 1) },
+            workshop: {
+              ...state.workshop,
+              drones: { ...state.workshop.drones, medium: Math.max(state.workshop.drones.medium, 3), reinforcedMedium: Math.max(state.workshop.drones.reinforcedMedium, 3), reinforcedAdvanced: Math.max(state.workshop.drones.reinforcedAdvanced, 5), golem: Math.max(state.workshop.drones.golem, 1), expeditionDrone: Math.max(state.workshop.drones.expeditionDrone, 1) }
+            },
             energy: { ...state.energy, advancedSolar: Math.max(state.energy.advancedSolar, 1) },
             resources: { ...state.resources, scrap: Math.max(state.resources.scrap, 150000), metalRefinado: Math.max(state.resources.metalRefinado, 5000) }
         };
@@ -369,9 +372,9 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         } else {
           const dronesLost = Math.ceil(activeExpedition.dronesSent * expeditionData.risk.droneLossPercentage);
           const droneType = expeditionData.droneType;
-          const newDrones = { ...state.drones };
+          const newDrones = { ...state.workshop.drones };
           newDrones[droneType] -= dronesLost;
-          return { ...state, drones: newDrones, activeExpeditions: remainingExpeditions, notificationQueue: [...state.notificationQueue, { id: `exp-fail-${Date.now()}`, title: `Fracaso en ${expeditionData.title}`, message: `La expedición fracasó. Se han perdido ${dronesLost} drones.` }] };
+          return { ...state, workshop: { ...state.workshop, drones: newDrones }, activeExpeditions: remainingExpeditions, notificationQueue: [...state.notificationQueue, { id: `exp-fail-${Date.now()}`, title: `Fracaso en ${expeditionData.title}`, message: `La expedición fracasó. Se han perdido ${dronesLost} drones.` }] };
         }
     }
 

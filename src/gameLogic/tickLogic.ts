@@ -1,5 +1,5 @@
 import { GameState } from '../types/gameState';
-import { gameData } from '../data/gameData';
+import { gameData, GameData } from '../data/gameData';
 
 // Función para actualizar el fondo según el progreso del juego
 const updateBackground = (state: GameState): GameState => {
@@ -25,7 +25,8 @@ const updateBackground = (state: GameState): GameState => {
 
 // Función auxiliar para los mensajes de Aurora (100% inmutable)
 const checkAuroraMessages = (state: GameState): GameState => {
-  const { aurora, drones, resources, energy, storage, techCenter, currentScene } = state;
+  const { aurora, workshop, resources, energy, storage, techCenter, currentScene } = state;
+  const { drones } = workshop;
   const { shownMessages, pendingMessages } = aurora;
 
   // Asegurarse de que shownMessages es siempre un Set válido
@@ -111,7 +112,7 @@ export const processGameTick = (state: GameState): GameState => {
   }
 
   const processQueuesForCategory = <
-    C extends keyof GameState,
+    C extends keyof GameData,
     Q extends GameState[C] extends { queues: any } ? GameState[C]['queues'] : never,
     I extends Record<string, number>
   >(
@@ -121,7 +122,7 @@ export const processGameTick = (state: GameState): GameState => {
     currentState: GameState
   ): { newInventory: I; newQueues: Q; changed: boolean } => {
     
-    const queues = (currentState[category] as any).queues as Q;
+    const queues = (currentState[category] as { queues: any }).queues as Q;
     let newInventory = { ...inventory };
     let newQueues: Q = { ...queues };
     let changed = false;
@@ -133,8 +134,24 @@ export const processGameTick = (state: GameState): GameState => {
         
         let itemTime = originalQueueItem.time;
         if (category === 'foundry') {
-          if (key === 'metalRefinado') itemTime *= (1 - ((upgrades.metalSmeltingSpeed || 0) * 0.05));
-          if (key === 'aceroEstructural') itemTime *= (1 - ((upgrades.steelProductionSpeed || 0) * 0.05));
+          // CORRECCIÓN: Aplicar mejoras de velocidad a TODOS los items de la fundición
+          let speedMultiplier = 1;
+
+          // Aplicar mejoras específicas para cada tipo de producción
+          if (key === 'metalRefinado') {
+            speedMultiplier += (upgrades.metalSmeltingSpeed || 0) * 0.05;
+          } else if (key === 'aceroEstructural') {
+            speedMultiplier += (upgrades.steelProductionSpeed || 0) * 0.05;
+          } else if (key === 'placasCasco') {
+            speedMultiplier += ((upgrades as any).hullPlateProduction || 0) * 0.05;
+          } else if (key === 'cableadoSuperconductor') {
+            speedMultiplier += ((upgrades as any).wiringProduction || 0) * 0.05;
+          } else if (key === 'barraCombustible') {
+            speedMultiplier += ((upgrades as any).fuelRodProduction || 0) * 0.05;
+          }
+
+          // Aplicar el multiplicador de velocidad (valor > 1 acelera)
+          itemTime /= speedMultiplier;
         }
 
         if (originalQueueItem.queue > 0) {
@@ -147,7 +164,7 @@ export const processGameTick = (state: GameState): GameState => {
           const actualItemsFinished = Math.min(itemsFinished, queueItem.queue);
 
           if (actualItemsFinished > 0) {
-            const itemData = (gameData as any)[category]?.[key];
+            const itemData = (gameData[category] as any)?.[key];
             const produceInfo = itemData?.produces;
 
             const resourceToIncrement = produceInfo?.resource || key;
@@ -155,7 +172,7 @@ export const processGameTick = (state: GameState): GameState => {
 
             newInventory = {
               ...newInventory,
-              [resourceToIncrement]: (newInventory as any)[resourceToIncrement] + actualItemsFinished * amountPerItem,
+              [resourceToIncrement]: ((newInventory as any)[resourceToIncrement] || 0) + actualItemsFinished * amountPerItem,
             };
             
             queueItem.queue -= actualItemsFinished;
@@ -175,15 +192,16 @@ export const processGameTick = (state: GameState): GameState => {
     return { newInventory, newQueues, changed };
   };
 
-  const workshopResult = processQueuesForCategory('workshop', { ...state.drones }, upgrades.droneAssembly * 0.05, state);
+  const workshopResult = processQueuesForCategory('workshop', { ...state.workshop.drones }, upgrades.droneAssembly * 0.05, state);
   const energyResult = processQueuesForCategory('energy', { solarPanels: state.energy.solarPanels, mediumSolarPanels: state.energy.mediumSolarPanels, advancedSolar: state.energy.advancedSolar, energyCores: state.energy.energyCores, fusionReactor: state.energy.fusionReactor }, upgrades.energyCalibration * 0.05, state);
   const storageResult = processQueuesForCategory('storage', { basicStorage: state.storage.basicStorage, mediumStorage: state.storage.mediumStorage, advancedStorage: state.storage.advancedStorage, quantumHoardUnit: state.storage.quantumHoardUnit, lithiumIonBattery: state.storage.lithiumIonBattery, plasmaAccumulator: state.storage.plasmaAccumulator, harmonicContainmentField: state.storage.harmonicContainmentField }, upgrades.storageConstruction * 0.05, state);
   const foundryResult = processQueuesForCategory('foundry', { ...state.resources }, 0, state);
   
   const stateAfterQueues = {
     ...state,
-    drones: workshopResult.changed ? workshopResult.newInventory : state.drones,
-    workshop: workshopResult.changed ? { ...state.workshop, queues: workshopResult.newQueues } : state.workshop,
+    workshop: workshopResult.changed 
+      ? { ...state.workshop, drones: workshopResult.newInventory, queues: workshopResult.newQueues } 
+      : state.workshop,
     energy: energyResult.changed ? { ...state.energy, ...energyResult.newInventory, queues: energyResult.newQueues } : state.energy,
     storage: storageResult.changed ? { ...state.storage, ...storageResult.newInventory, queues: storageResult.newQueues } : state.storage,
     resources: foundryResult.changed ? foundryResult.newInventory : state.resources,
@@ -194,7 +212,7 @@ export const processGameTick = (state: GameState): GameState => {
   const prev = stateAfterQueues;
 
   const powerOptimizationMultiplier = 1 - (prev.techCenter.upgrades.powerOptimization * 0.05);
-  const totalEnergyConsumption = (prev.drones.basic * 1 + prev.drones.medium * 3 + prev.drones.advanced * 5 + prev.drones.reinforcedBasic * 3 + prev.drones.reinforcedMedium * 6 + prev.drones.reinforcedAdvanced * 12 + prev.drones.golem * 50 + prev.drones.wyrm * 200) * powerOptimizationMultiplier;
+    const totalEnergyConsumption = (prev.workshop.drones.basic * 1 + prev.workshop.drones.medium * 3 + prev.workshop.drones.advanced * 5 + prev.workshop.drones.reinforcedBasic * 3 + prev.workshop.drones.reinforcedMedium * 6 + prev.workshop.drones.reinforcedAdvanced * 12 + prev.workshop.drones.golem * 50 + prev.workshop.drones.wyrm * 200) * powerOptimizationMultiplier;
   
   const energyEfficiencyMultiplier = 1 + (prev.techCenter.upgrades.energyEfficiency * 0.10);
   const coreEfficiencyMultiplier = 1 + (prev.techCenter.upgrades.coreEfficiency * 0.10);
@@ -214,10 +232,10 @@ export const processGameTick = (state: GameState): GameState => {
 
   const hasEnoughEnergy = prev.resources.energy > 0;
   const collectionMultiplier = 1 + (prev.techCenter.upgrades.collectionEfficiency * 0.10);
-  const totalScrapProduction = hasEnoughEnergy ? (prev.drones.basic * 1 + prev.drones.medium * 5 + prev.drones.advanced * 20 + prev.drones.reinforcedBasic * 8 + prev.drones.reinforcedMedium * 25 + prev.drones.reinforcedAdvanced * 80 + prev.drones.golem * 500) * collectionMultiplier : 0;
+    const totalScrapProduction = hasEnoughEnergy ? (prev.workshop.drones.basic * 1 + prev.workshop.drones.medium * 5 + prev.workshop.drones.advanced * 20 + prev.workshop.drones.reinforcedBasic * 8 + prev.workshop.drones.reinforcedMedium * 25 + prev.workshop.drones.reinforcedAdvanced * 80 + prev.workshop.drones.golem * 500) * collectionMultiplier : 0;
 
-  const wyrmMetalProduction = hasEnoughEnergy ? prev.drones.wyrm * 1 : 0;
-  const wyrmSteelProduction = hasEnoughEnergy ? prev.drones.wyrm * 0.1 : 0;
+  const wyrmMetalProduction = hasEnoughEnergy ? prev.workshop.drones.wyrm * 1 : 0;
+  const wyrmSteelProduction = hasEnoughEnergy ? prev.workshop.drones.wyrm * 0.1 : 0;
 
   const newEnergy = prev.resources.energy + (totalEnergyProduction - totalEnergyConsumption);
   const clampedEnergy = Math.max(0, Math.min(newEnergy, totalMaxEnergy));
@@ -229,7 +247,7 @@ export const processGameTick = (state: GameState): GameState => {
   const newAceroEstructural = prev.resources.aceroEstructural + wyrmSteelProduction;
   
   const baseResearch = 0.1 * (1 + (prev.techCenter.upgrades.researchEfficiency * 0.20));
-  const totalDrones = Object.values(prev.drones).reduce((sum, count) => sum + count, 0);
+    const totalDrones = Object.values(prev.workshop.drones).reduce((sum, count) => sum + count, 0);
   const droneResearch = (totalDrones * 0.01) * (1 + (prev.techCenter.upgrades.advancedAnalysis * 0.10));
   const energySurplus = Math.max(0, totalEnergyProduction - totalEnergyConsumption);
   const energyResearch = (energySurplus * 0.005) * (1 + (prev.techCenter.upgrades.algorithmOptimization * 0.15));
@@ -274,12 +292,12 @@ export const processGameTick = (state: GameState): GameState => {
 
   if (stateAfterStats.resources.scrap >= 50 && !newModules.energy) newModules.energy = true;
   if (stateAfterStats.resources.scrap >= 75 && !newModules.storage) newModules.storage = true;
-  if (stateAfterStats.drones.medium >= 3 && stateAfterStats.energy.advancedSolar >= 1 && stateAfterStats.resources.scrap >= 1000 && !newModules.techCenter) {
+    if (stateAfterStats.workshop.drones.medium >= 3 && stateAfterStats.energy.advancedSolar >= 1 && stateAfterStats.resources.scrap >= 1000 && !newModules.techCenter) {
     newModules.techCenter = true;
     newTechCenter.unlocked = true;
   }
-  if (stateAfterStats.drones.expeditionDrone > 0 && !newModules.expeditions) newModules.expeditions = true;
-  if (stateAfterStats.drones.golem > 0 && !newModules.shipyard) newModules.shipyard = true;
+  if (stateAfterStats.workshop.drones.expeditionDrone > 0 && !newModules.expeditions) newModules.expeditions = true;
+  if (stateAfterStats.workshop.drones.golem > 0 && !newModules.shipyard) newModules.shipyard = true;
   
   let newNotifications = [...stateAfterStats.notificationQueue];
   if (!modulesBefore.energy && newModules.energy) newNotifications.push({ id: `energy-${Date.now()}`, title: 'Módulo de Energía Desbloqueado', message: 'Ahora puedes construir paneles solares para generar energía y alimentar más drones.' });
@@ -303,3 +321,4 @@ export const processGameTick = (state: GameState): GameState => {
 
   return finalState;
 };
+

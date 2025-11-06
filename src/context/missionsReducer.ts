@@ -5,7 +5,8 @@ import { allMissions } from '../data/missionsData';
 export const missionsReducer = (state: GameState, action: ActionType): GameState => {
   switch (action.type) {
     case 'UPDATE_MISSION_PROGRESS': {
-      const { resources, drones, energy, storage, techCenter, modules, shipyard, missions, rates } = state;
+      const { resources, workshop, energy, storage, techCenter, modules, shipyard, missions, rates } = state;
+      const { drones } = workshop;
       let vindicatorCompletedThisTick = false;
 
       const missionsWithUpdatedProgress = missions.activeMissions.map(mission => {

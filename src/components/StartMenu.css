@@ -3,30 +3,90 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-around; /* Cambiado para mejor distribución */
-  flex: 1; /* Ocupa el espacio disponible */
+  justify-content: space-around;
+  flex: 1;
   background-color: #0F172A;
   color: #E5E7EB;
   background-size: cover;
   background-position: center;
+  min-height: 100vh; /* Asegurar altura mínima */
+  width: 100vw; /* Asegurar ancho completo */
 }
 
 .play-button {
   background: no-repeat center center;
   background-size: contain;
-  width: 200px;
-  height: 80px;
+  width: min(200px, 25vw); /* Usar unidades relativas */
+  height: min(80px, 10vh);
   border: none;
   cursor: pointer;
   background-color: transparent;
-  margin-top: auto; /* Empuja el botón hacia la parte inferior */
-  margin-bottom: 15vh; /* Un margen inferior relativo a la altura de la pantalla */
+  margin-top: auto;
+  margin-bottom: 15vh;
+  transition: transform 0.2s ease; /* Efecto hover suave */
+}
+
+.play-button:hover {
+  transform: scale(1.05); /* Efecto hover sutil */
+}
+
+/* Breakpoints mejorados para diferentes resoluciones */
+@media (max-width: 1200px) {
+  .play-button {
+    width: min(180px, 22vw);
+    height: min(72px, 9vh);
+  }
 }
 
 @media (max-width: 768px) {
   .play-button {
-    width: 150px;
-    height: 60px;
-    margin-bottom: 20vh; /* Ajusta el margen para móviles si es necesario */
+    width: min(150px, 30vw);
+    height: min(60px, 12vh);
+    margin-bottom: 20vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .play-button {
+    width: min(120px, 35vw);
+    height: min(50px, 15vh);
+    margin-bottom: 25vh;
+  }
+}
+
+/* Para pantallas muy altas */
+@media (min-height: 1000px) {
+  .play-button {
+    margin-bottom: 30vh;
+  }
+}
+
+/* Para pantallas muy anchas */
+@media (min-width: 1920px) {
+  .play-button {
+    width: min(250px, 15vw);
+    height: min(100px, 8vh);
+  }
+}
+
+/* Para tablets en orientación vertical */
+@media (max-width: 1024px) and (max-height: 1366px) {
+  .play-button {
+    width: min(170px, 20vw);
+    height: min(70px, 8vh);
+  }
+}
+
+/* Para dispositivos con relación de aspecto muy alta */
+@media (min-aspect-ratio: 16/9) {
+  .play-button {
+    margin-bottom: 10vh;
+  }
+}
+
+/* Para dispositivos con relación de aspecto muy baja */
+@media (max-aspect-ratio: 3/4) {
+  .play-button {
+    margin-bottom: 30vh;
   }
 }

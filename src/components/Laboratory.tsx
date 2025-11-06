@@ -73,7 +73,10 @@ const Laboratory: React.FC<LaboratoryProps> = ({
     { id: 'foundryProtocols', category: 'Fundicion', title: 'Protocolos de Fundición', description: 'Desbloquea la Fundición para crear Metal Refinado.', effect: () => 'Desbloquea la Fundición', cost: 50, maxLevel: 1, requirements: [] },
     { id: 'metalSmeltingSpeed', category: 'Fundicion', title: 'Fundición Eficiente', description: 'Reduce el tiempo de crafteo del Metal Refinado.', effect: (level: number) => `-${level * 5}% Tiempo Crafteo`, cost: 200, maxLevel: 5, requirements: ['foundryProtocols'] },
         { id: 'steelProductionSpeed', category: 'Fundicion', title: 'Producción de Acero', description: 'Reduce el tiempo de crafteo del Acero Estructural.', effect: (level: number) => `-${level * 5}% Tiempo Crafteo`, cost: 400, maxLevel: 5, requirements: ['metalSmeltingSpeed'] },
-    { id: 'automatedFabrication', category: 'Fundicion', title: 'Fabricación Automatizada', description: 'Desbloquea la automatización en la Fundición (Próximamente).', effect: () => 'Desbloqueo', cost: 2000, maxLevel: 1, requirements: ['steelProductionSpeed'] },
+    { id: 'hullPlateProduction', category: 'Fundicion', title: 'Producción de Placas', description: 'Reduce el tiempo de crafteo de las Placas de Casco.', effect: (level: number) => `-${level * 5}% Tiempo Crafteo`, cost: 600, maxLevel: 5, requirements: ['steelProductionSpeed'] },
+    { id: 'wiringProduction', category: 'Fundicion', title: 'Cableado Avanzado', description: 'Reduce el tiempo de crafteo del Cableado Superconductor.', effect: (level: number) => `-${level * 5}% Tiempo Crafteo`, cost: 800, maxLevel: 5, requirements: ['hullPlateProduction'] },
+    { id: 'fuelRodProduction', category: 'Fundicion', title: 'Síntesis de Combustible', description: 'Reduce el tiempo de crafteo de las Barras de Combustible.', effect: (level: number) => `-${level * 5}% Tiempo Crafteo`, cost: 1000, maxLevel: 5, requirements: ['wiringProduction'] },
+    { id: 'automatedFabrication', category: 'Fundicion', title: 'Fabricación Automatizada', description: 'Desbloquea la automatización en la Fundición (Próximamente).', effect: () => 'Desbloqueo', cost: 2000, maxLevel: 1, requirements: ['fuelRodProduction'] },
     { id: 'smeltingEfficiency', category: 'Fundicion', title: 'Eficiencia de Costes I', description: 'Reduce el coste de chatarra para crear Metal Refinado.', effect: (level: number) => `-${level * 5}% Coste Chatarra`, cost: 400, maxLevel: 4, requirements: ['foundryProtocols'] },
     { id: 'foundryEnergy', category: 'Fundicion', title: 'Eficiencia de Costes II', description: 'Reduce el coste de energía para crear Metal Refinado.', effect: (level: number) => `-${level * 5}% Coste Energía`, cost: 400, maxLevel: 4, requirements: ['smeltingEfficiency'] },
     { id: 'alloyCreation', category: 'Fundicion', title: 'Creación de Aleaciones (Próximamente)', description: 'Permite crear nuevos materiales.', effect: () => 'Próximamente', cost: 1800, maxLevel: 1, requirements: ['foundryEnergy'] },
@@ -260,3 +263,4 @@ const TechCard: React.FC<{
 };
 
 export default React.memo(Laboratory);
+
