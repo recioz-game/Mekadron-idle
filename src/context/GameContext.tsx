@@ -95,84 +95,13 @@ const calculateOfflineResources = (loadedState: GameState): GameState => {
   return simulatedState;
 };
 
-// Función para simular un tick individual del juego
-const simulateGameTick = (state: GameState): GameState => {
-  // Esta es una versión simplificada del GAME_TICK del reducer
-  // Solo calculamos los recursos básicos para evitar complejidades
 
-  const { upgrades } = state.techCenter;
-  const { drones, energy, resources } = state;
-
-  // Cálculo de producción de energía
-  const powerOptimizationMultiplier = 1 - (upgrades.powerOptimization * 0.05);
-  const totalEnergyConsumption = (drones.basic * 1 + drones.medium * 3 + drones.advanced * 5 +
-    drones.reinforcedBasic * 3 + drones.reinforcedMedium * 6 + drones.reinforcedAdvanced * 12 +
-    drones.golem * 50 + drones.wyrm * 200) * powerOptimizationMultiplier;
-
-  const energyEfficiencyMultiplier = 1 + (upgrades.energyEfficiency * 0.10);
-  const coreEfficiencyMultiplier = 1 + (upgrades.coreEfficiency * 0.10);
-  const totalEnergyProduction = (energy.solarPanels * 3 + energy.mediumSolarPanels * 10 +
-    energy.advancedSolar * 30) * energyEfficiencyMultiplier +
-    (energy.energyCores * 50) * coreEfficiencyMultiplier;
-
-  // Cálculo de producción de chatarra
-  const collectionMultiplier = 1 + (upgrades.collectionEfficiency * 0.10);
-  const hasEnoughEnergy = resources.energy > 0;
-  const totalScrapProduction = hasEnoughEnergy ?
-    (drones.basic * 1 + drones.medium * 5 + drones.advanced * 20 +
-     drones.reinforcedBasic * 8 + drones.reinforcedMedium * 25 +
-     drones.reinforcedAdvanced * 80 + drones.golem * 500) * collectionMultiplier : 0;
-
-  // Cálculo de producción de materiales por Wyrms
-  const wyrmMetalProduction = hasEnoughEnergy ? drones.wyrm * 1 : 0;
-  const wyrmSteelProduction = hasEnoughEnergy ? drones.wyrm * 0.1 : 0;
-
-  // Actualizar recursos
-  const newEnergy = Math.max(0, Math.min(
-    resources.energy + (totalEnergyProduction - totalEnergyConsumption),
-    resources.maxEnergy
-  ));
-
-  const newScrap = Math.min(
-    resources.scrap + totalScrapProduction,
-    resources.maxScrap
-  );
-
-  const newMetalRefinado = resources.metalRefinado + wyrmMetalProduction;
-  const newAceroEstructural = resources.aceroEstructural + wyrmSteelProduction;
-
-  // Cálculo de puntos de investigación
-  const baseResearch = 0.1 * (1 + (upgrades.researchEfficiency * 0.20));
-  const totalDrones = Object.values(drones).reduce((sum, count) => sum + count, 0);
-  const droneResearch = (totalDrones * 0.01) * (1 + (upgrades.advancedAnalysis * 0.10));
-  const energySurplus = Math.max(0, resources.energy - totalEnergyConsumption);
-  const energyResearch = (energySurplus * 0.005) * (1 + (upgrades.algorithmOptimization * 0.15));
-  const researchPointsToAdd = (baseResearch + droneResearch + energyResearch) /
-    (1 - (upgrades.quantumComputing * 0.05));
-
-  return {
-    ...state,
-    resources: {
-      ...resources,
-      scrap: newScrap,
-      metalRefinado: newMetalRefinado,
-      aceroEstructural: newAceroEstructural,
-      energy: newEnergy,
-      energyConsumption: totalEnergyConsumption,
-      energyProduction: totalEnergyProduction,
-    },
-    rates: { ...state.rates, scrapPerSecond: totalScrapProduction },
-    techCenter: {
-      ...state.techCenter,
-      researchPoints: state.techCenter.researchPoints + researchPointsToAdd,
-    },
-  };
-};
 
 // Función para aplicar producción en bloques grandes (optimización)
 const applyBulkOfflineProduction = (state: GameState, seconds: number): GameState => {
   const { upgrades } = state.techCenter;
-  const { drones, energy, resources } = state;
+  const { workshop, energy, resources } = state;
+  const { drones } = workshop;
 
   // Cálculos similares pero multiplicados por el tiempo
   const powerOptimizationMultiplier = 1 - (upgrades.powerOptimization * 0.05);
@@ -251,6 +180,19 @@ const loadState = (): GameState => {
     }
             const storedState = JSON.parse(serializedState);
 
+    // --- MIGRACIÓN DE DATOS ESTRUCTURAL: workshop.drones ---
+    // Comprobar si el estado guardado tiene la estructura antigua (drones en la raíz)
+    if (storedState.drones && !storedState.workshop?.drones) {
+      console.log("Detectado guardado antiguo de drones. Migrando a workshop.drones...");
+      // Si workshop no existe, créalo
+      if (!storedState.workshop) {
+        storedState.workshop = { ...initialGameState.workshop };
+      }
+      // Copia los drones a la nueva ubicación y elimina la antigua
+      storedState.workshop.drones = storedState.drones;
+      delete storedState.drones;
+    }
+
     // --- MIGRACIÓN DE DATOS DE AURORA ---
     // Comprobar si es un guardado antiguo y migrar la estructura de Aurora
     if (storedState.aurora && (storedState.aurora.currentMessage || storedState.aurora.messageQueue)) {
@@ -287,8 +229,12 @@ const loadState = (): GameState => {
       ...initialGameState,
       ...storedState,
       resources: { ...initialGameState.resources, ...(storedState.resources || {}) },
-      drones: { ...initialGameState.drones, ...(storedState.drones || {}) },
-      workshop: { ...initialGameState.workshop, ...(storedState.workshop || {}), queues: { ...initialGameState.workshop.queues, ...(storedState.workshop?.queues || {}) } },
+      workshop: { 
+        ...initialGameState.workshop, 
+        ...(storedState.workshop || {}), 
+        drones: { ...initialGameState.workshop.drones, ...(storedState.workshop?.drones || {}) },
+        queues: { ...initialGameState.workshop.queues, ...(storedState.workshop?.queues || {}) } 
+      },
       energy: { ...initialGameState.energy, ...(storedState.energy || {}), queues: { ...initialGameState.energy.queues, ...(storedState.energy?.queues || {}) } },
       storage: { ...initialGameState.storage, ...(storedState.storage || {}), queues: { ...initialGameState.storage.queues, ...(storedState.storage?.queues || {}) } },
       foundry: { ...initialGameState.foundry, ...(storedState.foundry || {}), queues: { ...initialGameState.foundry.queues, ...(storedState.foundry?.queues || {}) } },
