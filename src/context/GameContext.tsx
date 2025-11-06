@@ -249,6 +249,8 @@ const loadState = (): GameState => {
       mergedState.aurora.shownMessages = new Set(mergedState.aurora.shownMessages);
     }
 
+    console.log("Estado fusionado ANTES de calcular offline:", JSON.stringify(mergedState.workshop, null, 2));
+
     // Calcular recursos generados durante la ausencia
     return calculateOfflineResources(mergedState);
   } catch (err) {

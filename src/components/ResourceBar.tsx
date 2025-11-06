@@ -5,7 +5,8 @@ import { useResources } from '../hooks/useSelectors';
 import { formatNumber } from '../utils/formatNumber';
 
 const ResourceBar: React.FC = React.memo(() => {
-  const { drones, modules, shipyard, rates } = useGameState();
+  const { workshop, modules, shipyard, rates } = useGameState();
+  const { drones } = workshop;
   const resources = useResources();
 
   const {

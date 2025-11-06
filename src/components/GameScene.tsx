@@ -21,6 +21,9 @@ import FloatingTextHandler from './FloatingTextHandler';
 
 const GameScene: React.FC = () => {
     const gameState = useGameState();
+    if (!gameState || !gameState.workshop?.drones) {
+    return <div>Cargando...</div>;
+  }
   const dispatch = useGameDispatch();
   const audioRef = useRef<HTMLAudioElement>(null);
 
