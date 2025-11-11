@@ -212,7 +212,8 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
         return state;
       }
 
-      const newResources = { ...state.resources };
+      let newResources = { ...state.resources };
+      let newWorkshop = { ...state.workshop };
       switch (mission.reward.type) {
         case 'scrap':
           newResources.scrap += mission.reward.value;
@@ -222,6 +223,10 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
           break;
         case 'nucleoSingularidad':
           newResources.nucleoSingularidad += mission.reward.value;
+          break;
+        case 'drone':
+          // Lógica para añadir un dron básico
+          newWorkshop.drones.basic += 1;
           break;
       }
 
@@ -244,6 +249,7 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
       let newState = {
         ...state,
         resources: newResources,
+        workshop: newWorkshop,
         missions: {
           ...state.missions,
           activeMissions: finalActiveMissions,

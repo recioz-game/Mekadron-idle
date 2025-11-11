@@ -14,7 +14,7 @@ const IntroScene: React.FC<IntroSceneProps> = ({ onComplete }) => {
         playsInline
         onEnded={onComplete}
         className="intro-video"
-        src="/videos/intro-video.mp4" // Ruta al video en la carpeta public
+        src={`${import.meta.env.BASE_URL}videos/intro-video.mp4`} // Ruta corregida para producción
       />
       <button
         onClick={onComplete}

@@ -21,7 +21,7 @@ export const allExpeditionsData: Expedition[] = [
     title: 'Cinturón de Asteroides',
     description: 'Un cinturón rico en minerales, pero inestable. Se requiere equipo más robusto.',
     duration: 1800, // 30 minutos
-    costs: { drones: 3, metalRefinado: 25 },
+    costs: { drones: 3, metalRefinado: 5 },
     rewards: {
       scrap: [3000, 7500],
       metalRefinado: [10, 30],

@@ -52,6 +52,7 @@ export interface Expedition {
 
 export interface ActiveExpedition {
   id: ExpeditionId;
+  instanceId: number; // <-- AÑADIDO
   completionTimestamp: number;
   dronesSent: number;
 }
@@ -154,7 +155,8 @@ export interface GameState {
     scrapPerClick: number;
     scrapPerSecond: number;
   };
-  modules: {
+    modules: {
+    workshop: boolean; // <-- AÑADIDO
     energy: boolean;
     storage: boolean;
     missions: boolean;
@@ -340,7 +342,8 @@ export interface GameState {
     scrapPerClick: 1,
     scrapPerSecond: 0
   },
-  modules: {
+    modules: {
+    workshop: false, // <-- AÑADIDO
     energy: false,
     storage: false,
     missions: false,

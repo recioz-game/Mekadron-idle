@@ -358,8 +358,8 @@ const GameScene: React.FC = () => {
           {renderActiveModule()}
         </div>
 
-        <ModulesPanel
-          workshopUnlocked={resources.scrap >= 75} // <-- NUEVA PROP: Taller desbloqueado con 75 chatarra
+                <ModulesPanel
+          workshopUnlocked={modules.workshop} // <-- CORREGIDO
           energyUnlocked={modules.energy}
           storageUnlocked={modules.storage}
           laboratoryUnlocked={modules.techCenter}

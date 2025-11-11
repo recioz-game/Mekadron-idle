@@ -246,19 +246,47 @@ export const processGameTick = (state: GameState): GameState => {
   const totalMaxScrap = (baseMaxScrap + storageBonus) * (1 + (prev.techCenter.upgrades.storageOptimization * 0.15)) * (1 + (prev.techCenter.upgrades.cargoDrones * 0.10));
 
   const hasEnoughEnergy = prev.resources.energy > 0;
-  const collectionMultiplier = 1 + (prev.techCenter.upgrades.collectionEfficiency * 0.10);
-    const totalScrapProduction = hasEnoughEnergy ? (prev.workshop.drones.basic * 1 + prev.workshop.drones.medium * 5 + prev.workshop.drones.advanced * 20 + prev.workshop.drones.reinforcedBasic * 8 + prev.workshop.drones.reinforcedMedium * 25 + prev.workshop.drones.reinforcedAdvanced * 80 + prev.workshop.drones.golem * 500) * collectionMultiplier : 0;
+  
+  // Lógica de producción/consumo de Golem y Wyrm
+  let golemMetalProduction = 0;
+  let golemScrapConsumption = 0;
+  if (hasEnoughEnergy && prev.workshop.drones.golem > 0) {
+    const potentialProduction = prev.workshop.drones.golem * 0.5;
+    const scrapNeeded = prev.workshop.drones.golem * 500;
+    
+    // Producir solo si se puede pagar el coste de chatarra
+    if (prev.resources.scrap >= scrapNeeded) {
+      golemMetalProduction = potentialProduction;
+      golemScrapConsumption = scrapNeeded;
+    }
+  }
 
-  const wyrmMetalProduction = hasEnoughEnergy ? prev.workshop.drones.wyrm * 1 : 0;
-  const wyrmSteelProduction = hasEnoughEnergy ? prev.workshop.drones.wyrm * 0.1 : 0;
+  let wyrmSteelProduction = 0;
+  let wyrmScrapConsumption = 0;
+  let wyrmMetalConsumption = 0;
+  if (hasEnoughEnergy && prev.workshop.drones.wyrm > 0) {
+    const potentialProduction = prev.workshop.drones.wyrm * 0.1;
+    const scrapNeeded = prev.workshop.drones.wyrm * 1000;
+    const metalNeeded = prev.workshop.drones.wyrm * 1;
+
+    // Producir solo si se puede pagar ambos costes
+    if (prev.resources.scrap >= scrapNeeded && prev.resources.metalRefinado >= metalNeeded) {
+      wyrmSteelProduction = potentialProduction;
+      wyrmScrapConsumption = scrapNeeded;
+      wyrmMetalConsumption = metalNeeded;
+    }
+  }
+
+  const collectionMultiplier = 1 + (prev.techCenter.upgrades.collectionEfficiency * 0.10);
+    const totalScrapProduction = hasEnoughEnergy ? (prev.workshop.drones.basic * 1 + prev.workshop.drones.medium * 5 + prev.workshop.drones.advanced * 20 + prev.workshop.drones.reinforcedBasic * 8 + prev.workshop.drones.reinforcedMedium * 25 + prev.workshop.drones.reinforcedAdvanced * 80) * collectionMultiplier : 0;
 
   const newEnergy = prev.resources.energy + (totalEnergyProduction - totalEnergyConsumption);
   const clampedEnergy = Math.max(0, Math.min(newEnergy, totalMaxEnergy));
   
-  const newScrap = prev.resources.scrap + totalScrapProduction;
+  const newScrap = prev.resources.scrap + totalScrapProduction - golemScrapConsumption - wyrmScrapConsumption;
   const clampedScrap = Math.min(newScrap, totalMaxScrap);
 
-  const newMetalRefinado = prev.resources.metalRefinado + wyrmMetalProduction;
+  const newMetalRefinado = prev.resources.metalRefinado + golemMetalProduction - wyrmMetalConsumption;
   const newAceroEstructural = prev.resources.aceroEstructural + wyrmSteelProduction;
   
   const baseResearch = 0.1 * (1 + (prev.techCenter.upgrades.researchEfficiency * 0.20));
@@ -311,8 +339,9 @@ export const processGameTick = (state: GameState): GameState => {
   let newModules = { ...stateAfterStats.modules };
   let newTechCenter = { ...stateAfterStats.techCenter };
 
+  if (stateAfterStats.resources.scrap >= 75 && !newModules.workshop) newModules.workshop = true;
   if (stateAfterStats.resources.scrap >= 50 && !newModules.energy) newModules.energy = true;
-  if (stateAfterStats.resources.scrap >= 75 && !newModules.storage) newModules.storage = true;
+  if (stateAfterStats.resources.scrap >= 100 && !newModules.storage) newModules.storage = true;
     if (stateAfterStats.workshop.drones.medium >= 3 && stateAfterStats.energy.advancedSolar >= 1 && stateAfterStats.resources.scrap >= 1000 && !newModules.techCenter) {
     newModules.techCenter = true;
     newTechCenter.unlocked = true;
@@ -321,6 +350,7 @@ export const processGameTick = (state: GameState): GameState => {
   if (stateAfterStats.workshop.drones.golem > 0 && !newModules.shipyard) newModules.shipyard = true;
   
   let newNotifications = [...stateAfterStats.notificationQueue];
+  if (!modulesBefore.workshop && newModules.workshop) newNotifications.push({ id: `workshop-${Date.now()}`, title: 'Módulo de Taller Desbloqueado', message: 'Ahora puedes construir drones para automatizar la recolección de chatarra.' });
   if (!modulesBefore.energy && newModules.energy) newNotifications.push({ id: `energy-${Date.now()}`, title: 'Módulo de Energía Desbloqueado', message: 'Ahora puedes construir paneles solares para generar energía y alimentar más drones.' });
   if (!modulesBefore.storage && newModules.storage) newNotifications.push({ id: `storage-${Date.now()}`, title: 'Módulo de Almacenamiento Desbloqueado', message: 'Construye unidades de almacén para aumentar tu capacidad máxima de chatarra y energía.' });
   if (!modulesBefore.techCenter && newModules.techCenter) newNotifications.push({ id: `laboratory-${Date.now()}`, title: 'Laboratorio Desbloqueado', message: 'Investiga nuevas tecnologías para mejorar tus drones, la producción de energía y mucho más.' });

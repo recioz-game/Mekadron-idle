@@ -79,8 +79,12 @@ const ShipyardView: React.FC<ShipyardViewProps> = ({
         {Object.keys(componentData).map(resourceId => {
           const requiredAmount = componentData[resourceId];
           const currentAmount = progress[resourceId] || 0;
-          const userHasAmount = (allResources as any)[resourceId] || 0;
+                    const userHasAmount = (allResources as any)[resourceId] || 0;
           const label = resourceLabels[resourceId] || resourceId;
+
+          // Calcular la cantidad real que se puede donar con "MAX"
+          const neededAmount = requiredAmount - currentAmount;
+          const maxDonationAmount = Math.min(userHasAmount, neededAmount);
 
           return (
             <div key={resourceId} className="resource-progress">
@@ -105,7 +109,7 @@ const ShipyardView: React.FC<ShipyardViewProps> = ({
                     disabled={userHasAmount <= 0}
                     className="donate-max-button"
                   >
-                    Donar MAX ({formatNumber(userHasAmount)})
+                    Donar MAX ({formatNumber(maxDonationAmount)})
                   </button>
                 </div>
               )}

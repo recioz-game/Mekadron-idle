@@ -85,12 +85,12 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
       {activeExpeditions.length > 0 && (
         <div className="active-expeditions">
           <h3 className="section-title">Expediciones en Curso</h3>
-          {activeExpeditions.map(activeExp => {
+                    {activeExpeditions.map(activeExp => {
             const data = allExpeditionsData.find(e => e.id === activeExp.id);
             if (!data) return null;
             const isComplete = activeExp.completionTimestamp <= Date.now();
             return (
-              <div key={activeExp.id} className="expedition-item">
+              <div key={activeExp.instanceId} className="expedition-item">
                 <h4>{data.title}</h4>
                 <p>{activeExp.dronesSent} {data.droneType === 'expeditionV2Drone' ? 'Drones (DE-2)' : 'Drones (DE-1)'} enviados.</p>
                 {isComplete ? (
@@ -116,9 +116,6 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
       <div className="available-expeditions">
         <h3 className="section-title">Destinos Disponibles</h3>
         {allExpeditionsData.map(exp => {
-          const isActive = activeExpeditions.some(active => active.id === exp.id);
-          if (isActive) return null;
-
           const droneType = exp.droneType;
           const dronesRequired = exp.costs.drones;
           const currentAvailableDrones = availableDrones[droneType];

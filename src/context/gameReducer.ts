@@ -207,15 +207,13 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
           }
           (newResources as any)[resource] -= cost;
         }
-        if (!canAfford) {
+                if (!canAfford) {
           return state;
         }
-        if (state.activeExpeditions.some(exp => exp.id === expeditionId)) {
-          console.warn("Attempted to start an already active expedition.");
-          return state;
-        }
+
         const newActiveExpedition: ActiveExpedition = {
           id: expeditionId,
+          instanceId: Date.now(), // <-- AÑADIDO
           completionTimestamp: Date.now() + expedition.duration * 1000,
           dronesSent: dronesRequired,
         };
@@ -484,24 +482,40 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         return { ...state, blueprints: state.blueprints - nextLevelData.blueprintCost, vindicatorLevel: currentLevel + 1, vindicator: { ...state.vindicator, maxHealth: state.vindicator.maxHealth + statBonus.health, currentHealth: state.vindicator.currentHealth + statBonus.health, maxShield: state.vindicator.maxShield + statBonus.shield, currentShield: state.vindicator.currentShield + statBonus.shield, damage: state.vindicator.damage + statBonus.damage, } };
     }
 
-    case 'CLAIM_EXPEDITION_REWARDS': {
+            case 'CLAIM_EXPEDITION_REWARDS': {
         const activeExpedition = action.payload;
         const expeditionData = allExpeditionsData.find(e => e.id === activeExpedition.id);
         if (!expeditionData) {
           console.error(`Expedition data not found for id: ${activeExpedition.id}`);
           return state;
         }
-        const remainingExpeditions = state.activeExpeditions.filter(exp => exp.id !== activeExpedition.id);
+        const remainingExpeditions = state.activeExpeditions.filter(exp => exp.instanceId !== activeExpedition.instanceId); // <-- CORREGIDO
         const wasSuccessful = Math.random() > expeditionData.risk.chance;
+
         if (wasSuccessful) {
           const newResources = { ...state.resources };
+          
+          // Diccionario para nombres de recursos
+          const resourceNames: { [key: string]: string } = {
+            scrap: 'Chatarra',
+            metalRefinado: 'Metal Refinado',
+            aceroEstructural: 'Acero Estructural',
+            fragmentosPlaca: 'Fragmentos de Placa',
+            circuitosDañados: 'Circuitos Dañados',
+            aleacionReforzada: 'Aleación Reforzada',
+            neuroChipCorrupto: 'Neuro-Chip Corrupto',
+          };
+
           let notificationMessage = "Recompensas obtenidas: ";
           for (const [resource, range] of Object.entries(expeditionData.rewards)) {
             const [min, max] = range as [number, number];
             const amount = Math.floor(Math.random() * (max - min + 1)) + min;
             (newResources as any)[resource] = ((newResources as any)[resource] || 0) + amount;
-            notificationMessage += `${amount} de ${resource}, `;
+            
+            const resourceName = resourceNames[resource] || resource;
+            notificationMessage += `${amount} de ${resourceName}, `;
           }
+
           return { ...state, resources: newResources, activeExpeditions: remainingExpeditions, notificationQueue: [...state.notificationQueue, { id: `exp-success-${Date.now()}`, title: `Éxito en ${expeditionData.title}`, message: notificationMessage.slice(0, -2) }] };
         } else {
                     const dronesLost = Math.ceil(activeExpedition.dronesSent * expeditionData.risk.droneLossPercentage);

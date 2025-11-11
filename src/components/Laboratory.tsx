@@ -256,8 +256,8 @@ const ResearchTooltip: React.FC<{base: number, fromDrones: number, fromEnergy: n
       borderRadius: '8px',
       padding: '1rem',
       width: '300px',
-      textAlign: 'left',
-      fontSize: '0.9rem',
+            textAlign: 'left',
+      fontSize: '1.4rem', // <-- AUMENTADO
       boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
       zIndex: 10,
     }}>

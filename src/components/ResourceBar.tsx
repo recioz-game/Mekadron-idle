@@ -3,6 +3,8 @@ import './ResourceBar.css'; // Importar el archivo CSS
 import { useGameState } from '../context/GameContext';
 import { useResources } from '../hooks/useSelectors';
 import { formatNumber } from '../utils/formatNumber';
+import refinedMetalIcon from '../assets/images/ui/refined-metal-icon.png';
+import structuralSteelIcon from '../assets/images/ui/structural-steel-icon.png';
 
 const ResourceBar: React.FC = React.memo(() => {
   const { workshop, modules, shipyard, rates } = useGameState();
@@ -40,13 +42,13 @@ const ResourceBar: React.FC = React.memo(() => {
               <span className="icon" style={{ color: '#F59E0B' }}>🔩</span>
               <span>{formatNumber(metalRefinado)}</span>
             </div>
-            <div className="resource-item" title="Acero Estructural">
+                        <div className="resource-item" title="Acero Estructural">
               <span className="icon" style={{ color: '#94A3B8' }}>🏗️</span>
               <span>{formatNumber(aceroEstructural)}</span>
             </div>
           </>
         )}
-        {shipyardUnlocked && (
+        {modules.expeditions && (
           <>
             <div className="resource-item" title="Fragmentos de Placa">
               <span className="icon">🧱</span>
@@ -56,11 +58,13 @@ const ResourceBar: React.FC = React.memo(() => {
               <span className="icon">🔌</span>
               <span>{formatNumber(circuitosDañados)}</span>
             </div>
-            <div className="resource-item" title="Núcleo de Singularidad">
-              <span className="icon">💥</span>
-              <span>{formatNumber(nucleoSingularidad)}</span>
-            </div>
           </>
+        )}
+        {shipyardUnlocked && (
+          <div className="resource-item" title="Núcleo de Singularidad">
+            <span className="icon">💥</span>
+            <span>{formatNumber(nucleoSingularidad)}</span>
+          </div>
         )}
       </div>
 
@@ -87,11 +91,29 @@ const ResourceBar: React.FC = React.memo(() => {
       </div>
 
       {/* CONTENEDOR DERECHA: Producciones */}
-      <div className="rates-group">
+            <div className="rates-group">
         <div className="rates-item" title="Producción de Chatarra">
           <span className="icon" style={{ color: '#22C55E' }}>⚙️/s</span>
-          <span>{scrapPerSecond.toFixed(1)}</span>
+          <span className={((scrapPerSecond - (drones.golem * 500) - (drones.wyrm * 1000)) >= 0) ? 'positive-rate' : 'negative-rate'}>
+            {(scrapPerSecond - (drones.golem * 500) - (drones.wyrm * 1000)).toFixed(1)}
+          </span>
         </div>
+        {(drones.golem > 0 || drones.wyrm > 0) && (
+          <>
+            <div className="rates-item" title="Producción de Metal Refinado">
+              <img src={refinedMetalIcon} alt="Metal/s" className="rates-icon-img" />
+              <span className={((drones.golem * 0.5) - (drones.wyrm * 1)) >= 0 ? 'positive-rate' : 'negative-rate'}>
+                {((drones.golem * 0.5) - (drones.wyrm * 1)).toFixed(1)}/s
+              </span>
+            </div>
+            <div className="rates-item" title="Producción de Acero Estructural">
+              <img src={structuralSteelIcon} alt="Acero/s" className="rates-icon-img" />
+              <span className="positive-rate">
+                {(drones.wyrm * 0.1).toFixed(1)}/s
+              </span>
+            </div>
+          </>
+        )}
         <div className="rates-item" title="Balance Energético">
           <span className="icon" style={{ color: '#F59E0B' }}>⚡/s</span>
           <span className={(energyProduction - energyConsumption) >= 0 ? 'positive-rate' : 'negative-rate'}>

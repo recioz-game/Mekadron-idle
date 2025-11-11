@@ -363,26 +363,27 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
             <div className={`drone-item ${scrap >= golemCost.scrap && aceroEstructural >= golemCost.steel && drones.reinforcedAdvanced >= 5 ? 'unlocked' : ''} ${drones.reinforcedAdvanced >= 5 ? '' : 'locked'}`}>
               <div className="drone-item-content">
                 <div className="drone-info">
-                  <h4 className="drone-title" style={{ color: '#F43F5E' }}>Dron Golem (DG-1)</h4>
-                  <p>📊 Producción: +{formatNumber(500)} chatarra/segundo</p>
-                  <p>⚡ Consumo: {formatNumber(50)} energía</p>
+                                                      <p><strong>Descripción:</strong> Un chasis masivo diseñado para procesar chatarra. Consume Chatarra para producir Metal Refinado de forma pasiva.</p>
+                  <p>⚡ Consumo: 50 energía/segundo</p>
+                  <p>Consume: 500 Chatarra/s | Produce: 0.5 Metal Refinado/s</p>
                   <p>💰 Coste: {formatNumber(golemCost.scrap)} chatarra, {formatNumber(golemCost.steel)} acero estructural</p>
-                  <p>📋 Requisitos: 5 Drones Avanzados Reforzados</p>
+                  <p>📋 Requisitos: 5 Drones Avanzados Reforzados Y la investigación "Chasis Golem"</p>
                   <p>🏗️ Flota: {drones.golem} | 📦 En cola: {queues.golem.queue}</p>
                 </div>
                 <div className="controls-container">
                   <QueueControls queue={queues.golem} itemName='golem' onCancel={onCancel} />
                   <DismantleControls upgrades={upgrades} droneType='golem' onDismantle={onDismantle} droneCount={drones.golem} buyAmount={buyAmount} />
                 </div>
-                <BotonConTooltip
+                                <BotonConTooltip
                   onClick={onBuildGolemDrone}
-                  disabled={scrap < golemCost.scrap || aceroEstructural < golemCost.steel || drones.reinforcedAdvanced < 5}
+                  disabled={scrap < golemCost.scrap || aceroEstructural < golemCost.steel || drones.reinforcedAdvanced < 5 || upgrades.golemChassis === 0}
                   tooltipText={getTooltipText([
                     { amount: golemCost.scrap, current: scrap, text: 'Chatarra' },
                     { amount: golemCost.steel, current: aceroEstructural, text: 'Acero Estructural' },
-                    { amount: 5, current: drones.reinforcedAdvanced, text: 'Drones Avanzados Reforzados'}
+                    { amount: 5, current: drones.reinforcedAdvanced, text: 'Drones Avanzados Reforzados'},
+                    { amount: 1, current: upgrades.golemChassis, text: 'Investigación: Chasis Golem'}
                   ])}
-                  className={`build-button ${scrap >= golemCost.scrap && aceroEstructural >= golemCost.steel && drones.reinforcedAdvanced >= 5 ? 'unlocked' : ''}`}
+                  className={`build-button ${scrap >= golemCost.scrap && aceroEstructural >= golemCost.steel && drones.reinforcedAdvanced >= 5 && upgrades.golemChassis > 0 ? 'unlocked' : ''}`}
                 >
                                     Encargar Dron Golem {buyAmount === 'max' && `(${golemMax})`}
                 </BotonConTooltip>
@@ -398,9 +399,10 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
         <div className={`drone-item ${scrap >= wyrmCost.scrap && aceroEstructural >= wyrmCost.steel && drones.golem >= 1 ? 'unlocked' : ''} ${drones.golem >= 1 ? '' : 'locked'}`}>
           <div className="drone-item-content">
             <div className="drone-info">
-              <h4 className="drone-title" style={{ color: '#F43F5E' }}>Dron Wyrm (DW-1)</h4>
-              <p>📊 Producción: +{formatNumber(1)} metal refinado/s, +{formatNumber(0.1)} acero/s</p>
-              <p>⚡ Consumo: {formatNumber(200)} energía</p>
+                            <h4 className="drone-title" style={{ color: '#F43F5E' }}>Dron Wyrm (DW-1)</h4>
+              <p><strong>Descripción:</strong> Una maravilla de la ingeniería. Consume Chatarra y Metal Refinado para sintetizar Acero Estructural de forma pasiva.</p>
+              <p>⚡ Consumo: 200 energía/segundo</p>
+              <p>Consume: 1000 Chatarra/s y 1 Metal Refinado/s | Produce: 0.1 Acero Estructural/s</p>
               <p>💰 Coste: {formatNumber(wyrmCost.scrap)} chatarra, {formatNumber(wyrmCost.steel)} acero</p>
               <p>📋 Requisitos: 1 Dron Golem</p>
               <p>🏗️ Flota: {drones.wyrm} | 📦 En cola: {queues.wyrm.queue}</p>

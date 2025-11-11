@@ -33,6 +33,7 @@
 .notification-message {
   margin: 0;
   color: #D1D5DB;
+  font-size: 1.6rem; /* Aumentado para mayor legibilidad */
 }
 
 @media (max-width: 768px) {
