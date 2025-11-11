@@ -15,6 +15,9 @@
 
 .energy-view-header h2 {
   font-size: 2.4rem;
+  flex-grow: 1;
+  text-align: center;
+  margin: 0;
 }
 
 .close-button {
@@ -55,7 +58,27 @@
   border-radius: 0.4rem;
   margin-bottom: 1.6rem;
   border: 2px solid #374151;
+  display: flex; /* Activar Flexbox */
+  align-items: center; /* Centrar verticalmente */
+  gap: 1.6rem; /* Espacio entre imagen y contenido */
 }
+
+.energy-item-image {
+  width: 150px; /* Ancho fijo para la imagen */
+  height: 150px; /* Alto fijo para la imagen */
+  object-fit: cover;
+  border-radius: 0.4rem;
+  flex-shrink: 0; /* Evita que la imagen se encoja */
+}
+
+.energy-item-content {
+  flex-grow: 1; /* El contenido ocupa el resto del espacio */
+}
+
+.energy-item-content.full-width {
+  width: 100%; /* Para items sin imagen */
+}
+
 
 .energy-item.unlocked {
   border-color: #22C55E;

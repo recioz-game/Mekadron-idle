@@ -1,16 +1,17 @@
 import React from 'react';
 import './Phase2Scene.css'; // Importar el archivo CSS
-import phase2BackgroundUrl from '../assets/Vindicator-background.png';
+import phase2BackgroundUrl from '../assets/images/backgrounds/Vindicator-background.png';
 import SettingsMenu from './SettingsMenu';
 import Phase2ResourceBar from './Phase2ResourceBar';
 import { useGame } from '../context/GameContext';
 import BattleRoom from './BattleRoom';
 import Armory from './Armory';
+import ArmoryMK1 from './ArmoryMK1';
 
 // Importar las imágenes para los botones
-import battleRoomImage from '../assets/battle-room-button.png';
-import armoryImage from '../assets/armory-button.png';
-import returnStationImage from '../assets/return-station-button.png';
+import battleRoomImage from '../assets/images/ui/battle-room-button.png';
+import armoryImage from '../assets/images/ui/armory-button.png';
+import returnStationImage from '../assets/images/ui/return-station-button.png';
 
 const Phase2Scene: React.FC = () => {
   const { gameState, dispatch } = useGame();
@@ -37,7 +38,12 @@ const Phase2Scene: React.FC = () => {
         {/* 2. Área de Contenido Principal */}
         <div className="content-area">
           {currentView === 'battleRoom' && <BattleRoom onClose={handleCloseView} />}
-          {currentView === 'armory' && <Armory onClose={handleCloseView} />}
+          
+          {currentView === 'armory' && (
+            gameState.vindicator.vindicatorType === 'mk1' 
+              ? <ArmoryMK1 onClose={handleCloseView} /> 
+              : <Armory onClose={handleCloseView} />
+          )}
         </div>
         
         {/* 3. Panel de Módulos */}

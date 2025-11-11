@@ -33,8 +33,10 @@ export type ActionType =
   | { type: 'BUILD_WYRM' }
   | { type: 'BUILD_SOLAR_PANEL' }
   | { type: 'BUILD_MEDIUM_SOLAR' }
-    | { type: 'BUILD_ADVANCED_SOLAR' }
+        | { type: 'BUILD_ADVANCED_SOLAR' }
   | { type: 'BUILD_ENERGY_CORE' }
+  | { type: 'BUILD_STABILIZED_ENERGY_CORE' }
+  | { type: 'BUILD_EMPOWERED_ENERGY_CORE' }
   | { type: 'BUILD_FUSION_REACTOR' }
   | { type: 'BUILD_BASIC_STORAGE' }
   | { type: 'BUILD_MEDIUM_STORAGE' }
@@ -55,12 +57,16 @@ export type ActionType =
   | { type: 'DISMISS_NOTIFICATION' }
   | { type: 'DEBUG_UNLOCK_TECH_CENTER' }
     | { type: 'DEBUG_COMPLETE_VINDICATOR' }
+  | { type: 'DEBUG_UNLOCK_VINDICATOR_MK1' }
   | { type: 'DEBUG_FINISH_EXPEDITIONS' }
     | { type: 'PROCESS_OFFLINE_PROGRESS'; payload: { secondsOffline: number } }
   | { type: 'START_PHASE_2' }
-  | { type: 'RETURN_TO_PHASE_1' }
+    | { type: 'RETURN_TO_PHASE_1' }
   | { type: 'GO_TO_PHASE_2' }
-  | { type: 'SELECT_BATTLE_DESTINATION'; payload: number }
+  | { type: 'GO_TO_PHASE_2_VIEW'; payload: string } // <-- NUEVA ACCIÓN
+    | { type: 'SELECT_BATTLE_DESTINATION'; payload: number }
+  | { type: 'SELECT_CHAPTER'; payload: number }
+  | { type: 'BACK_TO_CHAPTER_SELECT' }
   | { type: 'START_BATTLE' }
   | { type: 'PLAYER_ATTACK' }
   | { type: 'ESCAPE_COMBAT' }
@@ -72,6 +78,8 @@ export type ActionType =
   | { type: 'REPAIR_VINDICATOR_SHIELD'; payload: { shieldAmount: number; fuelCost: number } }
     // Nuevas acciones para mejoras por estrellas
     | { type: 'UPGRADE_VINDICATOR_STAR'; payload: { upgradeId: string } }
-    | { type: 'LEVEL_UP_VINDICATOR' }
+      | { type: 'LEVEL_UP_VINDICATOR' }
   | { type: 'CLAIM_EXPEDITION_REWARDS'; payload: ActiveExpedition }
+  | { type: 'CRAFT_VINDICATOR_MODULE'; payload: { moduleId: string } } // <-- NUEVO
+  | { type: 'EQUIP_VINDICATOR_MODULE'; payload: { moduleId: string; slot: 'offensive' | 'defensive' | 'tactical' } } // <-- NUEVO
   | { type: 'SET_VOLUME'; payload: number };

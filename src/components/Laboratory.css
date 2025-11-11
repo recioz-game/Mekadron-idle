@@ -15,6 +15,9 @@
 
 .tech-center-header h2 {
   font-size: 2.4rem;
+  flex-grow: 1;
+  text-align: center;
+  margin: 0;
 }
 
 .close-button {
@@ -58,29 +61,40 @@
 }
 
 .tech-tree-container {
-  display: flex;
-  justify-content: space-between;
-  gap: 1.6rem;
-}
-
-.tech-category {
-  flex: 1;
-  background-color: #1F2737;
-  border-radius: 0.8rem;
+  overflow-x: auto; /* La barra de scroll ÚNICA para todo el árbol */
+  background-color: #111827;
   padding: 1.6rem;
+  border-radius: 0.8rem;
+  position: relative; /* CLAVE: Contiene las flechas */
 }
 
-.tech-category h3 {
-  text-align: center;
-  color: #F59E0B;
-  margin-top: 0;
+.tech-row {
+  display: inline-flex; /* CLAVE: Permite que la fila crezca con su contenido */
+  min-width: 100%;    /* CLAVE: Asegura que ocupe todo el ancho si no hay scroll */
+  flex-direction: row; /* Título y tarjetas en la misma línea */
+  align-items: flex-start;
+  background-color: #1F2937;
+  padding: 1.6rem;
+  border-radius: 0.8rem;
+  margin-bottom: 1rem; /* Reemplaza el 'gap' del contenedor */
+}
+.tech-row:last-child {
+  margin-bottom: 0;
+}
+
+.tech-row-title {
+  min-width: 180px; /* Ancho fijo para la columna de títulos */
   font-size: 1.8rem;
+  color: #F59E0B;
+  background-color: #1F2737; 
+  z-index: 1; 
 }
 
 .tech-cards-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row; /* Tarjetas en línea horizontal */
   gap: 1.6rem;
+  margin-left: 1.6rem; /* Espacio entre el título y la primera tarjeta */
 }
 
 .tech-card {
@@ -88,6 +102,10 @@
   background-color: #111827;
   border-radius: 0.8rem;
   border: 2px solid #374151;
+  width: 250px; /* Ancho fijo para la tarjeta */
+  flex-shrink: 0; /* Evita que la tarjeta se encoja */
+  display: flex;
+  flex-direction: column;
 }
 
 .tech-card.available {
@@ -116,8 +134,9 @@
 .tech-card-effect {
   font-size: 1.4rem;
   color: #22C55E;
-  margin: 0 0 1.6rem 0;
   font-weight: bold;
+  flex-grow: 1; /* Empuja el footer hacia abajo */
+  margin: 0 0 1.6rem 0;
 }
 
 .tech-card-footer {

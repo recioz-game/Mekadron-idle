@@ -10,7 +10,8 @@ export const allExpeditionsData: Expedition[] = [
     costs: { drones: 1 },
     rewards: {
       scrap: [500, 2000],
-      metalRefinado: [1, 5]
+      metalRefinado: [1, 5],
+      aceroEstructural: [1, 2]
     },
     risk: { chance: 0.05, droneLossPercentage: 1 },
     droneType: 'expeditionDrone',

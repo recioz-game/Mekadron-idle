@@ -15,6 +15,9 @@
 
 .workshop-header h2 {
   font-size: 2.4rem;
+  flex-grow: 1; /* Hace que el título ocupe el espacio disponible */
+  text-align: center; /* Centra el texto dentro de su espacio */
+  margin: 0; /* Opcional: elimina márgenes por defecto */
 }
 
 .close-button {
@@ -38,13 +41,27 @@
   font-size: 2rem;
   margin-top: 0;
 }
-
 .drone-item {
   padding: 1.6rem;
   background-color: #111827;
   border-radius: 0.4rem;
   margin-bottom: 1.6rem;
   border: 2px solid #374151;
+  display: flex;
+  align-items: center;
+  gap: 2.4rem; /* Aumentado para más espacio */
+}
+
+.drone-item-image {
+  width: 150px; /* Aumentado un 50% */
+  height: 150px; /* Aumentado un 50% */
+  object-fit: cover;
+  border-radius: 0.4rem;
+  flex-shrink: 0;
+}
+
+.drone-item-content {
+  flex-grow: 1; /* El contenido ocupa el resto del espacio */
 }
 
 .drone-item.unlocked {
@@ -57,7 +74,12 @@
 
 .drone-info p {
   margin: 0.8rem 0;
-  font-size: 1.4rem;
+  font-size: 1.6rem; /* Aumentado */
+}
+
+.drone-title {
+  font-size: 2.2rem !important; /* Aumentado */
+  margin-bottom: 0 !important;
 }
 
 .controls-container {
@@ -77,7 +99,7 @@
   font-weight: bold;
   font-size: 1.6rem;
   margin-top: 0.8rem;
-  width: 100%;
+  width: 100%; /* Este es el estilo correcto que usan las otras vistas */
 }
 
 .build-button.unlocked {

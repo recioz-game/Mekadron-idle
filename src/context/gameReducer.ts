@@ -1,4 +1,5 @@
 import { allExpeditionsData } from '../data/expeditionsData';
+import { allShipyardProjects } from '../data/shipyardData';
 import { constructionReducer } from './constructionReducer';
 import { missionsReducer } from './missionsReducer';
 import { combatReducer } from './combatReducer';
@@ -6,6 +7,7 @@ import { processGameTick } from '../gameLogic/tickLogic';
 import { GameState, initialGameState, ActiveExpedition } from '../types/gameState';
 import { vindicatorLevelData } from '../data/battleData';
 import { ActionType } from '../types/actions';
+import { allArmoryMK1Modules } from '../data/armoryMK1Data'; // <-- IMPORTAR DATOS DE MÓDULOS
 
 export const gameReducer = (state: GameState, action: ActionType): GameState => {
   let newState = { ...state };
@@ -14,7 +16,7 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
   newState = combatReducer(newState, action);
   newState = constructionReducer(newState, action);
 
-  // The rest of the switch handles non-combat actions
+    // The rest of the switch handles non-combat actions
   switch (action.type) {
     case 'SET_WORKSHOP_BUY_AMOUNT':
       return {
@@ -90,10 +92,17 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         currentScene: 'main'
       };
 
-    case 'GO_TO_PHASE_2':
+        case 'GO_TO_PHASE_2':
       return {
         ...state,
         currentScene: 'phase2Main'
+      };
+
+    case 'GO_TO_PHASE_2_VIEW':
+      return {
+        ...state,
+        currentScene: 'phase2Main',
+        currentView: action.payload,
       };
 
     case 'COLLECT_SCRAP': {
@@ -264,7 +273,7 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         return {
             ...state,
             modules: { ...state.modules, techCenter: true, foundry: true, shipyard: true, expeditions: true },
-            techCenter: { ...state.techCenter, unlocked: true, upgrades: { ...state.techCenter.upgrades, collectionEfficiency: 1, droneAssembly: 1, reinforcedBasicDrones: 1, reinforcedMediumDrones: 1, reinforcedAdvancedDrones: 1, golemChassis: 1, } },
+            techCenter: { ...state.techCenter, unlocked: true, upgrades: { ...state.techCenter.upgrades, collectionEfficiency: 1, droneAssembly: 1, reinforcedBasicDrones: 1, reinforcedMediumDrones: 1, reinforcedAdvancedDrones: 1, golemChassis: 1, fusionTech: 1, } },
             shipyard: { ...state.shipyard, unlocked: true },
             workshop: {
               ...state.workshop,
@@ -273,43 +282,168 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
             energy: { ...state.energy, advancedSolar: Math.max(state.energy.advancedSolar, 1) },
             resources: { ...state.resources, scrap: Math.max(state.resources.scrap, 150000), metalRefinado: Math.max(state.resources.metalRefinado, 5000) }
         };
-    case 'DEBUG_COMPLETE_VINDICATOR': {
-      const newProgress = { ...state.shipyard.costs };
-      return { ...state, shipyard: { ...state.shipyard, progress: newProgress }, resources: { ...state.resources, barraCombustible: state.resources.barraCombustible + 100 } };
+                case 'DEBUG_COMPLETE_VINDICATOR': {
+      const { shipyard } = state;
+      const currentProject = allShipyardProjects[shipyard.currentProjectIndex];
+      if (!currentProject) return state;
+
+      // Crea un nuevo objeto de progreso donde cada recurso está al máximo
+      const newProgress: GameState['shipyard']['progress'] = {};
+      Object.keys(currentProject.costs).forEach(componentId => {
+        newProgress[componentId] = { ...currentProject.costs[componentId] };
+      });
+      
+      const tempState = { ...state, shipyard: { ...shipyard, progress: newProgress } };
+      
+      // Simula una donación final (con cantidad 0) para activar la lógica de transición en el reducer
+      const lastComponent = Object.keys(currentProject.costs).pop()!;
+      const lastResource = Object.keys(currentProject.costs[lastComponent]).pop()!;
+      return gameReducer(tempState, { type: 'DONATE_TO_SHIPYARD', payload: { component: lastComponent, resource: lastResource, amount: 0 } });
     }
-    case 'DEBUG_FINISH_EXPEDITIONS': {
+        case 'DEBUG_FINISH_EXPEDITIONS': {
       const finishedExpeditions = state.activeExpeditions.map(exp => ({ ...exp, completionTimestamp: Date.now() }));
       return { ...state, activeExpeditions: finishedExpeditions };
     }
 
-        case 'DONATE_TO_SHIPYARD': {
-        const { component, resource, amount } = action.payload as { component: keyof GameState['shipyard']['costs'], resource: string, amount: number };
-        if (!state.shipyard.costs[component] || !(resource in (state.shipyard.costs[component] as Record<string, number>))) return state;
-        const cost = (state.shipyard.costs[component] as Record<string, number>)[resource];
-        const progress = (state.shipyard.progress[component] as Record<string, number>)[resource];
-        if (cost === undefined || progress === undefined) return state;
-        const currentResourceAmount = resource === 'researchPoints' ? state.techCenter.researchPoints : (state.resources as any)[resource] || 0;
-        const amountToDonate = Math.min(amount, currentResourceAmount, cost - progress);
-        if (amountToDonate <= 0) return state;
+        case 'DEBUG_UNLOCK_VINDICATOR_MK1': {
+      // Acción atómica para establecer el estado de MK1 directamente
+      const newUpgrades = { ...state.vindicatorUpgrades };
+      Object.keys(newUpgrades).forEach(key => {
+        (newUpgrades as any)[key].currentStars = 0;
+      });
 
-        const newState = { ...state, resources: resource !== 'researchPoints' ? { ...state.resources, [(resource as keyof GameState['resources'])]: currentResourceAmount - amountToDonate } : state.resources, techCenter: resource === 'researchPoints' ? { ...state.techCenter, researchPoints: currentResourceAmount - amountToDonate } : state.techCenter, shipyard: { ...state.shipyard, progress: { ...state.shipyard.progress, [component]: { ...(state.shipyard.progress[component] as Record<string, number>), [resource]: progress + amountToDonate } } } };
+      return {
+        ...state,
+        phase2Unlocked: true,
+        shipyard: {
+          ...state.shipyard,
+          currentProjectIndex: 2, // Asumimos que el MK1 es el índice 1, el siguiente es el 2
+          progress: {}, // Limpiamos el progreso para el nuevo proyecto
+        },
+        vindicator: {
+          vindicatorType: 'mk1',
+          maxHealth: 1500,
+          currentHealth: 1500,
+          maxShield: 750,
+          currentShield: 750,
+          damage: 150,
+          modules: {
+            offensive: null,
+            defensive: null,
+            tactical: null,
+          },
+        },
+        vindicatorUpgrades: newUpgrades,
+        vindicatorLevel: 1,
+      };
+    }
 
-        // --- Lógica de Cambio de Fondo ---
-        // Transición a Phase 4 (fondo 5) al completar el Vindicator
-        const { hull, powerCore, targetingSystem, warpDrive } = newState.shipyard.progress;
-        const costs = newState.shipyard.costs;
-        if (
-          hull.placasCasco >= costs.hull.placasCasco &&
-          powerCore.cableadoSuperconductor >= costs.powerCore.cableadoSuperconductor &&
-          targetingSystem.researchPoints >= costs.targetingSystem.researchPoints &&
-          targetingSystem.cableadoSuperconductor >= costs.targetingSystem.cableadoSuperconductor &&
-          warpDrive.nucleoSingularidad >= costs.warpDrive.nucleoSingularidad &&
-          newState.currentBackground < 5
-        ) {
-          newState.currentBackground = 5;
+                    case 'DONATE_TO_SHIPYARD': {
+      const { component, resource, amount } = action.payload;
+      const { shipyard, resources, techCenter } = state;
+      const currentProject = allShipyardProjects[shipyard.currentProjectIndex];
+
+      if (!currentProject || !currentProject.costs[component] || !currentProject.costs[component][resource]) {
+        return state;
+      }
+
+      const cost = currentProject.costs[component][resource];
+      const progress = shipyard.progress[component]?.[resource] || 0;
+      
+      const currentResourceAmount = resource === 'researchPoints' 
+        ? techCenter.researchPoints 
+        : (resources as any)[resource] || 0;
+
+      const amountToDonate = Math.min(amount, currentResourceAmount, cost - progress);
+
+      if (amountToDonate <= 0 && amount !== 0) { // Permitir donación de 0 para el modo debug
+        return state;
+      }
+
+      let newState = { ...state };
+
+      if (resource === 'researchPoints') {
+        newState.techCenter = { ...techCenter, researchPoints: techCenter.researchPoints - amountToDonate };
+      } else {
+        newState.resources = { ...resources, [resource]: currentResourceAmount - amountToDonate };
+      }
+
+      const newProgress = {
+        ...shipyard.progress,
+        [component]: {
+          ...(shipyard.progress[component] || {}),
+          [resource]: progress + amountToDonate
         }
-        
+      };
+      newState.shipyard = { ...shipyard, progress: newProgress };
+
+      const isProjectComplete = Object.keys(currentProject.costs).every(componentId => {
+        return Object.keys(currentProject.costs[componentId]).every(resourceId => {
+          const required = currentProject.costs[componentId][resourceId];
+          const donated = newProgress[componentId]?.[resourceId] || 0;
+          return donated >= required;
+        });
+      });
+
+      if (isProjectComplete) {
+        const nextProjectIndex = shipyard.currentProjectIndex + 1;
+        if (allShipyardProjects[nextProjectIndex]) {
+          const nextProject = allShipyardProjects[nextProjectIndex];
+          const newEmptyProgress: GameState['shipyard']['progress'] = {};
+          Object.keys(nextProject.costs).forEach(componentId => {
+            newEmptyProgress[componentId] = {};
+            Object.keys(nextProject.costs[componentId]).forEach(resourceId => {
+              newEmptyProgress[componentId][resourceId] = 0;
+            });
+          });
+
+          newState.shipyard = {
+            ...shipyard,
+            currentProjectIndex: nextProjectIndex,
+            progress: newEmptyProgress,
+          };
+          
+                    if (currentProject.id === 'vindicator_base') {
+            newState.phase2Unlocked = true;
+            newState.currentScene = 'phase2Intro'; // <-- AÑADIDO: Inicia el vídeo de introducción
+                        newState.notificationQueue = [
+              ...state.notificationQueue,
+              { id: `vindicator-built-${Date.now()}`, title: '¡Vindicator Construido!', message: 'La Fase 2 está ahora disponible. ¡Accede a la Sala de Batalla!' }
+            ];
+                                        } else if (currentProject.id === 'vindicator_mk1') {
+            // --- APLICAR STATS FIJOS DEL MK.I Y RESETEAR MEJORAS ANTERIORES ---
+            const newUpgrades = { ...newState.vindicatorUpgrades };
+            Object.keys(newUpgrades).forEach(key => {
+              (newUpgrades as any)[key].currentStars = 0;
+            });
+
+                        newState.vindicator = {
+              vindicatorType: 'mk1',
+              maxHealth: 1500,
+              currentHealth: 1500,
+              maxShield: 750,
+              currentShield: 750,
+              damage: 150,
+              modules: {
+                offensive: null,
+                defensive: null,
+                tactical: null,
+              },
+            };
+            
+            newState.vindicatorUpgrades = newUpgrades;
+            newState.vindicatorLevel = 1;
+
+            newState.notificationQueue = [
+              ...state.notificationQueue,
+              { id: `mk1-built-${Date.now()}`, title: '¡Vindicator Mk.I Construido!', message: 'Tu nave ha sido mejorada a un nuevo chasis. El sistema de mejoras anterior ha sido completado.' }
+            ];
+          }
+        }
         return newState;
+      }
+      
+      return newState;
     }
 
     case 'REPAIR_VINDICATOR_HEALTH': {
@@ -370,15 +504,31 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
           }
           return { ...state, resources: newResources, activeExpeditions: remainingExpeditions, notificationQueue: [...state.notificationQueue, { id: `exp-success-${Date.now()}`, title: `Éxito en ${expeditionData.title}`, message: notificationMessage.slice(0, -2) }] };
         } else {
-          const dronesLost = Math.ceil(activeExpedition.dronesSent * expeditionData.risk.droneLossPercentage);
+                    const dronesLost = Math.ceil(activeExpedition.dronesSent * expeditionData.risk.droneLossPercentage);
           const droneType = expeditionData.droneType;
-          const newDrones = { ...state.workshop.drones };
-          newDrones[droneType] -= dronesLost;
-          return { ...state, workshop: { ...state.workshop, drones: newDrones }, activeExpeditions: remainingExpeditions, notificationQueue: [...state.notificationQueue, { id: `exp-fail-${Date.now()}`, title: `Fracaso en ${expeditionData.title}`, message: `La expedición fracasó. Se han perdido ${dronesLost} drones.` }] };
+          return {
+            ...state,
+            workshop: {
+              ...state.workshop,
+              drones: {
+                ...state.workshop.drones,
+                [droneType]: state.workshop.drones[droneType] - dronesLost,
+              },
+            },
+            activeExpeditions: remainingExpeditions,
+            notificationQueue: [
+              ...state.notificationQueue,
+              {
+                id: `exp-fail-${Date.now()}`,
+                title: `Fracaso en ${expeditionData.title}`,
+                message: `La expedición fracasó. Se han perdido ${dronesLost} drones.`,
+              },
+            ],
+          };
         }
     }
 
-    case 'SET_VOLUME': {
+        case 'SET_VOLUME': {
         return {
             ...state,
             settings: {
@@ -386,6 +536,66 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
                 volume: action.payload,
             }
         };
+    }
+    
+    // --- Nuevas Acciones para la Sala de Batalla ---
+    case 'SELECT_CHAPTER':
+      return {
+        ...state,
+        battleRoom: {
+          ...state.battleRoom,
+          selectedChapterIndex: action.payload,
+          selectedDestination: null, // Resetea el destino al cambiar de capítulo
+        },
+      };
+
+    case 'BACK_TO_CHAPTER_SELECT':
+            return {
+        ...state,
+        battleRoom: {
+          ...state.battleRoom,
+          selectedChapterIndex: null,
+          selectedDestination: null,
+        },
+      };
+
+    case 'CRAFT_VINDICATOR_MODULE': {
+      const { moduleId } = action.payload;
+      const moduleData = allArmoryMK1Modules.find(m => m.id === moduleId);
+
+      // 1. Comprobaciones
+      if (!moduleData) return state; // El módulo no existe
+      // Aquí se añadiría la lógica para comprobar si ya se posee el módulo
+
+      // 2. Comprobar recursos
+      const { resources } = state;
+      const costs = moduleData.costs;
+      const canAfford = 
+        (resources.matrizCristalina >= costs.matrizCristalina) &&
+        (resources.IA_Fragmentada >= costs.IA_Fragmentada) &&
+        (resources.planosMK2 >= costs.planosMK2);
+      
+      if (!canAfford) return state;
+
+      // 3. Deducir recursos y añadir el módulo (lógica de inventario futura)
+      const newResources = { ...resources };
+      newResources.matrizCristalina -= costs.matrizCristalina;
+      newResources.IA_Fragmentada -= costs.IA_Fragmentada;
+      newResources.planosMK2 -= costs.planosMK2;
+
+      // Por ahora, lo equipamos directamente al fabricarlo.
+      const slot = moduleData.slot;
+      return {
+        ...state,
+        resources: newResources,
+        vindicator: {
+          ...state.vindicator,
+          modules: {
+            ...state.vindicator.modules,
+            [slot]: moduleId,
+          }
+        }
+      };
     }
 
     default:

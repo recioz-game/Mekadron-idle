@@ -15,6 +15,9 @@
 
 .storage-view-header h2 {
   font-size: 2.4rem;
+  flex-grow: 1;
+  text-align: center;
+  margin: 0;
 }
 
 .close-button {
@@ -28,11 +31,25 @@
 }
 
 .storage-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 1.6rem;
   background-color: #1F2937;
   border-radius: 0.4rem;
   margin-bottom: 1.6rem;
   border: 2px solid #374151;
+}
+
+.storage-item-content {
+  flex-grow: 1;
+}
+
+.storage-item-image {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  margin-left: 1.6rem;
 }
 
 .storage-item.unlocked {

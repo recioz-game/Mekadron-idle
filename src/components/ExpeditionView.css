@@ -15,6 +15,9 @@
 
 .expedition-view-header h2 {
   font-size: 2.4rem;
+  flex-grow: 1;
+  text-align: center;
+  margin: 0;
 }
 
 .close-button {

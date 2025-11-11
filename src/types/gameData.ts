@@ -5,7 +5,14 @@ export interface BuildableItem {
   time: number;
   prerequisites?: (state: GameState) => boolean;
   produces?: {
-    resource: keyof GameState['resources'] | keyof GameState['drones'] | keyof GameState['energy'] | keyof GameState['storage'];
+    resource: keyof GameState['resources'] | keyof GameState['workshop']['drones'] | keyof GameState['energy'] | keyof GameState['storage'];
     amount?: number; // Por defecto es 1
   };
+}
+
+export interface ShipyardProject {
+  id: string;
+  name: string;
+  description: string;
+  costs: Record<string, Record<string, number>>;
 }

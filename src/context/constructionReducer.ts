@@ -91,7 +91,10 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
       return handleBuild(state, { ...gameData.energy.advancedSolar, buyAmount: state.energyBuyAmount, queuePath: ['energy', 'queues', 'advancedSolar'] });
     case 'BUILD_ENERGY_CORE':
       return handleBuild(state, { ...gameData.energy.energyCores, buyAmount: state.energyBuyAmount, queuePath: ['energy', 'queues', 'energyCores'] });
-
+    case 'BUILD_STABILIZED_ENERGY_CORE':
+      return handleBuild(state, { ...gameData.energy.stabilizedEnergyCores, buyAmount: state.energyBuyAmount, queuePath: ['energy', 'queues', 'stabilizedEnergyCores'] });
+    case 'BUILD_EMPOWERED_ENERGY_CORE':
+      return handleBuild(state, { ...gameData.energy.empoweredEnergyCores, buyAmount: state.energyBuyAmount, queuePath: ['energy', 'queues', 'empoweredEnergyCores'] });
     case 'BUILD_FUSION_REACTOR':
       return handleBuild(state, { ...gameData.energy.fusionReactor, buyAmount: state.energyBuyAmount, queuePath: ['energy', 'queues', 'fusionReactor'] });
     case 'BUILD_BASIC_STORAGE':

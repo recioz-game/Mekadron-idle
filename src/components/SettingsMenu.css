@@ -40,69 +40,62 @@
   width: 100%;
 }
 
-.settings-button {
+.settings-button,
+.dev-button {
   padding: 0.8rem;
-  color: white;
-  border: none;
+  color: #E5E7EB; /* Texto claro */
+  border: 1px solid #4B5563;
   border-radius: 0.4rem;
   cursor: pointer;
   font-size: 1.2rem;
   width: 100%;
-  margin-bottom: 1.6rem;
+  margin-bottom: 1rem;
+  background-color: #374151; /* Fondo gris oscuro */
+  text-align: center;
+  transition: background-color 0.2s, border-color 0.2s;
 }
 
-.credits-button {
-  background-color: #374151;
+.settings-button:hover,
+.dev-button:hover {
+  background-color: #4B5563;
+  border-color: #9CA3AF;
 }
 
 .dev-section-title {
   color: #EF4444;
   font-size: 1.4rem;
+  display: block;
+  margin-bottom: 1rem;
 }
 
-.dev-button {
-  padding: 0.8rem;
-  color: white;
-  border: none;
-  border-radius: 0.4rem;
-  cursor: pointer;
-  font-size: 1.2rem;
-  margin-top: 1.6rem;
-  width: 100%;
-}
-
-.unlock-button {
-  background-color: #EF4444;
-}
-
-.complete-vindicator-button {
-  background-color: #F59E0B;
-}
-
-.finish-expeditions-button {
-  background-color: #10B981;
-}
-
-.reset-button {
-  background-color: #991B1B;
-}
-
+/* Color específico para botones de "peligro" */
+.reset-button,
 .exit-button {
-  background-color: #1E40AF;
+  background-color: #991B1B;
+  border-color: #EF4444;
+}
+
+.reset-button:hover,
+.exit-button:hover {
+  background-color: #B91C1C;
+  border-color: #F87171;
 }
 
 .settings-toggle-button {
-  width: 5rem;
-  height: 5rem;
+  width: 6rem; /* Aumentado otro 10% */
+  height: 6rem; /* Aumentado otro 10% */
   border-radius: 50%;
   border: 2px solid #374151;
-  background-color: #1F2937;
-  color: white;
-  font-size: 2.4rem;
+  background-color: transparent; /* Fondo transparente para que la imagen sea la protagonista */
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 0; /* Eliminar padding para que la imagen ocupe todo el espacio */
+}
+
+.settings-toggle-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Asegura que la imagen cubra el botón sin deformarse */
+  border-radius: 50%; /* Mantener la forma circular */
 }
 
 @media (max-width: 768px) {

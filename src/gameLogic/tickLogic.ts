@@ -193,7 +193,20 @@ export const processGameTick = (state: GameState): GameState => {
   };
 
   const workshopResult = processQueuesForCategory('workshop', { ...state.workshop.drones }, upgrades.droneAssembly * 0.05, state);
-  const energyResult = processQueuesForCategory('energy', { solarPanels: state.energy.solarPanels, mediumSolarPanels: state.energy.mediumSolarPanels, advancedSolar: state.energy.advancedSolar, energyCores: state.energy.energyCores, fusionReactor: state.energy.fusionReactor }, upgrades.energyCalibration * 0.05, state);
+  const energyResult = processQueuesForCategory(
+    'energy',
+    {
+      solarPanels: state.energy.solarPanels,
+      mediumSolarPanels: state.energy.mediumSolarPanels,
+      advancedSolar: state.energy.advancedSolar,
+      energyCores: state.energy.energyCores,
+      stabilizedEnergyCores: state.energy.stabilizedEnergyCores,
+      empoweredEnergyCores: state.energy.empoweredEnergyCores,
+      fusionReactor: state.energy.fusionReactor
+    },
+    upgrades.energyCalibration * 0.05,
+    state
+  );
   const storageResult = processQueuesForCategory('storage', { basicStorage: state.storage.basicStorage, mediumStorage: state.storage.mediumStorage, advancedStorage: state.storage.advancedStorage, quantumHoardUnit: state.storage.quantumHoardUnit, lithiumIonBattery: state.storage.lithiumIonBattery, plasmaAccumulator: state.storage.plasmaAccumulator, harmonicContainmentField: state.storage.harmonicContainmentField }, upgrades.storageConstruction * 0.05, state);
   const foundryResult = processQueuesForCategory('foundry', { ...state.resources }, 0, state);
   
@@ -218,10 +231,12 @@ export const processGameTick = (state: GameState): GameState => {
   const coreEfficiencyMultiplier = 1 + (prev.techCenter.upgrades.coreEfficiency * 0.10);
   const totalEnergyProduction = (prev.energy.solarPanels * 3 + prev.energy.mediumSolarPanels * 10 + prev.energy.advancedSolar * 30) * energyEfficiencyMultiplier + 
                               (prev.energy.energyCores * 50) * coreEfficiencyMultiplier +
+                              (prev.energy.stabilizedEnergyCores * 75) * coreEfficiencyMultiplier +
+                              (prev.energy.empoweredEnergyCores * 150) * coreEfficiencyMultiplier +
                               ((prev.energy as any).fusionReactor * 250);
   
   const baseMaxEnergy = 50;
-  const energyCoreBonus = prev.energy.energyCores * 100;
+  const energyCoreBonus = prev.energy.energyCores * 100 + prev.energy.stabilizedEnergyCores * 150 + prev.energy.empoweredEnergyCores * 300;
   const fusionReactorBonus = (prev.energy as any).fusionReactor * 1000;
   const energyStorageBonus = (prev.storage.lithiumIonBattery * 50 + prev.storage.plasmaAccumulator * 250 + prev.storage.harmonicContainmentField * 1200) * (1 + (prev.techCenter.upgrades.energyStorage * 0.10));
   const totalMaxEnergy = (baseMaxEnergy + energyCoreBonus + fusionReactorBonus + energyStorageBonus) * (1 + (prev.techCenter.upgrades.batteryTech * 0.15));
@@ -251,7 +266,13 @@ export const processGameTick = (state: GameState): GameState => {
   const droneResearch = (totalDrones * 0.01) * (1 + (prev.techCenter.upgrades.advancedAnalysis * 0.10));
   const energySurplus = Math.max(0, totalEnergyProduction - totalEnergyConsumption);
   const energyResearch = (energySurplus * 0.005) * (1 + (prev.techCenter.upgrades.algorithmOptimization * 0.15));
-  const researchPointsToAdd = (baseResearch + droneResearch + energyResearch) / (1 - (prev.techCenter.upgrades.quantumComputing * 0.05));
+  
+  // Protección contra división por cero para Quantum Computing
+  const quantumComputingLevel = prev.techCenter.upgrades.quantumComputing || 0;
+  const costMultiplier = 1 - (quantumComputingLevel * 0.05);
+  const safeDivisor = Math.max(0.05, costMultiplier); // Asegura que el divisor no sea <= 0
+
+  const researchPointsToAdd = (baseResearch + droneResearch + energyResearch) / safeDivisor;
   const newResearchPoints = prev.techCenter.researchPoints + researchPointsToAdd;
 
   let newResources = { ...prev.resources };

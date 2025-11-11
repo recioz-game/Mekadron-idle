@@ -6,7 +6,7 @@ import { formatNumber } from '../utils/formatNumber';
 
 interface ExpeditionViewProps {
   resources: GameState['resources'];
-  drones: GameState['drones'];
+  drones: GameState['workshop']['drones'];
   activeExpeditions: ActiveExpedition[];
   onStartExpedition: (expeditionId: ExpeditionId) => void;
   onClaimReward: (expedition: ActiveExpedition) => void;
@@ -69,7 +69,7 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
   return (
     <div className="expedition-view-container">
       <div className="expedition-view-header">
-        <h2>🗺️ MÓDULO DE EXPEDICIONES</h2>
+        <h2>MÓDULO DE EXPEDICIONES</h2>
         <button onClick={onClose} className="close-button">
           Cerrar
         </button>

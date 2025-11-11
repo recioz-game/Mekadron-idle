@@ -1,14 +1,14 @@
 import React from 'react';
 import './ModulesPanel.css'; // Importar el archivo CSS
-import missionsButtonUrl from '../assets/missions-button.png';
-import workshopButtonUrl from '../assets/workshop-button.png';
-import storageButtonUrl from '../assets/storage-button.png';
-import energyButtonUrl from '../assets/energy-button.png';
-import laboratoryButtonUrl from '../assets/tech-center-button.png'; // <-- ACTUALIZADO: Laboratorio
-import foundryButtonUrl from '../assets/foundry-button.png';
-import expeditionsButtonUrl from '../assets/expeditions-button.png';
-import shipyardButtonUrl from '../assets/shipyard-button.png';
-import vindicatorButtonUrl from '../assets/Vindicator-button.png';
+import missionsButtonUrl from '../assets/images/ui/missions-button.png';
+import workshopButtonUrl from '../assets/images/ui/workshop-button.png';
+import storageButtonUrl from '../assets/images/ui/storage-button.png';
+import energyButtonUrl from '../assets/images/ui/energy-button.png';
+import laboratoryButtonUrl from '../assets/images/ui/tech-center-button.png'; // <-- ACTUALIZADO: Laboratorio
+import foundryButtonUrl from '../assets/images/ui/foundry-button.png';
+import expeditionsButtonUrl from '../assets/images/ui/expeditions-button.png';
+import shipyardButtonUrl from '../assets/images/ui/shipyard-button.png';
+import vindicatorButtonUrl from '../assets/images/ui/Vindicator-button.png';
 
 interface ModulesPanelProps {
   workshopUnlocked: boolean;

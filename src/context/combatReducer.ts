@@ -1,6 +1,11 @@
 import { GameState } from '../types/gameState';
 import { ActionType } from '../types/actions';
-import { battleDestinations } from '../data/battleData';
+import { gameChapters } from '../data/battleData';
+import { allArmoryMK1Modules } from '../data/armoryMK1Data';
+
+// Aplanamos los destinos de todos los capítulos en una sola lista
+const allDestinations = gameChapters.flatMap(chapter => chapter.destinations);
+
 
 export const combatReducer = (state: GameState, action: ActionType): GameState => {
   switch (action.type) {
@@ -14,9 +19,7 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
       };
 
     case 'START_BATTLE': {
-      // Requisito: Comprobar si hay combustible
       if (state.resources.barraCombustible < 1) {
-        // Opcional: Podríamos enviar una notificación al jugador aquí
         console.warn("No hay suficiente combustible para iniciar la batalla.");
         return state;
       }
@@ -26,11 +29,11 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
       }
 
       const destinationIndex = state.battleRoom.selectedDestination;
-      const destination = battleDestinations[destinationIndex];
-      const battleIndex = state.battleRoom.battlesCompleted[destinationIndex || 0];
+      const destination = allDestinations[destinationIndex];
+      const battleIndex = state.battleRoom.battlesCompleted[destinationIndex] || 0;
 
       if (battleIndex >= destination.battles.length) {
-        return state; // Todas las batallas en este destino ya están completadas
+        return state;
       }
 
       const enemy = destination.battles[battleIndex];
@@ -42,7 +45,7 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
           barraCombustible: state.resources.barraCombustible - 1,
         },
         battleCount: state.battleCount + 1,
-        currentScene: 'combatScene', // ¡Cambiamos a la nueva escena de combate!
+        currentScene: 'combatScene',
         activeBattle: {
           destinationIndex,
           battleIndex,
@@ -52,7 +55,6 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
           enemyMaxShield: enemy.shield,
           enemyCurrentShield: enemy.shield,
         },
-        // Opcional: Regenerar completamente el escudo del Vindicator al empezar una batalla
         vindicator: {
           ...state.vindicator,
           currentShield: state.vindicator.maxShield,
@@ -62,53 +64,95 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
 
     case 'PLAYER_ATTACK': {
       if (!state.activeBattle) {
-        return state; // No se puede atacar si no hay batalla
+        return state;
       }
       
       const { activeBattle, vindicator } = state;
-      const enemy = battleDestinations[activeBattle.destinationIndex].battles[activeBattle.battleIndex];
+      const enemy = allDestinations[activeBattle.destinationIndex].battles[activeBattle.battleIndex];
 
-      const applyDamage = (
-        damage: number,
-        targetShield: number,
-        targetHealth: number
-      ): { newShield: number; newHealth: number } => {
+      // --- INICIO DE LÓGICA DE MÓDULOS ---
+      const equippedModules = {
+        offensive: allArmoryMK1Modules.find(m => m.id === vindicator.modules.offensive),
+        defensive: allArmoryMK1Modules.find(m => m.id === vindicator.modules.defensive),
+        tactical: allArmoryMK1Modules.find(m => m.id === vindicator.modules.tactical),
+      };
+
+      // --- APLICAR EFECTOS PASIVOS ---
+      let enemyDamage = enemy.damage;
+      if (equippedModules.tactical?.id === 'mod_frequency_disruptor') {
+        enemyDamage *= (1 - equippedModules.tactical.effects.enemyDamageReduction);
+      }
+
+      // Función de daño, no cambia
+      const applyDamage = (damage: number, targetShield: number, targetHealth: number): { newShield: number; newHealth: number } => {
         let remainingDamage = damage;
         let newShield = targetShield;
         let newHealth = targetHealth;
-
         const shieldDamage = Math.min(newShield, remainingDamage);
         newShield -= shieldDamage;
         remainingDamage -= shieldDamage;
-
         if (remainingDamage > 0) {
           newHealth = Math.max(0, newHealth - remainingDamage);
         }
         return { newShield, newHealth };
       };
 
-      // Vindicator ataca al enemigo
-      const enemyDamageResult = applyDamage(
-        vindicator.damage,
+      // --- 1. JUGADOR ATACA ---
+      let playerDamage = vindicator.damage;
+      if (equippedModules.tactical?.id === 'mod_predictive_targeting') {
+        if (Math.random() < equippedModules.tactical.effects.critChance) {
+          playerDamage *= equippedModules.tactical.effects.critDamageMultiplier;
+        }
+      }
+
+      let enemyDamageResult = applyDamage(
+        playerDamage,
         activeBattle.enemyCurrentShield,
         activeBattle.enemyCurrentHealth
       );
 
-      // Si el enemigo sobrevive al ataque, contraataca
+      // --- 2. ENEMIGO ATACA (SI SIGUE VIVO) ---
       let vindicatorDamageResult = { newShield: vindicator.currentShield, newHealth: vindicator.currentHealth };
       if (enemyDamageResult.newHealth > 0) {
+        const shieldBeforeAttack = vindicator.currentShield;
+        
         vindicatorDamageResult = applyDamage(
-          enemy.damage,
-          vindicator.currentShield,
+          enemyDamage,
+          shieldBeforeAttack,
           vindicator.currentHealth
         );
+
+        // Comprobar "Sobrecarga Reactiva"
+        if (vindicator.vindicatorType === 'mk1' && shieldBeforeAttack > 0 && vindicatorDamageResult.newShield <= 0) {
+          let overloadMultiplier = 1.5;
+          if (equippedModules.offensive?.id === 'mod_overload_amp') {
+            overloadMultiplier = equippedModules.offensive.effects.overloadDamageMultiplier;
+            // Aquí se podría añadir lógica para el buff de daño post-sobrecarga en el estado
+          }
+          const overloadDamage = Math.floor(vindicator.damage * overloadMultiplier);
+          enemyDamageResult = applyDamage(overloadDamage, enemyDamageResult.newShield, enemyDamageResult.newHealth);
+        }
       }
       
-      const updatedVindicator = {
+      let updatedVindicator = {
         ...vindicator,
         currentShield: vindicatorDamageResult.newShield,
         currentHealth: vindicatorDamageResult.newHealth,
       };
+
+      // --- 3. REGENERACIÓN DE FIN DE TURNO ---
+      if (equippedModules.defensive?.id === 'mod_autorepair') {
+        const healthToRegen = Math.floor(updatedVindicator.maxHealth * equippedModules.defensive.effects.healthRegenPercentage);
+        updatedVindicator.currentHealth = Math.min(updatedVindicator.maxHealth, updatedVindicator.currentHealth + healthToRegen);
+      }
+      if (equippedModules.defensive?.id === 'mod_shield_condenser') {
+        // Suponemos que si el enemigo no atacó, no hubo daño al casco
+        const tookHullDamage = updatedVindicator.currentHealth < vindicator.currentHealth;
+        if (!tookHullDamage) {
+          const shieldToRegen = Math.floor(updatedVindicator.maxShield * equippedModules.defensive.effects.shieldRegenPercentage);
+          updatedVindicator.currentShield = Math.min(updatedVindicator.maxShield, updatedVindicator.currentShield + shieldToRegen);
+        }
+      }
 
       const updatedActiveBattle = {
         ...activeBattle,
@@ -116,30 +160,39 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
         enemyCurrentHealth: enemyDamageResult.newHealth,
       };
 
-      // Comprobar fin de la batalla
+      // --- 4. RESOLUCIÓN DEL TURNO (VICTORIA/DERROTA) ---
+      // El resto de la lógica (victoria/derrota) no cambia, pero usa los nuevos `updatedVindicator` y `updatedActiveBattle`
+      // ... (código de victoria/derrota existente) ...
       if (updatedVindicator.currentHealth <= 0) {
         // --- DERROTA ---
+        const newBattlesCompleted = [...state.battleRoom.battlesCompleted];
+        newBattlesCompleted[activeBattle.destinationIndex] = 0; // Resetea progreso del destino
+        
         return {
           ...state,
           currentScene: 'phase2Main',
           activeBattle: null,
+          battleRoom: {
+            ...state.battleRoom,
+            battlesCompleted: newBattlesCompleted,
+          },
           vindicator: {
             ...vindicator,
             currentHealth: vindicator.maxHealth,
             currentShield: 0,
           }
         };
+
       } else if (updatedActiveBattle.enemyCurrentHealth <= 0) {
         // --- VICTORIA ---
         const newBattlesCompleted = [...state.battleRoom.battlesCompleted];
         newBattlesCompleted[activeBattle.destinationIndex]++;
 
-        const destination = battleDestinations[activeBattle.destinationIndex];
+        const destination = allDestinations[activeBattle.destinationIndex];
         const nextBattleIndex = newBattlesCompleted[activeBattle.destinationIndex];
 
-        // Verificar si hay más batallas en este destino
         if (nextBattleIndex < destination.battles.length) {
-          // Hay más batallas - continuar con la siguiente
+          // Hay más batallas en este destino
           const nextEnemy = destination.battles[nextBattleIndex];
           
           return {
@@ -156,7 +209,7 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
               battlesCompleted: newBattlesCompleted,
             },
             activeBattle: {
-              destinationIndex: activeBattle.destinationIndex,
+              ...activeBattle,
               battleIndex: nextBattleIndex,
               enemyName: nextEnemy.enemyName,
               enemyMaxHealth: nextEnemy.health,
@@ -164,7 +217,7 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
               enemyMaxShield: nextEnemy.shield,
               enemyCurrentShield: nextEnemy.shield,
             },
-            vindicator: updatedVindicator, // Mantener el estado actual del Vindicator
+            vindicator: updatedVindicator,
           };
         } else {
           // No hay más batallas - destino completado
@@ -174,11 +227,14 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
             activeBattle: null,
             resources: {
               ...state.resources,
-              scrap: state.resources.scrap + (enemy.reward.scrap || 0),
-              aleacionReforzada: state.resources.aleacionReforzada + (enemy.reward.aleacionReforzada || 0),
-              neuroChipCorrupto: state.resources.neuroChipCorrupto + (enemy.reward.neuroChipCorrupto || 0)
+              scrap: state.resources.scrap + (enemy.reward.scrap ?? 0),
+              aleacionReforzada: state.resources.aleacionReforzada + (enemy.reward.aleacionReforzada ?? 0),
+              neuroChipCorrupto: state.resources.neuroChipCorrupto + (enemy.reward.neuroChipCorrupto ?? 0),
+              matrizCristalina: state.resources.matrizCristalina + (enemy.reward.matrizCristalina ?? 0),
+              IA_Fragmentada: state.resources.IA_Fragmentada + (enemy.reward.IA_Fragmentada ?? 0),
+              planosMK2: state.resources.planosMK2 + (enemy.reward.planosMK2 ?? 0),
             },
-            blueprints: state.blueprints + (enemy.reward.blueprints || 0),
+            blueprints: state.blueprints + (enemy.reward.blueprints ?? 0),
             battleRoom: {
               ...state.battleRoom,
               battlesCompleted: newBattlesCompleted,
@@ -195,15 +251,15 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
         };
       }
     }
+
     
     case 'ESCAPE_COMBAT': {
       if (!state.activeBattle) {
         return state;
       }
-
-      // Penalización por escapar: perder progreso en el destino actual
+      
       const newBattlesCompleted = [...state.battleRoom.battlesCompleted];
-      newBattlesCompleted[state.activeBattle.destinationIndex] = 0;
+      newBattlesCompleted[state.activeBattle!.destinationIndex] = 0;
 
       return {
         ...state,
@@ -222,7 +278,6 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
     }
 
     default:
-      // Si la acción no es de combate, devolvemos el estado sin cambios.
       return state;
   }
 };

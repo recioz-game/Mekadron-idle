@@ -15,6 +15,9 @@
 
 .foundry-view-header h2 {
   font-size: 2.4rem;
+  flex-grow: 1;
+  text-align: center;
+  margin: 0;
 }
 
 .close-button {
@@ -27,27 +30,43 @@
   font-size: 1.4rem;
 }
 
-.crafting-item {
+.foundry-item {
   padding: 1.6rem;
   background-color: #1F2937;
   border-radius: 0.4rem;
   margin-bottom: 1.6rem;
   border: 2px solid #374151;
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
 }
 
-.crafting-item.available {
-  border-color: #22C55E;
+.foundry-item-image {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 0.4rem;
+  flex-shrink: 0;
 }
 
-.crafting-item h4 {
+.foundry-item-content {
+  flex-grow: 1;
+}
+
+.foundry-item-info {
+  flex-grow: 1;
+}
+
+.foundry-item h4 {
   margin-top: 0;
   font-size: 1.8rem;
 }
 
-.crafting-item p {
-  margin: 0.8rem 0;
+.foundry-item p {
+  margin: 0.4rem 0; /* Espaciado reducido */
   font-size: 1.4rem;
 }
+
 
 .craft-button {
   padding: 1.2rem 2.4rem;
@@ -59,7 +78,7 @@
   font-weight: bold;
   font-size: 1.6rem;
   margin-top: 0.8rem;
-  width: 100%;
+  width: auto;
 }
 
 .craft-button.available {
@@ -83,7 +102,8 @@
     margin-bottom: 1.6rem;
   }
 
-  .crafting-item {
+  .foundry-item {
     padding: 1.2rem;
+    flex-direction: column;
   }
 }

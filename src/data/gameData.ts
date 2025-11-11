@@ -26,6 +26,8 @@ export const gameData: GameData = {
     mediumSolarPanels: { costs: { scrap: 200 }, time: 25, prerequisites: (s) => s.energy.solarPanels >= 5 },
     advancedSolar: { costs: { scrap: 500 }, time: 70, prerequisites: (s) => s.energy.mediumSolarPanels >= 1 },
     energyCores: { costs: { scrap: 2000 }, time: 180, prerequisites: (s) => s.energy.advancedSolar >= 3 },
+    stabilizedEnergyCores: { costs: { scrap: 10000 }, time: 300, prerequisites: (s) => s.energy.energyCores >= 3 },
+    empoweredEnergyCores: { costs: { scrap: 20000 }, time: 600, prerequisites: (s) => s.energy.stabilizedEnergyCores >= 3 },
     fusionReactor: { costs: { scrap: 10000, metalRefinado: 25 }, time: 1200, prerequisites: (s) => (s.techCenter.upgrades as any).fusionTech > 0 && s.energy.energyCores >= 10 },
   },
   storage: {

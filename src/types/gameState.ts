@@ -118,17 +118,21 @@ export interface GameState {
         nucleoSingularidad: number;
     placasCasco: number;
     cableadoSuperconductor: number;
-    aleacionReforzada: number;
+        aleacionReforzada: number;
     neuroChipCorrupto: number;
+    matrizCristalina: number; // <-- NUEVO
+    IA_Fragmentada: number; // <-- NUEVO
+    planosMK2: number; // <-- NUEVO
     barraCombustible: number;
     energyProduction: number;
     energyConsumption: number;
     maxEnergy: number;
     maxScrap: number;
   };
-      battleRoom: {
-    selectedDestination: number | null; // Indice del destino seleccionado (0-4) o null si no hay ninguno
-    battlesCompleted: number[]; // Array de booleanos, uno por cada combate completado
+              battleRoom: {
+    selectedDestination: number | null;
+    selectedChapterIndex: number | null; // <-- NUEVA PROP
+    battlesCompleted: number[];
   };
   workshopBuyAmount: number | 'max';
     workshop: {
@@ -162,8 +166,10 @@ export interface GameState {
   energy: {
     solarPanels: number;
     mediumSolarPanels: number;
-    advancedSolar: number;
+        advancedSolar: number;
     energyCores: number;
+    stabilizedEnergyCores: number;
+    empoweredEnergyCores: number;
     fusionReactor: number; // Nueva propiedad
     queues: ReturnType<typeof createQueues<'energy'>>;
   };
@@ -204,7 +210,7 @@ export interface GameState {
       batteryTech: number;
       coreEfficiency: number;
       powerGrid: number;
-            geothermalEnergy: number;
+
       fusionTech: number;
       poweredFabricators: number; // No estaba en la lista de upgrades
       researchEfficiency: number;
@@ -213,13 +219,13 @@ export interface GameState {
       constructionEfficiency: number;
       quantumComputing: number;
       globalEfficiency: number;
-      singularity: number;
+
       storageOptimization: number;
       storageConstruction: number;
       cargoDrones: number;
       energyStorage: number;
       matterCompression: number;
-      pocketDimension: number;
+
       foundryProtocols: number;
       metalSmeltingSpeed: number;
       steelProductionSpeed: number;
@@ -228,9 +234,7 @@ export interface GameState {
       fuelRodProduction: number;
       smeltingEfficiency: number;
       foundryEnergy: number;
-      alloyCreation: number;
-      automatedFabrication: number;
-      selfReplication: number;
+      
     };
   };
   energyBuyAmount: number | 'max';
@@ -241,27 +245,24 @@ export interface GameState {
   };
   currentView: string;
   activeExpeditions: ActiveExpedition[];
-  shipyard: {
+        shipyard: {
     unlocked: boolean;
-    progress: {
-      hull: { placasCasco: number };
-      powerCore: { cableadoSuperconductor: number };
-      targetingSystem: { researchPoints: number; cableadoSuperconductor: number };
-      warpDrive: { nucleoSingularidad: number };
-    };
-        costs: {
-      hull: { placasCasco: number };
-      powerCore: { cableadoSuperconductor: number };
-      targetingSystem: { researchPoints: number; cableadoSuperconductor: number };
-      warpDrive: { nucleoSingularidad: number };
-    };
+    currentProjectIndex: number; // Índice del proyecto actual en allShipyardProjects
+    // El progreso se adapta a cualquier proyecto. { [componentId]: { [resourceId]: number } }
+    progress: Record<string, Record<string, number>>;
   };
-  vindicator: {
+    vindicator: {
+    vindicatorType: 'base' | 'mk1';
     maxHealth: number;
     currentHealth: number;
     maxShield: number;
     currentShield: number;
     damage: number;
+    modules: {
+      offensive: string | null;
+      defensive: string | null;
+      tactical: string | null;
+    };
 };
   // Nuevas propiedades para el sistema de mejoras del Vindicator
   vindicatorUpgrades: {
@@ -283,10 +284,11 @@ export interface GameState {
   settings: {
     volume: number; // 0-100
   };
-  lastSaveTimestamp?: number;
+    lastSaveTimestamp?: number;
 }
 
-export const initialGameState: GameState = {
+
+  export const initialGameState: GameState = {
   currentScene: 'startMenu',
   phase2Unlocked: false,
   notificationQueue: [],
@@ -299,23 +301,27 @@ export const initialGameState: GameState = {
     aceroEstructural: 0,
     fragmentosPlaca: 0,
     circuitosDañados: 0,
-        nucleoSingularidad: 0,
+    nucleoSingularidad: 0,
     placasCasco: 0,
     cableadoSuperconductor: 0,
-    aleacionReforzada: 0,
+        aleacionReforzada: 0,
     neuroChipCorrupto: 0,
+    matrizCristalina: 0,
+    IA_Fragmentada: 0,
+    planosMK2: 0,
     barraCombustible: 0,
     energyProduction: 0,
     energyConsumption: 0,
     maxEnergy: 50,
     maxScrap: 150
   },
-      battleRoom: {
+  battleRoom: {
     selectedDestination: null,
-    battlesCompleted: Array(6).fill(0)
+    selectedChapterIndex: null, // <-- NUEVA PROP
+    battlesCompleted: []
   },
   workshopBuyAmount: 1,
-    workshop: {
+  workshop: {
     drones: {
       basic: 0,
       medium: 0,
@@ -348,6 +354,8 @@ export const initialGameState: GameState = {
     mediumSolarPanels: 0,
     advancedSolar: 0,
     energyCores: 0,
+    stabilizedEnergyCores: 0,
+    empoweredEnergyCores: 0,
     fusionReactor: 0,
     queues: createQueues('energy')
   },
@@ -366,7 +374,7 @@ export const initialGameState: GameState = {
     pendingMessages: [],
     shownMessages: new Set()
   },
-        missions: {
+  missions: {
     activeMissions: allMissions.map(mission => ({
       ...mission,
       current: 0,
@@ -392,7 +400,6 @@ export const initialGameState: GameState = {
       batteryTech: 0,
       coreEfficiency: 0,
       powerGrid: 0,
-            geothermalEnergy: 0,
       fusionTech: 0,
       poweredFabricators: 0,
       researchEfficiency: 0,
@@ -401,13 +408,11 @@ export const initialGameState: GameState = {
       constructionEfficiency: 0,
       quantumComputing: 0,
       globalEfficiency: 0,
-      singularity: 0,
       storageOptimization: 0,
       storageConstruction: 0,
       cargoDrones: 0,
       energyStorage: 0,
       matterCompression: 0,
-      pocketDimension: 0,
       foundryProtocols: 0,
       metalSmeltingSpeed: 0,
       steelProductionSpeed: 0,
@@ -416,9 +421,6 @@ export const initialGameState: GameState = {
       fuelRodProduction: 0,
       smeltingEfficiency: 0,
       foundryEnergy: 0,
-      alloyCreation: 0,
-      automatedFabrication: 0,
-      selfReplication: 0
     }
   },
   energyBuyAmount: 1,
@@ -431,37 +433,37 @@ export const initialGameState: GameState = {
   activeExpeditions: [],
   shipyard: {
     unlocked: false,
+    currentProjectIndex: 0,
     progress: {
       hull: { placasCasco: 0 },
       powerCore: { cableadoSuperconductor: 0 },
       targetingSystem: { researchPoints: 0, cableadoSuperconductor: 0 },
       warpDrive: { nucleoSingularidad: 0 }
-    },
-        costs: {
-      hull: { placasCasco: 50 },
-      powerCore: { cableadoSuperconductor: 25 },
-      targetingSystem: { researchPoints: 500000, cableadoSuperconductor: 15 },
-      warpDrive: { nucleoSingularidad: 1 }
     }
   },
-  vindicator: {
-    maxHealth: 500,  // Reducido de 1000 a 500 (50%)
-    currentHealth: 500,  // Reducido de 1000 a 500 (50%)
-    maxShield: 250,  // Reducido de 500 a 250 (50%)
-    currentShield: 250,  // Reducido de 500 a 250 (50%)
+      vindicator: {
+    vindicatorType: 'base',
+    maxHealth: 500,
+    currentHealth: 500,
+    maxShield: 250,
+    currentShield: 250,
     damage: 50,
+    modules: {
+      offensive: null,
+      defensive: null,
+      tactical: null,
+    },
   },
-  // Nuevas propiedades iniciales para mejoras del Vindicator
   vindicatorUpgrades: {
     reinforcedArmor: {
       id: 'reinforced_armor',
       name: 'Blindaje Reforzado',
       description: 'Aumenta la vida máxima del Vindicator',
-      maxStars: 5,
+      maxStars: 10,
       currentStars: 0,
       costPerStar: {
         phase1Resources: { aleacionReforzada: 50, neuroChipCorrupto: 25 },
-                phase2Resources: { fragmentosPlaca: 100, circuitosDañados: 50 },
+        phase2Resources: { fragmentosPlaca: 100, circuitosDañados: 50 },
       },
       statIncreasePerStar: { health: 100 }
     },
@@ -469,11 +471,11 @@ export const initialGameState: GameState = {
       id: 'shield_generator',
       name: 'Generador de Escudos',
       description: 'Aumenta el escudo máximo del Vindicator',
-      maxStars: 5,
+      maxStars: 10,
       currentStars: 0,
       costPerStar: {
         phase1Resources: { aleacionReforzada: 40, neuroChipCorrupto: 30 },
-                phase2Resources: { fragmentosPlaca: 80, circuitosDañados: 60 },
+        phase2Resources: { fragmentosPlaca: 80, circuitosDañados: 60 },
       },
       statIncreasePerStar: { shield: 50 }
     },
@@ -481,21 +483,22 @@ export const initialGameState: GameState = {
       id: 'improved_cannons',
       name: 'Cañones Mejorados',
       description: 'Aumenta el daño del Vindicator',
-      maxStars: 5,
+      maxStars: 10,
       currentStars: 0,
       costPerStar: {
         phase1Resources: { aleacionReforzada: 60, neuroChipCorrupto: 20 },
-                phase2Resources: { fragmentosPlaca: 120, circuitosDañados: 40 },
+        phase2Resources: { fragmentosPlaca: 120, circuitosDañados: 40 },
       },
       statIncreasePerStar: { damage: 10 }
     }
   },
   blueprints: 0,
-  vindicatorLevel: 1, // El Vindicator comienza en nivel 1
+  vindicatorLevel: 1,
   activeBattle: null,
   settings: {
-    volume: 75 // Valor por defecto del 75%
+    volume: 75
   },
   lastSaveTimestamp: undefined
 };
+
 

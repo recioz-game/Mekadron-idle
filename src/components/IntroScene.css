@@ -1,73 +1,45 @@
 /* src/components/IntroScene.css */
 .intro-scene-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
   background-color: #000;
-  color: #00FF41;
-  font-family: "Courier New", Courier, monospace;
-  display: flex;
-  flex: 1; /* Ocupa el espacio disponible del contenedor padre */
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3.2rem;
-  box-sizing: border-box;
+  overflow: hidden; /* Evita barras de scroll si el video se desborda */
+  display: flex; /* Añadido para centrar */
+  justify-content: center; /* Añadido para centrar */
+  align-items: center; /* Añadido para centrar */
 }
 
-.text-box {
+.intro-video {
   width: 100%;
-  max-width: 80rem; /* 800px */
-  border: 2px solid #00FF41;
-  padding: 3.2rem;
-  box-shadow: 0 0 15px #00FF41;
+  height: 100%;
+  object-fit: contain; /* Muestra el video completo sin deformarse, puede añadir barras negras */
 }
 
-.intro-text {
-  font-size: 1.9rem !important; /* Tamaño final ajustado según tu preferencia */
-  line-height: 1.6;
-  margin: 0;
-}
-
-.blinking-cursor {
-  animation: blink 1s step-end infinite;
-}
-
-.continue-button {
-  margin-top: 3.2rem;
-  padding: 1.6rem 3.2rem;
+.skip-intro-button {
+  position: absolute;
+  bottom: 3rem;
+  right: 3rem;
+  padding: 1rem 2rem;
   font-family: "Courier New", Courier, monospace;
-  font-size: 2rem; /* 20px */
-  background-color: transparent;
-  color: #00FF41;
-  border: 2px solid #00FF41;
+  font-size: 1.6rem;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
+  color: #FFF;
+  border: 1px solid #FFF;
   cursor: pointer;
-  animation: pulse 2s infinite;
+  z-index: 10;
+  transition: background-color 0.3s ease;
 }
 
-@keyframes blink {
-  from, to { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 5px #00FF41; }
-  50% { box-shadow: 0 0 20px #00FF41; }
-  100% { box-shadow: 0 0 5px #00FF41; }
+.skip-intro-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 @media (max-width: 768px) {
-  .intro-scene-container {
-    padding: 1.6rem;
-  }
-
-  .text-box {
-    padding: 1.6rem;
-  }
-
-  .intro-text {
-    font-size: 1.6rem !important; /* Tamaño ajustado para móvil */
-  }
-
-  .continue-button {
-    font-size: 2rem;
-    padding: 1.2rem 2.4rem;
+  .skip-intro-button {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    font-size: 1.4rem;
+    padding: 0.8rem 1.5rem;
   }
 }

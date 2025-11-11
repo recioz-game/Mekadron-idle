@@ -70,8 +70,8 @@ const MissionsPanel: React.FC<MissionsPanelProps> = React.memo(({
     return (
       <div className={`mission-item ${isMain ? 'main' : 'secondary'} ${progress >= 100 ? 'completed' : ''}`}>
         <div className="mission-header">
-          <h4 className="mission-title" style={{ color: isMain ? '#D946EF' : (progress >= 100 ? '#22C55E' : '#F59E0B') }}>
-            {isMain && '★ '} {mission.title}
+                    <h4 className="mission-title" style={{ color: isMain ? '#D946EF' : (progress >= 100 ? '#22C55E' : '#F59E0B') }}>
+            {mission.title}
           </h4>
           <span className="mission-reward">
             {getRewardText(mission.reward)}
@@ -126,7 +126,7 @@ const MissionsPanel: React.FC<MissionsPanelProps> = React.memo(({
   return (
     <div className="missions-panel-container">
       <div className="missions-panel-header">
-        <h2>🎯 SISTEMA DE MISIONES</h2>
+        <h2>SISTEMA DE MISIONES</h2>
         <button 
           onClick={onClose}
           className="close-button"
@@ -137,8 +137,8 @@ const MissionsPanel: React.FC<MissionsPanelProps> = React.memo(({
 
       {/* Misiones Principales */}
       {mainMissions.length > 0 && (
-        <div className="mission-category">
-          <h3 style={{ color: '#D946EF', borderBottom: '1px solid #D946EF' }}>★ MISIÓN PRINCIPAL</h3>
+                <div className="mission-category">
+          <h3 style={{ color: '#D946EF', borderBottom: '1px solid #D946EF' }}>MISIÓN PRINCIPAL</h3>
           {mainMissions.map(mission => renderMission(mission, true))}
         </div>
       )}

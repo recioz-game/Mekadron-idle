@@ -1,6 +1,7 @@
 import { GameState, Mission } from '../types/gameState';
 import { ActionType } from '../types/actions';
 import { allMissions } from '../data/missionsData';
+import { allShipyardProjects } from '../data/shipyardData';
 
 export const missionsReducer = (state: GameState, action: ActionType): GameState => {
   switch (action.type) {
@@ -28,12 +29,20 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
             currentProgress = resources.placasCasco + resources.cableadoSuperconductor;
             break;
           case 'main_5_final_assembly': {
-            const componentKeys = Object.keys(shipyard.costs) as Array<keyof typeof shipyard.costs>;
+            const currentProject = allShipyardProjects[shipyard.currentProjectIndex];
+            if (!currentProject) {
+              currentProgress = 0;
+              break;
+            }
+
+            const componentKeys = Object.keys(currentProject.costs);
             const isComplete = componentKeys.every(key => {
-              const costSpec = shipyard.costs[key];
-              const progressSpec = shipyard.progress[key];
-              const resourceKeys = Object.keys(costSpec) as Array<keyof typeof costSpec>;
-              return resourceKeys.every(resourceKey => (progressSpec as Record<string, number>)[resourceKey] >= (costSpec as Record<string, number>)[resourceKey]);
+              const costSpec = currentProject.costs[key];
+              const progressSpec = shipyard.progress[key] || {};
+              const resourceKeys = Object.keys(costSpec);
+              return resourceKeys.every(resourceKey => 
+                (progressSpec[resourceKey] || 0) >= costSpec[resourceKey]
+              );
             });
             currentProgress = isComplete ? 1 : 0;
 

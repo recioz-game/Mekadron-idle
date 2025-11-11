@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import './GameScene.css'; // Importar el archivo CSS
 
-import mainThemeAudio from '../assets/main-theme.wav'; // 1. Importar el audio
+import mainThemeAudio from '../assets/audio/main-theme.wav'; // 1. Importar el audio
 import { ExpeditionId, ActiveExpedition } from '../types/gameState';
 import { useGameState, useGameDispatch } from '../context/GameContext';
 import ResourceBar from './ResourceBar';
@@ -20,10 +20,11 @@ import NotificationToast from './NotificationToast';
 import FloatingTextHandler from './FloatingTextHandler';
 
 const GameScene: React.FC = () => {
-    const gameState = useGameState();
-    if (!gameState || !gameState.workshop?.drones) {
-    return <div>Cargando...</div>;
-  }
+        const gameState = useGameState();
+    // Guarda robusta para asegurar que las partes críticas del estado están listas.
+    if (!gameState || !gameState.workshop?.drones || !gameState.techCenter) {
+      return <div>Cargando...</div>;
+    }
   const dispatch = useGameDispatch();
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -98,7 +99,9 @@ const GameScene: React.FC = () => {
   const onBuildSolarPanel = useCallback(() => dispatch({ type: 'BUILD_SOLAR_PANEL' }), [dispatch]);
   const onBuildMediumSolar = useCallback(() => dispatch({ type: 'BUILD_MEDIUM_SOLAR' }), [dispatch]);
   const onBuildAdvancedSolar = useCallback(() => dispatch({ type: 'BUILD_ADVANCED_SOLAR' }), [dispatch]);
-  const onBuildEnergyCore = useCallback(() => dispatch({ type: 'BUILD_ENERGY_CORE' }), [dispatch]);
+    const onBuildEnergyCore = useCallback(() => dispatch({ type: 'BUILD_ENERGY_CORE' }), [dispatch]);
+  const onBuildStabilizedEnergyCore = useCallback(() => dispatch({ type: 'BUILD_STABILIZED_ENERGY_CORE' }), [dispatch]);
+  const onBuildEmpoweredEnergyCore = useCallback(() => dispatch({ type: 'BUILD_EMPOWERED_ENERGY_CORE' }), [dispatch]);
   const onBuildFusionReactor = useCallback(() => dispatch({ type: 'BUILD_FUSION_REACTOR' }), [dispatch]);
   const onSetEnergyBuyAmount = useCallback((amount: number | 'max') => dispatch({ type: 'SET_ENERGY_BUY_AMOUNT', payload: amount }), [dispatch]);
   const onCancelEnergyItem = useCallback((itemName: string, amount: number | 'all') => {
@@ -142,8 +145,8 @@ const GameScene: React.FC = () => {
   const onCraftPurifiedMetal = useCallback(() => dispatch({ type: 'CRAFT_PURIFIED_METAL' }), [dispatch]);
 
   // Función para obtener la URL del fondo según el estado actual
-          const getBackgroundUrl = () => {
-    return new URL(`../assets/Phase${currentBackground - 1}-background.png`, import.meta.url).href
+            const getBackgroundUrl = () => {
+    return new URL(`../assets/images/backgrounds/Phase${currentBackground - 1}-background.png`, import.meta.url).href
   };
 
   const renderActiveModule = () => {
@@ -181,28 +184,33 @@ const GameScene: React.FC = () => {
             currentEnergy={resources.energy}
             maxEnergy={resources.maxEnergy}
             energyConsumption={resources.energyConsumption}
-            solarPanels={energy.solarPanels}
+                        solarPanels={energy.solarPanels}
             mediumSolarPanels={energy.mediumSolarPanels}
             advancedSolar={energy.advancedSolar}
             energyCores={energy.energyCores}
+            stabilizedEnergyCores={energy.stabilizedEnergyCores}
+            empoweredEnergyCores={energy.empoweredEnergyCores}
+            fusionReactors={energy.fusionReactor}
             solarPanelsQueue={energy.queues.solarPanels}
             mediumSolarPanelsQueue={energy.queues.mediumSolarPanels}
             advancedSolarQueue={energy.queues.advancedSolar}
             energyCoresQueue={energy.queues.energyCores}
+            stabilizedEnergyCoresQueue={energy.queues.stabilizedEnergyCores}
+            empoweredEnergyCoresQueue={energy.queues.empoweredEnergyCores}
             fusionReactorQueue={(energy.queues as any).fusionReactor}
             onBuildSolarPanel={onBuildSolarPanel}
             onBuildMediumSolar={onBuildMediumSolar}
-                        onBuildAdvancedSolar={onBuildAdvancedSolar}
+            onBuildAdvancedSolar={onBuildAdvancedSolar}
             onBuildEnergyCore={onBuildEnergyCore}
+            onBuildStabilizedEnergyCore={onBuildStabilizedEnergyCore}
+            onBuildEmpoweredEnergyCore={onBuildEmpoweredEnergyCore}
             onBuildFusionReactor={onBuildFusionReactor}
-                        buyAmount={energyBuyAmount}
+            buyAmount={energyBuyAmount}
             onSetBuyAmount={onSetEnergyBuyAmount}
             onClose={onClose}
             onCancel={onCancelEnergyItem}
             upgrades={techCenter.upgrades}
-            energyCoresCount={energy.energyCores}
             metalRefinado={resources.metalRefinado}
-            fusionReactors={energy.fusionReactor}
           />
         );
       case 'storage':
@@ -225,13 +233,10 @@ const GameScene: React.FC = () => {
             basicStorageQueue={storage.queues.basicStorage}
             mediumStorageQueue={storage.queues.mediumStorage}
             advancedStorageQueue={storage.queues.advancedStorage}
-            quantumHoardUnitQueue={storage.queues.quantumHoardUnit}
+                        quantumHoardUnitQueue={storage.queues.quantumHoardUnit}
             lithiumIonBatteryQueue={storage.queues.lithiumIonBattery}
             plasmaAccumulatorQueue={storage.queues.plasmaAccumulator}
             harmonicContainmentFieldQueue={storage.queues.harmonicContainmentField}
-
-            // Energy Units for calculation
-            energyCores={energy.energyCores}
 
             // Callbacks
             onBuildBasicStorage={onBuildBasicStorage}
@@ -313,15 +318,14 @@ const GameScene: React.FC = () => {
             onClose={onClose}
           />
         );
-            case 'shipyard':
+                        case 'shipyard':
         return (
-          <ShipyardView
-            shipyardProgress={shipyard.progress}
-            shipyardCosts={shipyard.costs}
-            placasCasco={resources.placasCasco}
-            cableadoSuperconductor={resources.cableadoSuperconductor}
-            nucleoSingularidad={resources.nucleoSingularidad}
+                                        <ShipyardView
+            shipyard={shipyard}
+            vindicator={gameState.vindicator}
+            resources={resources}
             researchPoints={techCenter.researchPoints}
+            blueprints={gameState.blueprints}
             dispatch={dispatch}
             onClose={() => dispatch({ type: 'CLOSE_CURRENT_VIEW' })}
           />
@@ -349,7 +353,7 @@ const GameScene: React.FC = () => {
         </div>
       )}
 
-      <div className="main-content">
+                  <div className="main-content">
         <div className="module-container">
           {renderActiveModule()}
         </div>

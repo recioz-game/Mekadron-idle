@@ -1,41 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import './Phase2Intro.css'; // Importar el archivo CSS
+import React, { useState, useEffect, useRef } from 'react';
+import './Phase2Intro.css';
 
 interface Phase2IntroProps {
   onComplete: () => void;
 }
 
 const Phase2Intro: React.FC<Phase2IntroProps> = ({ onComplete }) => {
-  const fullText = "Vindicator activo. La Fase 2 comienza.";
-  const [displayedText, setDisplayedText] = useState('');
-  const [isButtonVisible, setIsButtonVisible] = useState(false);
+  const [isButtonVisible, setIsButtonVisible] = useState<boolean>(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Efecto de máquina de escribir
   useEffect(() => {
-    let index = 0;
-    const interval = setInterval(() => {
-      index++;
-      setDisplayedText(fullText.substring(0, index));
-
-      if (index >= fullText.length) {
-        clearInterval(interval);
-        // Hacemos visible el botón justo al terminar de escribir
+    // Mostrar el botón después de un breve delay
+    const timer = setTimeout(() => {
         setIsButtonVisible(true);
-      }
-    }, 100); // Una velocidad de escritura un poco más rápida
+    }, 1000);
 
-    return () => clearInterval(interval);
-  }, [fullText]);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleVideoEnd = () => {
+    // Opcional: puedes activar algo cuando termine el video
+    console.log('Video terminado');
+  };
 
   return (
     <div className="phase2-intro-container">
-      <div className="text-box">
-        <p className="intro-text">
-          {displayedText}
-          <span className="blinking-cursor">_</span>
-        </p>
-      </div>
+      {/* Video de fondo */}
+      <video
+        ref={videoRef}
+        className="intro-video"
+        autoPlay
+        muted
+        loop={false}
+        onEnded={handleVideoEnd}
+      >
+        <source src="/videos/phase2-intro.mp4" type="video/mp4" />
+        {/* Mensaje de fallback si el navegador no soporta video */}
+        Tu navegador no soporta el elemento video.
+      </video>
 
+      {/* Botón de continuar */}
       {isButtonVisible && (
         <button
           onClick={onComplete}

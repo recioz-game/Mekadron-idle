@@ -1,7 +1,7 @@
 import React from 'react';
 import './StartMenu.css'; // Importar el archivo CSS
-import coverImageUrl from '../assets/cover.png';
-import playButtonUrl from '../assets/play-button.png';
+import coverImageUrl from '../assets/images/ui/cover.png';
+import playButtonUrl from '../assets/images/ui/play-button.png';
 
 interface StartMenuProps {
   onStartGame: () => void;

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './SettingsMenu.css'; // Importar el archivo CSS
 import { useGame } from '../context/GameContext';
+import settingsButtonIcon from '../assets/images/ui/settings-button.png';
 
 const SettingsMenu: React.FC = () => {
   const { gameState, dispatch } = useGame();
@@ -31,9 +32,14 @@ const SettingsMenu: React.FC = () => {
     setIsOpen(false);
   };
 
-  const handleDebugFinishExpeditions = () => {
+    const handleDebugFinishExpeditions = () => {
     const event = new CustomEvent('debugFinishExpeditions');
     window.dispatchEvent(event);
+    setIsOpen(false);
+  };
+
+  const handleDebugUnlockMK1 = () => {
+    dispatch({ type: 'DEBUG_UNLOCK_VINDICATOR_MK1' });
     setIsOpen(false);
   };
 
@@ -69,25 +75,31 @@ const SettingsMenu: React.FC = () => {
           
           <hr style={{ border: 'none', borderBottom: '1px solid #374151', marginBottom: '1rem' }} />
 
-          {/* --- SECCIÓN DE DESARROLLO --- */}
+                    {/* --- SECCIÓN DE DESARROLLO --- */}
           <strong className="dev-section-title">AJUSTES DE DESARROLLO</strong>
           <button
             onClick={handleDebugUnlock}
-            className="dev-button unlock-button"
+            className="dev-button"
           >
             Desbloquear Módulos
           </button>
           <button
             onClick={handleDebugCompleteVindicator}
-            className="dev-button complete-vindicator-button"
+            className="dev-button"
           >
             Completar Vindicator
           </button>
-          <button
+                    <button
             onClick={handleDebugFinishExpeditions}
-            className="dev-button finish-expeditions-button"
+            className="dev-button"
           >
             Finalizar Expediciones
+          </button>
+          <button
+            onClick={handleDebugUnlockMK1}
+            className="dev-button"
+          >
+            Desbloquear Vindicator MK.I
           </button>
           <button
             onClick={handleResetGame}
@@ -109,12 +121,12 @@ const SettingsMenu: React.FC = () => {
           </button>
         </div>
       )}
-      <button
+            <button
         onClick={() => setIsOpen(!isOpen)}
         title="Ajustes"
         className="settings-toggle-button"
       >
-        ⚙️
+        <img src={settingsButtonIcon} alt="Ajustes" />
       </button>
     </div>
   );

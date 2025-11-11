@@ -42,11 +42,9 @@ const calculateOfflineResources = (loadedState: GameState): GameState => {
   const maxOfflineSeconds = 24 * 60 * 60; // 24 horas en segundos
   const effectiveSeconds = Math.min(secondsElapsed, maxOfflineSeconds);
 
-  if (effectiveSeconds <= 0) {
+    if (effectiveSeconds <= 0) {
     return loadedState;
   }
-
-  console.log(`Calculando recursos offline por ${effectiveSeconds} segundos de ausencia`);
 
   // Crear una copia del estado para simular el cálculo
   let simulatedState = JSON.parse(JSON.stringify(loadedState));
@@ -183,7 +181,6 @@ const loadState = (): GameState => {
     // --- MIGRACIÓN DE DATOS ESTRUCTURAL: workshop.drones ---
     // Comprobar si el estado guardado tiene la estructura antigua (drones en la raíz)
     if (storedState.drones && !storedState.workshop?.drones) {
-      console.log("Detectado guardado antiguo de drones. Migrando a workshop.drones...");
       // Si workshop no existe, créalo
       if (!storedState.workshop) {
         storedState.workshop = { ...initialGameState.workshop };
@@ -196,7 +193,6 @@ const loadState = (): GameState => {
     // --- MIGRACIÓN DE DATOS DE AURORA ---
     // Comprobar si es un guardado antiguo y migrar la estructura de Aurora
     if (storedState.aurora && (storedState.aurora.currentMessage || storedState.aurora.messageQueue)) {
-      console.log("Detectado guardado antiguo de Aurora. Migrando...");
       const migratedPendingMessages = [];
       if (storedState.aurora.currentMessage) {
         migratedPendingMessages.push({
@@ -223,33 +219,12 @@ const loadState = (): GameState => {
       storedState.aurora.shownMessages = new Set();
     }
 
-            // Fusionar el estado guardado con el inicial de forma profunda para asegurar compatibilidad.
-    // Esto previene errores cuando se añaden nuevas propiedades (recursos, colas, etc.) al juego.
-    const mergedState = {
-      ...initialGameState,
-      ...storedState,
-      resources: { ...initialGameState.resources, ...(storedState.resources || {}) },
-      workshop: storedState.workshop ? { 
-          ...initialGameState.workshop, 
-          ...storedState.workshop,
-          queues: { ...initialGameState.workshop.queues, ...(storedState.workshop.queues || {}) }
-      } : initialGameState.workshop,
-      energy: { ...initialGameState.energy, ...(storedState.energy || {}), queues: { ...initialGameState.energy.queues, ...(storedState.energy?.queues || {}) } },
-      storage: { ...initialGameState.storage, ...(storedState.storage || {}), queues: { ...initialGameState.storage.queues, ...(storedState.storage?.queues || {}) } },
-      foundry: { ...initialGameState.foundry, ...(storedState.foundry || {}), queues: { ...initialGameState.foundry.queues, ...(storedState.foundry?.queues || {}) } },
-      techCenter: { ...initialGameState.techCenter, ...(storedState.techCenter || {}), upgrades: { ...initialGameState.techCenter.upgrades, ...(storedState.techCenter?.upgrades || {}) } },
-      aurora: { ...initialGameState.aurora, ...(storedState.aurora || {}) },
-      battleRoom: { ...initialGameState.battleRoom, ...(storedState.battleRoom || {}) },
-      shipyard: { ...initialGameState.shipyard, ...(storedState.shipyard || {}) },
-      vindicator: { ...initialGameState.vindicator, ...(storedState.vindicator || {}) },
-    };
+                const mergedState = deepMerge(initialGameState, storedState);
     
     // La rehidratación del Set se hace sobre el estado ya fusionado para mayor seguridad
     if (mergedState.aurora && Array.isArray(mergedState.aurora.shownMessages)) {
       mergedState.aurora.shownMessages = new Set(mergedState.aurora.shownMessages);
     }
-
-    console.log("Estado fusionado ANTES de calcular offline:", JSON.stringify(mergedState.workshop, null, 2));
 
     // Calcular recursos generados durante la ausencia
     return calculateOfflineResources(mergedState);
@@ -258,6 +233,32 @@ const loadState = (): GameState => {
     return initialGameState;
   }
 };
+
+// Función auxiliar para una fusión profunda de objetos
+const deepMerge = (target: any, source: any): any => {
+  const output = { ...target };
+
+  if (isObject(target) && isObject(source)) {
+    Object.keys(source).forEach(key => {
+      if (isObject(source[key])) {
+        if (!(key in target)) {
+          Object.assign(output, { [key]: source[key] });
+        } else {
+          output[key] = deepMerge(target[key], source[key]);
+        }
+      } else {
+        Object.assign(output, { [key]: source[key] });
+      }
+    });
+  }
+
+  return output;
+};
+
+const isObject = (item: any): boolean => {
+  return (item && typeof item === 'object' && !Array.isArray(item));
+};
+
 
 export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [gameState, dispatch] = useReducer(gameReducer, loadState());
