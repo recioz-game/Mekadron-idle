@@ -1,16 +1,20 @@
-/* src/components/TechCenter.css */
+/* src/components/Laboratory.css */
+/* Contenedor principal */
 .tech-center-container {
   background-color: #111827;
   color: #E5E7EB;
   padding: 1.6rem;
   font-family: Inter, sans-serif;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .tech-center-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 3.2rem;
+  margin-bottom: 2rem;
 }
 
 .tech-center-header h2 {
@@ -18,6 +22,7 @@
   flex-grow: 1;
   text-align: center;
   margin: 0;
+  color: #E5E7EB;
 }
 
 .close-button {
@@ -31,20 +36,21 @@
 }
 
 .research-points-summary {
-  padding: 1.6rem;
-  background-color: #1F2737;
-  border-radius: 0.4rem;
-  margin-bottom: 3.2rem;
+  padding: 1rem;
+  background-color: #1F2937;
+  border-radius: 0.8rem;
+  margin-bottom: 2rem;
   text-align: center;
   position: relative;
+  border: 2px solid #374151;
 }
 
 .research-points-summary h3 {
   color: #06B6D4;
-  margin-top: 0;
+  margin: 0;
   display: inline-flex;
   align-items: center;
-  gap: 1.6rem;
+  gap: 1rem;
   font-size: 2rem;
 }
 
@@ -60,69 +66,64 @@
   align-items: center;
 }
 
-.tech-tree-container {
-  overflow-x: auto; /* La barra de scroll ÚNICA para todo el árbol */
-  background-color: #111827;
-  padding: 1.6rem;
+/* Contenedor del árbol con scroll */
+.tech-tree-scroll-container {
+  overflow: auto; /* Cambiado de overflow-x a overflow para permitir scroll en ambas direcciones */
+  flex-grow: 1;
+  padding: 1rem;
+  background-color: #0d1117;
   border-radius: 0.8rem;
-  position: relative; /* CLAVE: Contiene las flechas */
+  position: relative;
 }
 
-.tech-row {
-  display: inline-flex; /* CLAVE: Permite que la fila crezca con su contenido */
-  min-width: 100%;    /* CLAVE: Asegura que ocupe todo el ancho si no hay scroll */
-  flex-direction: row; /* Título y tarjetas en la misma línea */
-  align-items: flex-start;
-  background-color: #1F2937;
-  padding: 1.6rem;
-  border-radius: 0.8rem;
-  margin-bottom: 1rem; /* Reemplaza el 'gap' del contenedor */
-}
-.tech-row:last-child {
-  margin-bottom: 0;
+/* Contenedor de la Cuadrícula (Grid) */
+.tech-tree-grid-container {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: repeat(10, 300px);
+  grid-template-rows: repeat(12, 1fr);
+  gap: 2rem 4rem;
+  padding: 2rem;
+  min-width: max-content;
 }
 
-.tech-row-title {
-  min-width: 180px; /* Ancho fijo para la columna de títulos */
-  font-size: 1.8rem;
-  color: #F59E0B;
-  background-color: #1F2737; 
-  z-index: 1; 
+/* Banner de cada Rama */
+.branch-banner {
+  grid-column: 1 / -1;
+  align-self: start;
+  font-size: 2rem;
+  font-weight: bold;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid;
+  margin-bottom: 1rem;
+  margin-left: 1rem;
 }
 
-.tech-cards-container {
-  display: flex;
-  flex-direction: row; /* Tarjetas en línea horizontal */
-  gap: 1.6rem;
-  margin-left: 1.6rem; /* Espacio entre el título y la primera tarjeta */
-}
-
+/* Tarjeta de Tecnología (posicionada por Grid) */
 .tech-card {
-  padding: 1.6rem;
-  background-color: #111827;
+  padding: 1.5rem;
+  background-color: #1F2937;
   border-radius: 0.8rem;
-  border: 2px solid #374151;
-  width: 250px; /* Ancho fijo para la tarjeta */
-  flex-shrink: 0; /* Evita que la tarjeta se encoja */
+  border-left: 4px solid;
   display: flex;
   flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 1;
 }
 
 .tech-card.available {
-  border-color: #22C55E;
-}
-
-.tech-card.researched {
-  border-color: #F59E0B;
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
 }
 
 .tech-card.locked {
-  opacity: 0.5;
+  opacity: 0.4;
+  background-color: #111827;
 }
 
 .tech-card h4 {
   margin: 0 0 0.8rem 0;
   font-size: 1.6rem;
+  color: #E5E7EB;
 }
 
 .tech-card-description {
@@ -135,33 +136,46 @@
   font-size: 1.4rem;
   color: #22C55E;
   font-weight: bold;
-  flex-grow: 1; /* Empuja el footer hacia abajo */
-  margin: 0 0 1.6rem 0;
+  flex-grow: 1;
+  margin: 0 0 1.5rem 0;
 }
 
 .tech-card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-size: 1.3rem;
+  color: #9CA3AF;
 }
 
 .research-button {
-  padding: 0.8rem 1.6rem;
+  padding: 0.8rem 1.2rem;
   background-color: #374151;
-  color: white;
+  color: #9CA3AF;
   border: none;
   border-radius: 0.4rem;
   cursor: not-allowed;
   font-size: 1.4rem;
+  font-weight: bold;
 }
 
 .research-button.can-research {
-  background-color: #22C55E;
+  color: white;
   cursor: pointer;
 }
 
+/* Estilos para el hook useDragToScroll */
+body.grabbing {
+  cursor: grabbing;
+  user-select: none; /* Evita seleccionar texto mientras se arrastra */
+}
+.tech-tree-scroll-container {
+  cursor: grab;
+}
+
 @media (max-width: 768px) {
-  .tech-tree-container {
-    flex-direction: column;
+  .tech-tree-grid-container {
+    grid-template-columns: repeat(10, 260px);
+    gap: 1.5rem 2.5rem;
   }
 }

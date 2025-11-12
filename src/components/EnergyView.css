@@ -45,11 +45,35 @@
 
 .energy-summary-content {
   display: flex;
-  justify-content: space-around;
+  flex-direction: column;
+  gap: 0.5rem;
+  background-color: #1a2433; /* Un poco más oscuro */
+  padding: 1.2rem;
+  border-radius: 0.4rem;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  font-size: 1.6rem; /* Aumentado para mayor legibilidad */
-  gap: 1rem; /* Añadido para mejor espaciado en móvil */
+  font-size: 1.6rem;
+}
+
+.summary-label {
+  color: #9CA3AF;
+  font-weight: 500;
+}
+
+.summary-value {
+  font-weight: bold;
+}
+
+.summary-details {
+  font-size: 1.3rem;
+  color: #6B7280;
+  text-align: center;
+  margin-top: 0.8rem;
+  font-style: italic;
 }
 
 .energy-item {

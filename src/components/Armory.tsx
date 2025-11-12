@@ -3,6 +3,12 @@ import { useGame } from '../context/GameContext';
 import { vindicatorLevelData } from '../data/battleData';
 import { formatNumber } from '../utils/formatNumber';
 import './Armory.css';
+import fuelRodIcon from '../assets/images/ui/fuel-rod-icon.png';
+import scrapIcon from '../assets/images/ui/scrap-icon.png';
+import reinforcedAlloyIcon from '../assets/images/ui/reinforced-alloy-icon.png';
+import corruptNeurochipIcon from '../assets/images/ui/corrupt-neurochip-icon.png';
+import plateFragmentsIcon from '../assets/images/ui/plate-fragments-icon.png';
+import damagedCircuitsIcon from '../assets/images/ui/damaged-circuits-icon.png';
 
 interface ArmoryProps {
   onClose: () => void;
@@ -11,6 +17,21 @@ interface ArmoryProps {
 const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
   const { gameState, dispatch } = useGame();
   const { vindicator, resources, vindicatorUpgrades, blueprints, vindicatorLevel } = gameState;
+
+  // Mapa de nombres para mostrar en la UI
+  const resourceLabels: { [key: string]: string } = {
+    aleacionReforzada: 'Aleación Reforzada',
+    neuroChipCorrupto: 'Neuro-Chip Corrupto',
+    fragmentosPlaca: 'Fragmentos de Placa',
+    circuitosDañados: 'Circuitos Dañados',
+  };
+
+  const resourceIcons: { [key: string]: string } = {
+    aleacionReforzada: reinforcedAlloyIcon,
+    neuroChipCorrupto: corruptNeurochipIcon,
+    fragmentosPlaca: plateFragmentsIcon,
+    circuitosDañados: damagedCircuitsIcon,
+  };
 
   // Costos de reparación
   const HEALTH_REPAIR_COST_PER_POINT = 50; // 50 chatarra por punto de vida (ajustado de 100)
@@ -111,7 +132,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                 <h4>Reparar Vida</h4>
                 <p>Repara {formatNumber(missingHealth)} puntos de vida faltantes</p>
                 <div className="repair-cost">
-                  <span className="cost-icon">💰</span>
+                  <img src={scrapIcon} alt="Chatarra" className="cost-icon-img" />
                   <span className="cost-amount">{formatNumber(healthRepairCost)}</span>
                   <span className="cost-name">Chatarra</span>
                 </div>
@@ -121,7 +142,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                 onClick={repairHealth}
                 disabled={!canRepairHealth}
               >
-                {canRepairHealth ? '🛠️ REPARAR VIDA' : '❌ NO HAY SUFICIENTE CHATARRA'}
+                {canRepairHealth ? 'REPARAR VIDA' : 'RECURSOS INSUFICIENTES'}
               </button>
             </div>
 
@@ -131,7 +152,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                 <h4>Reparar Escudo</h4>
                 <p>Repara {formatNumber(missingShield)} puntos de escudo faltantes</p>
                 <div className="repair-cost">
-                  <span className="cost-icon">⛽</span>
+                  <img src={fuelRodIcon} alt="Combustible" className="cost-icon-img" />
                   <span className="cost-amount">{shieldRepairCost.toFixed(1)}</span>
                   <span className="cost-name">Barras de Combustible</span>
                 </div>
@@ -141,7 +162,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                 onClick={repairShield}
                 disabled={!canRepairShield}
               >
-                {canRepairShield ? '🛠️ REPARAR ESCUDO' : '❌ NO HAY SUFICIENTE COMBUSTIBLE'}
+                {canRepairShield ? 'REPARAR ESCUDO' : 'RECURSOS INSUFICIENTES'}
               </button>
             </div>
           </div>
@@ -189,15 +210,19 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                                 </div>
                                 <div className="upgrade-cost">
                                     <h5>COSTE PRÓXIMA MEJORA:</h5>
-                                    <ul>
+                                    <ul className="cost-list">
                                         {Object.entries(phase1Resources).map(([res, cost]) => 
                                             <li key={res} className={(resources as any)[res] >= cost ? 'has-enough' : 'not-enough'}>
-                                                {`${res.charAt(0).toUpperCase() + res.slice(1)}: ${formatNumber((resources as any)[res])} / ${formatNumber(cost)}`}
+                                                <img src={resourceIcons[res]} alt={resourceLabels[res]} className="cost-icon-img" />
+                                                <span>{resourceLabels[res] || res}:</span>
+                                                <span>{formatNumber((resources as any)[res])} / {formatNumber(cost)}</span>
                                             </li>
                                         )}
                                         {Object.entries(phase2Resources).map(([res, cost]) => 
                                             <li key={res} className={(resources as any)[res] >= cost ? 'has-enough' : 'not-enough'}>
-                                                {`${res.charAt(0).toUpperCase() + res.slice(1)}: ${formatNumber((resources as any)[res])} / ${formatNumber(cost)}`}
+                                                <img src={resourceIcons[res]} alt={resourceLabels[res]} className="cost-icon-img" />
+                                                <span>{resourceLabels[res] || res}:</span>
+                                                <span>{formatNumber((resources as any)[res])} / {formatNumber(cost)}</span>
                                             </li>
                                         )}
                                     </ul>
@@ -207,7 +232,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                                     onClick={handleUpgrade}
                                     disabled={!canUpgrade}
                                 >
-                                    {canUpgrade ? '✨ MEJORAR' : 'RECURSOS INSUFICIENTES'}
+                                    {canUpgrade ? 'MEJORAR' : 'RECURSOS INSUFICIENTES'}
                                 </button>
                             </>
                         )}
@@ -259,7 +284,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                                 onClick={handleLevelUp}
                                 disabled={!hasEnoughBlueprints}
                             >
-                                {hasEnoughBlueprints ? '🚀 SUBIR DE NIVEL' : 'PLANOS INSUFICIENTES'}
+                                {hasEnoughBlueprints ? 'SUBIR DE NIVEL' : 'PLANOS INSUFICIENTES'}
                             </button>
                         </>
                     );

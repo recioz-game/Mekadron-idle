@@ -109,15 +109,22 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
       </div>
 
       {/* Resumen Energético */}
-      <div className="energy-summary">
+            <div className="energy-summary">
         <h3 style={{ color: '#06B6D4' }}>RESUMEN ENERGÉTICO</h3>
         <div className="energy-summary-content">
-          <span>🔋 {formatNumber(currentEnergy)} / {formatNumber(maxEnergy)}</span>
-          <span>⚡ +{formatNumber(totalEnergyProduction)}/s</span>
-          <span>🔌 {formatNumber(energyConsumption)}/s</span>
-          <span style={{ color: totalEnergyProduction >= energyConsumption ? '#22C55E' : '#EF4444' }}>
-            📈 {(totalEnergyProduction - energyConsumption).toFixed(1)}/s
-          </span>
+          <div className="summary-item">
+            <span className="summary-label">Almacenado:</span>
+            <span className="summary-value">{formatNumber(currentEnergy)} / {formatNumber(maxEnergy)}</span>
+          </div>
+          <div className="summary-item">
+            <span className="summary-label">Balance:</span>
+            <span className="summary-value" style={{ color: totalEnergyProduction >= energyConsumption ? '#22C55E' : '#EF4444' }}>
+              {(totalEnergyProduction - energyConsumption).toFixed(1)}/s
+            </span>
+          </div>
+          <div className="summary-details">
+            (Producción: +{formatNumber(totalEnergyProduction)}/s | Consumo: -{formatNumber(energyConsumption)}/s)
+          </div>
         </div>
       </div>
 
@@ -127,9 +134,9 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
       <div className={`energy-item ${scrap >= solarPanelCost ? 'unlocked' : ''}`}>
         <div className="energy-item-content">
           <h3 style={{ color: '#F59E0B' }}>Panel Solar Básico</h3>
-          <p>⚡ Producción: +{formatNumber(3)} energía/segundo</p>
-          <p>💰 Coste: {formatNumber(solarPanelCost)} chatarra</p>
-          <p>🏗️ Instalados: {solarPanels} | 📦 En cola: {solarPanelsQueue.queue}</p>
+          <p>Producción: +{formatNumber(3)} energía/segundo</p>
+          <p>Coste: {formatNumber(solarPanelCost)} chatarra</p>
+          <p>Instalados: {solarPanels} | En cola: {solarPanelsQueue.queue}</p>
           <QueueControls queue={solarPanelsQueue} itemName='solarPanels' onCancel={onCancel} />
           <BotonConTooltip
             onClick={onBuildSolarPanel}
@@ -147,11 +154,11 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
       <div className={`energy-item ${scrap >= mediumSolarCost && solarPanels >= 5 ? 'unlocked' : ''} ${solarPanels >= 5 ? '' : 'locked'}`}>
         <div className="energy-item-content">
           <h3 style={{ color: '#F59E0B' }}>Panel Solar Medio</h3>
-          <p>⚡ Producción: +{formatNumber(10)} energía/segundo</p>
-          <p>💰 Coste: {formatNumber(mediumSolarCost)} chatarra</p>
-          <p>🏗️ Instalados: {mediumSolarPanels} | 📦 En cola: {mediumSolarPanelsQueue.queue}</p>
+          <p>Producción: +{formatNumber(10)} energía/segundo</p>
+          <p>Coste: {formatNumber(mediumSolarCost)} chatarra</p>
+          <p>Instalados: {mediumSolarPanels} | En cola: {mediumSolarPanelsQueue.queue}</p>
           <QueueControls queue={mediumSolarPanelsQueue} itemName='mediumSolarPanels' onCancel={onCancel} />
-          <p>📋 Requisitos: 5 Paneles Solares Básicos</p>
+          <p>Requisitos: 5 Paneles Solares Básicos</p>
           <BotonConTooltip
             onClick={onBuildMediumSolar}
             disabled={scrap < mediumSolarCost || solarPanels < 5}
@@ -176,11 +183,11 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
       <div className={`energy-item ${scrap >= advancedSolarCost && mediumSolarPanels >= 1 ? 'unlocked' : ''} ${mediumSolarPanels >= 1 ? '' : 'locked'}`}>
         <div className="energy-item-content">
           <h3 style={{ color: '#06B6D4' }}>Panel Solar Avanzado</h3>
-          <p>⚡ Producción: +{formatNumber(30)} energía/segundo</p>
-          <p>💰 Coste: {formatNumber(advancedSolarCost)} chatarra</p>
-          <p>🏗️ Instalados: {advancedSolar} | 📦 En cola: {advancedSolarQueue.queue}</p>
+          <p>Producción: +{formatNumber(30)} energía/segundo</p>
+          <p>Coste: {formatNumber(advancedSolarCost)} chatarra</p>
+          <p>Instalados: {advancedSolar} | En cola: {advancedSolarQueue.queue}</p>
           <QueueControls queue={advancedSolarQueue} itemName='advancedSolar' onCancel={onCancel} />
-          <p>📋 Requisitos: 1 Panel Solar Medio</p>
+          <p>Requisitos: 1 Panel Solar Medio</p>
           <BotonConTooltip
             onClick={onBuildAdvancedSolar}
             disabled={scrap < advancedSolarCost || mediumSolarPanels < 1}
@@ -205,12 +212,12 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
       <div className={`energy-item ${scrap >= energyCoreCost && advancedSolar >= 3 ? 'unlocked' : ''} ${advancedSolar >= 3 ? '' : 'locked'}`}>
         <div className="energy-item-content">
           <h3 style={{ color: '#F87171' }}>Núcleo Energético Averiado</h3>
-          <p>⚡ Producción: +{formatNumber(50)} energía/segundo</p>
-          <p>🔋 Capacidad: +{formatNumber(100)} energía máxima</p>
-          <p>💰 Coste: {formatNumber(energyCoreCost)} chatarra</p>
-          <p>🏗️ Instalados: {energyCores} | 📦 En cola: {energyCoresQueue.queue}</p>
+          <p>Producción: +{formatNumber(50)} energía/segundo</p>
+          <p>Capacidad: +{formatNumber(100)} energía máxima</p>
+          <p>Coste: {formatNumber(energyCoreCost)} chatarra</p>
+          <p>Instalados: {energyCores} | En cola: {energyCoresQueue.queue}</p>
           <QueueControls queue={energyCoresQueue} itemName='energyCores' onCancel={onCancel} />
-          <p>📋 Requisitos: 3 Paneles Solares Avanzados</p>
+          <p>Requisitos: 3 Paneles Solares Avanzados</p>
           <BotonConTooltip
             onClick={onBuildEnergyCore}
             disabled={scrap < energyCoreCost || advancedSolar < 3}
@@ -231,12 +238,12 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
       <div className={`energy-item ${scrap >= stabilizedEnergyCoreCost && energyCores >= 3 ? 'unlocked' : ''} ${energyCores >= 3 ? '' : 'locked'}`}>
         <div className="energy-item-content">
           <h3 style={{ color: '#4ADE80' }}>Núcleo Energético Estabilizado</h3>
-          <p>⚡ Producción: +{formatNumber(75)} energía/segundo</p>
-          <p>🔋 Capacidad: +{formatNumber(150)} energía máxima</p>
-          <p>💰 Coste: {formatNumber(stabilizedEnergyCoreCost)} chatarra</p>
-          <p>🏗️ Instalados: {stabilizedEnergyCores} | 📦 En cola: {stabilizedEnergyCoresQueue.queue}</p>
+          <p>Producción: +{formatNumber(75)} energía/segundo</p>
+          <p>Capacidad: +{formatNumber(150)} energía máxima</p>
+          <p>Coste: {formatNumber(stabilizedEnergyCoreCost)} chatarra</p>
+          <p>Instalados: {stabilizedEnergyCores} | En cola: {stabilizedEnergyCoresQueue.queue}</p>
           <QueueControls queue={stabilizedEnergyCoresQueue} itemName='stabilizedEnergyCores' onCancel={onCancel} />
-          <p>📋 Requisitos: 3 Núcleos Averiados</p>
+          <p>Requisitos: 3 Núcleos Averiados</p>
           <BotonConTooltip
             onClick={onBuildStabilizedEnergyCore}
             disabled={scrap < stabilizedEnergyCoreCost || energyCores < 3}
@@ -257,12 +264,12 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
       <div className={`energy-item ${scrap >= empoweredEnergyCoreCost && stabilizedEnergyCores >= 3 ? 'unlocked' : ''} ${stabilizedEnergyCores >= 3 ? '' : 'locked'}`}>
         <div className="energy-item-content">
           <h3 style={{ color: '#22C55E' }}>Núcleo Energético Potenciado</h3>
-          <p>⚡ Producción: +{formatNumber(150)} energía/segundo</p>
-          <p>🔋 Capacidad: +{formatNumber(300)} energía máxima</p>
-          <p>💰 Coste: {formatNumber(empoweredEnergyCoreCost)} chatarra</p>
-          <p>🏗️ Instalados: {empoweredEnergyCores} | 📦 En cola: {empoweredEnergyCoresQueue.queue}</p>
+          <p>Producción: +{formatNumber(150)} energía/segundo</p>
+          <p>Capacidad: +{formatNumber(300)} energía máxima</p>
+          <p>Coste: {formatNumber(empoweredEnergyCoreCost)} chatarra</p>
+          <p>Instalados: {empoweredEnergyCores} | En cola: {empoweredEnergyCoresQueue.queue}</p>
           <QueueControls queue={empoweredEnergyCoresQueue} itemName='empoweredEnergyCores' onCancel={onCancel} />
-          <p>📋 Requisitos: 3 Núcleos Estabilizados</p>
+          <p>Requisitos: 3 Núcleos Estabilizados</p>
           <BotonConTooltip
             onClick={onBuildEmpoweredEnergyCore}
             disabled={scrap < empoweredEnergyCoreCost || stabilizedEnergyCores < 3}
@@ -284,12 +291,12 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
         <div className={`energy-item ${scrap >= fusionReactorCost.scrap && metalRefinado >= fusionReactorCost.metalRefinado && empoweredEnergyCores >= 1 ? 'unlocked' : ''} ${empoweredEnergyCores >= 1 ? '' : 'locked'}`}>
           <div className="energy-item-content">
             <h3 style={{ color: '#8B5CF6' }}>Reactor de Fusión</h3>
-            <p>⚡ Producción: +{formatNumber(250)} energía/segundo</p>
-            <p>🔋 Capacidad: +{formatNumber(1000)} energía máxima</p>
-            <p>💰 Coste: {formatNumber(fusionReactorCost.scrap)} Chatarra + {formatNumber(fusionReactorCost.metalRefinado)} Metal Refinado</p>
-            <p>🏗️ Construidos: {fusionReactors} | 📦 En cola: {fusionReactorQueue.queue}</p>
+            <p>Producción: +{formatNumber(250)} energía/segundo</p>
+            <p>Capacidad: +{formatNumber(1000)} energía máxima</p>
+            <p>Coste: {formatNumber(fusionReactorCost.scrap)} Chatarra + {formatNumber(fusionReactorCost.metalRefinado)} Metal Refinado</p>
+            <p>Construidos: {fusionReactors} | En cola: {fusionReactorQueue.queue}</p>
             <QueueControls queue={fusionReactorQueue} itemName='fusionReactor' onCancel={onCancel} />
-            <p>📋 Requisitos: 1 Núcleo Potenciado (anteriormente 10 averiados)</p>
+            <p>Requisitos: 1 Núcleo Potenciado (anteriormente 10 averiados)</p>
             <BotonConTooltip
               onClick={onBuildFusionReactor}
               disabled={scrap < fusionReactorCost.scrap || metalRefinado < fusionReactorCost.metalRefinado || empoweredEnergyCores < 1}

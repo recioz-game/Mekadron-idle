@@ -1,28 +1,21 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import './MissionsPanel.css'; // Importar el archivo CSS
 import { Mission } from '../types/gameState';
+import { useMissions, useResources } from '../hooks/useSelectors';
+import { useGameDispatch } from '../context/GameContext';
 
 interface MissionsPanelProps {
-  activeMissions: Mission[];
-  completedMissions: string[];
-  currentScrap: number;
-  maxScrap: number;
-  currentEnergy: number;
-  maxEnergy: number;
-  onClaimReward: (missionId: string) => void;
   onClose: () => void;
 }
 
-const MissionsPanel: React.FC<MissionsPanelProps> = React.memo(({ 
-  activeMissions,
-  completedMissions,
-  currentScrap,
-  maxScrap,
-  currentEnergy,
-  maxEnergy,
-    onClaimReward, 
-  onClose 
-}) => {
+const MissionsPanel: React.FC<MissionsPanelProps> = React.memo(({ onClose }) => {
+  const { activeMissions, completedMissions } = useMissions();
+  const { scrap, maxScrap, energy, maxEnergy } = useResources();
+  const dispatch = useGameDispatch();
+
+  const onClaimReward = useCallback((missionId: string) => {
+    dispatch({ type: 'CLAIM_REWARD', payload: missionId });
+  }, [dispatch]);
 
   const getMissionProgress = (mission: Mission) => {
     return Math.min((mission.current / mission.target) * 100, 100);
@@ -43,14 +36,14 @@ const MissionsPanel: React.FC<MissionsPanelProps> = React.memo(({
     }
   };
 
-  const canClaimReward = (mission: Mission) => {
+    const canClaimReward = (mission: Mission) => {
     if (mission.completed) return false;
     
     switch (mission.reward.type) {
       case 'scrap':
-        return currentScrap + mission.reward.value <= maxScrap;
+        return scrap + mission.reward.value <= maxScrap;
       case 'energy':
-        return currentEnergy + mission.reward.value <= maxEnergy;
+        return energy + mission.reward.value <= maxEnergy;
       case 'drone':
       case 'unlock':
         return true;
@@ -105,9 +98,9 @@ const MissionsPanel: React.FC<MissionsPanelProps> = React.memo(({
         {/* Botón de Reclamar */}
         {progress >= 100 && (
           <div className="claim-section">
-            {isCompletedButNotClaimed && (
+                        {isCompletedButNotClaimed && (
               <span className="claim-warning">
-                ⚠️ Espacio insuficiente
+                Espacio insuficiente
               </span>
             )}
             <button 
@@ -115,7 +108,7 @@ const MissionsPanel: React.FC<MissionsPanelProps> = React.memo(({
               disabled={!canClaim}
               className={`claim-button ${canClaim ? 'can-claim' : ''}`}
             >
-              {canClaim ? '🎁 Reclamar' : (isCompletedButNotClaimed ? 'Completar' : '⏳ Esperando')}
+              {canClaim ? 'Reclamar' : (isCompletedButNotClaimed ? 'Completar' : 'Esperando')}
             </button>
           </div>
         )}
@@ -160,9 +153,9 @@ const MissionsPanel: React.FC<MissionsPanelProps> = React.memo(({
       {completedMissions.length > 0 && (
         <div>
           <h3 style={{ color: '#22C55E' }}>MISIONES COMPLETADAS</h3>
-          <div className="completed-missions">
+                    <div className="completed-missions">
             <div className="completed-missions-title">
-              ✅ {completedMissions.length} misión(es) completada(s)
+              {completedMissions.length} misión(es) completada(s)
             </div>
             <div className="completed-missions-text">
               Continúa expandiendo la estación para desbloquear nuevas misiones.

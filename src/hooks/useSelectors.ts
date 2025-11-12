@@ -9,3 +9,28 @@ export const useResources = (): GameState['resources'] => {
   const gameState = useGameState();
   return gameState.resources;
 };
+
+export const useMissions = (): GameState['missions'] => {
+  const gameState = useGameState();
+  return gameState.missions;
+}
+
+export const useWorkshop = (): GameState['workshop'] => {
+  const gameState = useGameState();
+  return gameState.workshop;
+}
+
+export const useModules = (): GameState['modules'] => {
+  const gameState = useGameState();
+  return gameState.modules;
+}
+
+export const useRates = (): GameState['rates'] => {
+  const gameState = useGameState();
+  return gameState.rates;
+}
+
+export const useShipyard = (): GameState['shipyard'] => {
+  const gameState = useGameState();
+  return gameState.shipyard;
+}

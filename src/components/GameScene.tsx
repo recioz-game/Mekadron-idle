@@ -1,23 +1,33 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, lazy, Suspense } from 'react';
 import './GameScene.css'; // Importar el archivo CSS
 
 import mainThemeAudio from '../assets/audio/main-theme.wav'; // 1. Importar el audio
-import { ExpeditionId, ActiveExpedition } from '../types/gameState';
+import { ExpeditionId, ActiveExpedition, DroneType } from '../types/gameState';
 import { useGameState, useGameDispatch } from '../context/GameContext';
 import ResourceBar from './ResourceBar';
 import CollectionButton from './CollectionButton';
 import ModulesPanel from './ModulesPanel';
-import Workshop from './Workshop';
-import EnergyView from './EnergyView';
-import StorageView from './StorageView';
-import MissionsPanel from './MissionsPanel';
-import Laboratory from './Laboratory';
-import FoundryView from './FoundryView';
-import ShipyardView from './ShipyardView';
-import ExpeditionView from './ExpeditionView';
+// import Workshop from './Workshop'; // Lazy loaded
+// import EnergyView from './EnergyView'; // Lazy loaded
+// import StorageView from './StorageView'; // Lazy loaded
+// import MissionsPanel from './MissionsPanel'; // Lazy loaded
+// import Laboratory from './Laboratory'; // Lazy loaded
+// import FoundryView from './FoundryView'; // Lazy loaded
+// import ShipyardView from './ShipyardView'; // Lazy loaded
+// import ExpeditionView from './ExpeditionView'; // Lazy loaded
 import SettingsMenu from './SettingsMenu';
 import NotificationToast from './NotificationToast';
 import FloatingTextHandler from './FloatingTextHandler';
+
+// Lazy load components
+  const Workshop = lazy(() => import('./Workshop.tsx'));
+  const EnergyView = lazy(() => import('./EnergyView.tsx'));
+  const StorageView = lazy(() => import('./StorageView.tsx'));
+  const MissionsPanel = lazy(() => import('./MissionsPanel.tsx'));
+  const Laboratory = lazy(() => import('./Laboratory.tsx'));
+  const FoundryView = lazy(() => import('./FoundryView.tsx'));
+  const ShipyardView = lazy(() => import('./ShipyardView.tsx'));
+  const ExpeditionView = lazy(() => import('./ExpeditionView.tsx'));
 
 const GameScene: React.FC = () => {
         const gameState = useGameState();
@@ -91,8 +101,11 @@ const GameScene: React.FC = () => {
   const onCancelWorkshopItem = useCallback((itemName: string, amount: number | 'all') => {
     dispatch({ type: 'CANCEL_QUEUE_ITEM', payload: { category: 'workshop', itemName, amount } });
   }, [dispatch]);
-  const onDismantleDrone = useCallback((droneType: string, amount: number | 'max') => {
+    const onDismantleDrone = useCallback((droneType: string, amount: number | 'max') => {
     dispatch({ type: 'DISMANTLE_DRONE', payload: { droneType, amount } });
+  }, [dispatch]);
+    const onRetrofitDrone = useCallback((fromDrone: DroneType, toDrone: DroneType) => {
+    dispatch({ type: 'RETROFIT_DRONE', payload: { fromDrone, toDrone } });
   }, [dispatch]);
 
   // Energy Callbacks
@@ -121,7 +134,7 @@ const GameScene: React.FC = () => {
     dispatch({ type: 'CANCEL_QUEUE_ITEM', payload: { category: 'storage', itemName, amount } });
   }, [dispatch]);
 
-  const onClaimMissionReward = useCallback((missionId: string) => dispatch({ type: 'CLAIM_REWARD', payload: missionId }), [dispatch]);
+  
   const onCloseView = useCallback(() => dispatch({ type: 'CLOSE_CURRENT_VIEW' }), [dispatch]);
 
   // Expedition Callbacks
@@ -151,12 +164,10 @@ const GameScene: React.FC = () => {
 
   const renderActiveModule = () => {
     switch (currentView) {
-      case 'workshop':
+            case 'workshop':
         return (
           <Workshop
-            scrap={resources.scrap}
-            metalRefinado={resources.metalRefinado}
-            aceroEstructural={resources.aceroEstructural}
+            resources={resources}
             drones={drones}
             queues={workshopQueues}
             upgrades={techCenter.upgrades}
@@ -171,6 +182,7 @@ const GameScene: React.FC = () => {
             onBuildExpeditionV2Drone={onBuildExpeditionV2Drone}
             onBuildWyrm={onBuildWyrm}
             onDismantle={onDismantleDrone}
+            onRetrofit={onRetrofitDrone}
             buyAmount={workshopBuyAmount}
             onSetBuyAmount={onSetWorkshopBuyAmount}
             onClose={onClose}
@@ -255,15 +267,8 @@ const GameScene: React.FC = () => {
           />
         );
       case 'missions':
-        return (
+                return (
           <MissionsPanel
-            activeMissions={gameState.missions.activeMissions}
-            completedMissions={gameState.missions.completedMissions}
-            currentScrap={gameState.resources.scrap}
-            maxScrap={gameState.resources.maxScrap}
-            currentEnergy={gameState.resources.energy}
-            maxEnergy={gameState.resources.maxEnergy}
-            onClaimReward={onClaimMissionReward}
             onClose={onCloseView}
           />
         );
@@ -321,12 +326,11 @@ const GameScene: React.FC = () => {
                         case 'shipyard':
         return (
                                         <ShipyardView
-            shipyard={shipyard}
+                        shipyard={shipyard}
             vindicator={gameState.vindicator}
             resources={resources}
             researchPoints={techCenter.researchPoints}
             blueprints={gameState.blueprints}
-            dispatch={dispatch}
             onClose={() => dispatch({ type: 'CLOSE_CURRENT_VIEW' })}
           />
         );
@@ -353,9 +357,11 @@ const GameScene: React.FC = () => {
         </div>
       )}
 
-                  <div className="main-content">
+                                    <div className="main-content">
         <div className="module-container">
-          {renderActiveModule()}
+          <Suspense fallback={<div className="loading-module">Cargando Módulo...</div>}>
+            {renderActiveModule()}
+          </Suspense>
         </div>
 
                 <ModulesPanel

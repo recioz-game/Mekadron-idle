@@ -176,7 +176,7 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
             <div className="crafting-item-info">
               <h4 style={{ color: '#A855F7' }}>Purificación de Chatarra</h4>
               <p>Convierte una gran cantidad de recursos básicos en Metal Refinado. Es ineficiente, pero útil en emergencias.</p>
-              <p>💰 Coste: {formatNumber(purificationCost.scrap)} Chatarra + {formatNumber(purificationCost.energy)} Energía</p>
+              <p>Coste: {formatNumber(purificationCost.scrap)} Chatarra + {formatNumber(purificationCost.energy)} Energía</p>
             </div>
             <button 
               onClick={onCraftPurifiedMetal} 

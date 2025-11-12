@@ -1,10 +1,11 @@
 import React from 'react';
-import { GameState } from '../types/gameState';
+import { GameState, DroneType } from '../types/gameState';
 import './Workshop.css'; // Importar el archivo CSS
 import BuyAmountSelector from './BuyAmountSelector';
 import { formatNumber } from '../utils/formatNumber';
 import BotonConTooltip from './BotonConTooltip';
 import QueueControls from './QueueControls';
+import { droneData } from '../data/droneData';
 
 // Importar imágenes de drones
 import droneBasicImg from '../assets/images/ui/drone-basic.png';
@@ -19,9 +20,7 @@ import droneGolemImg from '../assets/images/ui/drone-golem.png';
 import droneWyrmImg from '../assets/images/ui/drone-wyrm.png';
 
 interface WorkshopProps {
-  scrap: number;
-  metalRefinado: number;
-  aceroEstructural: number;
+  resources: GameState['resources'];
   drones: GameState['workshop']['drones'];
   queues: GameState['workshop']['queues'];
   upgrades: { [key: string]: number };
@@ -35,7 +34,8 @@ interface WorkshopProps {
   onBuildExpeditionDrone: () => void;
   onBuildExpeditionV2Drone: () => void;
   onBuildWyrm: () => void;
-  onDismantle: (droneType: string, amount: number | 'max') => void;
+    onDismantle: (droneType: DroneType, amount: number | 'max') => void;
+  onRetrofit: (fromDrone: DroneType, toDrone: DroneType) => void;
   buyAmount: number | 'max';
   onSetBuyAmount: (amount: number | 'max') => void;
   onClose: () => void;
@@ -43,13 +43,14 @@ interface WorkshopProps {
 }
 
 const Workshop: React.FC<WorkshopProps> = React.memo(({ 
-  scrap, metalRefinado, aceroEstructural,
+  resources,
   drones, queues,
   upgrades,
   onBuildBasicDrone, onBuildMediumDrone, onBuildAdvancedDrone, onBuildReinforcedBasic, onBuildReinforcedMedium, onBuildReinforcedAdvanced, onBuildGolemDrone, onBuildExpeditionDrone, onBuildExpeditionV2Drone, onBuildWyrm,
-  onDismantle,
+  onDismantle, onRetrofit,
   buyAmount, onSetBuyAmount, onClose, onCancel 
 }) => {
+  const { scrap, metalRefinado, aceroEstructural } = resources;
 
   const basicDroneCost = 15;
   const mediumDroneCost = 250;
@@ -106,14 +107,15 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
           <div className="drone-item-content">
             <div className="drone-info">
               <h4 className="drone-title" style={{ color: '#F59E0B' }}>Dron Básico de Reciclado (DBR)</h4>
-              <p>📊 Producción: +{formatNumber(1)} chatarra/segundo</p>
-              <p>⚡ Consumo: {formatNumber(1)} energía</p>
-              <p>💰 Coste: {formatNumber(basicDroneCost)} chatarra</p>
-              <p>🏗️ Flota: {drones.basic} | 📦 En cola: {queues.basic.queue}</p>
+              <p>Producción: +{formatNumber(1)} chatarra/segundo</p>
+              <p>Consumo: {formatNumber(1)} energía</p>
+              <p>Coste: {formatNumber(basicDroneCost)} chatarra</p>
+              <p>Flota: {drones.basic} | En cola: {queues.basic.queue}</p>
             </div>
             <div className="controls-container">
               <QueueControls queue={queues.basic} itemName='basic' onCancel={onCancel} />
               <DismantleControls upgrades={upgrades} droneType='basic' onDismantle={onDismantle} droneCount={drones.basic} buyAmount={buyAmount} />
+              <RetrofitControls resources={resources} upgrades={upgrades} droneType='basic' toDrone='medium' onRetrofit={onRetrofit} droneCount={drones.basic} />
             </div>
             <BotonConTooltip 
               onClick={onBuildBasicDrone} 
@@ -132,15 +134,16 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
           <div className="drone-item-content">
             <div className="drone-info">
               <h4 className="drone-title" style={{ color: '#06B6D4' }}>Dron Medio de Reciclado (DMR)</h4>
-              <p>📊 Producción: +{formatNumber(5)} chatarra/segundo</p>
-              <p>⚡ Consumo: {formatNumber(3)} energía</p>
-              <p>💰 Coste: {formatNumber(mediumDroneCost)} chatarra</p>
-              <p>🏗️ Flota: {drones.medium} | 📦 En cola: {queues.medium.queue}</p>
-              <p>📋 Requisitos: 5 Drones Básicos</p>
+              <p>Producción: +{formatNumber(5)} chatarra/segundo</p>
+              <p>Consumo: {formatNumber(3)} energía</p>
+              <p>Coste: {formatNumber(mediumDroneCost)} chatarra</p>
+              <p>Flota: {drones.medium} | En cola: {queues.medium.queue}</p>
+              <p>Requisitos: 5 Drones Básicos</p>
             </div>
             <div className="controls-container">
               <QueueControls queue={queues.medium} itemName='medium' onCancel={onCancel} />
               <DismantleControls upgrades={upgrades} droneType='medium' onDismantle={onDismantle} droneCount={drones.medium} buyAmount={buyAmount} />
+              <RetrofitControls resources={resources} upgrades={upgrades} droneType='medium' toDrone='advanced' onRetrofit={onRetrofit} droneCount={drones.medium} />
             </div>
             <BotonConTooltip 
               onClick={onBuildMediumDrone} 
@@ -160,11 +163,11 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
           <div className="drone-item-content">
             <div className="drone-info">
               <h4 className="drone-title" style={{ color: '#22C55E' }}>Dron Avanzado de Reciclado (DAR)</h4>
-              <p>📊 Producción: +{formatNumber(20)} chatarra/segundo</p>
-              <p>⚡ Consumo: {formatNumber(5)} energía</p>
-              <p>💰 Coste: {formatNumber(advancedDroneCost)} chatarra</p>
-              <p>🏗️ Flota: {drones.advanced} | 📦 En cola: {queues.advanced.queue}</p>
-              <p>📋 Requisitos: 3 Drones Medios</p>
+              <p>Producción: +{formatNumber(20)} chatarra/segundo</p>
+              <p>Consumo: {formatNumber(5)} energía</p>
+              <p>Coste: {formatNumber(advancedDroneCost)} chatarra</p>
+              <p>Flota: {drones.advanced} | En cola: {queues.advanced.queue}</p>
+              <p>Requisitos: 3 Drones Medios</p>
             </div>
             <div className="controls-container">
               <QueueControls queue={queues.advanced} itemName='advanced' onCancel={onCancel} />
@@ -186,22 +189,22 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
 
       {/* DRONES DE EXPEDICIÓN */}
       <div className="drone-category" style={{ borderColor: '#10B981' }}>
-        <h3 style={{ color: '#10B981' }}>🧭 DRONES DE EXPEDICIÓN</h3>
+        <h3 style={{ color: '#10B981' }}>DRONES DE EXPEDICIÓN</h3>
         
                         {/* Dron de Expedición */}
         <div className={`drone-item ${scrap >= expeditionDroneCost.scrap && metalRefinado >= expeditionDroneCost.metal && drones.advanced >= 2 ? 'unlocked' : ''} ${drones.advanced >= 2 ? '' : 'locked'}`}>
           <div className="drone-item-content">
             <div className="drone-info">
               <h4 className="drone-title" style={{ color: '#10B981' }}>Dron de Expedición (DE-1)</h4>
-              <p>📊 Función: Realiza expediciones para obtener recursos especiales</p>
-              <p>⚡ Consumo: {formatNumber(2)} energía (en expediciones)</p>
-              <p>💰 Coste: {formatNumber(expeditionDroneCost.scrap)} chatarra, {formatNumber(expeditionDroneCost.metal)} metal refinado</p>
-              <p>📋 Requisitos: 2 Drones Avanzados</p>
-              <p>🏗️ Flota: {drones.expeditionDrone} | 📦 En cola: {queues.expeditionDrone.queue}</p>
+              <p>Función: Realiza expediciones para obtener recursos especiales</p>
+              <p>Consumo: {formatNumber(2)} energía (en expediciones)</p>
+              <p>Coste: {formatNumber(expeditionDroneCost.scrap)} chatarra, {formatNumber(expeditionDroneCost.metal)} metal refinado</p>
+              <p>Requisitos: 2 Drones Avanzados</p>
+              <p>Flota: {drones.expeditionDrone} | En cola: {queues.expeditionDrone.queue}</p>
             </div>
             <div className="controls-container">
               <QueueControls queue={queues.expeditionDrone} itemName='expedition' onCancel={onCancel} />
-              <DismantleControls upgrades={upgrades} droneType='expedition' onDismantle={onDismantle} droneCount={drones.expeditionDrone} buyAmount={buyAmount} />
+              <DismantleControls upgrades={upgrades} droneType='expeditionDrone' onDismantle={onDismantle} droneCount={drones.expeditionDrone} buyAmount={buyAmount} />
             </div>
             <BotonConTooltip 
               onClick={onBuildExpeditionDrone}
@@ -225,15 +228,15 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
           <div className="drone-item-content">
             <div className="drone-info">
               <h4 className="drone-title" style={{ color: '#059669' }}>Dron de Expedición v2 (DE-2)</h4>
-              <p>📊 Función: Realiza expediciones avanzadas para obtener recursos raros</p>
-              <p>⚡ Consumo: {formatNumber(5)} energía (en expediciones)</p>
-              <p>💰 Coste: {formatNumber(expeditionV2DroneCost.scrap)} chatarra, {formatNumber(expeditionV2DroneCost.metal)} metal refinado</p>
-              <p>📋 Requisitos: 5 Drones de Expedición</p>
-              <p>🏗️ Flota: {drones.expeditionV2Drone} | 📦 En cola: {queues.expeditionV2Drone.queue}</p>
+              <p>Función: Realiza expediciones avanzadas para obtener recursos raros</p>
+              <p>Consumo: {formatNumber(5)} energía (en expediciones)</p>
+              <p>Coste: {formatNumber(expeditionV2DroneCost.scrap)} chatarra, {formatNumber(expeditionV2DroneCost.metal)} metal refinado</p>
+              <p>Requisitos: 5 Drones de Expedición</p>
+              <p>Flota: {drones.expeditionV2Drone} | En cola: {queues.expeditionV2Drone.queue}</p>
             </div>
             <div className="controls-container">
               <QueueControls queue={queues.expeditionV2Drone} itemName='expeditionV2' onCancel={onCancel} />
-              <DismantleControls upgrades={upgrades} droneType='expeditionV2' onDismantle={onDismantle} droneCount={drones.expeditionV2Drone} buyAmount={buyAmount} />
+              <DismantleControls upgrades={upgrades} droneType='expeditionV2Drone' onDismantle={onDismantle} droneCount={drones.expeditionV2Drone} buyAmount={buyAmount} />
             </div>
             <BotonConTooltip
               onClick={onBuildExpeditionV2Drone}
@@ -256,7 +259,7 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
       {/* DRONES REFORZADOS */}
       {(upgrades.reinforcedBasicDrones > 0 || upgrades.reinforcedMediumDrones > 0 || upgrades.reinforcedAdvancedDrones > 0) && (
         <div className="drone-category" style={{ borderColor: '#8B5CF6' }}>
-          <h3 style={{ color: '#8B5CF6' }}>🛡️ DRONES REFORZADOS</h3>
+          <h3 style={{ color: '#8B5CF6' }}>DRONES REFORZADOS</h3>
           
                               {/* Dron Básico Reforzado */}
           {upgrades.reinforcedBasicDrones > 0 && (
@@ -264,10 +267,10 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
               <div className="drone-item-content">
                 <div className="drone-info">
                   <h4 className="drone-title" style={{ color: '#A78BFA' }}>Dron Básico Reforzado (DBR-F)</h4>
-                  <p>📊 Producción: +{formatNumber(8)} chatarra/segundo</p>
-                  <p>⚡ Consumo: {formatNumber(3)} energía</p>
-                  <p>💰 Coste: {formatNumber(reinforcedBasicCost.scrap)} chatarra, {formatNumber(reinforcedBasicCost.metal)} metal refinado</p>
-                  <p>🏗️ Flota: {drones.reinforcedBasic} | 📦 En cola: {queues.reinforcedBasic.queue}</p>
+                  <p>Producción: +{formatNumber(8)} chatarra/segundo</p>
+                  <p>Consumo: {formatNumber(3)} energía</p>
+                  <p>Coste: {formatNumber(reinforcedBasicCost.scrap)} chatarra, {formatNumber(reinforcedBasicCost.metal)} metal refinado</p>
+                  <p>Flota: {drones.reinforcedBasic} | En cola: {queues.reinforcedBasic.queue}</p>
                 </div>
                 <div className="controls-container">
                   <QueueControls queue={queues.reinforcedBasic} itemName='reinforcedBasic' onCancel={onCancel} />
@@ -295,10 +298,10 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
               <div className="drone-item-content">
                 <div className="drone-info">
                   <h4 className="drone-title" style={{ color: '#A78BFA' }}>Dron Medio Reforzado (DMR-F)</h4>
-                  <p>📊 Producción: +{formatNumber(25)} chatarra/segundo</p>
-                  <p>⚡ Consumo: {formatNumber(6)} energía</p>
-                  <p>💰 Coste: {formatNumber(reinforcedMediumCost.scrap)} chatarra, {formatNumber(reinforcedMediumCost.metal)} metal refinado</p>
-                  <p>🏗️ Flota: {drones.reinforcedMedium} | 📦 En cola: {queues.reinforcedMedium.queue}</p>
+                  <p>Producción: +{formatNumber(25)} chatarra/segundo</p>
+                  <p>Consumo: {formatNumber(6)} energía</p>
+                  <p>Coste: {formatNumber(reinforcedMediumCost.scrap)} chatarra, {formatNumber(reinforcedMediumCost.metal)} metal refinado</p>
+                  <p>Flota: {drones.reinforcedMedium} | En cola: {queues.reinforcedMedium.queue}</p>
                 </div>
                 <div className="controls-container">
                   <QueueControls queue={queues.reinforcedMedium} itemName='reinforcedMedium' onCancel={onCancel} />
@@ -326,10 +329,10 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
               <div className="drone-item-content">
                 <div className="drone-info">
                   <h4 className="drone-title" style={{ color: '#A78BFA' }}>Dron Avanzado Reforzado (DAR-F)</h4>
-                  <p>📊 Producción: +{formatNumber(80)} chatarra/segundo</p>
-                  <p>⚡ Consumo: {formatNumber(12)} energía</p>
-                  <p>💰 Coste: {formatNumber(reinforcedAdvancedCost.scrap)} chatarra, {formatNumber(reinforcedAdvancedCost.metal)} metal refinado</p>
-                  <p>🏗️ Flota: {drones.reinforcedAdvanced} | 📦 En cola: {queues.reinforcedAdvanced.queue}</p>
+                  <p>Producción: +{formatNumber(80)} chatarra/segundo</p>
+                  <p>Consumo: {formatNumber(12)} energía</p>
+                  <p>Coste: {formatNumber(reinforcedAdvancedCost.scrap)} chatarra, {formatNumber(reinforcedAdvancedCost.metal)} metal refinado</p>
+                  <p>Flota: {drones.reinforcedAdvanced} | En cola: {queues.reinforcedAdvanced.queue}</p>
                 </div>
                 <div className="controls-container">
                   <QueueControls queue={queues.reinforcedAdvanced} itemName='reinforcedAdvanced' onCancel={onCancel} />
@@ -356,7 +359,7 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
       {/* DRONES DE ÉLITE */}
       {(upgrades.golemChassis > 0 || (upgrades as any).wyrm > 0) && (
         <div className="drone-category" style={{ borderColor: '#F43F5E' }}>
-          <h3 style={{ color: '#F43F5E' }}>⚔️ DRONES DE ÉLITE</h3>
+          <h3 style={{ color: '#F43F5E' }}>DRONES DE ÉLITE</h3>
           
                     {/* Dron Golem */}
           {upgrades.golemChassis > 0 && (
@@ -364,11 +367,11 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
               <div className="drone-item-content">
                 <div className="drone-info">
                                                       <p><strong>Descripción:</strong> Un chasis masivo diseñado para procesar chatarra. Consume Chatarra para producir Metal Refinado de forma pasiva.</p>
-                  <p>⚡ Consumo: 50 energía/segundo</p>
+                  <p>Consumo: 50 energía/segundo</p>
                   <p>Consume: 500 Chatarra/s | Produce: 0.5 Metal Refinado/s</p>
-                  <p>💰 Coste: {formatNumber(golemCost.scrap)} chatarra, {formatNumber(golemCost.steel)} acero estructural</p>
-                  <p>📋 Requisitos: 5 Drones Avanzados Reforzados Y la investigación "Chasis Golem"</p>
-                  <p>🏗️ Flota: {drones.golem} | 📦 En cola: {queues.golem.queue}</p>
+                  <p>Coste: {formatNumber(golemCost.scrap)} chatarra, {formatNumber(golemCost.steel)} acero estructural</p>
+                  <p>Requisitos: 5 Drones Avanzados Reforzados Y la investigación "Chasis Golem"</p>
+                  <p>Flota: {drones.golem} | En cola: {queues.golem.queue}</p>
                 </div>
                 <div className="controls-container">
                   <QueueControls queue={queues.golem} itemName='golem' onCancel={onCancel} />
@@ -401,11 +404,11 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
             <div className="drone-info">
                             <h4 className="drone-title" style={{ color: '#F43F5E' }}>Dron Wyrm (DW-1)</h4>
               <p><strong>Descripción:</strong> Una maravilla de la ingeniería. Consume Chatarra y Metal Refinado para sintetizar Acero Estructural de forma pasiva.</p>
-              <p>⚡ Consumo: 200 energía/segundo</p>
+              <p>Consumo: 200 energía/segundo</p>
               <p>Consume: 1000 Chatarra/s y 1 Metal Refinado/s | Produce: 0.1 Acero Estructural/s</p>
-              <p>💰 Coste: {formatNumber(wyrmCost.scrap)} chatarra, {formatNumber(wyrmCost.steel)} acero</p>
-              <p>📋 Requisitos: 1 Dron Golem</p>
-              <p>🏗️ Flota: {drones.wyrm} | 📦 En cola: {queues.wyrm.queue}</p>
+              <p>Coste: {formatNumber(wyrmCost.scrap)} chatarra, {formatNumber(wyrmCost.steel)} acero</p>
+              <p>Requisitos: 1 Dron Golem</p>
+              <p>Flota: {drones.wyrm} | En cola: {queues.wyrm.queue}</p>
             </div>
             <div className="controls-container">
               <QueueControls queue={queues.wyrm} itemName='wyrm' onCancel={onCancel} />
@@ -434,10 +437,10 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
 // Nuevo componente para los controles de desmantelamiento
 const DismantleControls: React.FC<{
   upgrades: { [key: string]: number },
-  droneType: string,
+  droneType: DroneType,
   droneCount: number,
   buyAmount: number | 'max',
-  onDismantle: (droneType: string, amount: number | 'max') => void
+  onDismantle: (droneType: DroneType, amount: number | 'max') => void
 }> = ({ upgrades, droneType, droneCount, buyAmount, onDismantle }) => {
   // Corregir el typo: reaasignProtocols -> reassignProtocols
   if (!upgrades.reassignProtocols) {
@@ -461,6 +464,60 @@ const DismantleControls: React.FC<{
     >
       Desmantelar
     </button>
+  );
+};
+
+// --- NUEVO COMPONENTE ---
+const RetrofitControls: React.FC<{
+  resources: GameState['resources'];
+  upgrades: { [key: string]: number };
+  droneType: DroneType;
+  toDrone: DroneType;
+  droneCount: number;
+  onRetrofit: (fromDrone: DroneType, toDrone: DroneType) => void;
+}> = ({ resources, upgrades, droneType, toDrone, droneCount, onRetrofit }) => {
+  if (!upgrades.droneRetrofitting) {
+    return <div style={{ width: '100px' }}/>; // Espaciador para mantener la alineación
+  }
+
+  const fromCost = droneData[droneType]?.cost || {};
+  const toCost = droneData[toDrone]?.cost || {};
+  
+  const retrofitCost: Partial<Record<keyof GameState['resources'], number>> = {};
+  let canAfford = true;
+  let tooltipText = 'Reacondicionar: ';
+
+  const costEntries = Object.entries(toCost) as [keyof GameState['resources'], number][];
+
+  for (const [resource, cost] of costEntries) {
+    const fromResourceCost = fromCost[resource as keyof typeof fromCost] || 0;
+    const diff = cost - fromResourceCost;
+    if (diff > 0) {
+      retrofitCost[resource] = diff;
+      if (resources[resource] < diff) {
+        canAfford = false;
+      }
+      tooltipText += `${formatNumber(diff)} ${resource}, `;
+    }
+  }
+  
+  if (Object.keys(retrofitCost).length === 0) {
+    tooltipText = "Mejora gratuita";
+  } else {
+    tooltipText = tooltipText.slice(0, -2);
+  }
+
+  const canRetrofit = droneCount > 0 && canAfford;
+
+  return (
+    <BotonConTooltip
+      onClick={() => onRetrofit(droneType, toDrone)}
+      disabled={!canRetrofit}
+      tooltipText={droneCount > 0 ? tooltipText : 'No hay drones para reacondicionar'}
+      className={`build-button retrofit-button ${canRetrofit ? 'unlocked' : ''}`}
+    >
+      Mejorar
+    </BotonConTooltip>
   );
 };
 

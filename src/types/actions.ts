@@ -1,4 +1,4 @@
-import { ExpeditionId, ActiveExpedition } from './gameState';
+import { ExpeditionId, ActiveExpedition, DroneType } from './gameState';
 
 // src/types/actions.ts
 
@@ -70,8 +70,9 @@ export type ActionType =
   | { type: 'START_BATTLE' }
   | { type: 'PLAYER_ATTACK' }
   | { type: 'ESCAPE_COMBAT' }
-  | { type: 'CRAFT_PURIFIED_METAL' }
-  | { type: 'DISMANTLE_DRONE'; payload: { droneType: string; amount: number | 'max' } }
+    | { type: 'CRAFT_PURIFIED_METAL' }
+    | { type: 'DISMANTLE_DRONE'; payload: { droneType: string; amount: number | 'max' } }
+  | { type: 'RETROFIT_DRONE'; payload: { fromDrone: DroneType; toDrone: DroneType } }
   | { type: 'CANCEL_QUEUE_ITEM'; payload: { category: string; itemName: string; amount: number | 'all' } }
   // Nuevas acciones de reparación
   | { type: 'REPAIR_VINDICATOR_HEALTH'; payload: { healthAmount: number; scrapCost: number } }

@@ -32,15 +32,15 @@ const ExpeditionTimer: React.FC<{ completionTimestamp: number }> = ({ completion
 
 
 
-// Objeto para mapear los IDs de recursos a nombres e iconos amigables
-const rewardDisplayMap: Record<string, { name: string; icon: string }> = {
-  scrap: { name: 'Chatarra', icon: '💰' },
-  metalRefinado: { name: 'Metal Refinado', icon: '🔩' },
-  aceroEstructural: { name: 'Acero Estructural', icon: '🏗️' },
-  fragmentosPlaca: { name: 'Fragmentos de Placa', icon: '🧱' },
-  circuitosDañados: { name: 'Circuitos Dañados', icon: '🔌' },
-  aleacionReforzada: { name: 'Aleación Reforzada', icon: '🛡️' },
-  neuroChipCorrupto: { name: 'Neuro-Chip Corrupto', icon: '🧠' },
+// Objeto para mapear los IDs de recursos a nombres amigables
+const rewardDisplayMap: Record<string, { name: string }> = {
+  scrap: { name: 'Chatarra' },
+  metalRefinado: { name: 'Metal Refinado' },
+  aceroEstructural: { name: 'Acero Estructural' },
+  fragmentosPlaca: { name: 'Fragmentos de Placa' },
+  circuitosDañados: { name: 'Circuitos Dañados' },
+  aleacionReforzada: { name: 'Aleación Reforzada' },
+  neuroChipCorrupto: { name: 'Neuro-Chip Corrupto' },
 };
 
 const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({ 
@@ -143,11 +143,11 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
                   </li>
                   {Object.entries(exp.costs).map(([resource, cost]) => {
                     if (resource === 'drones') return null;
-                    const hasEnough = (resources as any)[resource] >= cost;
-                    const display = rewardDisplayMap[resource] || { name: resource, icon: '❓' };
+                                        const hasEnough = (resources as any)[resource] >= cost;
+                    const display = rewardDisplayMap[resource] || { name: resource };
                     return (
                       <li key={resource} className={hasEnough ? 'requirement met' : 'requirement unmet'}>
-                        {display.icon} {display.name}: {formatNumber(cost)}
+                        {display.name}: {formatNumber(cost)}
                       </li>
                     )
                   })}
@@ -157,13 +157,13 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
               <div>
                 <strong>Posibles Recompensas:</strong>
                 <ul>
-                  {Object.entries(exp.rewards).map(([key, value]) => {
+                                    {Object.entries(exp.rewards).map(([key, value]) => {
                     const display = rewardDisplayMap[key];
                     if (!display) return null;
                     const [min, max] = value;
                     return (
                       <li key={key}>
-                        {display.icon} {display.name}: {formatNumber(min)} - {formatNumber(max)}
+                        {display.name}: {formatNumber(min)} - {formatNumber(max)}
                       </li>
                     );
                   })}

@@ -103,6 +103,10 @@ export interface AuroraMessageState {
   key: string;
 }
 
+// Tipo para definir explícitamente todos los nombres de recursos
+export type ResourceType = keyof GameState['resources'];
+export type DroneType = keyof GameState['workshop']['drones'];
+
 export interface GameState {
   currentScene: 'startMenu' | 'introScene' | 'main' | 'phase2Intro' | 'phase2Main' | 'combatScene';
   phase2Unlocked: boolean;
@@ -201,6 +205,9 @@ export interface GameState {
     upgrades: {
       collectionEfficiency: number;
       droneAssembly: number;
+      droneScrapCost: number;
+      droneSelfRepair: number;
+      droneRetrofitting: number;
       reinforcedBasicDrones: number;
       reinforcedMediumDrones: number;
       reinforcedAdvancedDrones: number;
@@ -392,6 +399,9 @@ export interface GameState {
     upgrades: {
       collectionEfficiency: 0,
       droneAssembly: 0,
+      droneScrapCost: 0,
+      droneSelfRepair: 0,
+      droneRetrofitting: 0,
       reinforcedBasicDrones: 0,
       reinforcedMediumDrones: 0,
       reinforcedAdvancedDrones: 0,

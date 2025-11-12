@@ -2,8 +2,8 @@ import React from 'react';
 import './ShipyardView.css'; // Importar el archivo CSS
 import { GameState } from '../types/gameState';
 import { formatNumber } from '../utils/formatNumber';
-import { ActionType } from '../types/actions';
 import { allShipyardProjects } from '../data/shipyardData';
+import { useGameDispatch } from '../context/GameContext';
 
 interface ShipyardViewProps {
   shipyard: GameState['shipyard'];
@@ -11,7 +11,6 @@ interface ShipyardViewProps {
   resources: GameState['resources'];
   researchPoints: number;
   blueprints: number;
-  dispatch: React.Dispatch<ActionType>;
   onClose: () => void;
 }
 
@@ -21,9 +20,9 @@ const ShipyardView: React.FC<ShipyardViewProps> = ({
   resources,
   researchPoints,
   blueprints,
-  dispatch, 
   onClose 
 }) => {
+  const dispatch = useGameDispatch();
   const currentProject = allShipyardProjects[shipyard.currentProjectIndex];
   const allResources = { ...resources, researchPoints, blueprints };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import './CombatScene.css';
 
@@ -6,92 +6,51 @@ const CombatScene: React.FC = () => {
   const { gameState, dispatch } = useGame();
   const { vindicator, activeBattle } = gameState;
 
-  const [combatState, setCombatState] = useState<'idle' | 'running' | 'paused' | 'finished'>('idle');
+  const [isAutoCombatActive, setIsAutoCombatActive] = useState(false);
   const [combatSpeed, setCombatSpeed] = useState<'slow' | 'normal' | 'fast'>('normal');
-  const [autoCombatInterval, setAutoCombatInterval] = useState<ReturnType<typeof setInterval> | null>(null);
 
   if (!activeBattle) {
+    // Cuando la batalla termina (activeBattle es null), nos aseguramos de que el combate automático se detenga.
+    if (isAutoCombatActive) {
+      setIsAutoCombatActive(false);
+    }
     return <div>Cargando batalla...</div>;
   }
 
-  // Velocidades de combate (milisegundos entre turnos)
   const speedIntervals = {
     slow: 2000,
     normal: 1000,
     fast: 500
   };
 
-  const executeCombatTurn = useCallback(() => {
-    dispatch({ type: 'PLAYER_ATTACK' });
-  }, [dispatch]);
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null;
 
-  const startAutoCombat = () => {
-    setCombatState('running');
-
-    const interval = setInterval(() => {
-      executeCombatTurn();
-    }, speedIntervals[combatSpeed]);
-
-    setAutoCombatInterval(interval);
-  };
-
-  const pauseAutoCombat = () => {
-    setCombatState('paused');
-    if (autoCombatInterval) {
-      clearInterval(autoCombatInterval);
-      setAutoCombatInterval(null);
+    if (isAutoCombatActive) {
+      interval = setInterval(() => {
+        dispatch({ type: 'PLAYER_ATTACK' });
+      }, speedIntervals[combatSpeed]);
     }
-  };
 
-  const resumeAutoCombat = () => {
-    setCombatState('running');
-
-    const interval = setInterval(() => {
-      executeCombatTurn();
-    }, speedIntervals[combatSpeed]);
-
-    setAutoCombatInterval(interval);
-  };
-
-  const stopAutoCombat = () => {
-    setCombatState('finished');
-    if (autoCombatInterval) {
-      clearInterval(autoCombatInterval);
-      setAutoCombatInterval(null);
-    }
-  };
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isAutoCombatActive, combatSpeed, dispatch]);
 
   const escapeCombat = () => {
-    stopAutoCombat();
+    setIsAutoCombatActive(false);
     dispatch({ type: 'ESCAPE_COMBAT' });
   };
 
-  // Efecto para limpiar el intervalo al desmontar
-  useEffect(() => {
-    return () => {
-      if (autoCombatInterval) {
-        clearInterval(autoCombatInterval);
-      }
-    };
-  }, [autoCombatInterval]);
-
-  // Efecto para detectar fin de batalla
-  useEffect(() => {
-    if (!activeBattle && combatState === 'running') {
-      stopAutoCombat();
-    }
-  }, [activeBattle, combatState, stopAutoCombat]);
 
   return (
     <div className="combat-scene">
       {/* Status Indicator */}
       <div className="combat-status">
-        <span className={`status-indicator ${combatState}`}>
-          Estado: {
-            combatState === 'idle' ? 'Listo' :
-            combatState === 'running' ? 'En combate' :
-            combatState === 'paused' ? 'Pausado' : 'Finalizado'
-          }
+        <span className={`status-indicator ${isAutoCombatActive ? 'running' : 'paused'}`}>
+          Estado: {isAutoCombatActive ? 'En combate' : 'Pausado'}
         </span>
       </div>
 
@@ -196,21 +155,13 @@ const CombatScene: React.FC = () => {
 
       {/* Central Combat Controls */}
       <div className="combat-controls-center">
-        {combatState === 'idle' && (
-          <button className="central-action-button" onClick={startAutoCombat}>
-            🚀 INICIAR COMBATE AUTOMÁTICO
+        {!isAutoCombatActive ? (
+          <button className="central-action-button" onClick={() => setIsAutoCombatActive(true)}>
+            ▶️ INICIAR COMBATE AUTOMÁTICO
           </button>
-        )}
-
-        {combatState === 'running' && (
-          <button className="central-action-button" onClick={pauseAutoCombat}>
+        ) : (
+          <button className="central-action-button" onClick={() => setIsAutoCombatActive(false)}>
             ⏸️ PAUSAR COMBATE
-          </button>
-        )}
-
-        {combatState === 'paused' && (
-          <button className="central-action-button" onClick={resumeAutoCombat}>
-            ▶️ REANUDAR COMBATE
           </button>
         )}
 
@@ -219,7 +170,7 @@ const CombatScene: React.FC = () => {
           <select
             value={combatSpeed}
             onChange={(e) => setCombatSpeed(e.target.value as 'slow' | 'normal' | 'fast')}
-            disabled={combatState === 'running'}
+            disabled={isAutoCombatActive}
           >
             <option value="slow">Lenta</option>
             <option value="normal">Normal</option>
@@ -228,15 +179,10 @@ const CombatScene: React.FC = () => {
         </div>
 
         <div className="secondary-actions">
-          {(combatState === 'paused' || combatState === 'idle') && (
-            <button className="secondary-button stop-button" onClick={stopAutoCombat}>
-              ⏹️ Detener
-            </button>
-          )}
           <button 
             className="secondary-button escape-button" 
             onClick={escapeCombat} 
-            disabled={combatState === 'running'}
+            disabled={isAutoCombatActive}
           >
             🏃 Escapar
           </button>

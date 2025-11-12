@@ -171,63 +171,75 @@ const applyBulkOfflineProduction = (state: GameState, seconds: number): GameStat
 
 // Carga el estado inicial, intentando recuperarlo de localStorage
 const loadState = (): GameState => {
+  console.log("Iniciando la carga del estado...");
   try {
     const serializedState = localStorage.getItem('mekadron-savegame');
     if (serializedState === null) {
+      console.log("No se encontró partida guardada. Usando estado inicial.");
       return initialGameState;
     }
-            const storedState = JSON.parse(serializedState);
+    console.log("Partida guardada encontrada. Procesando...");
+    const storedState = JSON.parse(serializedState);
+    console.log("Estado guardado parseado:", storedState);
 
     // --- MIGRACIÓN DE DATOS ESTRUCTURAL: workshop.drones ---
-    // Comprobar si el estado guardado tiene la estructura antigua (drones en la raíz)
     if (storedState.drones && !storedState.workshop?.drones) {
-      // Si workshop no existe, créalo
+      console.log("Migrando estructura de drones...");
       if (!storedState.workshop) {
         storedState.workshop = { ...initialGameState.workshop };
       }
-      // Copia los drones a la nueva ubicación y elimina la antigua
       storedState.workshop.drones = storedState.drones;
       delete storedState.drones;
     }
 
     // --- MIGRACIÓN DE DATOS DE AURORA ---
-    // Comprobar si es un guardado antiguo y migrar la estructura de Aurora
     if (storedState.aurora && (storedState.aurora.currentMessage || storedState.aurora.messageQueue)) {
+      console.log("Migrando estructura de Aurora...");
       const migratedPendingMessages = [];
       if (storedState.aurora.currentMessage) {
         migratedPendingMessages.push({
           message: storedState.aurora.currentMessage,
-          key: `migrated_${Date.now()}` // Asignar una clave genérica
+          key: `migrated_${Date.now()}`
         });
       }
       if (Array.isArray(storedState.aurora.messageQueue)) {
         migratedPendingMessages.push(...storedState.aurora.messageQueue);
       }
-
-      // Crear la nueva estructura y limpiar la vieja
       storedState.aurora.activeMessages = [];
       storedState.aurora.pendingMessages = migratedPendingMessages;
       delete storedState.aurora.currentMessage;
       delete storedState.aurora.messageQueue;
     }
 
-    // Rehidratar el Set de mensajes de Aurora que se pierde en la serialización
+    // --- MIGRACIÓN DE DATOS DE SHIPYARD ---
+    if (!storedState.shipyard?.progress) {
+      console.log("Migrando estructura de Shipyard (progress)...");
+      if (!storedState.shipyard) {
+        storedState.shipyard = { ...initialGameState.shipyard };
+      }
+      storedState.shipyard.progress = { ...initialGameState.shipyard.progress };
+    }
+
+    // Rehidratar el Set de mensajes de Aurora
     if (storedState.aurora && Array.isArray(storedState.aurora.shownMessages)) {
       storedState.aurora.shownMessages = new Set(storedState.aurora.shownMessages);
     } else if (storedState.aurora) {
-      // Si existe pero no es un array (por un guardado antiguo o corrupto), se resetea
       storedState.aurora.shownMessages = new Set();
     }
+    console.log("Estado después de la migración:", storedState);
 
-                const mergedState = deepMerge(initialGameState, storedState);
+    const mergedState = deepMerge(initialGameState, storedState);
+    console.log("Estado después de la fusión (deepMerge):", mergedState);
     
-    // La rehidratación del Set se hace sobre el estado ya fusionado para mayor seguridad
+    // Rehidratación final del Set
     if (mergedState.aurora && Array.isArray(mergedState.aurora.shownMessages)) {
       mergedState.aurora.shownMessages = new Set(mergedState.aurora.shownMessages);
     }
 
-    // Calcular recursos generados durante la ausencia
-    return calculateOfflineResources(mergedState);
+    console.log("Calculando recursos offline...");
+    const finalState = calculateOfflineResources(mergedState);
+    console.log("Estado final listo para usar:", finalState);
+    return finalState;
   } catch (err) {
     console.error("No se pudo cargar la partida guardada:", err);
     return initialGameState;

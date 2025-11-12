@@ -154,6 +154,11 @@
   font-size: 1.8rem;
 }
 
+.cost-icon-img {
+  width: 1.8rem;
+  height: 1.8rem;
+}
+
 .cost-amount {
   font-weight: bold;
   color: #F59E0B;
@@ -301,6 +306,9 @@
 .upgrade-cost li {
   color: #D1D5DB;
   font-size: 1.4rem; /* Aumentar tamaño de fuente */
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
 }
 
 .upgrade-cost li.not-enough {

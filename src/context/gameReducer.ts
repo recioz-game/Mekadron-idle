@@ -4,17 +4,20 @@ import { constructionReducer } from './constructionReducer';
 import { missionsReducer } from './missionsReducer';
 import { combatReducer } from './combatReducer';
 import { processGameTick } from '../gameLogic/tickLogic';
-import { GameState, initialGameState, ActiveExpedition } from '../types/gameState';
+import { GameState, initialGameState, ActiveExpedition, ResourceType } from '../types/gameState';
 import { vindicatorLevelData } from '../data/battleData';
 import { ActionType } from '../types/actions';
-import { allArmoryMK1Modules } from '../data/armoryMK1Data'; // <-- IMPORTAR DATOS DE MÓDULOS
+import { allArmoryMK1Modules } from '../data/armoryMK1Data';
+import { droneData } from '../data/droneData';
+import { updateVindicatorToMK1 } from '../gameLogic/utils';
 
 export const gameReducer = (state: GameState, action: ActionType): GameState => {
   let newState = { ...state };
 
     // Call sub-reducers
-  newState = combatReducer(newState, action);
+    newState = combatReducer(newState, action);
   newState = constructionReducer(newState, action);
+  newState = missionsReducer(newState, action);
 
     // The rest of the switch handles non-combat actions
   switch (action.type) {
@@ -80,11 +83,7 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
             currentScene: 'main'
         };
 
-    case 'START_PHASE_2':
-      return {
-        ...state,
-        currentScene: 'phase2Main'
-      };
+    
 
     case 'RETURN_TO_PHASE_1':
       return {
@@ -198,14 +197,14 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         }
         const newResources = { ...state.resources };
         let canAfford = true;
-        for (const [resource, cost] of Object.entries(expedition.costs)) {
+                for (const [resource, cost] of Object.entries(expedition.costs)) {
           if (resource === 'drones') continue;
-          if ((newResources as any)[resource] < cost) {
+          if (newResources[resource as ResourceType] < cost) {
             canAfford = false;
             console.warn(`Not enough ${resource} for expedition.`);
             break;
           }
-          (newResources as any)[resource] -= cost;
+          newResources[resource as ResourceType] -= cost;
         }
                 if (!canAfford) {
           return state;
@@ -262,8 +261,7 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         stateAfterTick.currentBackground = 3;
       }
       
-      // Después de procesar el tick, actualizamos el progreso de las misiones.
-      stateAfterTick = missionsReducer(stateAfterTick, { type: 'UPDATE_MISSION_PROGRESS' });
+            // Ya no es necesario llamar al missionsReducer aquí, se hace a nivel global
       return stateAfterTick;
     }
 
@@ -305,34 +303,15 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
 
         case 'DEBUG_UNLOCK_VINDICATOR_MK1': {
       // Acción atómica para establecer el estado de MK1 directamente
-      const newUpgrades = { ...state.vindicatorUpgrades };
-      Object.keys(newUpgrades).forEach(key => {
-        (newUpgrades as any)[key].currentStars = 0;
-      });
-
-      return {
-        ...state,
+              const tempState = updateVindicatorToMK1(state);
+                  return {
+        ...tempState,
         phase2Unlocked: true,
         shipyard: {
-          ...state.shipyard,
+          ...tempState.shipyard,
           currentProjectIndex: 2, // Asumimos que el MK1 es el índice 1, el siguiente es el 2
           progress: {}, // Limpiamos el progreso para el nuevo proyecto
         },
-        vindicator: {
-          vindicatorType: 'mk1',
-          maxHealth: 1500,
-          currentHealth: 1500,
-          maxShield: 750,
-          currentShield: 750,
-          damage: 150,
-          modules: {
-            offensive: null,
-            defensive: null,
-            tactical: null,
-          },
-        },
-        vindicatorUpgrades: newUpgrades,
-        vindicatorLevel: 1,
       };
     }
 
@@ -348,9 +327,9 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       const cost = currentProject.costs[component][resource];
       const progress = shipyard.progress[component]?.[resource] || 0;
       
-      const currentResourceAmount = resource === 'researchPoints' 
+            const currentResourceAmount = resource === 'researchPoints' 
         ? techCenter.researchPoints 
-        : (resources as any)[resource] || 0;
+        : resources[resource as ResourceType] || 0;
 
       const amountToDonate = Math.min(amount, currentResourceAmount, cost - progress);
 
@@ -401,37 +380,19 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
             progress: newEmptyProgress,
           };
           
-                    if (currentProject.id === 'vindicator_base') {
+                                        if (currentProject.id === 'vindicator_base') {
             newState.phase2Unlocked = true;
-            newState.currentScene = 'phase2Intro'; // <-- AÑADIDO: Inicia el vídeo de introducción
-                        newState.notificationQueue = [
+            newState.currentScene = 'phase2Intro';
+            newState.resources = {
+              ...newState.resources,
+              barraCombustible: (newState.resources.barraCombustible || 0) + 500,
+            };
+            newState.notificationQueue = [
               ...state.notificationQueue,
               { id: `vindicator-built-${Date.now()}`, title: '¡Vindicator Construido!', message: 'La Fase 2 está ahora disponible. ¡Accede a la Sala de Batalla!' }
             ];
-                                        } else if (currentProject.id === 'vindicator_mk1') {
-            // --- APLICAR STATS FIJOS DEL MK.I Y RESETEAR MEJORAS ANTERIORES ---
-            const newUpgrades = { ...newState.vindicatorUpgrades };
-            Object.keys(newUpgrades).forEach(key => {
-              (newUpgrades as any)[key].currentStars = 0;
-            });
-
-                        newState.vindicator = {
-              vindicatorType: 'mk1',
-              maxHealth: 1500,
-              currentHealth: 1500,
-              maxShield: 750,
-              currentShield: 750,
-              damage: 150,
-              modules: {
-                offensive: null,
-                defensive: null,
-                tactical: null,
-              },
-            };
-            
-            newState.vindicatorUpgrades = newUpgrades;
-            newState.vindicatorLevel = 1;
-
+                                                                                } else if (currentProject.id === 'vindicator_mk1') {
+            newState = updateVindicatorToMK1(newState);
             newState.notificationQueue = [
               ...state.notificationQueue,
               { id: `mk1-built-${Date.now()}`, title: '¡Vindicator Mk.I Construido!', message: 'Tu nave ha sido mejorada a un nuevo chasis. El sistema de mejoras anterior ha sido completado.' }
@@ -465,11 +426,11 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         const upgrade = state.vindicatorUpgrades[upgradeId as keyof typeof state.vindicatorUpgrades];
         if (!upgrade || upgrade.currentStars >= upgrade.maxStars) return state;
         const { phase1Resources, phase2Resources } = upgrade.costPerStar;
-        const hasEnoughResources = Object.entries(phase1Resources).every(([resource, amount]) => (state.resources as any)[resource] >= amount) && Object.entries(phase2Resources).every(([resource, amount]) => (state.resources as any)[resource] >= amount);
+                const hasEnoughResources = Object.entries(phase1Resources).every(([resource, amount]) => state.resources[resource as ResourceType] >= amount) && Object.entries(phase2Resources).every(([resource, amount]) => state.resources[resource as ResourceType] >= amount);
         if (!hasEnoughResources) return state;
         const newResources = { ...state.resources };
-        Object.entries(phase1Resources).forEach(([resource, amount]) => { (newResources as any)[resource] -= amount; });
-        Object.entries(phase2Resources).forEach(([resource, amount]) => { (newResources as any)[resource] -= amount; });
+        Object.entries(phase1Resources).forEach(([resource, amount]) => { newResources[resource as ResourceType] -= amount; });
+        Object.entries(phase2Resources).forEach(([resource, amount]) => { newResources[resource as ResourceType] -= amount; });
         const { health, shield, damage } = upgrade.statIncreasePerStar;
         return { ...state, resources: newResources, vindicatorUpgrades: { ...state.vindicatorUpgrades, [upgradeId]: { ...upgrade, currentStars: upgrade.currentStars + 1 } }, vindicator: { ...state.vindicator, maxHealth: state.vindicator.maxHealth + (health || 0), maxShield: state.vindicator.maxShield + (shield || 0), damage: state.vindicator.damage + (damage || 0), } };
     }
@@ -507,26 +468,47 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
           };
 
           let notificationMessage = "Recompensas obtenidas: ";
-          for (const [resource, range] of Object.entries(expeditionData.rewards)) {
+                    for (const [resource, range] of Object.entries(expeditionData.rewards)) {
             const [min, max] = range as [number, number];
             const amount = Math.floor(Math.random() * (max - min + 1)) + min;
-            (newResources as any)[resource] = ((newResources as any)[resource] || 0) + amount;
+            const resourceKey = resource as ResourceType;
+            (newResources[resourceKey] as number) = (newResources[resourceKey] || 0) + amount;
             
             const resourceName = resourceNames[resource] || resource;
             notificationMessage += `${amount} de ${resourceName}, `;
           }
 
           return { ...state, resources: newResources, activeExpeditions: remainingExpeditions, notificationQueue: [...state.notificationQueue, { id: `exp-success-${Date.now()}`, title: `Éxito en ${expeditionData.title}`, message: notificationMessage.slice(0, -2) }] };
-        } else {
-                    const dronesLost = Math.ceil(activeExpedition.dronesSent * expeditionData.risk.droneLossPercentage);
+                } else {
+          const droneSelfRepairLevel = state.techCenter.upgrades.droneSelfRepair || 0;
+          const survivalChance = droneSelfRepairLevel * 0.10; // 10% por nivel
+          
+          const initialDronesLost = Math.ceil(activeExpedition.dronesSent * expeditionData.risk.droneLossPercentage);
+          let dronesSurvived = 0;
+          
+          if (droneSelfRepairLevel > 0) {
+            for (let i = 0; i < initialDronesLost; i++) {
+              if (Math.random() < survivalChance) {
+                dronesSurvived++;
+              }
+            }
+          }
+
+          const finalDronesLost = initialDronesLost - dronesSurvived;
           const droneType = expeditionData.droneType;
+          
+          let message = `La expedición fracasó. Se han perdido ${finalDronesLost} drones.`;
+          if (dronesSurvived > 0) {
+            message += ` ¡Pero ${dronesSurvived} lograron regresar gracias a los autómatas de auto-reparación!`;
+          }
+
           return {
             ...state,
             workshop: {
               ...state.workshop,
               drones: {
                 ...state.workshop.drones,
-                [droneType]: state.workshop.drones[droneType] - dronesLost,
+                [droneType]: state.workshop.drones[droneType] - finalDronesLost,
               },
             },
             activeExpeditions: remainingExpeditions,
@@ -535,7 +517,7 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
               {
                 id: `exp-fail-${Date.now()}`,
                 title: `Fracaso en ${expeditionData.title}`,
-                message: `La expedición fracasó. Se han perdido ${dronesLost} drones.`,
+                message: message,
               },
             ],
           };
@@ -609,7 +591,57 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
             [slot]: moduleId,
           }
         }
-      };
+            };
+    }
+
+        case 'RETROFIT_DRONE': {
+      const { fromDrone, toDrone } = action.payload;
+      const { workshop, resources } = state;
+
+      const fromCost = droneData[fromDrone]?.cost || {};
+      const toCost = droneData[toDrone]?.cost || {};
+      
+      const retrofitCost: { [key in ResourceType]?: number } = {};
+      let canAfford = true;
+
+      // Calcular la diferencia de coste
+      Object.keys(toCost).forEach(resource => {
+        const key = resource as ResourceType;
+        const diff = (toCost[key] || 0) - (fromCost[key] || 0);
+        if (diff > 0) {
+          retrofitCost[key] = diff;
+        }
+      });
+
+      // Comprobar si se tienen los recursos
+      Object.keys(retrofitCost).forEach(resource => {
+        const key = resource as ResourceType;
+        if (resources[key] < (retrofitCost[key] || 0)) {
+          canAfford = false;
+        }
+      });
+
+      if (workshop.drones[fromDrone] > 0 && canAfford) {
+        const newResources = { ...resources };
+        Object.keys(retrofitCost).forEach(resource => {
+          const key = resource as ResourceType;
+          newResources[key] -= retrofitCost[key] || 0;
+        });
+
+        return {
+          ...state,
+          resources: newResources,
+          workshop: {
+            ...workshop,
+            drones: {
+              ...workshop.drones,
+              [fromDrone]: workshop.drones[fromDrone] - 1,
+              [toDrone]: (workshop.drones[toDrone] || 0) + 1,
+            },
+          },
+        };
+      }
+      return state;
     }
 
     default:

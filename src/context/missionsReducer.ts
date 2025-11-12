@@ -213,7 +213,10 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
       }
 
       let newResources = { ...state.resources };
-      let newWorkshop = { ...state.workshop };
+      let newWorkshop = { 
+        ...state.workshop,
+        drones: { ...state.workshop.drones } // <-- Crear una copia del objeto drones
+      };
       switch (mission.reward.type) {
         case 'scrap':
           newResources.scrap += mission.reward.value;

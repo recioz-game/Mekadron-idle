@@ -26,9 +26,15 @@
   align-items: center;
 }
 
-.resource-item .icon {
+.resource-item .icon, .stat-item .icon {
   font-size: 1.6rem; /* Reducido */
   margin-right: 0.7rem; /* Reducido */
+}
+
+.resource-icon-img {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-right: 0.7rem;
 }
 
 .separator {
@@ -60,6 +66,11 @@
 .stat-item .value {
   font-size: 1.4rem; /* Reducido */
   font-weight: bold;
+}
+
+.stat-label {
+  color: #9CA3AF;
+  margin-right: 0.5rem;
 }
 
 @media (max-width: 768px) {

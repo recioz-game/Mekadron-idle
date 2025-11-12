@@ -1,10 +1,10 @@
-import { GameState } from '../types/gameState';
+import { GameState, ResourceType } from '../types/gameState';
 import { ActionType } from '../types/actions';
 import { gameData } from '../data/gameData';
 
 // Interfaz para la configuración de construcción genérica
 interface BuildConfiguration {
-  costs: Partial<Record<keyof GameState['resources'], number>>;
+  costs: Partial<Record<ResourceType, number>>;
   buyAmount: number | 'max';
   queuePath: [keyof GameState, 'queues', string];
   prerequisites?: (state: GameState) => boolean;
@@ -24,7 +24,7 @@ const handleBuild = (state: GameState, config: BuildConfiguration): GameState =>
 
   const maxAffordableAmounts = costEntries.map(([resource, cost]) => {
     if (cost === 0) return Infinity;
-    const currentResource = (state.resources as any)[resource] || 0;
+    const currentResource = state.resources[resource as ResourceType] || 0;
     return Math.floor(currentResource / cost);
   });
   const maxAffordable = Math.min(...maxAffordableAmounts);
@@ -39,7 +39,7 @@ const handleBuild = (state: GameState, config: BuildConfiguration): GameState =>
   // 4. Crear un nuevo objeto de recursos
   const newResources = { ...state.resources };
   for (const [resource, cost] of costEntries) {
-    (newResources as any)[resource] -= amount * cost;
+    newResources[resource as ResourceType] -= amount * cost;
   }
 
   // 5. Actualizar la cola de producción de forma inmutable
@@ -231,7 +231,7 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
       const newResources = { ...state.resources };
       Object.entries(costs).forEach(([resource, cost]) => {
         if (resource in newResources) {
-          (newResources as any)[resource] += (cost as number) * amountToCancel;
+          newResources[resource as ResourceType] += (cost as number) * amountToCancel;
         }
       });
 

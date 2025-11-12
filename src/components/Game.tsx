@@ -1,13 +1,37 @@
 // src/components/Game.tsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useGame } from '../context/GameContext';
 import GameScene from './GameScene';
 import AuroraMessage from './AuroraMessage';
-import { useGameLoop } from '../hooks/useGameLoop';
+import { TICK_INTERVAL } from '../data/gameConfig';
 
 const Game: React.FC = () => {
   const { gameState, dispatch } = useGame();
-  useGameLoop(dispatch);
+  const lastTick = useRef<number | null>(null);
+
+    // Game loop
+  useEffect(() => {
+    let frameId: number;
+
+    const gameLoop = (timestamp: number) => {
+      if (lastTick.current === null) {
+        lastTick.current = timestamp;
+      }
+      const delta = timestamp - lastTick.current;
+      if (delta >= TICK_INTERVAL) {
+        const ticksToProcess = Math.floor(delta / TICK_INTERVAL);
+        lastTick.current = timestamp - (delta % TICK_INTERVAL);
+        for (let i = 0; i < ticksToProcess; i++) {
+          dispatch({ type: 'GAME_TICK' });
+        }
+      }
+      frameId = requestAnimationFrame(gameLoop);
+    };
+
+    frameId = requestAnimationFrame(gameLoop);
+
+    return () => cancelAnimationFrame(frameId);
+  }, [dispatch]);
 
   // Guardado automático en localStorage
   useEffect(() => {

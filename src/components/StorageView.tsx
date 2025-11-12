@@ -3,6 +3,7 @@ import './StorageView.css'; // Importar el archivo CSS
 import BuyAmountSelector from './BuyAmountSelector';
 import { formatNumber } from '../utils/formatNumber';
 import BotonConTooltip from './BotonConTooltip';
+import { gameData } from '../data/gameData';
 
 // Importar imágenes de almacenamiento
 import storageBasicImg from '../assets/images/ui/storage-basic.png';
@@ -75,18 +76,18 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
   const getTooltipText = (requirements: { resource?: string, amount: number, current: number, text: string }[]): string => {
     const missing = requirements.filter(req => req.current < req.amount);
     if (missing.length === 0) return '';
-    return 'Requiere: ' + missing.map(req => `${req.text} (${formatNumber(req.amount)})`).join(', ');
+        return 'Requiere: ' + missing.map(req => `${req.text} (${formatNumber(req.amount)})`).join(', ');
   };
 
-  const basicStorageCost = 100;
-  const mediumStorageCost = 1000;
-  const advancedStorageCost = 10000;
-  const quantumHoardUnitScrapCost = 75000;
-  const quantumHoardUnitMetalCost = 50;
-  const lithiumIonBatteryCost = 150;
-  const plasmaAccumulatorCost = 750;
-  const harmonicContainmentFieldScrapCost = 3000;
-  const harmonicContainmentFieldMetalCost = 10;
+  const basicStorageCost = gameData.storage.basicStorage.costs.scrap!;
+  const mediumStorageCost = gameData.storage.mediumStorage.costs.scrap!;
+  const advancedStorageCost = gameData.storage.advancedStorage.costs.scrap!;
+  const quantumHoardUnitScrapCost = gameData.storage.quantumHoardUnit.costs.scrap!;
+  const quantumHoardUnitMetalCost = gameData.storage.quantumHoardUnit.costs.metalRefinado!;
+  const lithiumIonBatteryCost = gameData.storage.lithiumIonBattery.costs.scrap!;
+  const plasmaAccumulatorCost = gameData.storage.plasmaAccumulator.costs.scrap!;
+  const harmonicContainmentFieldScrapCost = gameData.storage.harmonicContainmentField.costs.scrap!;
+  const harmonicContainmentFieldMetalCost = gameData.storage.harmonicContainmentField.costs.metalRefinado!;
   
   const getMaxAffordable = (cost: number | { scrap: number, metal: number }) => {
     if (typeof cost === 'number') {
@@ -123,16 +124,16 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
             <div className={`storage-item ${scrap >= basicStorageCost ? 'unlocked' : ''}`}>
         <div className="storage-item-content">
           <h3 style={{ color: '#F59E0B' }}>Almacén Básico</h3>
-          <p>📈 Capacidad: +{formatNumber(50)} chatarra máxima</p>
-          <p>💰 Coste: {formatNumber(basicStorageCost)} chatarra</p>
-          <p>🏗️ Construidos: {basicStorage} | 📦 En cola: {basicStorageQueue.queue}</p>
+          <p>Capacidad: +{formatNumber(50)} chatarra máxima</p>
+          <p>Coste: {formatNumber(basicStorageCost)} chatarra</p>
+          <p>Construidos: {basicStorage} | En cola: {basicStorageQueue.queue}</p>
           {basicStorageQueue.queue > 0 && (
             <div className="queue-controls">
               <button onClick={() => onCancel('basicStorage', 1)}>Cancelar 1</button>
               <button onClick={() => onCancel('basicStorage', 'all')}>Cancelar Todo</button>
             </div>
           )}
-          <p>⏱️ T/U: {basicStorageQueue.time}s</p>
+          <p>T/U: {basicStorageQueue.time}s</p>
           
           {basicStorageQueue.queue > 0 && <ProgressBar progress={basicStorageQueue.progress} time={basicStorageQueue.time} />}
           
@@ -152,17 +153,17 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
             <div className={`storage-item ${scrap >= mediumStorageCost && basicStorage >= 3 ? 'unlocked' : ''} ${basicStorage >= 3 ? '' : 'locked'}`}>
         <div className="storage-item-content">
           <h3 style={{ color: '#22C55E' }}>Almacén Medio</h3>
-          <p>📈 Capacidad: +{formatNumber(500)} chatarra máxima</p>
-          <p>💰 Coste: {formatNumber(mediumStorageCost)} chatarra</p>
-          <p>🏗️ Construidos: {mediumStorage} | 📦 En cola: {mediumStorageQueue.queue}</p>
+          <p>Capacidad: +{formatNumber(500)} chatarra máxima</p>
+          <p>Coste: {formatNumber(mediumStorageCost)} chatarra</p>
+          <p>Construidos: {mediumStorage} | En cola: {mediumStorageQueue.queue}</p>
           {mediumStorageQueue.queue > 0 && (
             <div className="queue-controls">
               <button onClick={() => onCancel('mediumStorage', 1)}>Cancelar 1</button>
               <button onClick={() => onCancel('mediumStorage', 'all')}>Cancelar Todo</button>
             </div>
           )}
-          <p>⏱️ T/U: {mediumStorageQueue.time}s</p>
-          <p>📋 Requisitos: 3 Almacenes Básicos</p>
+          <p>T/U: {mediumStorageQueue.time}s</p>
+          <p>Requisitos: 3 Almacenes Básicos</p>
 
           {mediumStorageQueue.queue > 0 && <ProgressBar progress={mediumStorageQueue.progress} time={mediumStorageQueue.time} />}
           
@@ -190,17 +191,17 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
             <div className={`storage-item ${scrap >= advancedStorageCost && mediumStorage >= 1 ? 'unlocked' : ''} ${mediumStorage >= 1 ? '' : 'locked'}`}>
         <div className="storage-item-content">
           <h3 style={{ color: '#D946EF' }}>Almacén Avanzado</h3>
-          <p>📈 Capacidad: +{formatNumber(5000)} chatarra máxima</p>
-          <p>💰 Coste: {formatNumber(advancedStorageCost)} chatarra</p>
-          <p>🏗️ Construidos: {advancedStorage} | 📦 En cola: {advancedStorageQueue.queue}</p>
+          <p>Capacidad: +{formatNumber(5000)} chatarra máxima</p>
+          <p>Coste: {formatNumber(advancedStorageCost)} chatarra</p>
+          <p>Construidos: {advancedStorage} | En cola: {advancedStorageQueue.queue}</p>
           {advancedStorageQueue.queue > 0 && (
             <div className="queue-controls">
               <button onClick={() => onCancel('advancedStorage', 1)}>Cancelar 1</button>
               <button onClick={() => onCancel('advancedStorage', 'all')}>Cancelar Todo</button>
             </div>
           )}
-          <p>⏱️ T/U: {advancedStorageQueue.time}s</p>
-          <p>📋 Requisitos: 1 Almacén Medio</p>
+          <p>T/U: {advancedStorageQueue.time}s</p>
+          <p>Requisitos: 1 Almacén Medio</p>
 
           {advancedStorageQueue.queue > 0 && <ProgressBar progress={advancedStorageQueue.progress} time={advancedStorageQueue.time} />}
           
@@ -229,17 +230,17 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
             <div className={`storage-item ${scrap >= quantumHoardUnitScrapCost && metalRefinado >= quantumHoardUnitMetalCost && advancedStorage >= 3 ? 'unlocked' : ''} ${advancedStorage >= 3 ? '' : 'locked'}`}>
         <div className="storage-item-content">
           <h3 style={{ color: '#D946EF' }}>Unidad de Acopio Cuántico</h3>
-          <p>📈 Capacidad: +{formatNumber(50000)} chatarra máxima</p>
-          <p>💰 Coste: {formatNumber(quantumHoardUnitScrapCost)} chatarra y {formatNumber(quantumHoardUnitMetalCost)} metal refinado</p>
-          <p>🏗️ Construidos: {quantumHoardUnit} | 📦 En cola: {quantumHoardUnitQueue.queue}</p>
+          <p>Capacidad: +{formatNumber(50000)} chatarra máxima</p>
+          <p>Coste: {formatNumber(quantumHoardUnitScrapCost)} chatarra y {formatNumber(quantumHoardUnitMetalCost)} metal refinado</p>
+          <p>Construidos: {quantumHoardUnit} | En cola: {quantumHoardUnitQueue.queue}</p>
           {quantumHoardUnitQueue.queue > 0 && (
             <div className="queue-controls">
               <button onClick={() => onCancel('quantumHoardUnit', 1)}>Cancelar 1</button>
               <button onClick={() => onCancel('quantumHoardUnit', 'all')}>Cancelar Todo</button>
             </div>
           )}
-          <p>⏱️ T/U: {quantumHoardUnitQueue.time}s</p>
-          <p>📋 Requisitos: 3 Almacenes Avanzados</p>
+          <p>T/U: {quantumHoardUnitQueue.time}s</p>
+          <p>Requisitos: 3 Almacenes Avanzados</p>
           
           {quantumHoardUnitQueue.queue > 0 && <ProgressBar progress={quantumHoardUnitQueue.progress} time={quantumHoardUnitQueue.time} />}
           
@@ -272,16 +273,16 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
             <div className={`storage-item ${scrap >= lithiumIonBatteryCost ? 'unlocked' : ''}`}>
         <div className="storage-item-content">
           <h3 style={{ color: '#06B6D4' }}>Batería de Iones de Litio</h3>
-          <p>📈 Capacidad: +{formatNumber(50)} energía máxima</p>
-          <p>💰 Coste: {formatNumber(lithiumIonBatteryCost)} chatarra</p>
-          <p>🏗️ Construidos: {lithiumIonBattery} | 📦 En cola: {lithiumIonBatteryQueue.queue}</p>
+          <p>Capacidad: +{formatNumber(50)} energía máxima</p>
+          <p>Coste: {formatNumber(lithiumIonBatteryCost)} chatarra</p>
+          <p>Construidos: {lithiumIonBattery} | En cola: {lithiumIonBatteryQueue.queue}</p>
           {lithiumIonBatteryQueue.queue > 0 && (
             <div className="queue-controls">
               <button onClick={() => onCancel('lithiumIonBattery', 1)}>Cancelar 1</button>
               <button onClick={() => onCancel('lithiumIonBattery', 'all')}>Cancelar Todo</button>
             </div>
           )}
-          <p>⏱️ T/U: {lithiumIonBatteryQueue.time}s</p>
+          <p>T/U: {lithiumIonBatteryQueue.time}s</p>
 
           {lithiumIonBatteryQueue.queue > 0 && <ProgressBar progress={lithiumIonBatteryQueue.progress} time={lithiumIonBatteryQueue.time} />}
           
@@ -301,17 +302,17 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
             <div className={`storage-item ${scrap >= plasmaAccumulatorCost && lithiumIonBattery >= 5 ? 'unlocked' : ''} ${lithiumIonBattery >= 5 ? '' : 'locked'}`}>
         <div className="storage-item-content">
           <h3 style={{ color: '#06B6D4' }}>Acumulador de Plasma</h3>
-          <p>📈 Capacidad: +{formatNumber(250)} energía máxima</p>
-          <p>💰 Coste: {formatNumber(plasmaAccumulatorCost)} chatarra</p>
-          <p>🏗️ Construidos: {plasmaAccumulator} | 📦 En cola: {plasmaAccumulatorQueue.queue}</p>
+          <p>Capacidad: +{formatNumber(250)} energía máxima</p>
+          <p>Coste: {formatNumber(plasmaAccumulatorCost)} chatarra</p>
+          <p>Construidos: {plasmaAccumulator} | En cola: {plasmaAccumulatorQueue.queue}</p>
           {plasmaAccumulatorQueue.queue > 0 && (
             <div className="queue-controls">
               <button onClick={() => onCancel('plasmaAccumulator', 1)}>Cancelar 1</button>
               <button onClick={() => onCancel('plasmaAccumulator', 'all')}>Cancelar Todo</button>
             </div>
           )}
-          <p>⏱️ T/U: {plasmaAccumulatorQueue.time}s</p>
-          <p>📋 Requisitos: 5 Baterías de Iones de Litio</p>
+          <p>T/U: {plasmaAccumulatorQueue.time}s</p>
+          <p>Requisitos: 5 Baterías de Iones de Litio</p>
 
           {plasmaAccumulatorQueue.queue > 0 && <ProgressBar progress={plasmaAccumulatorQueue.progress} time={plasmaAccumulatorQueue.time} />}
           
@@ -339,17 +340,17 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
             <div className={`storage-item ${scrap >= harmonicContainmentFieldScrapCost && metalRefinado >= harmonicContainmentFieldMetalCost && plasmaAccumulator >= 3 ? 'unlocked' : ''} ${plasmaAccumulator >= 3 ? '' : 'locked'}`}>
         <div className="storage-item-content">
           <h3 style={{ color: '#D946EF' }}>Campo de Contención Armónico</h3>
-          <p>📈 Capacidad: +{formatNumber(1200)} energía máxima</p>
-          <p>💰 Coste: {formatNumber(harmonicContainmentFieldScrapCost)} chatarra y {formatNumber(harmonicContainmentFieldMetalCost)} metal refinado</p>
-          <p>🏗️ Construidos: {harmonicContainmentField} | 📦 En cola: {harmonicContainmentFieldQueue.queue}</p>
+          <p>Capacidad: +{formatNumber(1200)} energía máxima</p>
+          <p>Coste: {formatNumber(harmonicContainmentFieldScrapCost)} chatarra y {formatNumber(harmonicContainmentFieldMetalCost)} metal refinado</p>
+          <p>Construidos: {harmonicContainmentField} | En cola: {harmonicContainmentFieldQueue.queue}</p>
           {harmonicContainmentFieldQueue.queue > 0 && (
             <div className="queue-controls">
               <button onClick={() => onCancel('harmonicContainmentField', 1)}>Cancelar 1</button>
               <button onClick={() => onCancel('harmonicContainmentField', 'all')}>Cancelar Todo</button>
             </div>
           )}
-          <p>⏱️ T/U: {harmonicContainmentFieldQueue.time}s</p>
-          <p>📋 Requisitos: 3 Acumuladores de Plasma</p>
+          <p>T/U: {harmonicContainmentFieldQueue.time}s</p>
+          <p>Requisitos: 3 Acumuladores de Plasma</p>
           
           {harmonicContainmentFieldQueue.queue > 0 && <ProgressBar progress={harmonicContainmentFieldQueue.progress} time={harmonicContainmentFieldQueue.time} />}
           

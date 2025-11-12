@@ -161,8 +161,6 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
       };
 
       // --- 4. RESOLUCIÓN DEL TURNO (VICTORIA/DERROTA) ---
-      // El resto de la lógica (victoria/derrota) no cambia, pero usa los nuevos `updatedVindicator` y `updatedActiveBattle`
-      // ... (código de victoria/derrota existente) ...
       if (updatedVindicator.currentHealth <= 0) {
         // --- DERROTA ---
         const newBattlesCompleted = [...state.battleRoom.battlesCompleted];
@@ -184,9 +182,10 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
         };
 
       } else if (updatedActiveBattle.enemyCurrentHealth <= 0) {
-        // --- VICTORIA ---
+        // --- VICTORIA (CORREGIDO) ---
         const newBattlesCompleted = [...state.battleRoom.battlesCompleted];
-        newBattlesCompleted[activeBattle.destinationIndex]++;
+        const currentWins = newBattlesCompleted[activeBattle.destinationIndex] || 0;
+        newBattlesCompleted[activeBattle.destinationIndex] = currentWins + 1;
 
         const destination = allDestinations[activeBattle.destinationIndex];
         const nextBattleIndex = newBattlesCompleted[activeBattle.destinationIndex];

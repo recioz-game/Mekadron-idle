@@ -3,6 +3,19 @@ import './Phase2ResourceBar.css'; // Importar el archivo CSS
 import { formatNumber } from '../utils/formatNumber';
 import { useGame } from '../context/GameContext';
 
+// Importar iconos
+import refinedMetalIconSm from '../assets/images/ui/refined-metal-icon_sm.png';
+import structuralSteelIconSm from '../assets/images/ui/structural-steel-icon_sm.png';
+import fuelRodIconSm from '../assets/images/ui/fuel-rod-icon_sm.png';
+import hullPlateIconSm from '../assets/images/ui/hull-plate-icon_sm.png';
+import superconductorWiringIconSm from '../assets/images/ui/superconductor-wiring-icon_sm.png';
+import reinforcedAlloyIcon from '../assets/images/ui/reinforced-alloy-icon.png';
+import corruptNeurochipIcon from '../assets/images/ui/corrupt-neurochip-icon.png';
+import healthIcon from '../assets/images/ui/health-icon.png';
+import shieldIcon from '../assets/images/ui/shield-icon.png';
+import attackIcon from '../assets/images/ui/attack-icon.png';
+
+
 interface Phase2ResourceBarProps {
   metalRefinado: number;
   aceroEstructural: number;
@@ -31,19 +44,19 @@ const Phase2ResourceBar: React.FC<Phase2ResourceBarProps> = ({
       <div className="resource-group">
         {/* Materiales Industriales (Fase 1) */}
         <div className="resource-item" title="Metal Refinado">
-          <span className="icon" style={{ color: '#F59E0B' }}>🔩</span>
+          <img src={refinedMetalIconSm} alt="Metal Refinado" className="resource-icon-img" />
           <span>{formatNumber(metalRefinado)}</span>
         </div>
         <div className="resource-item" title="Acero Estructural">
-          <span className="icon" style={{ color: '#94A3B8' }}>🏗️</span>
+          <img src={structuralSteelIconSm} alt="Acero Estructural" className="resource-icon-img" />
           <span>{formatNumber(aceroEstructural)}</span>
         </div>
         <div className="resource-item" title="Placas de Casco">
-            <span className="icon">🧱</span>
+            <img src={hullPlateIconSm} alt="Placas de Casco" className="resource-icon-img" />
             <span>{formatNumber(placasCasco)}</span>
         </div>
         <div className="resource-item" title="Cableado Superconductor">
-            <span className="icon">🔌</span>
+            <img src={superconductorWiringIconSm} alt="Cableado Superconductor" className="resource-icon-img" />
             <span>{formatNumber(cableadoSuperconductor)}</span>
         </div>
         
@@ -52,15 +65,15 @@ const Phase2ResourceBar: React.FC<Phase2ResourceBarProps> = ({
 
         {/* Materiales de Combate (Fase 2) */}
         <div className="resource-item" title="Aleación Reforzada">
-          <span className="icon">🛡️</span>
+          <img src={reinforcedAlloyIcon} alt="Aleación Reforzada" className="resource-icon-img" />
           <span>{formatNumber(aleacionReforzada)}</span>
         </div>
         <div className="resource-item" title="Neuro-Chip Corrupto">
-          <span className="icon">🧠</span>
+          <img src={corruptNeurochipIcon} alt="Neuro-Chip Corrupto" className="resource-icon-img" />
           <span>{formatNumber(neuroChipCorrupto)}</span>
         </div>
         <div className="resource-item" title="Barras de Combustible">
-          <span className="icon">⛽</span>
+          <img src={fuelRodIconSm} alt="Barras de Combustible" className="resource-icon-img" />
           <span>{formatNumber(barraCombustible)}</span>
         </div>
       </div>
@@ -69,7 +82,7 @@ const Phase2ResourceBar: React.FC<Phase2ResourceBarProps> = ({
       <div className="vindicator-stats">
         {/* Salud */}
         <div className="stat-item" title="Salud">
-          <span className="icon" style={{ color: '#EF4444' }}>❤️</span>
+          <img src={healthIcon} alt="Salud" className="resource-icon-img" />
           <span className="value">
             {formatNumber(vindicator.currentHealth)}/{formatNumber(vindicator.maxHealth)}
           </span>
@@ -77,7 +90,7 @@ const Phase2ResourceBar: React.FC<Phase2ResourceBarProps> = ({
 
         {/* Escudo */}
         <div className="stat-item" title="Escudo">
-          <span className="icon" style={{ color: '#3B82F6' }}>🛡️</span>
+          <img src={shieldIcon} alt="Escudo" className="resource-icon-img" />
           <span className="value">
             {formatNumber(vindicator.currentShield)}/{formatNumber(vindicator.maxShield)}
           </span>
@@ -85,7 +98,7 @@ const Phase2ResourceBar: React.FC<Phase2ResourceBarProps> = ({
 
         {/* Daño */}
         <div className="stat-item" title="Daño">
-          <span className="icon" style={{ color: '#F59E0B' }}>⚔️</span>
+          <img src={attackIcon} alt="Ataque" className="resource-icon-img" />
           <span className="value">
             {formatNumber(vindicator.damage)}
           </span>
