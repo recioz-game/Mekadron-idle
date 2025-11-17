@@ -4,6 +4,7 @@
   color: #E5E7EB;
   padding: 1.6rem;
   font-family: Inter, sans-serif;
+  overflow: auto; /* Permite el scroll */
 }
 
 .energy-view-header {
@@ -38,19 +39,45 @@
   border: 2px solid #06B6D4;
 }
 
-.energy-summary h3 {
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.summary-header h3 {
+  margin: 0;
+  flex-grow: 1;
+  text-align: center;
   font-size: 2rem;
-  margin-top: 0;
+}
+
+.collapse-arrow {
+  transition: transform 0.3s ease;
+  font-size: 1.5rem;
+}
+
+.collapse-arrow.open {
+  transform: rotate(90deg);
 }
 
 .energy-summary-content {
+  margin-top: 1.6rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   background-color: #1a2433; /* Un poco más oscuro */
   padding: 1.2rem;
   border-radius: 0.4rem;
+  animation: fadeIn 0.5s ease-in-out;
 }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 
 .summary-item {
   display: flex;

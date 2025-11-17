@@ -13,74 +13,56 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
   const { battleRoom } = gameState;
 
   // --- NUEVA LÓGICA DE SELECCIÓN DE CAPÍTULO ---
-  const handleSelectChapter = (chapterIndex: number) => {
-    dispatch({ type: 'SELECT_CHAPTER', payload: chapterIndex });
+  const [currentChapterIndex, setCurrentChapterIndex] = React.useState(0);
+
+  const handleNextChapter = () => {
+    setCurrentChapterIndex((prevIndex) => (prevIndex + 1) % gameChapters.length);
   };
 
-  const handleBackToChapters = () => {
-    dispatch({ type: 'BACK_TO_CHAPTER_SELECT' });
+  const handlePrevChapter = () => {
+    setCurrentChapterIndex((prevIndex) => (prevIndex - 1 + gameChapters.length) % gameChapters.length);
+  };
+
+  const handleSelectChapter = () => {
+    dispatch({ type: 'SELECT_CHAPTER', payload: currentChapterIndex });
   };
   
   const handleSelectDestination = (destinationIndex: number) => {
     dispatch({ type: 'SELECT_BATTLE_DESTINATION', payload: destinationIndex });
   };
 
+
   const handleStartBattle = () => {
     dispatch({ type: 'START_BATTLE' });
   };
 
   // --- VISTA DE SELECCIÓN DE CAPÍTULOS ---
-  const renderChapterSelection = () => (
-    <div className="chapter-selection">
-      <h3>Selecciona un Capítulo</h3>
-      <div className="chapter-list">
-        {gameChapters.map((chapter, index) => {
-          // Lógica de desbloqueo de capítulos (temporalmente desactivada para pruebas)
-          const isLocked = false;
-          /*
-          const bossDestination = gameChapters[0].destinations.find(d => d.isBoss);
-          const bossDestinationIndex = bossDestination ? gameChapters[0].destinations.indexOf(bossDestination) : -1;
-          
-          let isLocked = false;
-          if (index > 0) { // Si no es el primer capítulo
-            if (bossDestinationIndex !== -1) {
-              const bossBattlesCompleted = gameState.battleRoom.battlesCompleted[bossDestinationIndex] || 0;
-              const totalBossBattles = bossDestination?.battles.length || 0;
-              if (bossBattlesCompleted < totalBossBattles) {
-                isLocked = true;
-              }
-            } else {
-              isLocked = true; // Si no hay jefe en el cap 1, los siguientes están bloqueados
-            }
-          }
-          */
+  const renderChapterSelection = () => {
+    const chapter = gameChapters[currentChapterIndex];
+    // Aquí puedes agregar la lógica para deshabilitar botones si el capítulo está bloqueado
+    const isLocked = false; 
 
-          const chapterProgress = chapter.destinations.reduce((acc, _, destIndex) => {
-            return acc + (gameState.battleRoom.battlesCompleted[destIndex] || 0);
-          }, 0);
-          const totalBattlesInChapter = chapter.destinations.reduce((acc, dest) => acc + dest.battles.length, 0);
-
-          return (
-            <button
-              key={chapter.name}
-              className={`chapter-button ${isLocked ? 'locked' : ''}`}
-              onClick={() => !isLocked && handleSelectChapter(index)}
-              disabled={isLocked}
-            >
-              <span className="chapter-title">{chapter.name}</span>
-              {!isLocked && totalBattlesInChapter > 0 && (
-                 <span className="chapter-progress">Progreso: {Math.floor((chapterProgress / totalBattlesInChapter) * 100)}%</span>
-              )}
-               {!isLocked && totalBattlesInChapter === 0 && (
-                 <span className="chapter-progress">(Próximamente)</span>
-              )}
-              {isLocked && <span className="lock-icon">🔒 Requiere completar el Capítulo 1</span>}
-            </button>
-          );
-        })}
+    return (
+      <div className="chapter-carousel">
+        <button onClick={handlePrevChapter} className="nav-arrow prev-arrow">◀</button>
+        <div className={`chapter-card ${isLocked ? 'locked' : ''}`}>
+          {/* Aquí iría la imagen del capítulo */}
+          {/* <img src={chapter.imageUrl} alt={chapter.name} className="chapter-image" /> */}
+          <div className="chapter-card-content">
+            <h3 className="chapter-card-title">{chapter.name}</h3>
+            {isLocked ? (
+              <p className="chapter-locked-text">Bloqueado</p>
+            ) : (
+              <button onClick={handleSelectChapter} className="select-chapter-button">
+                Entrar
+              </button>
+            )}
+          </div>
+        </div>
+        <button onClick={handleNextChapter} className="nav-arrow next-arrow">▶</button>
       </div>
-    </div>
   );
+  };
 
   // --- VISTA DE DESTINOS DE UN CAPÍTULO ---
   const renderDestinationSelection = () => {
@@ -92,13 +74,13 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
     return (
       <div className="battle-room-content">
         <div className="destination-list-header">
-           <button onClick={handleBackToChapters} className="back-button">‹ Volver a Capítulos</button>
+           <button onClick={() => dispatch({ type: 'BACK_TO_CHAPTER_SELECT' })} className="back-button">‹ Volver a Capítulos</button>
         </div>
         <div className="destination-list">
           {chapter.destinations.map((dest, index) => {
             const battlesCompleted = gameState.battleRoom.battlesCompleted[index] || 0;
             const totalBattles = dest.battles.length;
-            const isCompleted = battlesCompleted >= totalBattles;
+            const isCompleted = totalBattles > 0 && battlesCompleted >= totalBattles;
             
             let isLocked = false;
             if (index > 0) {
@@ -228,13 +210,13 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
                     <button 
                       className={`start-battle-btn ${destination.isBoss ? 'boss-battle-btn' : ''}`} 
                       onClick={handleStartBattle}
-                      disabled={gameState.resources.barraCombustible < 1}
+                      disabled={gameState.vindicator.bodegaResources.barraCombustible < 1}
                     >
                       {destination.isBoss ? '🔥 ' : ''}
                       Iniciar Combate {battlesCompleted > 0 ? `(${battlesCompleted + 1}/${totalBattles})` : ''}
                       {destination.isBoss ? ' 🔥' : ''}
                     </button>
-                    {gameState.resources.barraCombustible < 1 && (
+                    {gameState.vindicator.bodegaResources.barraCombustible < 1 && (
                       <p className="fuel-warning">No tienes suficiente combustible. Fabrica más en la Fundición.</p>
                     )}
                   </div>

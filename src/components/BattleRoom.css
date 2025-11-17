@@ -306,72 +306,91 @@
   font-weight: bold;
 }
 
-/* --- Estilos para la Selección de Capítulos --- */
-.chapter-selection {
-  padding: 1.6rem;
-  background-color: #111827; /* Fondo oscuro para el contenedor principal */
-  border-radius: 0.8rem;
-}
-
-.chapter-selection h3 {
-  color: #E5E7EB;
-  font-size: 2rem;
-  text-align: center;
-  margin-bottom: 2.4rem;
-}
-
-.chapter-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.6rem;
-}
-
-.chapter-button {
+/* Estilos para el nuevo carrusel de capítulos */
+.chapter-carousel {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
   padding: 2rem;
-  background-color: #1F2937;
+  gap: 1.5rem;
+}
+
+.nav-arrow {
+  background-color: #374151;
   color: #E5E7EB;
-  border: 2px solid #374151;
-  border-radius: 0.8rem;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
   cursor: pointer;
-  text-align: left;
-  font-size: 1.6rem;
-  min-height: 120px; /* Altura mínima para consistencia */
-  transition: all 0.2s ease-in-out;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s;
 }
 
-.chapter-button:hover {
-  border-color: #F59E0B;
-  transform: translateY(-4px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+.nav-arrow:hover {
+  background-color: #4B5563;
 }
 
-.chapter-button.locked {
-  opacity: 0.5;
-  cursor: not-allowed;
-  border-color: #374151;
-  background-color: #111827;
+.chapter-card {
+  background-color: #1F2937;
+  border: 2px solid #4B5563;
+  border-radius: 12px;
+  width: 300px; /* Ancho fijo para la tarjeta */
+  overflow: hidden;
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.chapter-button.locked:hover {
-  transform: none;
-  border-color: #EF4444;
+.chapter-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
-.chapter-title {
-  font-weight: bold;
+.chapter-card.locked {
+  opacity: 0.6;
+}
+
+.chapter-image {
+  width: 100%;
+  height: 180px; /* Altura para la imagen */
+  object-fit: cover;
+  background-color: #374151; /* Placeholder si no hay imagen */
+}
+
+.chapter-card-content {
+  padding: 1.5rem;
+}
+
+.chapter-card-title {
+  margin: 0 0 1rem 0;
   font-size: 1.8rem;
-  margin-bottom: 1rem;
+  color: #F3F4F6;
 }
 
-.chapter-progress {
-  display: block;
-  font-size: 1.4rem;
-  color: #9CA3AF;
-  margin-top: auto; /* Empuja el progreso hacia abajo */
+.chapter-locked-text {
+  color: #EF4444;
+  font-weight: bold;
 }
+
+.select-chapter-button {
+  background-color: #10B981;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.select-chapter-button:hover {
+  background-color: #059669;
+}
+
 
 /* --- Estilos para la cabecera de la lista de destinos --- */
 .destination-list-header {
@@ -400,5 +419,16 @@
 .back-button:hover {
   background-color: #374151;
   color: #E5E7EB;
+}
+
+.infinite-mode-section {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid rgba(129, 230, 217, 0.3);
+}
+
+.infinite-mode-section h3 {
+  margin-bottom: 15px;
+  color: #a0aec0; /* Un color ligeramente diferente para el título de la sección */
 }
 

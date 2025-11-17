@@ -1,36 +1,32 @@
 import React from 'react';
 import './ResourceBar.css'; // Importar el archivo CSS
-import { useResources, useWorkshop, useModules, useRates, useShipyard } from '../hooks/useSelectors';
+import { useResources, useWorkshop, useRates, useVindicator } from '../hooks/useSelectors';
 import { formatNumber } from '../utils/formatNumber';
 
 // Importar los nuevos iconos de recursos
 import scrapIcon from '../assets/images/ui/scrap-icon.png';
 import energyIcon from '../assets/images/ui/energy-icon.png';
-import plateFragmentsIcon from '../assets/images/ui/plate-fragments-icon.png';
-import damagedCircuitsIcon from '../assets/images/ui/damaged-circuits-icon.png';
-import singularityCoreIcon from '../assets/images/ui/singularity-core-icon.png';
 import refinedMetalIconSm from '../assets/images/ui/refined-metal-icon_sm.png';
 import structuralSteelIconSm from '../assets/images/ui/structural-steel-icon_sm.png';
+import hullPlateIconSm from '../assets/images/ui/hull-plate-icon_sm.png';
+import plateFragmentsIcon from '../assets/images/ui/plate-fragments-icon.png';
 import fuelRodIconSm from '../assets/images/ui/fuel-rod-icon_sm.png';
-
 
 const ResourceBar: React.FC = React.memo(() => {
   const rates = useRates();
-  const shipyard = useShipyard();
-  const workshop = useWorkshop();
-  const modules = useModules();
+    const workshop = useWorkshop();
   const { drones } = workshop;
   const resources = useResources();
+  const vindicator = useVindicator();
 
-    const {
-    scrap, maxScrap, energy, maxEnergy, metalRefinado, aceroEstructural,
-    fragmentosPlaca, circuitosDañados, nucleoSingularidad,
-    barraCombustible,
+      const {
+    scrap, maxScrap, energy, maxEnergy,
     energyProduction, energyConsumption
   } = resources;
 
+  const { bodegaResources } = vindicator;
+
   const scrapPerSecond = rates.scrapPerSecond;
-  const shipyardUnlocked = shipyard.unlocked;
 
   const tier1Drones = drones.basic + drones.reinforcedBasic;
   const tier2Drones = drones.medium + drones.reinforcedMedium;
@@ -39,7 +35,7 @@ const ResourceBar: React.FC = React.memo(() => {
   return (
         <div className="resource-bar">
       {/* CONTENEDOR IZQUIERDA: Recursos principales */}
-            <div className="resource-group">
+                        <div className="resource-group">
         <div className="resource-item" title="Chatarra">
           <img src={scrapIcon} alt="Chatarra" className="resource-icon-img" />
           <span>{formatNumber(scrap)} / {formatNumber(maxScrap)}</span>
@@ -48,38 +44,36 @@ const ResourceBar: React.FC = React.memo(() => {
           <img src={energyIcon} alt="Energía" className="resource-icon-img" />
           <span>{formatNumber(energy)} / {formatNumber(maxEnergy)}</span>
         </div>
-        {modules.foundry && (
-          <>
-            <div className="resource-item" title="Metal Refinado">
-              <img src={refinedMetalIconSm} alt="Metal Refinado" className="resource-icon-img" />
-              <span>{formatNumber(metalRefinado)}</span>
-            </div>
-            <div className="resource-item" title="Acero Estructural">
-              <img src={structuralSteelIconSm} alt="Acero Estructural" className="resource-icon-img" />
-              <span>{formatNumber(aceroEstructural)}</span>
-            </div>
-            <div className="resource-item" title="Barras de Combustible">
-              <img src={fuelRodIconSm} alt="Barras de Combustible" className="resource-icon-img" />
-              <span>{formatNumber(barraCombustible)}</span>
-            </div>
-          </>
+        
+        {/* RECURSOS DE BODEGA - SIEMPRE VISIBLES SI HAN SIDO DESBLOQUEADOS */}
+        {'metalRefinado' in bodegaResources && (
+          <div className="resource-item" title="Metal Refinado">
+            <img src={refinedMetalIconSm} alt="Metal Refinado" className="resource-icon-img" />
+            <span>{formatNumber(bodegaResources.metalRefinado ?? 0)}</span>
+          </div>
         )}
-        {modules.expeditions && (
-          <>
-            <div className="resource-item" title="Fragmentos de Placa">
-              <img src={plateFragmentsIcon} alt="Fragmentos de Placa" className="resource-icon-img" />
-              <span>{formatNumber(fragmentosPlaca)}</span>
-            </div>
-            <div className="resource-item" title="Circuitos Dañados">
-              <img src={damagedCircuitsIcon} alt="Circuitos Dañados" className="resource-icon-img" />
-              <span>{formatNumber(circuitosDañados)}</span>
-            </div>
-          </>
+        {'aceroEstructural' in bodegaResources && (
+          <div className="resource-item" title="Acero Estructural">
+            <img src={structuralSteelIconSm} alt="Acero Estructural" className="resource-icon-img" />
+            <span>{formatNumber(bodegaResources.aceroEstructural ?? 0)}</span>
+          </div>
         )}
-        {shipyardUnlocked && (
-          <div className="resource-item" title="Núcleo de Singularidad">
-            <img src={singularityCoreIcon} alt="Núcleo de Singularidad" className="resource-icon-img" />
-            <span>{formatNumber(nucleoSingularidad)}</span>
+        {'placasCasco' in bodegaResources && (
+          <div className="resource-item" title="Placas de Casco">
+            <img src={hullPlateIconSm} alt="Placas de Casco" className="resource-icon-img" />
+            <span>{formatNumber(bodegaResources.placasCasco ?? 0)}</span>
+          </div>
+        )}
+        {'fragmentosPlaca' in bodegaResources && (
+          <div className="resource-item" title="Fragmentos de Placa">
+            <img src={plateFragmentsIcon} alt="Fragmentos de Placa" className="resource-icon-img" />
+            <span>{formatNumber(bodegaResources.fragmentosPlaca ?? 0)}</span>
+          </div>
+        )}
+        {'barraCombustible' in bodegaResources && (
+          <div className="resource-item" title="Barras de Combustible">
+            <img src={fuelRodIconSm} alt="Barras de Combustible" className="resource-icon-img" />
+            <span>{formatNumber(bodegaResources.barraCombustible ?? 0)}</span>
           </div>
         )}
       </div>
@@ -98,7 +92,7 @@ const ResourceBar: React.FC = React.memo(() => {
           <span>T3:</span>
           <strong>{tier3Drones}</strong>
         </div>
-        {modules.expeditions && (
+        {drones.expeditionDrone > 0 && (
           <div className="drones-item" title="Drones de Expedición">
             <span>Exp:</span>
             <strong>{drones.expeditionDrone}</strong>

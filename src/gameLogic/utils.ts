@@ -9,6 +9,7 @@ export const updateVindicatorToMK1 = (state: GameState): GameState => {
   const newState = {
     ...state,
     vindicator: {
+      ...state.vindicator, // Preservar todas las propiedades de la bodega
       vindicatorType: 'mk1' as 'mk1',
       maxHealth: 1500,
       currentHealth: 1500,
@@ -20,10 +21,301 @@ export const updateVindicatorToMK1 = (state: GameState): GameState => {
         defensive: null,
         tactical: null,
       },
+      bodegaMK1: { // Inicializar la nueva bodega
+        levels: {
+          materialesIndustriales: 1,
+          componentesBatalla: 1,
+          materialesExoticos: 1,
+        },
+        capacities: {
+          materialesIndustriales: 5000,
+          componentesBatalla: 2500,
+          materialesExoticos: 500,
+        },
+      },
     },
     vindicatorUpgrades: newUpgrades,
     vindicatorLevel: 1,
   };
 
+  return newState;
+};
+
+export const updateVindicatorToMK2 = (state: GameState): GameState => {
+  // Transiciona el estado al Vindicator MK2 "Interceptor"
+  const newState = {
+    ...state,
+    vindicator: {
+      ...state.vindicator, // Conserva módulos si los hubiera
+      vindicatorType: 'mk2_interceptor' as 'mk2_interceptor',
+      maxHealth: 5200,
+      currentHealth: 5200,
+      maxShield: 2600,
+      currentShield: 2600,
+      damage: 520,
+      modules: { // Resetea módulos al cambiar de chasis
+        offensive: null,
+        defensive: null,
+        tactical: null,
+      },
+      bodegaMK2: { // Inicializar la nueva bodega
+        levels: {
+          materialesIndustriales: 1,
+          componentesBatalla: 1,
+          materialesExoticos: 1,
+        },
+        capacities: {
+          materialesIndustriales: 10000,
+          componentesBatalla: 5000,
+          materialesExoticos: 1000,
+        },
+      },
+    },
+    vindicatorLevel: 1, // Resetea el nivel para la nueva progresión del MK2
+    // Nota: Las 'vindicatorUpgrades' del MK0/MK1 se dejan, pero no se usarán
+    // gracias a la lógica en Armory.tsx, que mostrará las del MK2.
+  };
+  return newState;
+};
+
+export const updateVindicatorToMK3 = (state: GameState): GameState => {
+  // Transiciona el estado al Vindicator MK3 "Devastator"
+  const newState = {
+    ...state,
+    vindicator: {
+      ...state.vindicator,
+      vindicatorType: 'mk3_devastator' as 'mk3_devastator',
+      maxHealth: 15000,
+      currentHealth: 15000,
+      maxShield: 7500,
+      currentShield: 7500,
+      damage: 1500,
+      modules: {
+        offensive: null,
+        defensive: null,
+        tactical: null,
+      },
+      bodegaMK3: {
+        levels: {
+          materialesIndustriales: 1,
+          componentesBatalla: 1,
+          materialesExoticos: 1,
+        },
+        capacities: {
+          materialesIndustriales: 20000,
+          componentesBatalla: 10000,
+          materialesExoticos: 2000,
+        },
+      },
+    },
+    vindicatorLevel: 1,
+  };
+  return newState;
+};
+
+export const updateVindicatorToMK4 = (state: GameState): GameState => {
+  // Transiciona el estado al Vindicator MK4 "Reaper"
+  const newState = {
+    ...state,
+    vindicator: {
+      ...state.vindicator,
+      vindicatorType: 'mk4_reaper' as 'mk4_reaper',
+      maxHealth: 32000,
+      currentHealth: 32000,
+      maxShield: 16000,
+      currentShield: 16000,
+      damage: 3200,
+      modules: {
+        offensive: null,
+        defensive: null,
+        tactical: null,
+      },
+      bodegaMK4: {
+        levels: {
+          materialesIndustriales: 1,
+          componentesBatalla: 1,
+          materialesExoticos: 1,
+        },
+        capacities: {
+          materialesIndustriales: 25000,
+          componentesBatalla: 15000,
+          materialesExoticos: 5000,
+        },
+      },
+    },
+    vindicatorLevel: 1,
+  };
+  return newState;
+};
+
+export const updateVindicatorToMK5 = (state: GameState): GameState => {
+  // Transiciona el estado al Vindicator MK5 "Aegis"
+  const newState = {
+    ...state,
+    vindicator: {
+      ...state.vindicator,
+      vindicatorType: 'mk5_aegis' as 'mk5_aegis',
+      maxHealth: 56000,
+      currentHealth: 56000,
+      maxShield: 21000,
+      currentShield: 21000,
+      damage: 7700,
+      modules: {
+        offensive: null,
+        defensive: null,
+        tactical: null,
+      },
+      bodegaMK5: {
+        levels: {
+          materialesIndustriales: 1,
+          componentesBatalla: 1,
+          materialesExoticos: 1,
+        },
+        capacities: {
+          materialesIndustriales: 50000,
+          componentesBatalla: 30000,
+          materialesExoticos: 10000,
+        },
+      },
+    },
+    vindicatorLevel: 1,
+  };
+  return newState;
+};
+
+export const updateVindicatorToMK6 = (state: GameState): GameState => {
+  // Transiciona el estado al Vindicator MK6 "Tempest"
+  const newState = {
+    ...state,
+    vindicator: {
+      ...state.vindicator,
+      vindicatorType: 'mk6_tempest' as 'mk6_tempest',
+      maxHealth: 105000,
+      currentHealth: 105000,
+      maxShield: 45000,
+      currentShield: 45000,
+      damage: 10100,
+      modules: {
+        offensive: null,
+        defensive: null,
+        tactical: null,
+      },
+      bodegaMK6: {
+        levels: {
+          materialesIndustriales: 1,
+          componentesBatalla: 1,
+          materialesExoticos: 1,
+        },
+        capacities: {
+          materialesIndustriales: 60000,
+          componentesBatalla: 40000,
+          materialesExoticos: 15000,
+        },
+      },
+    },
+    vindicatorLevel: 1,
+  };
+  return newState;
+};
+
+export const updateVindicatorToMK7 = (state: GameState): GameState => {
+  const newState = {
+    ...state,
+    vindicator: {
+      ...state.vindicator,
+      vindicatorType: 'mk7_wraith' as 'mk7_wraith',
+      maxHealth: 160000,
+      currentHealth: 160000,
+      maxShield: 72000,
+      currentShield: 72000,
+      damage: 17500,
+      modules: {
+        offensive: null,
+        defensive: null,
+        tactical: null,
+      },
+      bodegaMK7: {
+        levels: {
+          materialesIndustriales: 1,
+          componentesBatalla: 1,
+          materialesExoticos: 1,
+        },
+        capacities: {
+          materialesIndustriales: 80000,
+          componentesBatalla: 60000,
+          materialesExoticos: 25000,
+        },
+      },
+    },
+    vindicatorLevel: 1,
+  };
+  return newState;
+};
+
+export const updateVindicatorToMK8 = (state: GameState): GameState => {
+  const newState = {
+    ...state,
+    vindicator: {
+      ...state.vindicator,
+      vindicatorType: 'mk8_phantom' as 'mk8_phantom',
+      maxHealth: 265000,
+      currentHealth: 265000,
+      maxShield: 125000,
+      currentShield: 125000,
+      damage: 32000,
+      modules: {
+        offensive: null,
+        defensive: null,
+        tactical: null,
+      },
+      bodegaMK8: {
+        levels: {
+          materialesIndustriales: 1,
+          componentesBatalla: 1,
+          materialesExoticos: 1,
+        },
+        capacities: {
+          materialesIndustriales: 120000,
+          componentesBatalla: 90000,
+          materialesExoticos: 40000,
+        },
+      },
+    },
+    vindicatorLevel: 1,
+  };
+  return newState;
+};
+
+export const updateVindicatorToMK9 = (state: GameState): GameState => {
+  const newState = {
+    ...state,
+    vindicator: {
+      ...state.vindicator,
+      vindicatorType: 'mk9_apex' as 'mk9_apex',
+      maxHealth: 475000,
+      currentHealth: 475000,
+      maxShield: 230000,
+      currentShield: 230000,
+      damage: 61000,
+      modules: {
+        offensive: null,
+        defensive: null,
+        tactical: null,
+      },
+      bodegaMK9: {
+        levels: {
+          materialesIndustriales: 1,
+          componentesBatalla: 1,
+          materialesExoticos: 1,
+        },
+        capacities: {
+          materialesIndustriales: 250000,
+          componentesBatalla: 180000,
+          materialesExoticos: 80000,
+        },
+      },
+    },
+    vindicatorLevel: 1,
+  };
   return newState;
 };

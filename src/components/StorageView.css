@@ -4,6 +4,7 @@
   color: #E5E7EB;
   padding: 1.6rem;
   font-family: Inter, sans-serif;
+  overflow: auto; /* Permite el scroll */
 }
 
 .storage-view-header {

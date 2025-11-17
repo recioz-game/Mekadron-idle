@@ -1,3 +1,4 @@
+import { ResourceCategory } from '../data/categoryData';
 import { ExpeditionId, ActiveExpedition, DroneType } from './gameState';
 
 // src/types/actions.ts
@@ -58,6 +59,14 @@ export type ActionType =
   | { type: 'DEBUG_UNLOCK_TECH_CENTER' }
     | { type: 'DEBUG_COMPLETE_VINDICATOR' }
   | { type: 'DEBUG_UNLOCK_VINDICATOR_MK1' }
+  | { type: 'DEBUG_UNLOCK_VINDICATOR_MK2' }
+  | { type: 'DEBUG_UNLOCK_VINDICATOR_MK3' }
+  | { type: 'DEBUG_UNLOCK_VINDICATOR_MK4' }
+    | { type: 'DEBUG_UNLOCK_VINDICATOR_MK5' }
+    | { type: 'DEBUG_UNLOCK_VINDICATOR_MK6' }
+    | { type: 'DEBUG_UNLOCK_VINDICATOR_MK7' }
+  | { type: 'DEBUG_UNLOCK_VINDICATOR_MK8' }
+  | { type: 'DEBUG_UNLOCK_VINDICATOR_MK9' }
   | { type: 'DEBUG_FINISH_EXPEDITIONS' }
     | { type: 'PROCESS_OFFLINE_PROGRESS'; payload: { secondsOffline: number } }
   | { type: 'START_PHASE_2' }
@@ -77,10 +86,28 @@ export type ActionType =
   // Nuevas acciones de reparación
   | { type: 'REPAIR_VINDICATOR_HEALTH'; payload: { healthAmount: number; scrapCost: number } }
   | { type: 'REPAIR_VINDICATOR_SHIELD'; payload: { shieldAmount: number; fuelCost: number } }
-    // Nuevas acciones para mejoras por estrellas
-    | { type: 'UPGRADE_VINDICATOR_STAR'; payload: { upgradeId: string } }
+        // Nuevas acciones para mejoras por estrellas
+                | { type: 'UPGRADE_VINDICATOR_STAR'; payload: { upgradeId: string } }
+    | { type: 'UPGRADE_VINDICATOR_MK1_STAR'; payload: { upgradeId: string } }
+    | { type: 'UPGRADE_VINDICATOR_MK2_STAR'; payload: { upgradeId: string } }
+    | { type: 'UPGRADE_VINDICATOR_MK3_STAR'; payload: { upgradeId: string } }
+    | { type: 'UPGRADE_VINDICATOR_MK4_STAR'; payload: { upgradeId: string } }
+        | { type: 'UPGRADE_VINDICATOR_MK5_STAR'; payload: { upgradeId: string } }
+        | { type: 'UPGRADE_VINDICATOR_MK6_STAR'; payload: { upgradeId: string } }
+        | { type: 'UPGRADE_VINDICATOR_MK7_STAR'; payload: { upgradeId: string } }
+    | { type: 'UPGRADE_VINDICATOR_MK8_STAR'; payload: { upgradeId: string } }
+    | { type: 'UPGRADE_VINDICATOR_MK9_STAR'; payload: { upgradeId: string } }
       | { type: 'LEVEL_UP_VINDICATOR' }
+  | { type: 'LEVEL_UP_VINDICATOR_MK2' }
+  | { type: 'LEVEL_UP_VINDICATOR_MK3' }
+  | { type: 'LEVEL_UP_VINDICATOR_MK4' }
+    | { type: 'LEVEL_UP_VINDICATOR_MK5' }
+    | { type: 'LEVEL_UP_VINDICATOR_MK6' }
+    | { type: 'LEVEL_UP_VINDICATOR_MK7' }
+  | { type: 'LEVEL_UP_VINDICATOR_MK8' }
+  | { type: 'LEVEL_UP_VINDICATOR_MK9' }
   | { type: 'CLAIM_EXPEDITION_REWARDS'; payload: ActiveExpedition }
   | { type: 'CRAFT_VINDICATOR_MODULE'; payload: { moduleId: string } } // <-- NUEVO
   | { type: 'EQUIP_VINDICATOR_MODULE'; payload: { moduleId: string; slot: 'offensive' | 'defensive' | 'tactical' } } // <-- NUEVO
+  | { type: 'UPGRADE_BODEGA_CATEGORY'; payload: { category: ResourceCategory } }
   | { type: 'SET_VOLUME'; payload: number };

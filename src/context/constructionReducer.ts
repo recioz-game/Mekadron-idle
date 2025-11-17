@@ -24,7 +24,10 @@ const handleBuild = (state: GameState, config: BuildConfiguration): GameState =>
 
   const maxAffordableAmounts = costEntries.map(([resource, cost]) => {
     if (cost === 0) return Infinity;
-    const currentResource = state.resources[resource as ResourceType] || 0;
+    const isBodegaResource = resource in state.vindicator.bodegaResources;
+    const currentResource = isBodegaResource 
+      ? state.vindicator.bodegaResources[resource as keyof typeof state.vindicator.bodegaResources] 
+      : state.resources[resource as ResourceType] || 0;
     return Math.floor(currentResource / cost);
   });
   const maxAffordable = Math.min(...maxAffordableAmounts);
@@ -38,8 +41,13 @@ const handleBuild = (state: GameState, config: BuildConfiguration): GameState =>
 
   // 4. Crear un nuevo objeto de recursos
   const newResources = { ...state.resources };
+  const newBodegaResources = { ...state.vindicator.bodegaResources };
   for (const [resource, cost] of costEntries) {
-    newResources[resource as ResourceType] -= amount * cost;
+    if (resource in newBodegaResources) {
+      newBodegaResources[resource as keyof typeof newBodegaResources] -= amount * cost;
+    } else {
+      newResources[resource as ResourceType] -= amount * cost;
+    }
   }
 
   // 5. Actualizar la cola de producción de forma inmutable
@@ -56,6 +64,7 @@ const handleBuild = (state: GameState, config: BuildConfiguration): GameState =>
   return {
     ...state,
     resources: newResources,
+    vindicator: { ...state.vindicator, bodegaResources: newBodegaResources },
     [category]: newCategoryState,
   };
 };
@@ -167,9 +176,14 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
 
       // 1. Crear un nuevo objeto de recursos con los materiales devueltos
       const newResources = { ...state.resources };
+      const newBodegaResources = { ...state.vindicator.bodegaResources };
       for (const resource in droneData.costs) {
         const cost = droneData.costs[resource as keyof typeof droneData.costs] || 0;
-        newResources[resource as keyof typeof newResources] += Math.floor(cost * amountToDismantle * 0.75);
+        if (resource in newBodegaResources) {
+          newBodegaResources[resource as keyof typeof newBodegaResources] += Math.floor(cost * amountToDismantle * 0.75);
+        } else {
+          newResources[resource as keyof typeof newResources] += Math.floor(cost * amountToDismantle * 0.75);
+        }
       }
 
       // 2. Crear un nuevo objeto de drones con el recuento actualizado
@@ -182,6 +196,7 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
       return {
         ...state,
         resources: newResources,
+        vindicator: { ...state.vindicator, bodegaResources: newBodegaResources },
         workshop: {
           ...state.workshop,
           drones: newDrones,
@@ -229,8 +244,11 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
 
       // 1. Crear nuevo objeto de recursos con los materiales devueltos
       const newResources = { ...state.resources };
+      const newBodegaResources = { ...state.vindicator.bodegaResources };
       Object.entries(costs).forEach(([resource, cost]) => {
-        if (resource in newResources) {
+        if (resource in newBodegaResources) {
+          newBodegaResources[resource as keyof typeof newBodegaResources] += (cost as number) * amountToCancel;
+        } else if (resource in newResources) {
           newResources[resource as ResourceType] += (cost as number) * amountToCancel;
         }
       });
@@ -246,6 +264,7 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
       return {
         ...state,
         resources: newResources,
+        vindicator: { ...state.vindicator, bodegaResources: newBodegaResources },
         [category]: {
           ...categoryState,
           queues: {

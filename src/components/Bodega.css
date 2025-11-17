@@ -1,0 +1,223 @@
+/* src/components/Bodega.css */
+.bodega-view {
+  background-color: rgba(10, 25, 40, 0.95);
+  border: 1px solid #38b2ac;
+  border-radius: 8px;
+  padding: 20px;
+  color: #e6fffa;
+  font-family: 'Orbitron', sans-serif;
+  max-width: 90%;
+  margin: 20px auto;
+  box-shadow: 0 0 20px rgba(56, 178, 172, 0.4);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.bodega-view-header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #38b2ac;
+}
+
+.bodega-view-header h2 {
+  margin: 0;
+  font-size: 1.8em;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #81e6d9;
+  text-shadow: 0 0 10px #81e6d9;
+}
+
+.bodega-main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.bodega-top-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid #38b2ac;
+}
+
+.bodega-bottom-section {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.bodega-bottom-section h3 {
+  width: 100%;
+  grid-column: 1 / -1;
+  margin-top: 0;
+  text-align: center;
+  color: #4fd1c5;
+  margin-bottom: 0;
+}
+
+.category-container {
+  background-color: rgba(26, 32, 44, 0.7);
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #2d3748;
+  margin-bottom: 20px;
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.category-header h4 {
+  margin: 0;
+  font-size: 1.2em;
+  color: #a0aec0;
+}
+
+.capacity-bar {
+  width: 50%;
+  font-size: 0.9em;
+  text-align: right;
+}
+
+.capacity-bar .bar-container {
+  height: 15px;
+  background-color: #1a202c;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #4a5568;
+  margin-top: 4px;
+}
+
+.capacity-bar .capacity-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #38b2ac, #81e6d9);
+  transition: width 0.3s ease-in-out;
+}
+
+.resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.resource-card {
+  background-color: rgba(26, 32, 44, 0.8);
+  border: 1px solid #2d3748;
+  border-radius: 6px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.resource-card-icon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 10px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.resource-card-name {
+  font-size: 1em;
+  font-weight: bold;
+  color: #a0aec0;
+  margin-bottom: 10px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.resource-card-amount {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #e6fffa;
+  display: flex;
+  gap: 5px;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.resource-card-amount span:nth-child(2) {
+  color: #4a5568;
+}
+
+.upgrade-option {
+  background: rgba(45, 55, 72, 0.5);
+  padding: 15px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.upgrade-info {
+  flex-grow: 1;
+}
+
+.upgrade-info h4 {
+  margin-top: 0;
+  margin-bottom: 5px;
+  color: #81e6d9;
+}
+
+.upgrade-info p {
+  margin: 0 0 10px 0;
+  font-size: 0.9em;
+  color: #a0aec0;
+}
+
+.upgrade-cost {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.upgrade-cost .cost-icon-img {
+  width: 20px;
+  height: 20px;
+}
+
+.upgrade-cost .cost-amount {
+  font-weight: bold;
+  color: white;
+}
+
+.upgrade-button {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(180deg, #38b2ac, #2c7a7b);
+  color: white;
+  border: 1px solid #4fd1c5;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  transition: all 0.2s ease-in-out;
+  margin-top: auto;
+}
+
+.upgrade-button:hover:not(.disabled) {
+  background: linear-gradient(180deg, #4fd1c5, #38b2ac);
+  box-shadow: 0 0 10px #4fd1c5;
+}
+
+.upgrade-button.disabled {
+  background: #4a5568;
+  border-color: #2d3748;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

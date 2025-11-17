@@ -3,6 +3,7 @@ import './FoundryView.css'; // Importar el archivo CSS
 import { GameState } from '../types/gameState';
 import BuyAmountSelector from './BuyAmountSelector';
 import { formatNumber } from '../utils/formatNumber';
+import { useDragToScroll } from '../hooks/useDragToScroll';
 import QueueControls from './QueueControls';
 
 // Importar los nuevos iconos
@@ -66,8 +67,10 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
   const maxFuelRod = Math.min(Math.floor(metalRefinado / fuelRodCost.metal), Math.floor(aceroEstructural / fuelRodCost.acero), Math.floor(energy / fuelRodCost.energy));
   const maxPurified = Math.min(Math.floor(scrap / purificationCost.scrap), Math.floor(energy / purificationCost.energy));
 
+    const scrollRef = useDragToScroll<HTMLDivElement>();
+
   return (
-    <div className="foundry-view-container">
+    <div className="foundry-view-container" ref={scrollRef}>
       <div className="foundry-view-header">
         <h2>FUNDICIÓN</h2>
         <button onClick={onClose} className="close-button">

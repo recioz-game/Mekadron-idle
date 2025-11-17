@@ -1,7 +1,17 @@
 import { GameState } from './gameState';
 
+// Definir explícitamente los tipos de costos para más claridad
+type Costs = {
+  scrap?: number;
+  metalRefinado?: number;
+  aceroEstructural?: number;
+  fragmentosPlaca?: number;
+  circuitosDañados?: number;
+  energy?: number;
+};
+
 export interface BuildableItem {
-  costs: Partial<Record<keyof GameState['resources'], number>>;
+  costs: Costs;
   time: number;
   prerequisites?: (state: GameState) => boolean;
   produces?: {

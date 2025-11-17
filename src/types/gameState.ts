@@ -113,22 +113,9 @@ export interface GameState {
   notificationQueue: GameNotification[];
   battleCount: number;
   currentBackground: number; // <-- NUEVA PROP: Fondo actual (1-4)
-  resources: {
+    resources: {
     scrap: number;
     energy: number;
-    metalRefinado: number;
-    aceroEstructural: number;
-    fragmentosPlaca: number;
-    circuitosDañados: number;
-        nucleoSingularidad: number;
-    placasCasco: number;
-    cableadoSuperconductor: number;
-        aleacionReforzada: number;
-    neuroChipCorrupto: number;
-    matrizCristalina: number; // <-- NUEVO
-    IA_Fragmentada: number; // <-- NUEVO
-    planosMK2: number; // <-- NUEVO
-    barraCombustible: number;
     energyProduction: number;
     energyConsumption: number;
     maxEnergy: number;
@@ -260,8 +247,8 @@ export interface GameState {
     // El progreso se adapta a cualquier proyecto. { [componentId]: { [resourceId]: number } }
     progress: Record<string, Record<string, number>>;
   };
-    vindicator: {
-    vindicatorType: 'base' | 'mk1';
+                                                vindicator: {
+    vindicatorType: 'base' | 'mk1' | 'mk2_interceptor' | 'mk3_devastator' | 'mk4_reaper' | 'mk5_aegis' | 'mk6_tempest' | 'mk7_wraith' | 'mk8_phantom' | 'mk9_apex';
     maxHealth: number;
     currentHealth: number;
     maxShield: number;
@@ -272,12 +259,227 @@ export interface GameState {
       defensive: string | null;
       tactical: string | null;
     };
-};
+        bodegaResources: {
+      metalRefinado: number;
+      aceroEstructural: number;
+      fragmentosPlaca: number;
+      circuitosDañados: number;
+      nucleoSingularidad: number;
+      placasCasco: number;
+      cableadoSuperconductor: number;
+      aleacionReforzada: number;
+      neuroChipCorrupto: number;
+      matrizCristalina: number;
+      IA_Fragmentada: number;
+      planosMK2: number;
+      // --- CAPITULO 3 ---
+      matrizDeManiobra: number;
+            placasDeSigilo: number;
+        planosDeInterceptor: number;
+        // --- FIN CAPITULO 3 ---
+        // --- CAPITULO 4 ---
+        nucleoDatosArcano: number;
+        placasAdamantioReforzado: number;
+                planosMK3: number;
+        // --- FIN CAPITULO 4 ---
+        // --- CAPITULO 5 ---
+        tejidoEspaciotemporal: number;
+        singularidadEmbotellada: number;
+                planosMK4: number;
+        // --- FIN CAPITULO 5 ---
+        // --- CAPITULO 6 ---
+        esquirlasDeReliquia: number;
+        codexAncestral: number;
+                planosMK5: number;
+        // --- FIN CAPITULO 6 ---
+        // --- CAPITULO 7 ---
+        fragmentoHorizonteSucesos: number;
+        energiaPuntoCero: number;
+        planosMK6: number;
+        // --- FIN CAPITULO 7 ---
+        // --- CAPITULO 8 ---
+        esenciaDelVacio: number;
+        reliquiaCorrupta: number;
+                planosMK7: number;
+        // --- FIN CAPITULO 8 ---
+        // --- CAPITULO 9 ---
+        nucleoEspectral: number;
+        conexionFantasmal: number;
+                planosMK8: number;
+        // --- FIN CAPITULO 9 ---
+        // --- CAPITULO 10 ---
+        fragmentoDeCiudadela: number;
+        matrizDeOverlord: number;
+        planosMK9: number;
+        // --- FIN CAPITULO 10 ---
+        barraCombustible: number;
+    };
+            bodegaBase: {
+      levels: {
+        materialesIndustriales: number;
+        componentesBatalla: number;
+        materialesExoticos: number;
+      };
+      capacities: {
+        materialesIndustriales: number;
+        componentesBatalla: number;
+        materialesExoticos: number;
+      };
+    };
+    bodegaMK1: {
+      levels: {
+        materialesIndustriales: number;
+        componentesBatalla: number;
+        materialesExoticos: number;
+      };
+      capacities: {
+        materialesIndustriales: number;
+        componentesBatalla: number;
+        materialesExoticos: number;
+      };
+    };
+    bodegaMK2: {
+      levels: {
+        materialesIndustriales: number;
+        componentesBatalla: number;
+        materialesExoticos: number;
+      };
+      capacities: {
+        materialesIndustriales: number;
+        componentesBatalla: number;
+                materialesExoticos: number;
+      };
+    };
+    bodegaMK3: {
+      levels: {
+        materialesIndustriales: number;
+        componentesBatalla: number;
+        materialesExoticos: number;
+      };
+      capacities: {
+        materialesIndustriales: number;
+                componentesBatalla: number;
+        materialesExoticos: number;
+      };
+    };
+    bodegaMK4: {
+      levels: {
+        materialesIndustriales: number;
+        componentesBatalla: number;
+        materialesExoticos: number;
+      };
+      capacities: {
+        materialesIndustriales: number;
+                componentesBatalla: number;
+        materialesExoticos: number;
+      };
+    };
+    bodegaMK5: {
+      levels: {
+        materialesIndustriales: number;
+        componentesBatalla: number;
+        materialesExoticos: number;
+      };
+      capacities: {
+        materialesIndustriales: number;
+                componentesBatalla: number;
+        materialesExoticos: number;
+      };
+    };
+    bodegaMK6: {
+      levels: {
+        materialesIndustriales: number;
+        componentesBatalla: number;
+        materialesExoticos: number;
+      };
+      capacities: {
+        materialesIndustriales: number;
+        componentesBatalla: number;
+        materialesExoticos: number;
+      };
+    };
+    bodegaMK7: {
+      levels: {
+        materialesIndustriales: number;
+        componentesBatalla: number;
+        materialesExoticos: number;
+      };
+            capacities: {
+        materialesIndustriales: number;
+        componentesBatalla: number;
+        materialesExoticos: number;
+      };
+    };
+    bodegaMK8: {
+      levels: {
+        materialesIndustriales: number;
+        componentesBatalla: number;
+        materialesExoticos: number;
+      };
+            capacities: {
+        materialesIndustriales: number;
+        componentesBatalla: number;
+        materialesExoticos: number;
+      };
+    };
+    bodegaMK9: {
+      levels: {
+        materialesIndustriales: number;
+        componentesBatalla: number;
+        materialesExoticos: number;
+      };
+      capacities: {
+        materialesIndustriales: number;
+        componentesBatalla: number;
+        materialesExoticos: number;
+      };
+    };
+  };
   // Nuevas propiedades para el sistema de mejoras del Vindicator
-  vindicatorUpgrades: {
-    reinforcedArmor: VindicatorUpgrade;     // Blindaje Reforzado - Aumenta vida
-    shieldGenerator: VindicatorUpgrade;     // Generador de Escudos - Aumenta escudo
-    improvedCannons: VindicatorUpgrade;     // Cañones Mejorados - Aumenta daño
+      vindicatorUpgrades: {
+    reinforcedArmor: VindicatorUpgrade;
+    shieldGenerator: VindicatorUpgrade;
+    improvedCannons: VindicatorUpgrade;
+  };
+  vindicatorMK2Upgrades: {
+    adaptiveChassis: VindicatorUpgrade;
+    phasicShieldGenerator: VindicatorUpgrade;
+        pulseIonCannons: VindicatorUpgrade;
+  };
+  vindicatorMK3Upgrades: {
+    cascoDeAdamantio: VindicatorUpgrade;
+    nucleoArcano: VindicatorUpgrade;
+        canonesDeAsedio: VindicatorUpgrade;
+  };
+  vindicatorMK4Upgrades: {
+    cascoEspaciotemporal: VindicatorUpgrade;
+    singularidadContenida: VindicatorUpgrade;
+        lanzaderaOmega: VindicatorUpgrade;
+  };
+  vindicatorMK5Upgrades: {
+    blindajeDeReliquia: VindicatorUpgrade;
+    esquirlasRegenerativas: VindicatorUpgrade;
+        codexPotenciado: VindicatorUpgrade;
+  };
+  vindicatorMK6Upgrades: {
+    blindajeDeHorizonte: VindicatorUpgrade;
+        reactorDePuntoCero: VindicatorUpgrade;
+    canonesTempest: VindicatorUpgrade;
+  };
+  vindicatorMK7Upgrades: {
+    cascoEspectral: VindicatorUpgrade;
+    nucleoDelVacio: VindicatorUpgrade;
+    canonesCorruptos: VindicatorUpgrade;
+  };
+  vindicatorMK8Upgrades: {
+    cascoFantasma: VindicatorUpgrade;
+        conexionEspectral: VindicatorUpgrade;
+    armasEtéreas: VindicatorUpgrade;
+  };
+  vindicatorMK9Upgrades: {
+    blindajeDeCiudadela: VindicatorUpgrade;
+    matrizDefensiva: VindicatorUpgrade;
+    canonOverlord: VindicatorUpgrade;
   };
   blueprints: number; // Planos para subir de estrella
   vindicatorLevel: number; // Nivel general del Vindicator
@@ -286,9 +488,11 @@ export interface GameState {
     battleIndex: number;
     enemyName: string;
     enemyMaxHealth: number;
-    enemyCurrentHealth: number;
+        enemyCurrentHealth: number;
     enemyMaxShield: number;
     enemyCurrentShield: number;
+    cloakTurnsRemaining?: number;
+    dodgeBonusNextTurn?: boolean;
   } | null;
   settings: {
     volume: number; // 0-100
@@ -303,22 +507,9 @@ export interface GameState {
   notificationQueue: [],
   battleCount: 0,
   currentBackground: 1, // <-- NUEVA PROP: Fondo inicial (1)
-  resources: {
+    resources: {
     scrap: 0,
     energy: 25,
-    metalRefinado: 0,
-    aceroEstructural: 0,
-    fragmentosPlaca: 0,
-    circuitosDañados: 0,
-    nucleoSingularidad: 0,
-    placasCasco: 0,
-    cableadoSuperconductor: 0,
-        aleacionReforzada: 0,
-    neuroChipCorrupto: 0,
-    matrizCristalina: 0,
-    IA_Fragmentada: 0,
-    planosMK2: 0,
-    barraCombustible: 0,
     energyProduction: 0,
     energyConsumption: 0,
     maxEnergy: 50,
@@ -454,20 +645,195 @@ export interface GameState {
       warpDrive: { nucleoSingularidad: 0 }
     }
   },
-      vindicator: {
+            vindicator: {
     vindicatorType: 'base',
     maxHealth: 500,
     currentHealth: 500,
     maxShield: 250,
     currentShield: 250,
     damage: 50,
-    modules: {
+        modules: {
       offensive: null,
       defensive: null,
       tactical: null,
     },
+    bodegaResources: {
+      metalRefinado: 0,
+      aceroEstructural: 0,
+      fragmentosPlaca: 0,
+      circuitosDañados: 0,
+      nucleoSingularidad: 0,
+      placasCasco: 0,
+      cableadoSuperconductor: 0,
+      aleacionReforzada: 0,
+      neuroChipCorrupto: 0,
+      matrizCristalina: 0,
+      IA_Fragmentada: 0,
+      planosMK2: 0,
+      // --- CAPITULO 3 ---
+      matrizDeManiobra: 0,
+              placasDeSigilo: 0,
+        planosDeInterceptor: 0,
+        // --- FIN CAPITULO 3 ---
+        // --- CAPITULO 4 ---
+        nucleoDatosArcano: 0,
+        placasAdamantioReforzado: 0,
+                planosMK3: 0,
+        // --- FIN CAPITULO 4 ---
+        // --- CAPITULO 5 ---
+        tejidoEspaciotemporal: 0,
+        singularidadEmbotellada: 0,
+                planosMK4: 0,
+        // --- FIN CAPITULO 5 ---
+        // --- CAPITULO 6 ---
+        esquirlasDeReliquia: 0,
+        codexAncestral: 0,
+                planosMK5: 0,
+        // --- FIN CAPITULO 6 ---
+        // --- CAPITULO 7 ---
+        fragmentoHorizonteSucesos: 0,
+        energiaPuntoCero: 0,
+        planosMK6: 0,
+        // --- FIN CAPITULO 7 ---
+        // --- CAPITULO 8 ---
+        esenciaDelVacio: 0,
+        reliquiaCorrupta: 0,
+                planosMK7: 0,
+        // --- FIN CAPITULO 8 ---
+        // --- CAPITULO 9 ---
+        nucleoEspectral: 0,
+        conexionFantasmal: 0,
+                planosMK8: 0,
+        // --- FIN CAPITULO 9 ---
+        // --- CAPITULO 10 ---
+        fragmentoDeCiudadela: 0,
+        matrizDeOverlord: 0,
+        planosMK9: 0,
+        // --- FIN CAPITULO 10 ---
+        barraCombustible: 0,
+    },
+            bodegaBase: {
+      levels: {
+        materialesIndustriales: 1,
+        componentesBatalla: 1,
+        materialesExoticos: 1,
+      },
+      capacities: {
+        materialesIndustriales: 1000,
+        componentesBatalla: 500,
+        materialesExoticos: 100,
+      },
+    },
+    bodegaMK1: {
+      levels: {
+        materialesIndustriales: 0,
+        componentesBatalla: 0,
+        materialesExoticos: 0,
+      },
+      capacities: {
+        materialesIndustriales: 0,
+        componentesBatalla: 0,
+        materialesExoticos: 0,
+      },
+    },
+    bodegaMK2: {
+      levels: {
+        materialesIndustriales: 0,
+        componentesBatalla: 0,
+        materialesExoticos: 0,
+      },
+            capacities: {
+        materialesIndustriales: 0,
+        componentesBatalla: 0,
+        materialesExoticos: 0,
+      },
+    },
+    bodegaMK3: {
+      levels: {
+        materialesIndustriales: 0,
+        componentesBatalla: 0,
+        materialesExoticos: 0,
+      },
+            capacities: {
+        materialesIndustriales: 0,
+        componentesBatalla: 0,
+        materialesExoticos: 0,
+      },
+    },
+    bodegaMK4: {
+      levels: {
+        materialesIndustriales: 0,
+        componentesBatalla: 0,
+        materialesExoticos: 0,
+      },
+            capacities: {
+        materialesIndustriales: 0,
+        componentesBatalla: 0,
+        materialesExoticos: 0,
+      },
+    },
+    bodegaMK5: {
+      levels: {
+        materialesIndustriales: 0,
+        componentesBatalla: 0,
+        materialesExoticos: 0,
+      },
+            capacities: {
+        materialesIndustriales: 0,
+        componentesBatalla: 0,
+        materialesExoticos: 0,
+      },
+    },
+    bodegaMK6: {
+      levels: {
+        materialesIndustriales: 0,
+        componentesBatalla: 0,
+        materialesExoticos: 0,
+      },
+      capacities: {
+        materialesIndustriales: 0,
+        componentesBatalla: 0,
+        materialesExoticos: 0,
+      },
+    },
+    bodegaMK7: {
+      levels: {
+        materialesIndustriales: 0,
+        componentesBatalla: 0,
+        materialesExoticos: 0,
+      },
+            capacities: {
+        materialesIndustriales: 0,
+        componentesBatalla: 0,
+        materialesExoticos: 0,
+      },
+    },
+    bodegaMK8: {
+      levels: {
+        materialesIndustriales: 0,
+        componentesBatalla: 0,
+        materialesExoticos: 0,
+      },
+            capacities: {
+        materialesIndustriales: 0,
+        componentesBatalla: 0,
+        materialesExoticos: 0,
+      },
+    },
+    bodegaMK9: {
+      levels: {
+        materialesIndustriales: 0,
+        componentesBatalla: 0,
+        materialesExoticos: 0,
+      },
+      capacities: {
+        materialesIndustriales: 0,
+        componentesBatalla: 0,
+        materialesExoticos: 0,
+      },
+    },
   },
-  vindicatorUpgrades: {
+      vindicatorUpgrades: {
     reinforcedArmor: {
       id: 'reinforced_armor',
       name: 'Blindaje Reforzado',
@@ -503,6 +869,238 @@ export interface GameState {
         phase2Resources: { fragmentosPlaca: 120, circuitosDañados: 40 },
       },
       statIncreasePerStar: { damage: 10 }
+    }
+  },
+  vindicatorMK2Upgrades: {
+    adaptiveChassis: {
+      id: 'adaptive_chassis',
+      name: 'Chasis Adaptativo',
+      description: 'Aumenta la vida máxima del Interceptor.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { matrizDeManiobra: 50 }, phase2Resources: { placasDeSigilo: 25 } },
+      statIncreasePerStar: { health: 500 }
+    },
+    phasicShieldGenerator: {
+      id: 'phasic_shield_generator',
+      name: 'Generador de Escudo Fásico',
+      description: 'Aumenta el escudo máximo del Interceptor.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { matrizDeManiobra: 40 }, phase2Resources: { placasDeSigilo: 35 } },
+      statIncreasePerStar: { shield: 250 }
+    },
+    pulseIonCannons: {
+      id: 'pulse_ion_cannons',
+      name: 'Cañones de Pulso Iónicos',
+      description: 'Aumenta el daño del Interceptor.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { matrizDeManiobra: 60 }, phase2Resources: { placasDeSigilo: 20 } },
+            statIncreasePerStar: { damage: 50 }
+    }
+  },
+  vindicatorMK3Upgrades: {
+    cascoDeAdamantio: {
+      id: 'casco_adamantio',
+      name: 'Casco de Adamantio',
+      description: 'Aumenta la vida máxima del Devastator.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { placasAdamantioReforzado: 50 }, phase2Resources: {} },
+      statIncreasePerStar: { health: 1000 }
+    },
+    nucleoArcano: {
+      id: 'nucleo_arcano',
+      name: 'Núcleo Arcano',
+      description: 'Aumenta el escudo máximo del Devastator.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { nucleoDatosArcano: 50 }, phase2Resources: {} },
+      statIncreasePerStar: { shield: 500 }
+    },
+    canonesDeAsedio: {
+      id: 'canones_asedio',
+      name: 'Cañones de Asedio',
+      description: 'Aumenta el daño del Devastator.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { nucleoDatosArcano: 25, placasAdamantioReforzado: 25 }, phase2Resources: {} },
+            statIncreasePerStar: { damage: 100 }
+    }
+  },
+  vindicatorMK4Upgrades: {
+    cascoEspaciotemporal: {
+      id: 'casco_espaciotemporal',
+      name: 'Casco Espaciotemporal',
+      description: 'Aumenta la vida máxima del Reaper.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { tejidoEspaciotemporal: 50 }, phase2Resources: {} },
+      statIncreasePerStar: { health: 1500 }
+    },
+    singularidadContenida: {
+      id: 'singularidad_contenida',
+      name: 'Singularidad Contenida',
+      description: 'Aumenta el escudo máximo del Reaper.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { singularidadEmbotellada: 25 }, phase2Resources: {} },
+      statIncreasePerStar: { shield: 250 }
+    },
+    lanzaderaOmega: {
+      id: 'lanzadera_omega',
+      name: 'Lanzadera Omega',
+      description: 'Aumenta el daño del Reaper.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { singularidadEmbotellada: 50 }, phase2Resources: {} },
+            statIncreasePerStar: { damage: 250 }
+    }
+  },
+  vindicatorMK5Upgrades: {
+    blindajeDeReliquia: {
+      id: 'blindaje_reliquia',
+      name: 'Blindaje de Reliquia',
+      description: 'Aumenta la vida máxima del Aegis.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { esquirlasDeReliquia: 50 }, phase2Resources: {} },
+      statIncreasePerStar: { health: 3000 }
+    },
+    esquirlasRegenerativas: {
+      id: 'esquirlas_regenerativas',
+      name: 'Esquirlas Regenerativas',
+      description: 'Aumenta el escudo máximo del Aegis.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { esquirlasDeReliquia: 25, codexAncestral: 25 }, phase2Resources: {} },
+      statIncreasePerStar: { shield: 1500 }
+    },
+    codexPotenciado: {
+      id: 'codex_potenciado',
+      name: 'Codex Potenciado',
+      description: 'Aumenta el daño del Aegis.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { codexAncestral: 50 }, phase2Resources: {} },
+            statIncreasePerStar: { damage: 150 }
+    }
+  },
+  vindicatorMK6Upgrades: {
+    blindajeDeHorizonte: {
+      id: 'blindaje_horizonte',
+      name: 'Blindaje de Horizonte',
+      description: 'Aumenta la vida máxima del Tempest.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { fragmentoHorizonteSucesos: 50 }, phase2Resources: {} },
+      statIncreasePerStar: { health: 2000 }
+    },
+    reactorDePuntoCero: {
+      id: 'reactor_cero',
+      name: 'Reactor de Punto Cero',
+      description: 'Aumenta el escudo máximo del Tempest.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { energiaPuntoCero: 25 }, phase2Resources: {} },
+      statIncreasePerStar: { shield: 1000 }
+    },
+    canonesTempest: {
+      id: 'canones_tempest',
+      name: 'Cañones Tempest',
+      description: 'Aumenta el daño del Tempest.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { energiaPuntoCero: 50 }, phase2Resources: {} },
+      statIncreasePerStar: { damage: 400 }
+    }
+  },
+  vindicatorMK7Upgrades: {
+    cascoEspectral: {
+      id: 'casco_espectral',
+      name: 'Casco Espectral',
+      description: 'Aumenta la vida máxima del Wraith.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { esenciaDelVacio: 50 }, phase2Resources: {} },
+      statIncreasePerStar: { health: 4000 }
+    },
+    nucleoDelVacio: {
+      id: 'nucleo_vacio',
+      name: 'Núcleo del Vacío',
+      description: 'Aumenta el escudo máximo del Wraith.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { reliquiaCorrupta: 25 }, phase2Resources: {} },
+      statIncreasePerStar: { shield: 2000 }
+    },
+    canonesCorruptos: {
+      id: 'canones_corruptos',
+      name: 'Cañones Corruptos',
+      description: 'Aumenta el daño del Wraith.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { reliquiaCorrupta: 50 }, phase2Resources: {} },
+            statIncreasePerStar: { damage: 800 }
+    }
+  },
+  vindicatorMK8Upgrades: {
+    cascoFantasma: {
+      id: 'casco_fantasma',
+      name: 'Casco Fantasma',
+      description: 'Aumenta la vida máxima del Phantom.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { nucleoEspectral: 50 }, phase2Resources: {} },
+      statIncreasePerStar: { health: 8000 }
+    },
+    conexionEspectral: {
+      id: 'conexion_espectral',
+      name: 'Conexión Espectral',
+      description: 'Aumenta el escudo máximo del Phantom.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { conexionFantasmal: 25 }, phase2Resources: {} },
+      statIncreasePerStar: { shield: 4000 }
+    },
+    armasEtéreas: {
+      id: 'armas_etereas',
+      name: 'Armas Etéreas',
+      description: 'Aumenta el daño del Phantom.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { conexionFantasmal: 50 }, phase2Resources: {} },
+            statIncreasePerStar: { damage: 1600 }
+    }
+  },
+  vindicatorMK9Upgrades: {
+    blindajeDeCiudadela: {
+      id: 'blindaje_ciudadela',
+      name: 'Blindaje de Ciudadela',
+      description: 'Aumenta la vida máxima del Apex.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { fragmentoDeCiudadela: 50 }, phase2Resources: {} },
+      statIncreasePerStar: { health: 15000 }
+    },
+    matrizDefensiva: {
+      id: 'matriz_defensiva',
+      name: 'Matriz Defensiva',
+      description: 'Aumenta el escudo máximo del Apex.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { matrizDeOverlord: 25 }, phase2Resources: {} },
+      statIncreasePerStar: { shield: 7500 }
+    },
+    canonOverlord: {
+      id: 'canon_overlord',
+      name: 'Cañón Overlord',
+      description: 'Aumenta el daño del Apex.',
+      maxStars: 10,
+      currentStars: 0,
+      costPerStar: { phase1Resources: { matrizDeOverlord: 50 }, phase2Resources: {} },
+      statIncreasePerStar: { damage: 3000 }
     }
   },
   blueprints: 0,

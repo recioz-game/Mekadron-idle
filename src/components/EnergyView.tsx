@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './EnergyView.css'; // Importar el archivo CSS
 import { GameState } from '../types/gameState';
 import BuyAmountSelector from './BuyAmountSelector';
 import { formatNumber } from '../utils/formatNumber';
 import BotonConTooltip from './BotonConTooltip';
 import QueueControls from './QueueControls';
+import { useDragToScroll } from '../hooks/useDragToScroll';
 
 // Importar imágenes de producción
 import solarPanelBasicImg from '../assets/images/ui/energy-solar-panel-basic.png';
@@ -57,6 +58,7 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
   buyAmount, onSetBuyAmount, onClose, onCancel,
   upgrades, metalRefinado
 }) => {
+  const scrollRef = useDragToScroll<HTMLDivElement>();
 
   const getTooltipText = (requirements: { resource?: string, amount: number, current: number, text: string }[]): string => {
     const missing = requirements.filter(req => req.current < req.amount);
@@ -87,6 +89,8 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
     Math.floor(metalRefinado / fusionReactorCost.metalRefinado)
   );
 
+    const [isSummaryOpen, setIsSummaryOpen] = useState(true);
+
   const totalEnergyProduction = 
     solarPanels * 3 + 
     mediumSolarPanels * 10 +
@@ -96,8 +100,8 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
     empoweredEnergyCores * 150 +
     fusionReactors * 250;
 
-  return (
-    <div className="energy-view-container">
+    return (
+    <div className="energy-view-container" ref={scrollRef}>
       <div className="energy-view-header">
         <h2>MÓDULO DE ENERGÍA</h2>
         <button 
@@ -108,24 +112,29 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
         </button>
       </div>
 
-      {/* Resumen Energético */}
-            <div className="energy-summary">
-        <h3 style={{ color: '#06B6D4' }}>RESUMEN ENERGÉTICO</h3>
-        <div className="energy-summary-content">
-          <div className="summary-item">
-            <span className="summary-label">Almacenado:</span>
-            <span className="summary-value">{formatNumber(currentEnergy)} / {formatNumber(maxEnergy)}</span>
-          </div>
-          <div className="summary-item">
-            <span className="summary-label">Balance:</span>
-            <span className="summary-value" style={{ color: totalEnergyProduction >= energyConsumption ? '#22C55E' : '#EF4444' }}>
-              {(totalEnergyProduction - energyConsumption).toFixed(1)}/s
-            </span>
-          </div>
-          <div className="summary-details">
-            (Producción: +{formatNumber(totalEnergyProduction)}/s | Consumo: -{formatNumber(energyConsumption)}/s)
-          </div>
+            {/* Resumen Energético */}
+      <div className="energy-summary">
+        <div className="summary-header" onClick={() => setIsSummaryOpen(!isSummaryOpen)}>
+          <h3 style={{ color: '#06B6D4' }}>RESUMEN ENERGÉTICO</h3>
+          <span className={`collapse-arrow ${isSummaryOpen ? 'open' : ''}`}>▶</span>
         </div>
+        {isSummaryOpen && (
+          <div className="energy-summary-content">
+            <div className="summary-item">
+              <span className="summary-label">Almacenado:</span>
+              <span className="summary-value">{formatNumber(currentEnergy)} / {formatNumber(maxEnergy)}</span>
+            </div>
+            <div className="summary-item">
+              <span className="summary-label">Balance:</span>
+              <span className="summary-value" style={{ color: totalEnergyProduction >= energyConsumption ? '#22C55E' : '#EF4444' }}>
+                {(totalEnergyProduction - energyConsumption).toFixed(1)}/s
+              </span>
+            </div>
+            <div className="summary-details">
+              (Producción: +{formatNumber(totalEnergyProduction)}/s | Consumo: -{formatNumber(energyConsumption)}/s)
+            </div>
+          </div>
+        )}
       </div>
 
             <BuyAmountSelector buyAmount={buyAmount} onSetBuyAmount={onSetBuyAmount} />
@@ -283,8 +292,8 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
           </BotonConTooltip>
           {stabilizedEnergyCores < 3 && <p className="requirement-warning">⚠️ Necesitas 3 Núcleos Estabilizados</p>}
         </div>
-        <img src={energyCoreEmpoweredImg} alt="Núcleo Energético Potenciado" className="energy-item-image" />En 
-      </div>
+                  <img src={energyCoreEmpoweredImg} alt="Núcleo Energético Potenciado" className="energy-item-image" />
+        </div>
 
             {/* Reactor de Fusión (Condicional) */}
       {(upgrades as any).fusionTech > 0 && (

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import './CombatScene.css';
+import { Bodega } from './Bodega';
 
 const CombatScene: React.FC = () => {
   const { gameState, dispatch } = useGame();

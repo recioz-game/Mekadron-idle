@@ -34,3 +34,8 @@ export const useShipyard = (): GameState['shipyard'] => {
   const gameState = useGameState();
   return gameState.shipyard;
 }
+
+export const useVindicator = (): GameState['vindicator'] => {
+  const gameState = useGameState();
+  return gameState.vindicator;
+};

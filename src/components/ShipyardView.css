@@ -4,6 +4,8 @@
   color: #E5E7EB;
   padding: 1.6rem;
   font-family: Inter, sans-serif;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 .shipyard-view-header {

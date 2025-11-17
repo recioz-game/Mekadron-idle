@@ -4,10 +4,10 @@ import { GameState } from '../types/gameState';
 import { formatNumber } from '../utils/formatNumber';
 import { allShipyardProjects } from '../data/shipyardData';
 import { useGameDispatch } from '../context/GameContext';
+import { useDragToScroll } from '../hooks/useDragToScroll';
 
 interface ShipyardViewProps {
   shipyard: GameState['shipyard'];
-  vindicator: GameState['vindicator'];
   resources: GameState['resources'];
   researchPoints: number;
   blueprints: number;
@@ -16,13 +16,13 @@ interface ShipyardViewProps {
 
 const ShipyardView: React.FC<ShipyardViewProps> = ({ 
   shipyard,
-  vindicator,
   resources,
   researchPoints,
   blueprints,
   onClose 
 }) => {
-  const dispatch = useGameDispatch();
+    const dispatch = useGameDispatch();
+  const scrollRef = useDragToScroll<HTMLDivElement>();
   const currentProject = allShipyardProjects[shipyard.currentProjectIndex];
   const allResources = { ...resources, researchPoints, blueprints };
 
@@ -36,19 +36,65 @@ const ShipyardView: React.FC<ShipyardViewProps> = ({
     researchPoints: 'Puntos de Investigación',
     aleacionReforzada: 'Aleación Reforzada',
     neuroChipCorrupto: 'Neuro-Chip Corrupto',
-    blueprints: 'Planos',
+        blueprints: 'Planos',
+    // --- Recursos MK2 ---
+    matrizDeManiobra: 'Matriz de Maniobra',
+    placasDeSigilo: 'Placas de Sigilo',
+    planosDeInterceptor: 'Planos de Interceptor',
+        IA_Fragmentada: 'IA Fragmentada',
+        matrizCristalina: 'Matriz Cristalina',
+    // --- Recursos MK7 ---
+    esenciaDelVacio: 'Esencia del Vacío',
+        reliquiaCorrupta: 'Reliquia Corrupta',
+    planosMK7: 'Planos MK7',
+    // --- Recursos MK8 ---
+    nucleoEspectral: 'Núcleo Espectral',
+    conexionFantasmal: 'Conexión Fantasmal',
+    planosMK8: 'Planos MK8',
+    // --- Recursos MK9 ---
+    fragmentoDeCiudadela: 'Fragmento de Ciudadela',
+    matrizDeOverlord: 'Matriz de Overlord',
+    planosMK9: 'Planos MK9',
   };
   
   const componentLabels: { [key: string]: string } = {
+    // --- Base ---
     hull: 'Estructura del Casco',
     powerCore: 'Núcleo de Energía',
     targetingSystem: 'Sistemas de Puntería',
     warpDrive: 'Motor de Curvatura',
+    // --- MK1 ---
     chasisReforzado: 'Chasis Reforzado',
     nucleoSingularidad: 'Núcleo de Singularidad Avanzado',
     sistemaArmamento: 'Sistema de Armamento "Devastator"',
     ensamblajeFinal: 'Ensamblaje Final',
+        // --- MK2 ---
+    chasisDeSigilo: 'Chasis de Sigilo',
+    motorDeManiobraAvanzado: 'Motor de Maniobra Avanzado',
+    sistemaDeCamuflajeEspectral: 'Sistema de Camuflaje Espectral',
+    // --- MK7 ---
+        cascoDeEspectro: 'Casco de Espectro',
+    nucleoDelVacio: 'Núcleo del Vacío',
+    modulosDeCorrupcion: 'Módulos de Corrupción',
+    // --- MK8 ---
+    chasisEspectral: 'Chasis Espectral',
+        sincronizadorFantasmal: 'Sincronizador Fantasmal',
+    armamentoDeFase: 'Armamento de Fase',
+    // --- MK9 ---
+    blindajeDeCiudadela: 'Blindaje de Ciudadela',
+    matrizDeOverlord: 'Matriz de Overlord',
+    sistemasDeArmasDefinitivos: 'Sistemas de Armas Definitivos',
   };
+
+  const projectDescriptions: { [key: string]: string } = {
+    vindicator_base: "Aurora: \"Reconstruir el 'Vindicator' es nuestra única opción. Necesitaremos los materiales avanzados de las expediciones para ensamblar los componentes principales.\"",
+    vindicator_mk1: "Aurora: \"Es hora de mejorar el Vindicator a la versión Mk.I. Necesitaremos los materiales que hemos conseguido en nuestras batallas para reforzarlo.\"",
+        vindicator_mk2_interceptor: "Aurora: \"Hemos conseguido los planos del Interceptor. Con esta tecnología de sigilo y maniobra, seremos imparables.\"",
+        vindicator_mk7_wraith: "Aurora: \"Esta tecnología es... diferente. Parece alimentarse del vacío mismo. El 'Wraith' será una leyenda, o nuestra perdición.\"",
+    vindicator_mk8_phantom: "Aurora: \"Si el 'Wraith' caminaba por el vacío, el 'Phantom' es el vacío mismo. Esta nave podría ser la clave para acabar con las flotas fantasma.\"",
+    vindicator_mk9_apex: "Aurora: \"Hemos llegado al final. La tecnología de la Ciudadela es nuestra. Con el 'Apex', reclamaremos el futuro. Por todos nosotros.\"",
+  };
+
 
   const handleDonate = (component: string, resource: string) => {
     dispatch({ type: 'DONATE_TO_SHIPYARD', payload: { component, resource, amount: 1 } });
@@ -119,79 +165,33 @@ const ShipyardView: React.FC<ShipyardViewProps> = ({
     );
   };
 
-  return (
-    <div className="shipyard-view-container">
-      {vindicator.vindicatorType === 'mk1' ? (
-        // --- VISTA PARA CUANDO EL MK1 YA ESTÁ CONSTRUIDO ---
+        return (
+    <div className="shipyard-view-container" ref={scrollRef}>
+      {currentProject ? (
         <>
           <div className="shipyard-view-header">
-            <h2>ESTADO DEL VINDICATOR</h2>
+            <h2>ASTILLERO - PROYECTO "{currentProject.name.toUpperCase()}"</h2>
+            <button onClick={onClose} className="close-button">
+              Cerrar
+            </button>
+          </div>
+          <div className="shipyard-intro">
+            <p>{projectDescriptions[currentProject.id] || "Iniciando nuevo proyecto..."}</p>
+          </div>
+          {Object.entries(currentProject.costs).map(([componentId, componentData]) => 
+            renderComponentProgress(componentId, componentData)
+          )}
+        </>
+      ) : (
+        <div className="shipyard-view-container">
+          <div className="shipyard-view-header">
+            <h2>ASTILLERO</h2>
             <button onClick={onClose} className="close-button">Cerrar</button>
           </div>
           <div className="shipyard-intro">
-            <h3>VINDICATOR MK.I "ACORAZADO"</h3>
-            <p>Aurora: "El nuevo chasis está operativo. Todos los sistemas de combate han sido mejorados a un nuevo estándar. La antigua armería ya no es compatible; he preparado un nuevo sistema de módulos de especialización."</p>
+            <p>¡Todos los proyectos del astillero han sido completados!</p>
           </div>
-          <div className="mk1-stats-panel">
-            <h4>Estadísticas Base:</h4>
-            <p>Vida del Casco: {formatNumber(vindicator.maxHealth)}</p>
-            <p>Escudo de Energía: {formatNumber(vindicator.maxShield)}</p>
-            <p>Potencia de Fuego: {formatNumber(vindicator.damage)}</p>
-            <p>Habilidad Pasiva: <strong>Sobrecarga Reactiva</strong></p>
-          </div>
-          <div className="mk1-actions">
-            <button 
-              className="mk1-action-button"
-              onClick={() => {
-                dispatch({ type: 'GO_TO_PHASE_2_VIEW', payload: 'armory' });
-              }}
-            >
-              Ir a la Armería MK.I
-            </button>
-            <button 
-              className="mk1-action-button"
-              onClick={() => {
-                dispatch({ type: 'GO_TO_PHASE_2_VIEW', payload: 'battleRoom' });
-              }}
-            >
-              Ir a la Sala de Batalla
-            </button>
-          </div>
-        </>
-      ) : (
-        // --- VISTA DE CONSTRUCCIÓN (LÓGICA ANTERIOR) ---
-        currentProject ? (
-          <>
-            <div className="shipyard-view-header">
-              <h2>ASTILLERO - PROYECTO "{currentProject.name.toUpperCase()}"</h2>
-              <button onClick={onClose} className="close-button">
-                Cerrar
-              </button>
-            </div>
-            <div className="shipyard-intro">
-              <p>
-                {currentProject.id === 'vindicator_base'
-                  ? "Aurora: \"Reconstruir el 'Vindicator' es nuestra única opción. Necesitaremos los materiales avanzados de las expediciones para ensamblar los componentes principales.\""
-                  : `Aurora: "Es hora de mejorar el Vindicator a la versión Mk.I. Necesitaremos los materiales que hemos conseguido en nuestras batallas para reforzarlo."`
-                }
-              </p>
-            </div>
-            {Object.entries(currentProject.costs).map(([componentId, componentData]) => 
-              renderComponentProgress(componentId, componentData)
-            )}
-          </>
-        ) : (
-          // Vista para cuando no hay más proyectos
-          <div className="shipyard-view-container">
-            <div className="shipyard-view-header">
-              <h2>ASTILLERO</h2>
-              <button onClick={onClose} className="close-button">Cerrar</button>
-            </div>
-            <div className="shipyard-intro">
-              <p>¡Todos los proyectos del astillero han sido completados!</p>
-            </div>
-          </div>
-        )
+        </div>
       )}
     </div>
   );

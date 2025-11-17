@@ -66,8 +66,8 @@ const calculateOfflineResources = (loadedState: GameState): GameState => {
 
     const resourcesGained = {
       scrap: Math.floor(simulatedState.resources.scrap - loadedState.resources.scrap),
-      metal: Math.floor(simulatedState.resources.metalRefinado - loadedState.resources.metalRefinado),
-      steel: Math.floor(simulatedState.resources.aceroEstructural - loadedState.resources.aceroEstructural),
+            metal: Math.floor(simulatedState.vindicator.bodegaResources.metalRefinado - loadedState.vindicator.bodegaResources.metalRefinado),
+      steel: Math.floor(simulatedState.vindicator.bodegaResources.aceroEstructural - loadedState.vindicator.bodegaResources.aceroEstructural),
       research: Math.floor(simulatedState.techCenter.researchPoints - loadedState.techCenter.researchPoints)
     };
 
@@ -139,8 +139,8 @@ const applyBulkOfflineProduction = (state: GameState, seconds: number): GameStat
     resources.maxScrap
   );
 
-  const newMetalRefinado = resources.metalRefinado + wyrmMetalProduction;
-  const newAceroEstructural = resources.aceroEstructural + wyrmSteelProduction;
+  const newMetalRefinado = state.vindicator.bodegaResources.metalRefinado + wyrmMetalProduction;
+  const newAceroEstructural = state.vindicator.bodegaResources.aceroEstructural + wyrmSteelProduction;
 
   // Cálculo de investigación
   const baseResearch = 0.1 * (1 + (upgrades.researchEfficiency * 0.20));
@@ -151,16 +151,22 @@ const applyBulkOfflineProduction = (state: GameState, seconds: number): GameStat
   const researchPointsToAdd = ((baseResearch + droneResearch + energyResearch) /
     (1 - (upgrades.quantumComputing * 0.05))) * seconds;
 
-  return {
+    return {
     ...state,
     resources: {
       ...resources,
       scrap: newScrap,
-      metalRefinado: newMetalRefinado,
-      aceroEstructural: newAceroEstructural,
       energy: newEnergy,
       energyConsumption: totalEnergyConsumption,
       energyProduction: totalEnergyProduction,
+    },
+    vindicator: {
+      ...state.vindicator,
+      bodegaResources: {
+        ...state.vindicator.bodegaResources,
+        metalRefinado: newMetalRefinado,
+        aceroEstructural: newAceroEstructural,
+      }
     },
     techCenter: {
       ...state.techCenter,
@@ -219,6 +225,38 @@ const loadState = (): GameState => {
       }
       storedState.shipyard.progress = { ...initialGameState.shipyard.progress };
     }
+
+    // --- MIGRACIÓN DE DATOS DE BODEGA ---
+    if (storedState.vindicator && storedState.vindicator.bodega) {
+      console.log("Migrando estructura de Bodega...");
+      if (!storedState.vindicator.bodegaResources) {
+        storedState.vindicator.bodegaResources = storedState.vindicator.bodega.resources;
+      }
+      delete storedState.vindicator.bodega;
+    }
+    if (storedState.resources.metalRefinado) { // Mover recursos de la raíz a la bodega
+      console.log("Migrando recursos raíz a la Bodega...");
+      if (!storedState.vindicator.bodegaResources) {
+        storedState.vindicator.bodegaResources = initialGameState.vindicator.bodegaResources;
+      }
+      Object.keys(initialGameState.vindicator.bodegaResources).forEach(key => {
+        if (storedState.resources[key]) {
+          storedState.vindicator.bodegaResources[key] = storedState.resources[key];
+          delete storedState.resources[key];
+        }
+      });
+    }
+    // Asegurar que las estructuras de bodega por nivel existen
+    if (storedState.vindicator && !storedState.vindicator.bodegaBase) {
+      storedState.vindicator.bodegaBase = initialGameState.vindicator.bodegaBase;
+    }
+    if (storedState.vindicator && !storedState.vindicator.bodegaMK1) {
+      storedState.vindicator.bodegaMK1 = initialGameState.vindicator.bodegaMK1;
+    }
+    if (storedState.vindicator && !storedState.vindicator.bodegaMK2) {
+      storedState.vindicator.bodegaMK2 = initialGameState.vindicator.bodegaMK2;
+    }
+
 
     // Rehidratar el Set de mensajes de Aurora
     if (storedState.aurora && Array.isArray(storedState.aurora.shownMessages)) {

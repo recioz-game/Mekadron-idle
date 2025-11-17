@@ -3,12 +3,14 @@ import './MissionsPanel.css'; // Importar el archivo CSS
 import { Mission } from '../types/gameState';
 import { useMissions, useResources } from '../hooks/useSelectors';
 import { useGameDispatch } from '../context/GameContext';
+import { useDragToScroll } from '../hooks/useDragToScroll';
 
 interface MissionsPanelProps {
   onClose: () => void;
 }
 
 const MissionsPanel: React.FC<MissionsPanelProps> = React.memo(({ onClose }) => {
+  const scrollRef = useDragToScroll<HTMLDivElement>();
   const { activeMissions, completedMissions } = useMissions();
   const { scrap, maxScrap, energy, maxEnergy } = useResources();
   const dispatch = useGameDispatch();
@@ -116,8 +118,8 @@ const MissionsPanel: React.FC<MissionsPanelProps> = React.memo(({ onClose }) => 
     );
   };
 
-  return (
-    <div className="missions-panel-container">
+    return (
+    <div className="missions-panel-container" ref={scrollRef}>
       <div className="missions-panel-header">
         <h2>SISTEMA DE MISIONES</h2>
         <button 

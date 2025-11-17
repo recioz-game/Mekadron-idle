@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Phase2Scene.css'; // Importar el archivo CSS
 import phase2BackgroundUrl from '../assets/images/backgrounds/Vindicator-background.png';
 import SettingsMenu from './SettingsMenu';
@@ -6,16 +6,17 @@ import Phase2ResourceBar from './Phase2ResourceBar';
 import { useGame } from '../context/GameContext';
 import BattleRoom from './BattleRoom';
 import Armory from './Armory';
-import ArmoryMK1 from './ArmoryMK1';
+import { Bodega } from './Bodega';
 
 // Importar las imágenes para los botones
 import battleRoomImage from '../assets/images/ui/battle-room-button.png';
 import armoryImage from '../assets/images/ui/armory-button.png';
+import bodegaButtonIcon from '../assets/images/ui/bodega-button.png';
 import returnStationImage from '../assets/images/ui/return-station-button.png';
 
 const Phase2Scene: React.FC = () => {
   const { gameState, dispatch } = useGame();
-  const { resources, currentView } = gameState;
+  const { vindicator, currentView } = gameState;
 
   const handleCloseView = () => {
     dispatch({ type: 'CLOSE_CURRENT_VIEW' });
@@ -24,26 +25,14 @@ const Phase2Scene: React.FC = () => {
   return (
     <div className="phase2-scene-container" style={{ backgroundImage: `url(${phase2BackgroundUrl})` }}>
       {/* 1. Barra de Recursos Simplificada para Fase 2 */}
-      <Phase2ResourceBar
-        metalRefinado={resources.metalRefinado}
-        aceroEstructural={resources.aceroEstructural}
-        placasCasco={resources.placasCasco}
-        cableadoSuperconductor={resources.cableadoSuperconductor}
-        aleacionReforzada={resources.aleacionReforzada}
-        neuroChipCorrupto={resources.neuroChipCorrupto}
-        barraCombustible={resources.barraCombustible}
-      />
+          <Phase2ResourceBar />
       
       <div className="main-content">
         {/* 2. Área de Contenido Principal */}
         <div className="content-area">
           {currentView === 'battleRoom' && <BattleRoom onClose={handleCloseView} />}
-          
-          {currentView === 'armory' && (
-            gameState.vindicator.vindicatorType === 'mk1' 
-              ? <ArmoryMK1 onClose={handleCloseView} /> 
-              : <Armory onClose={handleCloseView} />
-          )}
+          {currentView === 'armory' && <Armory onClose={handleCloseView} />}
+          {currentView === 'bodega' && <Bodega />}
         </div>
         
         {/* 3. Panel de Módulos */}
@@ -60,6 +49,12 @@ const Phase2Scene: React.FC = () => {
             className={`image-button ${currentView === 'armory' ? 'active' : ''}`}
           >
             <img src={armoryImage} alt="Armería" className="button-image" />
+          </button>
+          <button
+            onClick={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'bodega' })}
+            className={`image-button ${currentView === 'bodega' ? 'active' : ''}`}
+          >
+            <img src={bodegaButtonIcon} alt="Bodega" className="button-image" />
           </button>
 
           {/* Navegación - Ahora con imagen */}

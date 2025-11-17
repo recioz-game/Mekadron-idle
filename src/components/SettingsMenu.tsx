@@ -32,7 +32,7 @@ const SettingsMenu: React.FC = () => {
     setIsOpen(false);
   };
 
-    const handleDebugFinishExpeditions = () => {
+  const handleDebugFinishExpeditions = () => {
     const event = new CustomEvent('debugFinishExpeditions');
     window.dispatchEvent(event);
     setIsOpen(false);
@@ -40,6 +40,46 @@ const SettingsMenu: React.FC = () => {
 
   const handleDebugUnlockMK1 = () => {
     dispatch({ type: 'DEBUG_UNLOCK_VINDICATOR_MK1' });
+    setIsOpen(false);
+  };
+  
+    const handleDebugUnlockMK2 = () => {
+    dispatch({ type: 'DEBUG_UNLOCK_VINDICATOR_MK2' });
+    setIsOpen(false);
+  };
+
+    const handleDebugUnlockMK3 = () => {
+    dispatch({ type: 'DEBUG_UNLOCK_VINDICATOR_MK3' });
+    setIsOpen(false);
+  };
+
+    const handleDebugUnlockMK4 = () => {
+    dispatch({ type: 'DEBUG_UNLOCK_VINDICATOR_MK4' });
+    setIsOpen(false);
+  };
+
+    const handleDebugUnlockMK5 = () => {
+    dispatch({ type: 'DEBUG_UNLOCK_VINDICATOR_MK5' });
+    setIsOpen(false);
+  };
+
+  const handleDebugUnlockMK6 = () => {
+        dispatch({ type: 'DEBUG_UNLOCK_VINDICATOR_MK6' });
+    setIsOpen(false);
+  };
+
+    const handleDebugUnlockMK7 = () => {
+    dispatch({ type: 'DEBUG_UNLOCK_VINDICATOR_MK7' });
+    setIsOpen(false);
+  };
+
+    const handleDebugUnlockMK8 = () => {
+    dispatch({ type: 'DEBUG_UNLOCK_VINDICATOR_MK8' });
+    setIsOpen(false);
+  };
+
+  const handleDebugUnlockMK9 = () => {
+    dispatch({ type: 'DEBUG_UNLOCK_VINDICATOR_MK9' });
     setIsOpen(false);
   };
 
@@ -100,6 +140,54 @@ const SettingsMenu: React.FC = () => {
             className="dev-button"
           >
             Desbloquear Vindicator MK.I
+          </button>
+           <button
+            onClick={handleDebugUnlockMK2}
+            className="dev-button"
+                    >
+            Desbloquear Proyecto MK.II
+          </button>
+          <button
+            onClick={handleDebugUnlockMK3}
+            className="dev-button"
+                    >
+            Desbloquear Vindicator MK.III
+          </button>
+          <button
+            onClick={handleDebugUnlockMK4}
+            className="dev-button"
+                    >
+            Desbloquear Vindicator MK.IV
+          </button>
+          <button
+            onClick={handleDebugUnlockMK5}
+            className="dev-button"
+                    >
+            Desbloquear Vindicator MK.V
+          </button>
+                    <button
+            onClick={handleDebugUnlockMK6}
+            className="dev-button"
+          >
+            Desbloquear Vindicator MK.VI
+          </button>
+          <button
+            onClick={handleDebugUnlockMK7}
+            className="dev-button"
+                    >
+            Desbloquear Vindicator MK.VII
+          </button>
+          <button
+            onClick={handleDebugUnlockMK8}
+            className="dev-button"
+                    >
+            Desbloquear Vindicator MK.VIII
+          </button>
+          <button
+            onClick={handleDebugUnlockMK9}
+            className="dev-button"
+          >
+            Desbloquear Vindicator MK.IX
           </button>
           <button
             onClick={handleResetGame}

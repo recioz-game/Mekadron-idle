@@ -2,6 +2,9 @@ import { GameState } from '../types/gameState';
 import { ActionType } from '../types/actions';
 import { gameChapters } from '../data/battleData';
 import { allArmoryMK1Modules } from '../data/armoryMK1Data';
+import { allArmoryMK2Modules } from '../data/armoryMK2Data';
+
+const allModules = [...allArmoryMK1Modules, ...allArmoryMK2Modules];
 
 // Aplanamos los destinos de todos los capítulos en una sola lista
 const allDestinations = gameChapters.flatMap(chapter => chapter.destinations);
@@ -19,7 +22,7 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
       };
 
     case 'START_BATTLE': {
-      if (state.resources.barraCombustible < 1) {
+      if (state.vindicator.bodegaResources.barraCombustible < 1) {
         console.warn("No hay suficiente combustible para iniciar la batalla.");
         return state;
       }
@@ -38,11 +41,23 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
 
       const enemy = destination.battles[battleIndex];
 
+      const equippedModules = {
+        offensive: allModules.find(m => m.id === state.vindicator.modules.offensive),
+        defensive: allModules.find(m => m.id === state.vindicator.modules.defensive),
+        tactical: allModules.find(m => m.id === state.vindicator.modules.tactical),
+      };
+      
+      const initialCloakTurns = equippedModules.defensive?.effects.cloakTurns || 0;
+
       return {
         ...state,
-        resources: {
-          ...state.resources,
-          barraCombustible: state.resources.barraCombustible - 1,
+        vindicator: {
+          ...state.vindicator,
+          bodegaResources: {
+            ...state.vindicator.bodegaResources,
+            barraCombustible: state.vindicator.bodegaResources.barraCombustible - 1,
+          },
+          currentShield: state.vindicator.maxShield,
         },
         battleCount: state.battleCount + 1,
         currentScene: 'combatScene',
@@ -54,10 +69,8 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
           enemyCurrentHealth: enemy.health,
           enemyMaxShield: enemy.shield,
           enemyCurrentShield: enemy.shield,
-        },
-        vindicator: {
-          ...state.vindicator,
-          currentShield: state.vindicator.maxShield,
+          cloakTurnsRemaining: initialCloakTurns,
+          dodgeBonusNextTurn: false,
         },
       };
     }
@@ -67,27 +80,29 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
         return state;
       }
       
-      const { activeBattle, vindicator } = state;
+      let { activeBattle, vindicator } = state; // 'let' para poder reasignar
       const enemy = allDestinations[activeBattle.destinationIndex].battles[activeBattle.battleIndex];
 
-      // --- INICIO DE LÓGICA DE MÓDULOS ---
       const equippedModules = {
-        offensive: allArmoryMK1Modules.find(m => m.id === vindicator.modules.offensive),
-        defensive: allArmoryMK1Modules.find(m => m.id === vindicator.modules.defensive),
-        tactical: allArmoryMK1Modules.find(m => m.id === vindicator.modules.tactical),
+        offensive: allModules.find(m => m.id === vindicator.modules.offensive),
+        defensive: allModules.find(m => m.id === vindicator.modules.defensive),
+        tactical: allModules.find(m => m.id === vindicator.modules.tactical),
       };
 
-      // --- APLICAR EFECTOS PASIVOS ---
       let enemyDamage = enemy.damage;
       if (equippedModules.tactical?.id === 'mod_frequency_disruptor') {
         enemyDamage *= (1 - equippedModules.tactical.effects.enemyDamageReduction);
       }
 
-      // Función de daño, no cambia
-      const applyDamage = (damage: number, targetShield: number, targetHealth: number): { newShield: number; newHealth: number } => {
+      const applyDamage = (damage: number, targetShield: number, targetHealth: number, shieldPiercing: number = 0): { newShield: number; newHealth: number } => {
         let remainingDamage = damage;
         let newShield = targetShield;
         let newHealth = targetHealth;
+        
+        const piercingDamage = remainingDamage * shieldPiercing;
+        remainingDamage -= piercingDamage;
+        newHealth = Math.max(0, newHealth - piercingDamage);
+
         const shieldDamage = Math.min(newShield, remainingDamage);
         newShield -= shieldDamage;
         remainingDamage -= shieldDamage;
@@ -99,35 +114,68 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
 
       // --- 1. JUGADOR ATACA ---
       let playerDamage = vindicator.damage;
-      if (equippedModules.tactical?.id === 'mod_predictive_targeting') {
-        if (Math.random() < equippedModules.tactical.effects.critChance) {
-          playerDamage *= equippedModules.tactical.effects.critDamageMultiplier;
-        }
+      let critMultiplier = 1.5;
+
+      if (activeBattle.dodgeBonusNextTurn && equippedModules.tactical?.effects.postDodgeDamageBuff) {
+        playerDamage *= equippedModules.tactical.effects.postDodgeDamageBuff;
+        activeBattle = { ...activeBattle, dodgeBonusNextTurn: false };
+      }
+      
+      if (equippedModules.tactical?.effects.critChance) {
+        critMultiplier = equippedModules.tactical.effects.critDamageMultiplier;
+      }
+      if (equippedModules.offensive?.effects.critDamageMultiplier) {
+        critMultiplier = equippedModules.offensive.effects.critDamageMultiplier;
       }
 
+      if (equippedModules.tactical?.effects.critChance && Math.random() < equippedModules.tactical.effects.critChance) {
+        playerDamage *= critMultiplier;
+      }
+
+      const shieldPiercing = equippedModules.tactical?.effects.shieldPiercingPercentage || 0;
       let enemyDamageResult = applyDamage(
         playerDamage,
         activeBattle.enemyCurrentShield,
-        activeBattle.enemyCurrentHealth
+        activeBattle.enemyCurrentHealth,
+        shieldPiercing
       );
+
+      if (equippedModules.offensive?.effects.doubleTapChance && Math.random() < equippedModules.offensive.effects.doubleTapChance) {
+        const secondAttackDamage = playerDamage * equippedModules.offensive.effects.doubleTapDamageMultiplier;
+        enemyDamageResult = applyDamage(
+          secondAttackDamage,
+          enemyDamageResult.newShield,
+          enemyDamageResult.newHealth,
+          shieldPiercing
+        );
+      }
 
       // --- 2. ENEMIGO ATACA (SI SIGUE VIVO) ---
       let vindicatorDamageResult = { newShield: vindicator.currentShield, newHealth: vindicator.currentHealth };
       if (enemyDamageResult.newHealth > 0) {
         const shieldBeforeAttack = vindicator.currentShield;
         
+        let enemyAttackDamage = enemyDamage;
+        if (activeBattle.cloakTurnsRemaining && activeBattle.cloakTurnsRemaining > 0) {
+          enemyAttackDamage = 0;
+          activeBattle = { ...activeBattle, cloakTurnsRemaining: activeBattle.cloakTurnsRemaining - 1 };
+        } else if (equippedModules.defensive?.effects.dodgeChance && Math.random() < equippedModules.defensive.effects.dodgeChance) {
+          enemyAttackDamage = 0;
+          if (equippedModules.tactical?.effects.postDodgeDamageBuff) {
+            activeBattle = { ...activeBattle, dodgeBonusNextTurn: true };
+          }
+        }
+        
         vindicatorDamageResult = applyDamage(
-          enemyDamage,
+          enemyAttackDamage,
           shieldBeforeAttack,
           vindicator.currentHealth
         );
 
-        // Comprobar "Sobrecarga Reactiva"
         if (vindicator.vindicatorType === 'mk1' && shieldBeforeAttack > 0 && vindicatorDamageResult.newShield <= 0) {
           let overloadMultiplier = 1.5;
           if (equippedModules.offensive?.id === 'mod_overload_amp') {
             overloadMultiplier = equippedModules.offensive.effects.overloadDamageMultiplier;
-            // Aquí se podría añadir lógica para el buff de daño post-sobrecarga en el estado
           }
           const overloadDamage = Math.floor(vindicator.damage * overloadMultiplier);
           enemyDamageResult = applyDamage(overloadDamage, enemyDamageResult.newShield, enemyDamageResult.newHealth);
@@ -146,7 +194,6 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
         updatedVindicator.currentHealth = Math.min(updatedVindicator.maxHealth, updatedVindicator.currentHealth + healthToRegen);
       }
       if (equippedModules.defensive?.id === 'mod_shield_condenser') {
-        // Suponemos que si el enemigo no atacó, no hubo daño al casco
         const tookHullDamage = updatedVindicator.currentHealth < vindicator.currentHealth;
         if (!tookHullDamage) {
           const shieldToRegen = Math.floor(updatedVindicator.maxShield * equippedModules.defensive.effects.shieldRegenPercentage);
@@ -194,21 +241,34 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
           // Hay más batallas en este destino
           const nextEnemy = destination.battles[nextBattleIndex];
           
+          const newBodegaResources = { ...state.vindicator.bodegaResources };
+          const reward = enemy.reward;
+          if (reward.aleacionReforzada) newBodegaResources.aleacionReforzada += reward.aleacionReforzada;
+          if (reward.neuroChipCorrupto) newBodegaResources.neuroChipCorrupto += reward.neuroChipCorrupto;
+          if (reward.matrizCristalina) newBodegaResources.matrizCristalina += reward.matrizCristalina;
+          if (reward.IA_Fragmentada) newBodegaResources.IA_Fragmentada += reward.IA_Fragmentada;
+          if (reward.planosMK2) newBodegaResources.planosMK2 += reward.planosMK2;
+          if (reward.matrizDeManiobra) newBodegaResources.matrizDeManiobra += reward.matrizDeManiobra;
+          if (reward.placasDeSigilo) newBodegaResources.placasDeSigilo += reward.placasDeSigilo;
+          if (reward.planosDeInterceptor) newBodegaResources.planosDeInterceptor += reward.planosDeInterceptor;
+
           return {
             ...state,
             resources: {
               ...state.resources,
-              scrap: state.resources.scrap + (enemy.reward.scrap || 0),
-              aleacionReforzada: state.resources.aleacionReforzada + (enemy.reward.aleacionReforzada || 0),
-              neuroChipCorrupto: state.resources.neuroChipCorrupto + (enemy.reward.neuroChipCorrupto || 0)
+              scrap: state.resources.scrap + (enemy.reward.scrap ?? 0),
             },
-            blueprints: state.blueprints + (enemy.reward.blueprints || 0),
+            vindicator: { 
+              ...updatedVindicator,
+              bodegaResources: newBodegaResources,
+            },
+            blueprints: state.blueprints + (enemy.reward.blueprints ?? 0),
             battleRoom: {
               ...state.battleRoom,
               battlesCompleted: newBattlesCompleted,
             },
             activeBattle: {
-              ...activeBattle,
+              ...updatedActiveBattle,
               battleIndex: nextBattleIndex,
               enemyName: nextEnemy.enemyName,
               enemyMaxHealth: nextEnemy.health,
@@ -216,10 +276,20 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
               enemyMaxShield: nextEnemy.shield,
               enemyCurrentShield: nextEnemy.shield,
             },
-            vindicator: updatedVindicator,
           };
         } else {
           // No hay más batallas - destino completado
+          const newBodegaResources = { ...state.vindicator.bodegaResources };
+          const reward = enemy.reward;
+          if (reward.aleacionReforzada) newBodegaResources.aleacionReforzada += reward.aleacionReforzada;
+          if (reward.neuroChipCorrupto) newBodegaResources.neuroChipCorrupto += reward.neuroChipCorrupto;
+          if (reward.matrizCristalina) newBodegaResources.matrizCristalina += reward.matrizCristalina;
+          if (reward.IA_Fragmentada) newBodegaResources.IA_Fragmentada += reward.IA_Fragmentada;
+          if (reward.planosMK2) newBodegaResources.planosMK2 += reward.planosMK2;
+          if (reward.matrizDeManiobra) newBodegaResources.matrizDeManiobra += reward.matrizDeManiobra;
+          if (reward.placasDeSigilo) newBodegaResources.placasDeSigilo += reward.placasDeSigilo;
+          if (reward.planosDeInterceptor) newBodegaResources.planosDeInterceptor += reward.planosDeInterceptor;
+          
           return {
             ...state,
             currentScene: 'phase2Main',
@@ -227,18 +297,16 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
             resources: {
               ...state.resources,
               scrap: state.resources.scrap + (enemy.reward.scrap ?? 0),
-              aleacionReforzada: state.resources.aleacionReforzada + (enemy.reward.aleacionReforzada ?? 0),
-              neuroChipCorrupto: state.resources.neuroChipCorrupto + (enemy.reward.neuroChipCorrupto ?? 0),
-              matrizCristalina: state.resources.matrizCristalina + (enemy.reward.matrizCristalina ?? 0),
-              IA_Fragmentada: state.resources.IA_Fragmentada + (enemy.reward.IA_Fragmentada ?? 0),
-              planosMK2: state.resources.planosMK2 + (enemy.reward.planosMK2 ?? 0),
+            },
+            vindicator: { 
+              ...updatedVindicator,
+              bodegaResources: newBodegaResources,
             },
             blueprints: state.blueprints + (enemy.reward.blueprints ?? 0),
             battleRoom: {
               ...state.battleRoom,
               battlesCompleted: newBattlesCompleted,
             },
-            vindicator: updatedVindicator,
           };
         }
       } else {

@@ -1,5 +1,6 @@
 import { GameState } from '../types/gameState';
 import { gameData, GameData } from '../data/gameData';
+import { resourceCategories } from '../data/categoryData';
 
 // Función para actualizar el fondo según el progreso del juego
 const updateBackground = (state: GameState): GameState => {
@@ -208,7 +209,7 @@ export const processGameTick = (state: GameState): GameState => {
     state
   );
   const storageResult = processQueuesForCategory('storage', { basicStorage: state.storage.basicStorage, mediumStorage: state.storage.mediumStorage, advancedStorage: state.storage.advancedStorage, quantumHoardUnit: state.storage.quantumHoardUnit, lithiumIonBattery: state.storage.lithiumIonBattery, plasmaAccumulator: state.storage.plasmaAccumulator, harmonicContainmentField: state.storage.harmonicContainmentField }, upgrades.storageConstruction * 0.05, state);
-  const foundryResult = processQueuesForCategory('foundry', { ...state.resources }, 0, state);
+  const foundryResult = processQueuesForCategory('foundry', { ...state.vindicator.bodegaResources }, 0, state);
   
   const stateAfterQueues = {
     ...state,
@@ -217,7 +218,9 @@ export const processGameTick = (state: GameState): GameState => {
       : state.workshop,
     energy: energyResult.changed ? { ...state.energy, ...energyResult.newInventory, queues: energyResult.newQueues } : state.energy,
     storage: storageResult.changed ? { ...state.storage, ...storageResult.newInventory, queues: storageResult.newQueues } : state.storage,
-    resources: foundryResult.changed ? foundryResult.newInventory : state.resources,
+    vindicator: foundryResult.changed 
+      ? { ...state.vindicator, bodegaResources: foundryResult.newInventory }
+      : state.vindicator,
     foundry: foundryResult.changed ? { ...state.foundry, queues: foundryResult.newQueues } : state.foundry,
   };
 
@@ -235,15 +238,17 @@ export const processGameTick = (state: GameState): GameState => {
                               (prev.energy.empoweredEnergyCores * 150) * coreEfficiencyMultiplier +
                               ((prev.energy as any).fusionReactor * 250);
   
+  const automatedDistributionMultiplier = 1 + ((prev.techCenter.upgrades as any).automatedDistribution || 0) * 0.05;
+
   const baseMaxEnergy = 50;
   const energyCoreBonus = prev.energy.energyCores * 100 + prev.energy.stabilizedEnergyCores * 150 + prev.energy.empoweredEnergyCores * 300;
   const fusionReactorBonus = (prev.energy as any).fusionReactor * 1000;
   const energyStorageBonus = (prev.storage.lithiumIonBattery * 50 + prev.storage.plasmaAccumulator * 250 + prev.storage.harmonicContainmentField * 1200) * (1 + (prev.techCenter.upgrades.energyStorage * 0.10));
-  const totalMaxEnergy = (baseMaxEnergy + energyCoreBonus + fusionReactorBonus + energyStorageBonus) * (1 + (prev.techCenter.upgrades.batteryTech * 0.15));
+  const totalMaxEnergy = (baseMaxEnergy + energyCoreBonus + fusionReactorBonus + energyStorageBonus) * (1 + (prev.techCenter.upgrades.batteryTech * 0.15)) * automatedDistributionMultiplier;
 
   const baseMaxScrap = 150;
   const storageBonus = (prev.storage.basicStorage * 50 + prev.storage.mediumStorage * 500 + prev.storage.advancedStorage * 5000 + prev.storage.quantumHoardUnit * 50000);
-  const totalMaxScrap = (baseMaxScrap + storageBonus) * (1 + (prev.techCenter.upgrades.storageOptimization * 0.15)) * (1 + (prev.techCenter.upgrades.cargoDrones * 0.10));
+  const totalMaxScrap = (baseMaxScrap + storageBonus) * (1 + (prev.techCenter.upgrades.storageOptimization * 0.15)) * (1 + (prev.techCenter.upgrades.cargoDrones * 0.10)) * automatedDistributionMultiplier;
 
   const hasEnoughEnergy = prev.resources.energy > 0;
   
@@ -263,17 +268,14 @@ export const processGameTick = (state: GameState): GameState => {
 
   let wyrmSteelProduction = 0;
   let wyrmScrapConsumption = 0;
-  let wyrmMetalConsumption = 0;
   if (hasEnoughEnergy && prev.workshop.drones.wyrm > 0) {
-    const potentialProduction = prev.workshop.drones.wyrm * 0.1;
+    const potentialProduction = prev.workshop.drones.wyrm * 0.25;
     const scrapNeeded = prev.workshop.drones.wyrm * 1000;
-    const metalNeeded = prev.workshop.drones.wyrm * 1;
 
-    // Producir solo si se puede pagar ambos costes
-    if (prev.resources.scrap >= scrapNeeded && prev.resources.metalRefinado >= metalNeeded) {
+    // Producir solo si se puede pagar el coste de chatarra
+    if (prev.resources.scrap >= scrapNeeded) {
       wyrmSteelProduction = potentialProduction;
       wyrmScrapConsumption = scrapNeeded;
-      wyrmMetalConsumption = metalNeeded;
     }
   }
 
@@ -286,14 +288,46 @@ export const processGameTick = (state: GameState): GameState => {
   const newScrap = prev.resources.scrap + totalScrapProduction - golemScrapConsumption - wyrmScrapConsumption;
   const clampedScrap = Math.min(newScrap, totalMaxScrap);
 
-  const newMetalRefinado = prev.resources.metalRefinado + golemMetalProduction - wyrmMetalConsumption;
-  const newAceroEstructural = prev.resources.aceroEstructural + wyrmSteelProduction;
+  const newMetalRefinado = prev.vindicator.bodegaResources.metalRefinado + golemMetalProduction;
+  const newAceroEstructural = prev.vindicator.bodegaResources.aceroEstructural + wyrmSteelProduction;
   
-  const baseResearch = 0.1 * (1 + (prev.techCenter.upgrades.researchEfficiency * 0.20));
+  // Determinar la bodega actual y sus capacidades
+  const vindicatorType = prev.vindicator.vindicatorType;
+  const currentBodega = vindicatorType === 'mk1' ? prev.vindicator.bodegaMK1 : vindicatorType === 'mk2_interceptor' ? prev.vindicator.bodegaMK2 : prev.vindicator.bodegaBase;
+  const capacities = currentBodega.capacities;
+
+  // Calcular el total actual de recursos por categoría
+  const categoryTotals = {
+    materialesIndustriales: 0,
+    componentesBatalla: 0,
+    materialesExoticos: 0,
+  };
+
+  for (const resource in prev.vindicator.bodegaResources) {
+    const category = resourceCategories[resource];
+    if (category) {
+      categoryTotals[category] += prev.vindicator.bodegaResources[resource as keyof typeof prev.vindicator.bodegaResources];
+    }
+  }
+
+  // Comprobar y limitar los nuevos recursos basados en la capacidad de su categoría
+  let clampedMetalRefinado = newMetalRefinado;
+  const metalCategory = resourceCategories['metalRefinado'];
+  if (categoryTotals[metalCategory] + golemMetalProduction > capacities[metalCategory]) {
+    clampedMetalRefinado = prev.vindicator.bodegaResources.metalRefinado; // No añadir si excede
+  }
+  
+  let clampedAceroEstructural = newAceroEstructural;
+  const aceroCategory = resourceCategories['aceroEstructural'];
+  if (categoryTotals[aceroCategory] + wyrmSteelProduction > capacities[aceroCategory]) {
+    clampedAceroEstructural = prev.vindicator.bodegaResources.aceroEstructural; // No añadir si excede
+  }
+  
+  const baseResearch = 0.05 * (1 + (prev.techCenter.upgrades.researchEfficiency * 0.20));
     const totalDrones = Object.values(prev.workshop.drones).reduce((sum, count) => sum + count, 0);
-  const droneResearch = (totalDrones * 0.01) * (1 + (prev.techCenter.upgrades.advancedAnalysis * 0.10));
+  const droneResearch = (totalDrones * 0.005) * (1 + (prev.techCenter.upgrades.advancedAnalysis * 0.10));
   const energySurplus = Math.max(0, totalEnergyProduction - totalEnergyConsumption);
-  const energyResearch = (energySurplus * 0.005) * (1 + (prev.techCenter.upgrades.algorithmOptimization * 0.15));
+  const energyResearch = (energySurplus * 0.0025) * (1 + (prev.techCenter.upgrades.algorithmOptimization * 0.15));
   
   // Protección contra división por cero para Quantum Computing
   const quantumComputingLevel = prev.techCenter.upgrades.quantumComputing || 0;
@@ -303,15 +337,15 @@ export const processGameTick = (state: GameState): GameState => {
   const researchPointsToAdd = (baseResearch + droneResearch + energyResearch) / safeDivisor;
   const newResearchPoints = prev.techCenter.researchPoints + researchPointsToAdd;
 
-  let newResources = { ...prev.resources };
+  let newBodegaResources = { ...prev.vindicator.bodegaResources };
   const geologicalScannersLevel = (prev.techCenter.upgrades as any).geologicalScanners || 0;
   if (geologicalScannersLevel > 0 && hasEnoughEnergy) {
     const findChance = (totalDrones * 0.0001) * geologicalScannersLevel;
     if (Math.random() < findChance) {
       if (Math.random() < 0.5) {
-        newResources.fragmentosPlaca = (prev.resources.fragmentosPlaca || 0) + 1;
+        newBodegaResources.fragmentosPlaca = (prev.vindicator.bodegaResources.fragmentosPlaca || 0) + 1;
       } else {
-        newResources.circuitosDañados = (prev.resources.circuitosDañados || 0) + 1;
+        newBodegaResources.circuitosDañados = (prev.vindicator.bodegaResources.circuitosDañados || 0) + 1;
       }
     }
   }
@@ -319,15 +353,21 @@ export const processGameTick = (state: GameState): GameState => {
   const stateAfterStats = {
     ...stateAfterQueues,
     resources: {
-      ...newResources,
+      ...prev.resources,
       scrap: clampedScrap,
-      metalRefinado: newMetalRefinado,
-      aceroEstructural: newAceroEstructural,
       energy: clampedEnergy,
       energyConsumption: totalEnergyConsumption,
       energyProduction: totalEnergyProduction,
       maxEnergy: totalMaxEnergy,
       maxScrap: totalMaxScrap,
+    },
+    vindicator: {
+      ...prev.vindicator,
+      bodegaResources: {
+          ...newBodegaResources,
+          metalRefinado: clampedMetalRefinado,
+          aceroEstructural: clampedAceroEstructural,
+        }
     },
     rates: { ...prev.rates, scrapPerSecond: totalScrapProduction },
     techCenter: { ...prev.techCenter, researchPoints: newResearchPoints },

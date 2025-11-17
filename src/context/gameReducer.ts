@@ -5,11 +5,58 @@ import { missionsReducer } from './missionsReducer';
 import { combatReducer } from './combatReducer';
 import { processGameTick } from '../gameLogic/tickLogic';
 import { GameState, initialGameState, ActiveExpedition, ResourceType } from '../types/gameState';
-import { vindicatorLevelData } from '../data/battleData';
+import { vindicatorLevelData, vindicatorMK2LevelData, vindicatorMK3LevelData, vindicatorMK4LevelData, vindicatorMK5LevelData, vindicatorMK6LevelData, vindicatorMK7LevelData, vindicatorMK8LevelData, vindicatorMK9LevelData } from '../data/battleData';
 import { ActionType } from '../types/actions';
 import { allArmoryMK1Modules } from '../data/armoryMK1Data';
+import { allArmoryMK2Modules } from '../data/armoryMK2Data';
 import { droneData } from '../data/droneData';
-import { updateVindicatorToMK1 } from '../gameLogic/utils';
+import { updateVindicatorToMK1, updateVindicatorToMK2, updateVindicatorToMK3, updateVindicatorToMK4, updateVindicatorToMK5, updateVindicatorToMK6, updateVindicatorToMK7, updateVindicatorToMK8, updateVindicatorToMK9 } from '../gameLogic/utils';
+import { bodegaData } from '../data/bodegaData';
+import { ResourceCategory } from '../data/categoryData';
+
+// Helper function for Vindicator star upgrades
+const handleVindicatorStarUpgrade = (
+  state: GameState,
+  upgradeId: string,
+  upgradesData: any,
+  upgradesKey: keyof GameState
+): GameState => {
+  const upgrade = upgradesData[upgradeId];
+  if (!upgrade || upgrade.currentStars >= upgrade.maxStars) {
+    return state;
+  }
+
+  const { phase1Resources, phase2Resources } = upgrade.costPerStar;
+
+  const hasEnoughResources = 
+    Object.entries(phase1Resources).every(([res, amount]) => state.vindicator.bodegaResources[res as keyof typeof state.vindicator.bodegaResources] >= (amount as number)) &&
+    Object.entries(phase2Resources).every(([res, amount]) => state.vindicator.bodegaResources[res as keyof typeof state.vindicator.bodegaResources] >= (amount as number));
+
+  if (!hasEnoughResources) {
+    return state;
+  }
+
+  const newBodegaResources = { ...state.vindicator.bodegaResources };
+  Object.entries(phase1Resources).forEach(([resource, amount]) => { newBodegaResources[resource as keyof typeof newBodegaResources] -= (amount as number); });
+  Object.entries(phase2Resources).forEach(([resource, amount]) => { newBodegaResources[resource as keyof typeof newBodegaResources] -= (amount as number); });
+
+  const { health, shield, damage } = upgrade.statIncreasePerStar;
+
+  return {
+    ...state,
+    vindicator: {
+      ...state.vindicator,
+      bodegaResources: newBodegaResources,
+      maxHealth: state.vindicator.maxHealth + (health || 0),
+      maxShield: state.vindicator.maxShield + (shield || 0),
+      damage: state.vindicator.damage + (damage || 0),
+    },
+    [upgradesKey]: {
+      ...upgradesData,
+      [upgradeId]: { ...upgrade, currentStars: upgrade.currentStars + 1 }
+    }
+  };
+};
 
 export const gameReducer = (state: GameState, action: ActionType): GameState => {
   let newState = { ...state };
@@ -195,16 +242,16 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
           console.warn(`Not enough ${droneType} available.`);
           return state;
         }
-        const newResources = { ...state.resources };
+                        const newBodegaResources = { ...state.vindicator.bodegaResources };
         let canAfford = true;
                 for (const [resource, cost] of Object.entries(expedition.costs)) {
           if (resource === 'drones') continue;
-          if (newResources[resource as ResourceType] < cost) {
+          if (newBodegaResources[resource as keyof typeof newBodegaResources] < cost) {
             canAfford = false;
             console.warn(`Not enough ${resource} for expedition.`);
             break;
           }
-          newResources[resource as ResourceType] -= cost;
+          newBodegaResources[resource as keyof typeof newBodegaResources] -= cost;
         }
                 if (!canAfford) {
           return state;
@@ -218,7 +265,7 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         };
         return {
           ...state,
-          resources: newResources,
+          vindicator: { ...state.vindicator, bodegaResources: newBodegaResources },
           activeExpeditions: [...state.activeExpeditions, newActiveExpedition],
         };
       }
@@ -265,7 +312,7 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       return stateAfterTick;
     }
 
-    case 'DEBUG_UNLOCK_TECH_CENTER':
+        case 'DEBUG_UNLOCK_TECH_CENTER':
         return {
             ...state,
             modules: { ...state.modules, techCenter: true, foundry: true, shipyard: true, expeditions: true },
@@ -276,7 +323,14 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
               drones: { ...state.workshop.drones, medium: Math.max(state.workshop.drones.medium, 3), reinforcedMedium: Math.max(state.workshop.drones.reinforcedMedium, 3), reinforcedAdvanced: Math.max(state.workshop.drones.reinforcedAdvanced, 5), golem: Math.max(state.workshop.drones.golem, 1), expeditionDrone: Math.max(state.workshop.drones.expeditionDrone, 1) }
             },
             energy: { ...state.energy, advancedSolar: Math.max(state.energy.advancedSolar, 1) },
-            resources: { ...state.resources, scrap: Math.max(state.resources.scrap, 150000), metalRefinado: Math.max(state.resources.metalRefinado, 5000) }
+            resources: { ...state.resources, scrap: Math.max(state.resources.scrap, 150000) },
+            vindicator: { 
+              ...state.vindicator, 
+              bodegaResources: { 
+                ...state.vindicator.bodegaResources, 
+                metalRefinado: Math.max(state.vindicator.bodegaResources.metalRefinado, 5000) 
+              } 
+            },
         };
                 case 'DEBUG_COMPLETE_VINDICATOR': {
       const { shipyard } = state;
@@ -299,7 +353,7 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         case 'DEBUG_FINISH_EXPEDITIONS': {
       const finishedExpeditions = state.activeExpeditions.map(exp => ({ ...exp, completionTimestamp: Date.now() }));
       return { ...state, activeExpeditions: finishedExpeditions };
-    }
+        }
 
         case 'DEBUG_UNLOCK_VINDICATOR_MK1': {
       // Acción atómica para establecer el estado de MK1 directamente
@@ -307,17 +361,194 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
                   return {
         ...tempState,
         phase2Unlocked: true,
+                shipyard: {
+          ...tempState.shipyard,
+          currentProjectIndex: 2, // El MK.I está construido, el siguiente proyecto es el MK.II (índice 2)
+          progress: {}, 
+        },
+      };
+    }
+
+        case 'DEBUG_UNLOCK_VINDICATOR_MK2': {
+      // Acción atómica para establecer el estado de MK2 directamente
+      let tempState = state;
+      // Primero, asegura que el estado base esté listo para MK2 (p.ej. MK1 desbloqueado)
+      if (tempState.vindicator.vindicatorType !== 'mk1' && tempState.vindicator.vindicatorType !== 'mk2_interceptor') {
+        tempState = updateVindicatorToMK1(tempState);
+      }
+      // Luego, actualiza a MK2
+      tempState = updateVindicatorToMK2(tempState);
+
+      return {
+        ...tempState,
+        phase2Unlocked: true,
         shipyard: {
           ...tempState.shipyard,
-          currentProjectIndex: 2, // Asumimos que el MK1 es el índice 1, el siguiente es el 2
-          progress: {}, // Limpiamos el progreso para el nuevo proyecto
+                    currentProjectIndex: 3, // Asumiendo que el MK2 es el proyecto de índice 2, el siguiente es el 3
+          progress: {}, 
+        },
+      };
+    }
+
+    case 'DEBUG_UNLOCK_VINDICATOR_MK3': {
+      // Acción atómica para establecer el estado de MK3 directamente
+      let tempState = state;
+      // Asegurar que se ha pasado por los estados anteriores
+      if (tempState.vindicator.vindicatorType === 'base') {
+        tempState = updateVindicatorToMK1(tempState);
+      }
+      if (tempState.vindicator.vindicatorType === 'mk1') {
+        tempState = updateVindicatorToMK2(tempState);
+      }
+      // Actualizar a MK3
+      tempState = updateVindicatorToMK3(tempState);
+
+      return {
+        ...tempState,
+        phase2Unlocked: true,
+        shipyard: {
+          ...tempState.shipyard,
+                    currentProjectIndex: 4, // El MK3 es el proyecto 3, el siguiente es el 4
+          progress: {}, 
+        },
+      };
+    }
+
+    case 'DEBUG_UNLOCK_VINDICATOR_MK4': {
+      // Acción atómica para establecer el estado de MK4 directamente
+      let tempState = state;
+      // Asegurar que se ha pasado por los estados anteriores
+      if (tempState.vindicator.vindicatorType === 'base') {
+        tempState = updateVindicatorToMK1(tempState);
+      }
+      if (tempState.vindicator.vindicatorType === 'mk1') {
+        tempState = updateVindicatorToMK2(tempState);
+      }
+      if (tempState.vindicator.vindicatorType === 'mk2_interceptor') {
+        tempState = updateVindicatorToMK3(tempState);
+      }
+      // Actualizar a MK4
+      tempState = updateVindicatorToMK4(tempState);
+
+      return {
+        ...tempState,
+        phase2Unlocked: true,
+        shipyard: {
+          ...tempState.shipyard,
+                    currentProjectIndex: 5, // El MK4 es el proyecto 4, el siguiente es el 5
+          progress: {}, 
+        },
+      };
+    }
+
+    case 'DEBUG_UNLOCK_VINDICATOR_MK5': {
+      let tempState = state;
+      if (tempState.vindicator.vindicatorType === 'base') tempState = updateVindicatorToMK1(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk1') tempState = updateVindicatorToMK2(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk2_interceptor') tempState = updateVindicatorToMK3(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk3_devastator') tempState = updateVindicatorToMK4(tempState);
+      tempState = updateVindicatorToMK5(tempState);
+
+      return {
+        ...tempState,
+        phase2Unlocked: true,
+        shipyard: {
+          ...tempState.shipyard,
+                    currentProjectIndex: 6,
+          progress: {}, 
+        },
+      };
+    }
+
+    case 'DEBUG_UNLOCK_VINDICATOR_MK6': {
+      let tempState = state;
+      if (tempState.vindicator.vindicatorType === 'base') tempState = updateVindicatorToMK1(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk1') tempState = updateVindicatorToMK2(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk2_interceptor') tempState = updateVindicatorToMK3(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk3_devastator') tempState = updateVindicatorToMK4(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk4_reaper') tempState = updateVindicatorToMK5(tempState);
+      tempState = updateVindicatorToMK6(tempState);
+
+      return {
+        ...tempState,
+        phase2Unlocked: true,
+        shipyard: {
+          ...tempState.shipyard,
+                    currentProjectIndex: 7,
+          progress: {}, 
+        },
+      };
+    }
+
+    case 'DEBUG_UNLOCK_VINDICATOR_MK7': {
+      let tempState = state;
+      if (tempState.vindicator.vindicatorType === 'base') tempState = updateVindicatorToMK1(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk1') tempState = updateVindicatorToMK2(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk2_interceptor') tempState = updateVindicatorToMK3(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk3_devastator') tempState = updateVindicatorToMK4(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk4_reaper') tempState = updateVindicatorToMK5(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk5_aegis') tempState = updateVindicatorToMK6(tempState);
+      tempState = updateVindicatorToMK7(tempState);
+
+      return {
+        ...tempState,
+        phase2Unlocked: true,
+                shipyard: {
+          ...tempState.shipyard,
+          currentProjectIndex: 8, // El siguiente proyecto
+          progress: {}, 
+        },
+      };
+    }
+
+    case 'DEBUG_UNLOCK_VINDICATOR_MK8': {
+      let tempState = state;
+      if (tempState.vindicator.vindicatorType === 'base') tempState = updateVindicatorToMK1(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk1') tempState = updateVindicatorToMK2(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk2_interceptor') tempState = updateVindicatorToMK3(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk3_devastator') tempState = updateVindicatorToMK4(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk4_reaper') tempState = updateVindicatorToMK5(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk5_aegis') tempState = updateVindicatorToMK6(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk6_tempest') tempState = updateVindicatorToMK7(tempState);
+      tempState = updateVindicatorToMK8(tempState);
+
+      return {
+        ...tempState,
+        phase2Unlocked: true,
+                shipyard: {
+          ...tempState.shipyard,
+          currentProjectIndex: 9, // El siguiente proyecto
+          progress: {},
+        },
+      };
+    }
+
+    case 'DEBUG_UNLOCK_VINDICATOR_MK9': {
+      let tempState = state;
+      if (tempState.vindicator.vindicatorType === 'base') tempState = updateVindicatorToMK1(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk1') tempState = updateVindicatorToMK2(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk2_interceptor') tempState = updateVindicatorToMK3(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk3_devastator') tempState = updateVindicatorToMK4(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk4_reaper') tempState = updateVindicatorToMK5(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk5_aegis') tempState = updateVindicatorToMK6(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk6_tempest') tempState = updateVindicatorToMK7(tempState);
+      if (tempState.vindicator.vindicatorType === 'mk7_wraith') tempState = updateVindicatorToMK8(tempState);
+      tempState = updateVindicatorToMK9(tempState);
+
+      return {
+        ...tempState,
+        phase2Unlocked: true,
+        shipyard: {
+          ...tempState.shipyard,
+          currentProjectIndex: 10, // Ya no hay más proyectos
+          progress: {},
         },
       };
     }
 
                     case 'DONATE_TO_SHIPYARD': {
-      const { component, resource, amount } = action.payload;
-      const { shipyard, resources, techCenter } = state;
+            const { component, resource, amount } = action.payload;
+      const { shipyard, resources, techCenter, vindicator } = state;
       const currentProject = allShipyardProjects[shipyard.currentProjectIndex];
 
       if (!currentProject || !currentProject.costs[component] || !currentProject.costs[component][resource]) {
@@ -327,9 +558,9 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       const cost = currentProject.costs[component][resource];
       const progress = shipyard.progress[component]?.[resource] || 0;
       
-            const currentResourceAmount = resource === 'researchPoints' 
+                        const currentResourceAmount = resource === 'researchPoints' 
         ? techCenter.researchPoints 
-        : resources[resource as ResourceType] || 0;
+        : (vindicator.bodegaResources[resource as keyof typeof vindicator.bodegaResources] || resources[resource as keyof typeof resources] || 0);
 
       const amountToDonate = Math.min(amount, currentResourceAmount, cost - progress);
 
@@ -341,6 +572,8 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
 
       if (resource === 'researchPoints') {
         newState.techCenter = { ...techCenter, researchPoints: techCenter.researchPoints - amountToDonate };
+      } else if (resource in vindicator.bodegaResources) {
+        newState.vindicator = { ...vindicator, bodegaResources: { ...vindicator.bodegaResources, [resource]: currentResourceAmount - amountToDonate } };
       } else {
         newState.resources = { ...resources, [resource]: currentResourceAmount - amountToDonate };
       }
@@ -364,7 +597,7 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
 
       if (isProjectComplete) {
         const nextProjectIndex = shipyard.currentProjectIndex + 1;
-        if (allShipyardProjects[nextProjectIndex]) {
+                if (allShipyardProjects[nextProjectIndex]) {
           const nextProject = allShipyardProjects[nextProjectIndex];
           const newEmptyProgress: GameState['shipyard']['progress'] = {};
           Object.keys(nextProject.costs).forEach(componentId => {
@@ -381,21 +614,66 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
           };
           
                                         if (currentProject.id === 'vindicator_base') {
-            newState.phase2Unlocked = true;
+                        newState.phase2Unlocked = true;
             newState.currentScene = 'phase2Intro';
-            newState.resources = {
-              ...newState.resources,
-              barraCombustible: (newState.resources.barraCombustible || 0) + 500,
-            };
+            newState.vindicator.bodegaResources.barraCombustible = (newState.vindicator.bodegaResources.barraCombustible || 0) + 500;
             newState.notificationQueue = [
               ...state.notificationQueue,
               { id: `vindicator-built-${Date.now()}`, title: '¡Vindicator Construido!', message: 'La Fase 2 está ahora disponible. ¡Accede a la Sala de Batalla!' }
             ];
-                                                                                } else if (currentProject.id === 'vindicator_mk1') {
+                                                                                          } else if (currentProject.id === 'vindicator_mk1') {
             newState = updateVindicatorToMK1(newState);
-            newState.notificationQueue = [
+                        newState.notificationQueue = [
               ...state.notificationQueue,
               { id: `mk1-built-${Date.now()}`, title: '¡Vindicator Mk.I Construido!', message: 'Tu nave ha sido mejorada a un nuevo chasis. El sistema de mejoras anterior ha sido completado.' }
+            ];
+                    } else if (currentProject.id === 'vindicator_mk2_interceptor') {
+            newState = updateVindicatorToMK2(newState);
+            newState.notificationQueue = [
+              ...state.notificationQueue,
+              { id: `mk2-built-${Date.now()}`, title: '¡Vindicator MK2 "Interceptor" Construido!', message: 'Tu nave ahora es un Interceptor, optimizado para la velocidad y el sigilo.' }
+            ];
+                    } else if (currentProject.id === 'vindicator_mk3_devastator') {
+            newState = updateVindicatorToMK3(newState);
+            newState.notificationQueue = [
+              ...state.notificationQueue,
+              { id: `mk3-built-${Date.now()}`, title: '¡Vindicator MK3 "Devastator" Construido!', message: 'Tu nave ha sido reconstruida como una plataforma de asalto pesado.' }
+            ];
+                    } else if (currentProject.id === 'vindicator_mk4_reaper') {
+            newState = updateVindicatorToMK4(newState);
+            newState.notificationQueue = [
+              ...state.notificationQueue,
+              { id: `mk4-built-${Date.now()}`, title: '¡Vindicator MK4 "Reaper" Construido!', message: 'Tu nave ahora es un cañón de cristal, imbuido con poder de singularidad.' }
+            ];
+                    } else if (currentProject.id === 'vindicator_mk5_aegis') {
+            newState = updateVindicatorToMK5(newState);
+            newState.notificationQueue = [
+              ...state.notificationQueue,
+              { id: `mk5-built-${Date.now()}`, title: '¡Vindicator MK5 "Aegis" Construido!', message: 'Tu nave ha alcanzado la cima de la tecnología defensiva.' }
+            ];
+          } else if (currentProject.id === 'vindicator_mk6_tempest') {
+                        newState = updateVindicatorToMK6(newState);
+            newState.notificationQueue = [
+              ...state.notificationQueue,
+              { id: `mk6-built-${Date.now()}`, title: '¡Vindicator MK6 "Tempest" Construido!', message: 'Una tormenta de poder inestable está ahora a tu disposición.' }
+            ];
+          } else if (currentProject.id === 'vindicator_mk7_wraith') {
+            newState = updateVindicatorToMK7(newState);
+                        newState.notificationQueue = [
+              ...state.notificationQueue,
+              { id: `mk7-built-${Date.now()}`, title: '¡Vindicator MK7 "Wraith" Construido!', message: 'Has dominado los ecos del vacío para crear una nave fantasmal.' }
+            ];
+          } else if (currentProject.id === 'vindicator_mk8_phantom') {
+            newState = updateVindicatorToMK8(newState);
+                        newState.notificationQueue = [
+              ...state.notificationQueue,
+              { id: `mk8-built-${Date.now()}`, title: '¡Vindicator MK8 "Phantom" Construido!', message: 'Tu nave ahora puede caminar entre dimensiones, una verdadera aparición.' }
+            ];
+          } else if (currentProject.id === 'vindicator_mk9_apex') {
+            newState = updateVindicatorToMK9(newState);
+            newState.notificationQueue = [
+              ...state.notificationQueue,
+              { id: `mk9-built-${Date.now()}`, title: '¡Vindicator MK9 "Apex" Construido!', message: 'Has alcanzado la cima de la tecnología. Eres imparable.' }
             ];
           }
         }
@@ -413,37 +691,259 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       return state;
     }
 
-    case 'REPAIR_VINDICATOR_SHIELD': {
+            case 'REPAIR_VINDICATOR_SHIELD': {
       const { fuelCost } = action.payload;
-      if (state.resources.barraCombustible >= fuelCost && state.vindicator.currentShield < state.vindicator.maxShield) {
-        return { ...state, resources: { ...state.resources, barraCombustible: state.resources.barraCombustible - fuelCost }, vindicator: { ...state.vindicator, currentShield: state.vindicator.maxShield } };
+      if (state.vindicator.bodegaResources.barraCombustible >= fuelCost && state.vindicator.currentShield < state.vindicator.maxShield) {
+        return { ...state, vindicator: { ...state.vindicator, bodegaResources: { ...state.vindicator.bodegaResources, barraCombustible: state.vindicator.bodegaResources.barraCombustible - fuelCost }, currentShield: state.vindicator.maxShield } };
       }
       return state;
     }
 
-    case 'UPGRADE_VINDICATOR_STAR': {
-        const { upgradeId } = action.payload;
-        const upgrade = state.vindicatorUpgrades[upgradeId as keyof typeof state.vindicatorUpgrades];
-        if (!upgrade || upgrade.currentStars >= upgrade.maxStars) return state;
-        const { phase1Resources, phase2Resources } = upgrade.costPerStar;
-                const hasEnoughResources = Object.entries(phase1Resources).every(([resource, amount]) => state.resources[resource as ResourceType] >= amount) && Object.entries(phase2Resources).every(([resource, amount]) => state.resources[resource as ResourceType] >= amount);
-        if (!hasEnoughResources) return state;
-        const newResources = { ...state.resources };
-        Object.entries(phase1Resources).forEach(([resource, amount]) => { newResources[resource as ResourceType] -= amount; });
-        Object.entries(phase2Resources).forEach(([resource, amount]) => { newResources[resource as ResourceType] -= amount; });
-        const { health, shield, damage } = upgrade.statIncreasePerStar;
-        return { ...state, resources: newResources, vindicatorUpgrades: { ...state.vindicatorUpgrades, [upgradeId]: { ...upgrade, currentStars: upgrade.currentStars + 1 } }, vindicator: { ...state.vindicator, maxHealth: state.vindicator.maxHealth + (health || 0), maxShield: state.vindicator.maxShield + (shield || 0), damage: state.vindicator.damage + (damage || 0), } };
+                                                    case 'UPGRADE_VINDICATOR_STAR': { // Ahora solo para el Base
+      return handleVindicatorStarUpgrade(state, action.payload.upgradeId, state.vindicatorUpgrades, 'vindicatorUpgrades');
+    }
+
+    case 'UPGRADE_VINDICATOR_MK2_STAR': {
+      return handleVindicatorStarUpgrade(state, action.payload.upgradeId, state.vindicatorMK2Upgrades, 'vindicatorMK2Upgrades');
+    }
+
+    case 'UPGRADE_VINDICATOR_MK3_STAR': {
+      return handleVindicatorStarUpgrade(state, action.payload.upgradeId, state.vindicatorMK3Upgrades, 'vindicatorMK3Upgrades');
+    }
+
+    case 'UPGRADE_VINDICATOR_MK4_STAR': {
+      return handleVindicatorStarUpgrade(state, action.payload.upgradeId, state.vindicatorMK4Upgrades, 'vindicatorMK4Upgrades');
+    }
+
+    case 'UPGRADE_VINDICATOR_MK5_STAR': {
+      return handleVindicatorStarUpgrade(state, action.payload.upgradeId, state.vindicatorMK5Upgrades, 'vindicatorMK5Upgrades');
+    }
+
+    case 'UPGRADE_VINDICATOR_MK6_STAR': {
+      return handleVindicatorStarUpgrade(state, action.payload.upgradeId, state.vindicatorMK6Upgrades, 'vindicatorMK6Upgrades');
+    }
+
+    case 'UPGRADE_VINDICATOR_MK7_STAR': {
+     return handleVindicatorStarUpgrade(state, action.payload.upgradeId, state.vindicatorMK7Upgrades, 'vindicatorMK7Upgrades');
+    }
+
+    case 'UPGRADE_VINDICATOR_MK8_STAR': {
+      return handleVindicatorStarUpgrade(state, action.payload.upgradeId, state.vindicatorMK8Upgrades, 'vindicatorMK8Upgrades');
+    }
+
+    case 'UPGRADE_VINDICATOR_MK9_STAR': {
+      return handleVindicatorStarUpgrade(state, action.payload.upgradeId, state.vindicatorMK9Upgrades, 'vindicatorMK9Upgrades');
     }
 
     case 'LEVEL_UP_VINDICATOR': {
         const currentLevel = state.vindicatorLevel;
         const nextLevelData = vindicatorLevelData.find(level => level.level === currentLevel + 1);
         if (!nextLevelData || state.blueprints < nextLevelData.blueprintCost) return state;
-        const { statBonus } = nextLevelData;
+                const { statBonus } = nextLevelData;
         return { ...state, blueprints: state.blueprints - nextLevelData.blueprintCost, vindicatorLevel: currentLevel + 1, vindicator: { ...state.vindicator, maxHealth: state.vindicator.maxHealth + statBonus.health, currentHealth: state.vindicator.currentHealth + statBonus.health, maxShield: state.vindicator.maxShield + statBonus.shield, currentShield: state.vindicator.currentShield + statBonus.shield, damage: state.vindicator.damage + statBonus.damage, } };
     }
 
-            case 'CLAIM_EXPEDITION_REWARDS': {
+                case 'LEVEL_UP_VINDICATOR_MK2': {
+      const currentLevel = state.vindicatorLevel;
+      const nextLevelData = vindicatorMK2LevelData.find(level => level.level === currentLevel + 1);
+      
+      if (!nextLevelData || state.vindicator.bodegaResources.planosDeInterceptor < nextLevelData.blueprintCost) return state;
+
+      const { statBonus } = nextLevelData;
+      return { 
+        ...state, 
+        vindicator: { 
+          ...state.vindicator, 
+          bodegaResources: {
+            ...state.vindicator.bodegaResources,
+            planosDeInterceptor: state.vindicator.bodegaResources.planosDeInterceptor - nextLevelData.blueprintCost,
+          },
+          maxHealth: state.vindicator.maxHealth + statBonus.health, 
+          currentHealth: state.vindicator.currentHealth + statBonus.health, 
+          maxShield: state.vindicator.maxShield + statBonus.shield, 
+          currentShield: state.vindicator.currentShield + statBonus.shield, 
+          damage: state.vindicator.damage + statBonus.damage, 
+        },
+                vindicatorLevel: currentLevel + 1,
+      };
+    }
+
+        case 'LEVEL_UP_VINDICATOR_MK3': {
+      const currentLevel = state.vindicatorLevel;
+      const nextLevelData = vindicatorMK3LevelData.find(level => level.level === currentLevel + 1);
+      
+      if (!nextLevelData || state.vindicator.bodegaResources.planosMK3 < nextLevelData.blueprintCost) return state;
+
+      const { statBonus } = nextLevelData;
+      return { 
+        ...state, 
+        vindicator: { 
+          ...state.vindicator, 
+          bodegaResources: {
+            ...state.vindicator.bodegaResources,
+            planosMK3: state.vindicator.bodegaResources.planosMK3 - nextLevelData.blueprintCost,
+          },
+          maxHealth: state.vindicator.maxHealth + statBonus.health, 
+          currentHealth: state.vindicator.currentHealth + statBonus.health, 
+          maxShield: state.vindicator.maxShield + statBonus.shield, 
+          currentShield: state.vindicator.currentShield + statBonus.shield, 
+          damage: state.vindicator.damage + statBonus.damage, 
+        },
+        vindicatorLevel: currentLevel + 1,
+      };
+    }
+
+    case 'LEVEL_UP_VINDICATOR_MK4': {
+      const currentLevel = state.vindicatorLevel;
+      const nextLevelData = vindicatorMK4LevelData.find(level => level.level === currentLevel + 1);
+      
+      if (!nextLevelData || state.vindicator.bodegaResources.planosMK4 < nextLevelData.blueprintCost) return state;
+
+      const { statBonus } = nextLevelData;
+      return { 
+        ...state, 
+        vindicator: { 
+          ...state.vindicator, 
+          bodegaResources: {
+            ...state.vindicator.bodegaResources,
+            planosMK4: state.vindicator.bodegaResources.planosMK4 - nextLevelData.blueprintCost,
+          },
+          maxHealth: state.vindicator.maxHealth + statBonus.health, 
+          currentHealth: state.vindicator.currentHealth + statBonus.health, 
+          maxShield: state.vindicator.maxShield + statBonus.shield, 
+          currentShield: state.vindicator.currentShield + statBonus.shield, 
+          damage: state.vindicator.damage + statBonus.damage, 
+        },
+        vindicatorLevel: currentLevel + 1,
+      };
+    }
+
+        case 'LEVEL_UP_VINDICATOR_MK5': {
+      const currentLevel = state.vindicatorLevel;
+      const nextLevelData = vindicatorMK5LevelData.find(level => level.level === currentLevel + 1);
+      
+      if (!nextLevelData || state.vindicator.bodegaResources.planosMK5 < nextLevelData.blueprintCost) return state;
+
+      const { statBonus } = nextLevelData;
+      return { 
+        ...state, 
+        vindicator: { 
+          ...state.vindicator, 
+          bodegaResources: {
+            ...state.vindicator.bodegaResources,
+            planosMK5: state.vindicator.bodegaResources.planosMK5 - nextLevelData.blueprintCost,
+          },
+          maxHealth: state.vindicator.maxHealth + statBonus.health, 
+          currentHealth: state.vindicator.currentHealth + statBonus.health, 
+          maxShield: state.vindicator.maxShield + statBonus.shield, 
+          currentShield: state.vindicator.currentShield + statBonus.shield, 
+          damage: state.vindicator.damage + statBonus.damage, 
+        },
+        vindicatorLevel: currentLevel + 1,
+      };
+    }
+
+    case 'LEVEL_UP_VINDICATOR_MK6': {
+      const currentLevel = state.vindicatorLevel;
+      const nextLevelData = vindicatorMK6LevelData.find(level => level.level === currentLevel + 1);
+      
+      if (!nextLevelData || state.vindicator.bodegaResources.planosMK6 < nextLevelData.blueprintCost) return state;
+
+      const { statBonus } = nextLevelData;
+      return { 
+        ...state, 
+        vindicator: { 
+          ...state.vindicator, 
+          bodegaResources: {
+            ...state.vindicator.bodegaResources,
+            planosMK6: state.vindicator.bodegaResources.planosMK6 - nextLevelData.blueprintCost,
+          },
+          maxHealth: state.vindicator.maxHealth + statBonus.health, 
+          currentHealth: state.vindicator.currentHealth + statBonus.health, 
+          maxShield: state.vindicator.maxShield + statBonus.shield, 
+          currentShield: state.vindicator.currentShield + statBonus.shield, 
+          damage: state.vindicator.damage + statBonus.damage, 
+        },
+                vindicatorLevel: currentLevel + 1,
+      };
+    }
+
+    case 'LEVEL_UP_VINDICATOR_MK7': {
+      const currentLevel = state.vindicatorLevel;
+      const nextLevelData = vindicatorMK7LevelData.find(level => level.level === currentLevel + 1);
+      
+      if (!nextLevelData || state.vindicator.bodegaResources.planosMK7 < nextLevelData.blueprintCost) return state;
+
+      const { statBonus } = nextLevelData;
+      return { 
+        ...state, 
+        vindicator: { 
+          ...state.vindicator, 
+          bodegaResources: {
+            ...state.vindicator.bodegaResources,
+            planosMK7: state.vindicator.bodegaResources.planosMK7 - nextLevelData.blueprintCost,
+          },
+          maxHealth: state.vindicator.maxHealth + statBonus.health, 
+          currentHealth: state.vindicator.currentHealth + statBonus.health, 
+          maxShield: state.vindicator.maxShield + statBonus.shield, 
+          currentShield: state.vindicator.currentShield + statBonus.shield, 
+          damage: state.vindicator.damage + statBonus.damage, 
+        },
+                vindicatorLevel: currentLevel + 1,
+      };
+    }
+
+    case 'LEVEL_UP_VINDICATOR_MK8': {
+      const currentLevel = state.vindicatorLevel;
+      const nextLevelData = vindicatorMK8LevelData.find(level => level.level === currentLevel + 1);
+
+      if (!nextLevelData || state.vindicator.bodegaResources.planosMK8 < nextLevelData.blueprintCost) return state;
+
+      const { statBonus } = nextLevelData;
+      return {
+        ...state,
+        vindicator: {
+          ...state.vindicator,
+          bodegaResources: {
+            ...state.vindicator.bodegaResources,
+            planosMK8: state.vindicator.bodegaResources.planosMK8 - nextLevelData.blueprintCost,
+          },
+          maxHealth: state.vindicator.maxHealth + statBonus.health,
+          currentHealth: state.vindicator.currentHealth + statBonus.health,
+          maxShield: state.vindicator.maxShield + statBonus.shield,
+          currentShield: state.vindicator.currentShield + statBonus.shield,
+          damage: state.vindicator.damage + statBonus.damage,
+        },
+                vindicatorLevel: currentLevel + 1,
+      };
+    }
+
+    case 'LEVEL_UP_VINDICATOR_MK9': {
+      const currentLevel = state.vindicatorLevel;
+      const nextLevelData = vindicatorMK9LevelData.find(level => level.level === currentLevel + 1);
+
+      if (!nextLevelData || state.vindicator.bodegaResources.planosMK9 < nextLevelData.blueprintCost) return state;
+
+      const { statBonus } = nextLevelData;
+      return {
+        ...state,
+        vindicator: {
+          ...state.vindicator,
+          bodegaResources: {
+            ...state.vindicator.bodegaResources,
+            planosMK9: state.vindicator.bodegaResources.planosMK9 - nextLevelData.blueprintCost,
+          },
+          maxHealth: state.vindicator.maxHealth + statBonus.health,
+          currentHealth: state.vindicator.currentHealth + statBonus.health,
+          maxShield: state.vindicator.maxShield + statBonus.shield,
+          currentShield: state.vindicator.currentShield + statBonus.shield,
+          damage: state.vindicator.damage + statBonus.damage,
+        },
+        vindicatorLevel: currentLevel + 1,
+      };
+    }
+
+                                                case 'CLAIM_EXPEDITION_REWARDS': {
         const activeExpedition = action.payload;
         const expeditionData = allExpeditionsData.find(e => e.id === activeExpedition.id);
         if (!expeditionData) {
@@ -454,7 +954,7 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         const wasSuccessful = Math.random() > expeditionData.risk.chance;
 
         if (wasSuccessful) {
-          const newResources = { ...state.resources };
+          const newBodegaResources = { ...state.vindicator.bodegaResources };
           
           // Diccionario para nombres de recursos
           const resourceNames: { [key: string]: string } = {
@@ -471,14 +971,14 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
                     for (const [resource, range] of Object.entries(expeditionData.rewards)) {
             const [min, max] = range as [number, number];
             const amount = Math.floor(Math.random() * (max - min + 1)) + min;
-            const resourceKey = resource as ResourceType;
-            (newResources[resourceKey] as number) = (newResources[resourceKey] || 0) + amount;
+            const resourceKey = resource as keyof typeof newBodegaResources;
+            (newBodegaResources[resourceKey] as number) = (newBodegaResources[resourceKey] || 0) + amount;
             
             const resourceName = resourceNames[resource] || resource;
             notificationMessage += `${amount} de ${resourceName}, `;
           }
 
-          return { ...state, resources: newResources, activeExpeditions: remainingExpeditions, notificationQueue: [...state.notificationQueue, { id: `exp-success-${Date.now()}`, title: `Éxito en ${expeditionData.title}`, message: notificationMessage.slice(0, -2) }] };
+          return { ...state, vindicator: { ...state.vindicator, bodegaResources: newBodegaResources }, activeExpeditions: remainingExpeditions, notificationQueue: [...state.notificationQueue, { id: `exp-success-${Date.now()}`, title: `Éxito en ${expeditionData.title}`, message: notificationMessage.slice(0, -2) }] };
                 } else {
           const droneSelfRepairLevel = state.techCenter.upgrades.droneSelfRepair || 0;
           const survivalChance = droneSelfRepairLevel * 0.10; // 10% por nivel
@@ -555,48 +1055,57 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         },
       };
 
-    case 'CRAFT_VINDICATOR_MODULE': {
+                                case 'CRAFT_VINDICATOR_MODULE': {
       const { moduleId } = action.payload;
-      const moduleData = allArmoryMK1Modules.find(m => m.id === moduleId);
+      const moduleData = 
+        allArmoryMK1Modules.find(m => m.id === moduleId) || 
+        allArmoryMK2Modules.find(m => m.id === moduleId);
 
-      // 1. Comprobaciones
-      if (!moduleData) return state; // El módulo no existe
-      // Aquí se añadiría la lógica para comprobar si ya se posee el módulo
+      if (!moduleData) return state;
 
-      // 2. Comprobar recursos
-      const { resources } = state;
-      const costs = moduleData.costs;
-      const canAfford = 
-        (resources.matrizCristalina >= costs.matrizCristalina) &&
-        (resources.IA_Fragmentada >= costs.IA_Fragmentada) &&
-        (resources.planosMK2 >= costs.planosMK2);
+      const { vindicator } = state;
+            const costs = moduleData.costs;
+      
+      const isMK2Module = 'matrizDeManiobra' in costs;
+
+      const canAfford = isMK2Module
+        ? (vindicator.bodegaResources.matrizDeManiobra >= costs.matrizDeManiobra &&
+           vindicator.bodegaResources.placasDeSigilo >= costs.placasDeSigilo &&
+           vindicator.bodegaResources.planosDeInterceptor >= costs.planosDeInterceptor)
+        : (vindicator.bodegaResources.matrizCristalina >= costs.matrizCristalina &&
+           vindicator.bodegaResources.IA_Fragmentada >= costs.IA_Fragmentada &&
+           vindicator.bodegaResources.planosMK2 >= costs.planosMK2);
       
       if (!canAfford) return state;
 
-      // 3. Deducir recursos y añadir el módulo (lógica de inventario futura)
-      const newResources = { ...resources };
-      newResources.matrizCristalina -= costs.matrizCristalina;
-      newResources.IA_Fragmentada -= costs.IA_Fragmentada;
-      newResources.planosMK2 -= costs.planosMK2;
+      const newBodegaResources = { ...vindicator.bodegaResources };
+      if (isMK2Module) {
+        newBodegaResources.matrizDeManiobra -= costs.matrizDeManiobra;
+        newBodegaResources.placasDeSigilo -= costs.placasDeSigilo;
+        newBodegaResources.planosDeInterceptor -= costs.planosDeInterceptor;
+      } else {
+        newBodegaResources.matrizCristalina -= costs.matrizCristalina;
+        newBodegaResources.IA_Fragmentada -= costs.IA_Fragmentada;
+        newBodegaResources.planosMK2 -= costs.planosMK2;
+      }
 
-      // Por ahora, lo equipamos directamente al fabricarlo.
       const slot = moduleData.slot;
       return {
         ...state,
-        resources: newResources,
         vindicator: {
-          ...state.vindicator,
+          ...vindicator,
+          bodegaResources: newBodegaResources,
           modules: {
-            ...state.vindicator.modules,
+            ...vindicator.modules,
             [slot]: moduleId,
           }
         }
-            };
+      };
     }
 
-        case 'RETROFIT_DRONE': {
+                    case 'RETROFIT_DRONE': {
       const { fromDrone, toDrone } = action.payload;
-      const { workshop, resources } = state;
+      const { workshop, resources, vindicator } = state;
 
       const fromCost = droneData[fromDrone]?.cost || {};
       const toCost = droneData[toDrone]?.cost || {};
@@ -616,21 +1125,28 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       // Comprobar si se tienen los recursos
       Object.keys(retrofitCost).forEach(resource => {
         const key = resource as ResourceType;
-        if (resources[key] < (retrofitCost[key] || 0)) {
+        const resourceAmount = vindicator.bodegaResources[key as keyof typeof vindicator.bodegaResources] ?? resources[key] ?? 0;
+        if (resourceAmount < (retrofitCost[key] || 0)) {
           canAfford = false;
         }
       });
 
       if (workshop.drones[fromDrone] > 0 && canAfford) {
         const newResources = { ...resources };
+        const newBodegaResources = { ...vindicator.bodegaResources };
         Object.keys(retrofitCost).forEach(resource => {
           const key = resource as ResourceType;
-          newResources[key] -= retrofitCost[key] || 0;
+          if (key in newBodegaResources) {
+            newBodegaResources[key as keyof typeof newBodegaResources] -= retrofitCost[key] || 0;
+          } else {
+            newResources[key] -= retrofitCost[key] || 0;
+          }
         });
 
         return {
           ...state,
           resources: newResources,
+          vindicator: { ...vindicator, bodegaResources: newBodegaResources },
           workshop: {
             ...workshop,
             drones: {
@@ -643,6 +1159,64 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       }
       return state;
     }
+
+                case 'UPGRADE_BODEGA_CATEGORY': {
+      const { category } = action.payload;
+      const { vindicator } = state;
+      const vindicatorType = vindicator.vindicatorType;
+      
+                        let type: 'base' | 'mk1' | 'mk2' | 'mk3' | 'mk4' | 'mk5' | 'mk6' | 'mk7' | 'mk8' | 'mk9';
+      if (vindicatorType === 'mk1') type = 'mk1';
+      else if (vindicatorType === 'mk2_interceptor') type = 'mk2';
+      else if (vindicatorType === 'mk3_devastator') type = 'mk3';
+      else if (vindicatorType === 'mk4_reaper') type = 'mk4';
+      else if (vindicatorType === 'mk5_aegis') type = 'mk5';
+      else if (vindicatorType === 'mk6_tempest') type = 'mk6';
+      else if (vindicatorType === 'mk7_wraith') type = 'mk7';
+      else if (vindicatorType === 'mk8_phantom') type = 'mk8';
+      else if (vindicatorType === 'mk9_apex') type = 'mk9';
+      else type = 'base';
+      
+      const bodegaConfig = bodegaData[type]?.[category as ResourceCategory];
+      if (!bodegaConfig) return state;
+
+      const bodegaKey = `bodega${type === 'base' ? 'Base' : type.toUpperCase()}` as 'bodegaBase' | 'bodegaMK1' | 'bodegaMK2' | 'bodegaMK3' | 'bodegaMK4' | 'bodegaMK5' | 'bodegaMK6' | 'bodegaMK7' | 'bodegaMK8' | 'bodegaMK9';
+      const currentBodega = vindicator[bodegaKey];
+      const level = currentBodega.levels[category as ResourceCategory];
+
+      const cost = Math.floor(bodegaConfig.baseCost * Math.pow(bodegaConfig.costIncreaseFactor, level - 1));
+      const resourceNeeded = bodegaConfig.resource as keyof typeof vindicator.bodegaResources;
+
+      if (vindicator.bodegaResources[resourceNeeded] >= cost) {
+        const newBodegaResources = {
+          ...vindicator.bodegaResources,
+          [resourceNeeded]: vindicator.bodegaResources[resourceNeeded] - cost,
+        };
+                const newLevels = {
+          ...currentBodega.levels,
+          [category as ResourceCategory]: level + 1,
+        };
+        const newCapacities = {
+          ...currentBodega.capacities,
+          [category as ResourceCategory]: currentBodega.capacities[category as ResourceCategory] + bodegaConfig.capacityIncrease,
+        };
+        const newBodegaState = {
+          levels: newLevels,
+          capacities: newCapacities,
+        };
+        
+        return {
+          ...state,
+          vindicator: {
+            ...vindicator,
+            bodegaResources: newBodegaResources,
+            [bodegaKey]: newBodegaState,
+          },
+        };
+      }
+      return state;
+    }
+
 
     default:
       return newState;

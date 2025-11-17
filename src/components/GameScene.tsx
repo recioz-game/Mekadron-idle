@@ -164,10 +164,11 @@ const GameScene: React.FC = () => {
 
   const renderActiveModule = () => {
     switch (currentView) {
-            case 'workshop':
+                  case 'workshop':
         return (
           <Workshop
             resources={resources}
+            bodegaResources={gameState.vindicator.bodegaResources}
             drones={drones}
             queues={workshopQueues}
             upgrades={techCenter.upgrades}
@@ -191,7 +192,7 @@ const GameScene: React.FC = () => {
         );
       case 'energy':
         return (
-          <EnergyView
+                    <EnergyView
             scrap={resources.scrap}
             currentEnergy={resources.energy}
             maxEnergy={resources.maxEnergy}
@@ -222,15 +223,16 @@ const GameScene: React.FC = () => {
             onClose={onClose}
             onCancel={onCancelEnergyItem}
             upgrades={techCenter.upgrades}
-            metalRefinado={resources.metalRefinado}
+            metalRefinado={gameState.vindicator.bodegaResources.metalRefinado}
           />
         );
-      case 'storage':
+            case 'storage':
         return (
-          <StorageView
+                                        <StorageView
             // Resources
             scrap={resources.scrap}
-            metalRefinado={resources.metalRefinado}
+            metalRefinado={gameState.vindicator.bodegaResources.metalRefinado}
+            aceroEstructural={gameState.vindicator.bodegaResources.aceroEstructural}
 
             // Storage Units
             basicStorage={storage.basicStorage}
@@ -282,22 +284,22 @@ const GameScene: React.FC = () => {
         );
             case 'foundry':
         return (
-          <FoundryView
+                    <FoundryView
             scrap={resources.scrap}
             energy={resources.energy}
-            metalRefinado={resources.metalRefinado}
-            aceroEstructural={resources.aceroEstructural}
-            fragmentosPlaca={resources.fragmentosPlaca}
-            circuitosDañados={resources.circuitosDañados}
-            placasCasco={resources.placasCasco}
-            cableadoSuperconductor={resources.cableadoSuperconductor}
-            barraCombustible={resources.barraCombustible}
+            metalRefinado={gameState.vindicator.bodegaResources.metalRefinado}
+            aceroEstructural={gameState.vindicator.bodegaResources.aceroEstructural}
+            fragmentosPlaca={gameState.vindicator.bodegaResources.fragmentosPlaca}
+            circuitosDañados={gameState.vindicator.bodegaResources.circuitosDañados}
+            placasCasco={gameState.vindicator.bodegaResources.placasCasco}
+            cableadoSuperconductor={gameState.vindicator.bodegaResources.cableadoSuperconductor}
+            barraCombustible={gameState.vindicator.bodegaResources.barraCombustible}
 
-            metalRefinadoQueue={foundry.queues.metalRefinado}
-            aceroEstructuralQueue={foundry.queues.aceroEstructural}
-            placasCascoQueue={foundry.queues.placasCasco}
-            cableadoSuperconductorQueue={foundry.queues.cableadoSuperconductor}
-            barraCombustibleQueue={foundry.queues.barraCombustible}
+            metalRefinadoQueue={foundry?.queues?.metalRefinado}
+            aceroEstructuralQueue={foundry?.queues?.aceroEstructural}
+            placasCascoQueue={foundry?.queues?.placasCasco}
+            cableadoSuperconductorQueue={foundry?.queues?.cableadoSuperconductor}
+            barraCombustibleQueue={foundry?.queues?.barraCombustible}
 
             onCraftRefinedMetal={onCraftRefinedMetal}
             onCraftStructuralSteel={onCraftStructuralSteel}

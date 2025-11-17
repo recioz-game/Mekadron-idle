@@ -4,6 +4,8 @@
   color: #E5E7EB;
   padding: 1.6rem;
   font-family: Inter, sans-serif;
+  max-height: 80vh; /* O la altura que prefieras */
+  overflow-y: auto;
 }
 
 .foundry-view-header {

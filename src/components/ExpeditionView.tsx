@@ -3,6 +3,7 @@ import './ExpeditionView.css'; // Importar el archivo CSS
 import { GameState, ExpeditionId, ActiveExpedition } from '../types/gameState';
 import { allExpeditionsData } from '../data/expeditionsData';
 import { formatNumber } from '../utils/formatNumber';
+import { useDragToScroll } from '../hooks/useDragToScroll';
 
 interface ExpeditionViewProps {
   resources: GameState['resources'];
@@ -66,8 +67,10 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
     expeditionV2Drone: drones.expeditionV2Drone - dronesInUse.expeditionV2Drone,
   };
   
+    const scrollRef = useDragToScroll<HTMLDivElement>();
+
   return (
-    <div className="expedition-view-container">
+    <div className="expedition-view-container" ref={scrollRef}>
       <div className="expedition-view-header">
         <h2>MÓDULO DE EXPEDICIONES</h2>
         <button onClick={onClose} className="close-button">

@@ -2,16 +2,24 @@
 
 export type ModuleSlot = 'offensive' | 'defensive' | 'tactical';
 
+export interface MK1ModuleCosts {
+  matrizCristalina: number;
+  IA_Fragmentada: number;
+  planosMK2: number;
+}
+
+export interface MK2ModuleCosts {
+  matrizDeManiobra: number;
+  placasDeSigilo: number;
+  planosDeInterceptor: number;
+}
+
 export interface VindicatorModule {
   id: string;
   name: string;
   description: string;
   slot: ModuleSlot;
-  costs: {
-    matrizCristalina: number;
-    IA_Fragmentada: number;
-    planosMK2: number;
-  };
+  costs: MK1ModuleCosts | MK2ModuleCosts;
   // Los efectos específicos serán interpretados por el combatReducer
   effects: {
     // Ejemplo: { type: 'CRITICAL_CHANCE', value: 0.2 }

@@ -6,6 +6,7 @@ import { formatNumber } from '../utils/formatNumber';
 import BotonConTooltip from './BotonConTooltip';
 import QueueControls from './QueueControls';
 import { droneData } from '../data/droneData';
+import { useDragToScroll } from '../hooks/useDragToScroll';
 
 // Importar imágenes de drones
 import droneBasicImg from '../assets/images/ui/drone-basic.png';
@@ -21,6 +22,7 @@ import droneWyrmImg from '../assets/images/ui/drone-wyrm.png';
 
 interface WorkshopProps {
   resources: GameState['resources'];
+  bodegaResources: GameState['vindicator']['bodegaResources'];
   drones: GameState['workshop']['drones'];
   queues: GameState['workshop']['queues'];
   upgrades: { [key: string]: number };
@@ -44,13 +46,16 @@ interface WorkshopProps {
 
 const Workshop: React.FC<WorkshopProps> = React.memo(({ 
   resources,
+  bodegaResources,
   drones, queues,
   upgrades,
   onBuildBasicDrone, onBuildMediumDrone, onBuildAdvancedDrone, onBuildReinforcedBasic, onBuildReinforcedMedium, onBuildReinforcedAdvanced, onBuildGolemDrone, onBuildExpeditionDrone, onBuildExpeditionV2Drone, onBuildWyrm,
-  onDismantle, onRetrofit,
+    onDismantle, onRetrofit,
   buyAmount, onSetBuyAmount, onClose, onCancel 
 }) => {
-  const { scrap, metalRefinado, aceroEstructural } = resources;
+    const { scrap } = resources;
+  const { metalRefinado, aceroEstructural } = bodegaResources || {};
+  const scrollRef = useDragToScroll<HTMLDivElement>();
 
   const basicDroneCost = 15;
   const mediumDroneCost = 250;
@@ -61,7 +66,7 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
   const expeditionDroneCost = { scrap: 3000, metal: 20 };
   const expeditionV2DroneCost = { scrap: 15000, metal: 100 }; // 5x el costo original
   const golemCost = { scrap: 75000, steel: 5 };
-  const wyrmCost = { scrap: 250000, steel: 25 };
+  const wyrmCost = { scrap: 200000, steel: 15 };
   
   const getMaxAffordable = (cost: { scrap: number, metal?: number, steel?: number }) => {
     const maxByScrap = cost.scrap > 0 ? Math.floor(scrap / cost.scrap) : Infinity;
@@ -89,8 +94,8 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
 
   
 
-  return (
-    <div className="workshop-container">
+    return (
+    <div className="workshop-container" ref={scrollRef}>
       <div className="workshop-header">
         <h2>TALLER DE DRONES</h2>
         <button onClick={onClose} className="close-button">
@@ -115,7 +120,7 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
             <div className="controls-container">
               <QueueControls queue={queues.basic} itemName='basic' onCancel={onCancel} />
               <DismantleControls upgrades={upgrades} droneType='basic' onDismantle={onDismantle} droneCount={drones.basic} buyAmount={buyAmount} />
-              <RetrofitControls resources={resources} upgrades={upgrades} droneType='basic' toDrone='medium' onRetrofit={onRetrofit} droneCount={drones.basic} />
+              <RetrofitControls resources={resources} bodegaResources={bodegaResources} upgrades={upgrades} droneType='basic' toDrone='medium' onRetrofit={onRetrofit} droneCount={drones.basic} />
             </div>
             <BotonConTooltip 
               onClick={onBuildBasicDrone} 
@@ -143,7 +148,7 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
             <div className="controls-container">
               <QueueControls queue={queues.medium} itemName='medium' onCancel={onCancel} />
               <DismantleControls upgrades={upgrades} droneType='medium' onDismantle={onDismantle} droneCount={drones.medium} buyAmount={buyAmount} />
-              <RetrofitControls resources={resources} upgrades={upgrades} droneType='medium' toDrone='advanced' onRetrofit={onRetrofit} droneCount={drones.medium} />
+              <RetrofitControls resources={resources} bodegaResources={bodegaResources} upgrades={upgrades} droneType='medium' toDrone='advanced' onRetrofit={onRetrofit} droneCount={drones.medium} />
             </div>
             <BotonConTooltip 
               onClick={onBuildMediumDrone} 
@@ -366,6 +371,7 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
             <div className={`drone-item ${scrap >= golemCost.scrap && aceroEstructural >= golemCost.steel && drones.reinforcedAdvanced >= 5 ? 'unlocked' : ''} ${drones.reinforcedAdvanced >= 5 ? '' : 'locked'}`}>
               <div className="drone-item-content">
                 <div className="drone-info">
+                  <h4 className="drone-title" style={{ color: '#F43F5E' }}>Dron Golem (DG-1)</h4>
                                                       <p><strong>Descripción:</strong> Un chasis masivo diseñado para procesar chatarra. Consume Chatarra para producir Metal Refinado de forma pasiva.</p>
                   <p>Consumo: 50 energía/segundo</p>
                   <p>Consume: 500 Chatarra/s | Produce: 0.5 Metal Refinado/s</p>
@@ -403,10 +409,10 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
           <div className="drone-item-content">
             <div className="drone-info">
                             <h4 className="drone-title" style={{ color: '#F43F5E' }}>Dron Wyrm (DW-1)</h4>
-              <p><strong>Descripción:</strong> Una maravilla de la ingeniería. Consume Chatarra y Metal Refinado para sintetizar Acero Estructural de forma pasiva.</p>
+              <p><strong>Descripción:</strong> Una maravilla de la ingeniería. Consume Chatarra para sintetizar Acero Estructural de forma pasiva.</p>
               <p>Consumo: 200 energía/segundo</p>
-              <p>Consume: 1000 Chatarra/s y 1 Metal Refinado/s | Produce: 0.1 Acero Estructural/s</p>
-              <p>Coste: {formatNumber(wyrmCost.scrap)} chatarra, {formatNumber(wyrmCost.steel)} acero</p>
+                            <p>Consume: 1000 Chatarra/s | Produce: 0.25 Acero Estructural/s</p>
+              <p>Coste: {formatNumber(wyrmCost.scrap)} chatarra, {formatNumber(wyrmCost.steel)} acero estructural</p>
               <p>Requisitos: 1 Dron Golem</p>
               <p>Flota: {drones.wyrm} | En cola: {queues.wyrm.queue}</p>
             </div>
@@ -470,12 +476,13 @@ const DismantleControls: React.FC<{
 // --- NUEVO COMPONENTE ---
 const RetrofitControls: React.FC<{
   resources: GameState['resources'];
+  bodegaResources: GameState['vindicator']['bodegaResources'];
   upgrades: { [key: string]: number };
-  droneType: DroneType;
+    droneType: DroneType;
   toDrone: DroneType;
   droneCount: number;
   onRetrofit: (fromDrone: DroneType, toDrone: DroneType) => void;
-}> = ({ resources, upgrades, droneType, toDrone, droneCount, onRetrofit }) => {
+}> = ({ resources, bodegaResources, upgrades, droneType, toDrone, droneCount, onRetrofit }) => {
   if (!upgrades.droneRetrofitting) {
     return <div style={{ width: '100px' }}/>; // Espaciador para mantener la alineación
   }
@@ -483,18 +490,19 @@ const RetrofitControls: React.FC<{
   const fromCost = droneData[droneType]?.cost || {};
   const toCost = droneData[toDrone]?.cost || {};
   
-  const retrofitCost: Partial<Record<keyof GameState['resources'], number>> = {};
+  const retrofitCost: Partial<Record<keyof GameState['resources'] | keyof GameState['vindicator']['bodegaResources'], number>> = {};
   let canAfford = true;
   let tooltipText = 'Reacondicionar: ';
 
-  const costEntries = Object.entries(toCost) as [keyof GameState['resources'], number][];
+  const allResources = { ...resources, ...bodegaResources };
+  const costEntries = Object.entries(toCost) as [keyof typeof allResources, number][];
 
   for (const [resource, cost] of costEntries) {
     const fromResourceCost = fromCost[resource as keyof typeof fromCost] || 0;
     const diff = cost - fromResourceCost;
     if (diff > 0) {
       retrofitCost[resource] = diff;
-      if (resources[resource] < diff) {
+      if (allResources[resource] < diff) {
         canAfford = false;
       }
       tooltipText += `${formatNumber(diff)} ${resource}, `;

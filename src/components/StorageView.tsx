@@ -4,6 +4,7 @@ import BuyAmountSelector from './BuyAmountSelector';
 import { formatNumber } from '../utils/formatNumber';
 import BotonConTooltip from './BotonConTooltip';
 import { gameData } from '../data/gameData';
+import { useDragToScroll } from '../hooks/useDragToScroll';
 
 // Importar imágenes de almacenamiento
 import storageBasicImg from '../assets/images/ui/storage-basic.png';
@@ -20,6 +21,7 @@ interface StorageViewProps {
   // Resources
   scrap: number;
   metalRefinado: number;
+  aceroEstructural: number;
 
   // Storage Units
   basicStorage: number;
@@ -66,12 +68,13 @@ const ProgressBar = ({ progress, time }: { progress: number; time: number }) => 
   );
 
 const StorageView: React.FC<StorageViewProps> = React.memo(({ 
-  scrap, metalRefinado,
+  scrap, metalRefinado, aceroEstructural,
   basicStorage, mediumStorage, advancedStorage, quantumHoardUnit, lithiumIonBattery, plasmaAccumulator, harmonicContainmentField,
   basicStorageQueue, mediumStorageQueue, advancedStorageQueue, quantumHoardUnitQueue, lithiumIonBatteryQueue, plasmaAccumulatorQueue, harmonicContainmentFieldQueue,
   onBuildBasicStorage, onBuildMediumStorage, onBuildAdvancedStorage, onBuildQuantumHoardUnit, onBuildLithiumIonBattery, onBuildPlasmaAccumulator, onBuildHarmonicContainmentField,
   buyAmount, onSetBuyAmount, onClose, onCancel 
 }) => {
+  const scrollRef = useDragToScroll<HTMLDivElement>();
 
   const getTooltipText = (requirements: { resource?: string, amount: number, current: number, text: string }[]): string => {
     const missing = requirements.filter(req => req.current < req.amount);
@@ -89,26 +92,22 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
   const harmonicContainmentFieldScrapCost = gameData.storage.harmonicContainmentField.costs.scrap!;
   const harmonicContainmentFieldMetalCost = gameData.storage.harmonicContainmentField.costs.metalRefinado!;
   
-  const getMaxAffordable = (cost: number | { scrap: number, metal: number }) => {
-    if (typeof cost === 'number') {
-      return Math.floor(scrap / cost);
-    }
-    const maxByScrap = cost.scrap > 0 ? Math.floor(scrap / cost.scrap) : Infinity;
-    const maxByMetal = cost.metal > 0 ? Math.floor(metalRefinado / cost.metal) : Infinity;
+    const getMaxAffordable = (cost: { scrap?: number, metalRefinado?: number }) => {
+    const maxByScrap = cost.scrap ? Math.floor(scrap / cost.scrap) : Infinity;
+    const maxByMetal = cost.metalRefinado ? Math.floor(metalRefinado / cost.metalRefinado) : Infinity;
     return Math.min(maxByScrap, maxByMetal);
   };
 
-  const basicStorageMax = getMaxAffordable(basicStorageCost);
-  const mediumStorageMax = getMaxAffordable(mediumStorageCost);
-  const advancedStorageMax = getMaxAffordable(advancedStorageCost);
-  const quantumHoardUnitMax = getMaxAffordable({ scrap: quantumHoardUnitScrapCost, metal: quantumHoardUnitMetalCost });
-  const lithiumIonBatteryMax = getMaxAffordable(lithiumIonBatteryCost);
-  const plasmaAccumulatorMax = getMaxAffordable(plasmaAccumulatorCost);
-  
-  const harmonicContainmentFieldMax = getMaxAffordable({ scrap: harmonicContainmentFieldScrapCost, metal: harmonicContainmentFieldMetalCost });
+  const basicStorageMax = getMaxAffordable({ scrap: basicStorageCost });
+  const mediumStorageMax = getMaxAffordable({ scrap: mediumStorageCost });
+  const advancedStorageMax = getMaxAffordable({ scrap: advancedStorageCost });
+  const quantumHoardUnitMax = getMaxAffordable({ scrap: quantumHoardUnitScrapCost, metalRefinado: quantumHoardUnitMetalCost });
+  const lithiumIonBatteryMax = getMaxAffordable({ scrap: lithiumIonBatteryCost });
+  const plasmaAccumulatorMax = getMaxAffordable({ scrap: plasmaAccumulatorCost });
+  const harmonicContainmentFieldMax = getMaxAffordable({ scrap: harmonicContainmentFieldScrapCost, metalRefinado: harmonicContainmentFieldMetalCost });
 
-  return (
-    <div className="storage-view-container">
+    return (
+    <div className="storage-view-container" ref={scrollRef}>
       <div className="storage-view-header">
         <h2>MÓDULO DE ALMACÉN</h2>
         <button 
