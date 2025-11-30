@@ -11,55 +11,75 @@ import reinforcedAlloyIcon from '../assets/images/ui/reinforced-alloy-icon.png';
 import corruptNeurochipIcon from '../assets/images/ui/corrupt-neurochip-icon.png';
 import plateFragmentsIcon from '../assets/images/ui/plate-fragments-icon.png';
 import damagedCircuitsIcon from '../assets/images/ui/damaged-circuits-icon.png';
+import matrizQuitinaCristalIcon from '../assets/images/ui/resources/Matriz Quitina-Cristal 32x32.png';
+import nucleoSinapticoFracturadoIcon from '../assets/images/ui/resources/Núcleo Sináptico Fracturado 32x32.png';
+import moduloManiobrasTacticasIcon from '../assets/images/ui/resources/Módulo de Maniobras Tácticas 32x32.png';
+import placasCamuflajeActivoIcon from '../assets/images/ui/resources/Placas de Camuflaje Activo 32x32.png';
+import planosIcon from '../assets/images/ui/resources/plano.png';
 
 interface ArmoryProps {
   onClose: () => void;
 }
+
 
 const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
   const { gameState, dispatch } = useGame();
   const { vindicator, resources, blueprints, vindicatorLevel, vindicatorUpgrades, vindicatorMK2Upgrades, vindicatorMK3Upgrades, vindicatorMK4Upgrades, vindicatorMK5Upgrades, vindicatorMK6Upgrades } = gameState;
   const { bodegaResources } = vindicator;
 
+  // Mapa de nombres de Vindicator para la UI
+  const vindicatorNameMap: Record<string, string> = {
+    base: 'VINDICATOR',
+    vm01_origin: 'VM01 — ORIGIN',
+    vm02_interceptor: 'VM02 — INTERCEPTOR',
+    vm03_devastator: 'VM03 — DEVASTATOR',
+    vm04_reaper: 'VM04 — REAPER',
+    vm05_aegis: 'VM05 — AEGIS',
+    vm06_tempest: 'VM06 — TEMPEST',
+    vm07_wraith: 'VM07 — WRAITH',
+    vm08_phantom: 'VM08 — PHANTOM',
+    vm09_apex: 'VM09 — APEX',
+  };
+  
   // --- Lógica Dinámica ---
-  const isMK1 = vindicator.vindicatorType === 'mk1';
-  const isMK2 = vindicator.vindicatorType === 'mk2_interceptor';
-  const isMK3 = vindicator.vindicatorType === 'mk3_devastator';
-  const isMK4 = vindicator.vindicatorType === 'mk4_reaper';
-  const isMK5 = vindicator.vindicatorType === 'mk5_aegis';
-  const isMK6 = vindicator.vindicatorType === 'mk6_tempest';
-  const isMK7 = vindicator.vindicatorType === 'mk7_wraith';
-  const isMK8 = vindicator.vindicatorType === 'mk8_phantom';
-  const isMK9 = vindicator.vindicatorType === 'mk9_apex';
+  const isVM01 = vindicator.vindicatorType === 'vm01_origin';
+  const isVM02 = vindicator.vindicatorType === 'vm02_interceptor';
+  const isVM03 = vindicator.vindicatorType === 'vm03_devastator';
+  const isVM04 = vindicator.vindicatorType === 'vm04_reaper';
+  const isVM05 = vindicator.vindicatorType === 'vm05_aegis';
+  const isVM06 = vindicator.vindicatorType === 'vm06_tempest';
+  const isVM07 = vindicator.vindicatorType === 'vm07_wraith';
+  const isVM08 = vindicator.vindicatorType === 'vm08_phantom';
+  const isVM09 = vindicator.vindicatorType === 'vm09_apex';
 
   let upgradesToDisplay: any = {};
   let upgradeActionType: 'UPGRADE_VINDICATOR_STAR' | 'UPGRADE_VINDICATOR_MK1_STAR' | 'UPGRADE_VINDICATOR_MK2_STAR' | 'UPGRADE_VINDICATOR_MK3_STAR' | 'UPGRADE_VINDICATOR_MK4_STAR' | 'UPGRADE_VINDICATOR_MK5_STAR' | 'UPGRADE_VINDICATOR_MK6_STAR' | 'UPGRADE_VINDICATOR_MK7_STAR' | 'UPGRADE_VINDICATOR_MK8_STAR' | 'UPGRADE_VINDICATOR_MK9_STAR' = 'UPGRADE_VINDICATOR_STAR';
   
-  if (isMK9) {
+  if (isVM09) {
     upgradesToDisplay = gameState.vindicatorMK9Upgrades;
     upgradeActionType = 'UPGRADE_VINDICATOR_MK9_STAR';
-  } else if (isMK8) {
+  } else if (isVM08) {
     upgradesToDisplay = gameState.vindicatorMK8Upgrades;
     upgradeActionType = 'UPGRADE_VINDICATOR_MK8_STAR';
-  } else if (isMK7) {
+  } else if (isVM07) {
     upgradesToDisplay = gameState.vindicatorMK7Upgrades;
     upgradeActionType = 'UPGRADE_VINDICATOR_MK7_STAR';
-  } else if (isMK6) {
+  } else if (isVM06) {
     upgradesToDisplay = vindicatorMK6Upgrades;
     upgradeActionType = 'UPGRADE_VINDICATOR_MK6_STAR';
-  } else if (isMK5) {
+  } else if (isVM05) {
     upgradesToDisplay = vindicatorMK5Upgrades;
     upgradeActionType = 'UPGRADE_VINDICATOR_MK5_STAR';
-  } else if (isMK4) {
+  } else if (isVM04) {
     upgradesToDisplay = vindicatorMK4Upgrades;
     upgradeActionType = 'UPGRADE_VINDICATOR_MK4_STAR';
-  } else if (isMK3) {
+  } else if (isVM03) {
     upgradesToDisplay = vindicatorMK3Upgrades;
     upgradeActionType = 'UPGRADE_VINDICATOR_MK3_STAR';
-  } else if (isMK2) {
+  } else if (isVM02) {
     upgradesToDisplay = vindicatorMK2Upgrades;
     upgradeActionType = 'UPGRADE_VINDICATOR_MK2_STAR';
-  } else if (!isMK1) { // Solo mostrar para base
+  } else if (!isVM01) { // Solo mostrar para base
     upgradesToDisplay = vindicatorUpgrades;
     upgradeActionType = 'UPGRADE_VINDICATOR_STAR';
   }
@@ -70,42 +90,42 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
   let blueprintResource = blueprints;
   let blueprintLabel = 'Planos';
 
-  if (isMK2) {
+  if (isVM02) {
     levelData = vindicatorMK2LevelData;
     levelUpActionType = 'LEVEL_UP_VINDICATOR_MK2';
     blueprintResource = bodegaResources.planosDeInterceptor;
     blueprintLabel = 'Planos de Interceptor';
-  } else if (isMK3) {
+  } else if (isVM03) {
     levelData = vindicatorMK3LevelData;
     levelUpActionType = 'LEVEL_UP_VINDICATOR_MK3';
     blueprintResource = bodegaResources.planosMK3;
     blueprintLabel = 'Planos MK3';
-  } else if (isMK4) {
+  } else if (isVM04) {
     levelData = vindicatorMK4LevelData;
     levelUpActionType = 'LEVEL_UP_VINDICATOR_MK4';
     blueprintResource = bodegaResources.planosMK4;
     blueprintLabel = 'Planos MK4';
-  } else if (isMK5) {
+  } else if (isVM05) {
     levelData = vindicatorMK5LevelData;
     levelUpActionType = 'LEVEL_UP_VINDICATOR_MK5';
     blueprintResource = bodegaResources.planosMK5;
     blueprintLabel = 'Planos MK5';
-  } else if (isMK6) {
+  } else if (isVM06) {
     levelData = vindicatorMK6LevelData;
     levelUpActionType = 'LEVEL_UP_VINDICATOR_MK6';
     blueprintResource = bodegaResources.planosMK6;
     blueprintLabel = 'Planos MK6';
-  } else if (isMK7) {
+  } else if (isVM07) {
     levelData = vindicatorMK7LevelData;
     levelUpActionType = 'LEVEL_UP_VINDICATOR_MK7';
     blueprintResource = bodegaResources.planosMK7;
     blueprintLabel = 'Planos MK7';
-  } else if (isMK8) {
+  } else if (isVM08) {
     levelData = vindicatorMK8LevelData;
     levelUpActionType = 'LEVEL_UP_VINDICATOR_MK8';
     blueprintResource = bodegaResources.planosMK8;
     blueprintLabel = 'Planos MK8';
-  } else if (isMK9) {
+  } else if (isVM09) {
     levelData = vindicatorMK9LevelData;
     levelUpActionType = 'LEVEL_UP_VINDICATOR_MK9';
     blueprintResource = bodegaResources.planosMK9;
@@ -113,26 +133,40 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
   }
 
   // Sistema de Módulos
-  const showModules = isMK1 || isMK2 || isMK3 || isMK4 || isMK5 || isMK6 || isMK7 || isMK8 || isMK9;
-  const moduleList = isMK1 ? allArmoryMK1Modules : allArmoryMK2Modules; // Necesitará Módulos MK3/4/5
-  const armoryTitle = isMK1 ? 'Armería del Vindicator MK.I' : isMK2 ? 'Armería del Vindicator MK.II' : isMK3 ? 'Armería del Vindicator MK.III' : 'Armería del Vindicator';
+  const showModules = isVM01 || isVM02 || isVM03 || isVM04 || isVM05 || isVM06 || isVM07 || isVM08 || isVM09;
+  const moduleList = isVM01 ? allArmoryMK1Modules : allArmoryMK2Modules; // Necesitará Módulos MK3/4/5
+  const armoryTitle = `Armería del ${vindicatorNameMap[vindicator.vindicatorType] || 'Vindicator'}`;
+
 
   const handleCraftModule = (moduleId: string) => {
     dispatch({ type: 'CRAFT_VINDICATOR_MODULE', payload: { moduleId } });
   };
     
   const resourceLabels: { [key: string]: string } = {
-    aleacionReforzada: 'Aleación Reforzada',
+    aleacionReforzadaRobada: 'Aleación Reforzada',
     neuroChipCorrupto: 'Neuro-Chip Corrupto',
     fragmentosPlaca: 'Fragmentos de Placa',
     circuitosDañados: 'Circuitos Dañados',
+    matrizQuitinaCristal: 'Matriz Quitina-Cristal',
+    nucleoSinapticoFracturado: 'Núcleo Sináptico Fracturado',
+    planosMK2: 'Planos MK2',
+    moduloManiobrasTácticas: 'Módulo de Maniobras Tácticas',
+    placasCamuflajeActivo: 'Placas de Camuflaje Activo',
+    planosDeInterceptor: 'Planos de Interceptor',
   };
 
   const resourceIcons: { [key: string]: string } = {
-    aleacionReforzada: reinforcedAlloyIcon,
+    aleacionReforzadaRobada: reinforcedAlloyIcon,
     neuroChipCorrupto: corruptNeurochipIcon,
     fragmentosPlaca: plateFragmentsIcon,
     circuitosDañados: damagedCircuitsIcon,
+    matrizQuitinaCristal: matrizQuitinaCristalIcon,
+    nucleoSinapticoFracturado: nucleoSinapticoFracturadoIcon,
+    planosMK2: planosIcon,
+    moduloManiobrasTácticas: moduloManiobrasTacticasIcon,
+    placasCamuflajeActivo: placasCamuflajeActivoIcon,
+    planosDeInterceptor: '', // Placeholder
+    planos: planosIcon,
   };
 
   // --- Lógica de Reparación ---
@@ -140,9 +174,9 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
   const SHIELD_REPAIR_COST_PER_POINT = 0.2;
 
   let repairCostMultiplier = 1;
-  if (isMK1) {
+  if (isVM01) {
     repairCostMultiplier = 1.25; // 25% más caro
-  } else if (isMK2) {
+  } else if (isVM02) {
     repairCostMultiplier = 1.5; // 50% más caro
   }
 
@@ -185,7 +219,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
   const healthCostPerPoint = (HEALTH_REPAIR_COST_PER_POINT * repairCostMultiplier);
   const shieldCostPerPoint = (SHIELD_REPAIR_COST_PER_POINT * repairCostMultiplier);
 
-  const armoryHeaderTitle = isMK1 ? 'ARMERÍA - VINDICATOR MK.I' : isMK2 ? 'ARMERÍA - VINDICATOR MK.II' : isMK3 ? 'ARMERÍA - VINDICATOR MK.III' : isMK4 ? 'ARMERÍA - VINDICATOR MK.IV' : isMK5 ? 'ARMERÍA - VINDICATOR MK.V' : isMK6 ? 'ARMERÍA - VINDICATOR MK.VI' : isMK7 ? 'ARMERÍA - VINDICATOR MK.VII' : isMK8 ? 'ARMERÍA - VINDICATOR MK.VIII' : isMK9 ? 'ARMERÍA - VINDICATOR MK.IX' : 'ARMERÍA - VINDICATOR';
+  const armoryHeaderTitle = `ARMERÍA - ${vindicatorNameMap[vindicator.vindicatorType] || 'VINDICATOR'}`;
 
   return (
     <div className="armory-view">
@@ -271,9 +305,9 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                                   <div className="level-up-bonus">
                                       <h5>BONIFICACIÓN PRÓXIMA MEJORA:</h5>
                                       <ul>
-                                          {upgrade.statIncreasePerStar.health && <li>+{upgrade.statIncreasePerStar.health} Vida Máxima</li>}
-                                          {upgrade.statIncreasePerStar.shield && <li>+{upgrade.statIncreasePerStar.shield} Escudo Máximo</li>}
-                                          {upgrade.statIncreasePerStar.damage && <li>+{upgrade.statIncreasePerStar.damage} Daño</li>}
+                                          {upgrade.statIncreasePerStar.health && <li className="stat-bonus">+{upgrade.statIncreasePerStar.health} Vida Máxima</li>}
+                                          {upgrade.statIncreasePerStar.shield && <li className="stat-bonus">+{upgrade.statIncreasePerStar.shield} Escudo Máximo</li>}
+                                          {upgrade.statIncreasePerStar.damage && <li className="stat-bonus">+{upgrade.statIncreasePerStar.damage} Daño</li>}
                                       </ul>
                                   </div>
                                   <div className="upgrade-cost">
@@ -293,7 +327,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
               })}
             </div>
             <div className="vindicator-level-up-section">
-                <h3>NIVEL DEL VINDICATOR (Base)</h3>
+                <h3>NIVEL DEL VINDICATOR ({vindicatorNameMap[vindicator.vindicatorType].split('—')[1] || 'Base'})</h3>
                 <div className="level-up-card">
                     <div className="level-display">NIVEL ACTUAL: <span>{vindicatorLevel}</span></div>
                     {(() => {
@@ -312,14 +346,20 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                                 <div className="level-up-bonus">
                                     <h5>BONIFICACIÓN AL SUBIR DE NIVEL:</h5>
                                     <ul>
-                                        <li>+{nextLevel.statBonus.health} Vida Máxima</li>
-                                        <li>+{nextLevel.statBonus.shield} Escudo Máximo</li>
-                                        <li>+{nextLevel.statBonus.damage} Daño</li>
+                                        <li className="stat-bonus">+{nextLevel.statBonus.health} Vida Máxima</li>
+                                        <li className="stat-bonus">+{nextLevel.statBonus.shield} Escudo Máximo</li>
+                                        <li className="stat-bonus">+{nextLevel.statBonus.damage} Daño</li>
                                     </ul>
                                 </div>
                                 <div className="upgrade-cost">
                                     <h5>COSTE PARA NIVEL {nextLevel.level}:</h5>
-                                    <ul><li className={hasEnoughBlueprints ? 'has-enough' : 'not-enough'}>{blueprintLabel}: {formatNumber(blueprintResource)} / {formatNumber(nextLevel.blueprintCost)}</li></ul>
+                                    <ul className="cost-list">
+                                        <li className={hasEnoughBlueprints ? 'has-enough' : 'not-enough'}>
+                                            <img src={planosIcon} alt={blueprintLabel} className="cost-icon-img" />
+                                            <span>{blueprintLabel}:</span>
+                                            <span>{formatNumber(blueprintResource)} / {formatNumber(nextLevel.blueprintCost)}</span>
+                                        </li>
+                                    </ul>
                                 </div>
                                 <button className={`level-up-button ${hasEnoughBlueprints ? '' : 'disabled'}`} onClick={handleLevelUp} disabled={!hasEnoughBlueprints}>
                                     {hasEnoughBlueprints ? 'SUBIR DE NIVEL' : 'PLANOS INSUFICIENTES'}
@@ -346,10 +386,10 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
               <div className="module-list">
                 {moduleList.map(module => {
                   const costs = module.costs;
-                  const isMK2Costs = 'matrizDeManiobra' in costs;
-                  const canAfford = isMK2Costs
-                    ? (bodegaResources.matrizDeManiobra >= costs.matrizDeManiobra && bodegaResources.placasDeSigilo >= costs.placasDeSigilo && bodegaResources.planosDeInterceptor >= costs.planosDeInterceptor)
-                    : (bodegaResources.matrizCristalina >= costs.matrizCristalina && bodegaResources.IA_Fragmentada >= costs.IA_Fragmentada && bodegaResources.planosMK2 >= costs.planosMK2);
+                  const canAfford = Object.entries(costs).every(([resource, cost]) => {
+                    const resourceKey = resource as keyof typeof bodegaResources;
+                    return bodegaResources[resourceKey] >= (cost as number);
+                  });
                   const isEquipped = Object.values(vindicator.modules).includes(module.id);
                   return (
                     <div key={module.id} className="module-card">
@@ -357,22 +397,24 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                       <p>{module.description}</p>
                       <div className="upgrade-cost">
                         <h5>Coste:</h5>
-                        {isMK2Costs ? (
-                          <ul>
-                            <li className={bodegaResources.matrizDeManiobra < costs.matrizDeManiobra ? 'not-enough' : ''}>Matriz de Maniobra: {costs.matrizDeManiobra}</li>
-                            <li className={bodegaResources.placasDeSigilo < costs.placasDeSigilo ? 'not-enough' : ''}>Placas de Sigilo: {costs.placasDeSigilo}</li>
-                            <li className={bodegaResources.planosDeInterceptor < costs.planosDeInterceptor ? 'not-enough' : ''}>Planos de Interceptor: {costs.planosDeInterceptor}</li>
-                          </ul>
-                        ) : (
-                          <ul>
-                            <li className={bodegaResources.matrizCristalina < costs.matrizCristalina ? 'not-enough' : ''}>Matriz Cristalina: {costs.matrizCristalina}</li>
-                            <li className={bodegaResources.IA_Fragmentada < costs.IA_Fragmentada ? 'not-enough' : ''}>IA Fragmentada: {costs.IA_Fragmentada}</li>
-                            <li className={bodegaResources.planosMK2 < costs.planosMK2 ? 'not-enough' : ''}>Planos MK2: {costs.planosMK2}</li>
-                          </ul>
-                        )}
+                        <ul className="cost-list">
+                          {Object.entries(costs).map(([resource, cost]) => {
+                            const resourceKey = resource as keyof typeof bodegaResources;
+                            const hasEnough = bodegaResources[resourceKey] >= (cost as number);
+                            const icon = resourceIcons[resourceKey];
+                            const label = resourceLabels[resourceKey] || resource;
+                            return (
+                              <li key={resource} className={hasEnough ? 'has-enough' : 'not-enough'}>
+                                {icon && <img src={icon} alt={label} className="cost-icon-img" />}
+                                <span>{label}:</span>
+                                <span>{formatNumber((bodegaResources as any)[resourceKey] || 0)} / {formatNumber(cost as number)}</span>
+                              </li>
+                            );
+                          })}
+                        </ul>
                       </div>
                       <button className={`upgrade-button ${isEquipped ? 'disabled' : ''}`} onClick={() => handleCraftModule(module.id)} disabled={!canAfford || isEquipped}>
-                        {isEquipped ? 'Equipado' : 'Fabricar'}
+                        {isEquipped ? 'Equipado' : (canAfford ? 'Fabricar' : 'Recursos Insuficientes')}
                       </button>
                     </div>
                   );
@@ -380,7 +422,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
               </div>
             </div>
             <div className="vindicator-level-up-section">
-                <h3>NIVEL DEL VINDICATOR {isMK1 ? '(MK.I)' : isMK2 ? '(MK.II)' : isMK3 ? '(MK.III)' : isMK4 ? '(MK.IV)' : isMK5 ? '(MK.V)' : isMK6 ? '(MK.VI)' : isMK7 ? '(MK.VII)' : isMK8 ? '(MK.VIII)' : isMK9 ? '(MK.IX)' : ''}</h3>
+                <h3>NIVEL DEL VINDICATOR ({vindicatorNameMap[vindicator.vindicatorType].split('—')[1] || ''})</h3>
                 <div className="level-up-card">
                     <div className="level-display">NIVEL ACTUAL: <span>{vindicatorLevel}</span></div>
                     {(() => {
@@ -399,14 +441,20 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                                 <div className="level-up-bonus">
                                     <h5>BONIFICACIÓN AL SUBIR DE NIVEL:</h5>
                                     <ul>
-                                        <li>+{nextLevel.statBonus.health} Vida Máxima</li>
-                                        <li>+{nextLevel.statBonus.shield} Escudo Máximo</li>
-                                        <li>+{nextLevel.statBonus.damage} Daño</li>
+                                        <li className="stat-bonus">+{nextLevel.statBonus.health} Vida Máxima</li>
+                                        <li className="stat-bonus">+{nextLevel.statBonus.shield} Escudo Máximo</li>
+                                        <li className="stat-bonus">+{nextLevel.statBonus.damage} Daño</li>
                                     </ul>
                                 </div>
                                 <div className="upgrade-cost">
                                     <h5>COSTE PARA NIVEL {nextLevel.level}:</h5>
-                                    <ul><li className={hasEnoughBlueprints ? 'has-enough' : 'not-enough'}>{blueprintLabel}: {formatNumber(blueprintResource)} / {formatNumber(nextLevel.blueprintCost)}</li></ul>
+                                    <ul className="cost-list">
+                                        <li className={hasEnoughBlueprints ? 'has-enough' : 'not-enough'}>
+                                            <img src={planosIcon} alt={blueprintLabel} className="cost-icon-img" />
+                                            <span>{blueprintLabel}:</span>
+                                            <span>{formatNumber(blueprintResource)} / {formatNumber(nextLevel.blueprintCost)}</span>
+                                        </li>
+                                    </ul>
                                 </div>
                                 <button className={`level-up-button ${hasEnoughBlueprints ? '' : 'disabled'}`} onClick={handleLevelUp} disabled={!hasEnoughBlueprints}>
                                     {hasEnoughBlueprints ? 'SUBIR DE NIVEL' : 'PLANOS INSUFICIENTES'}

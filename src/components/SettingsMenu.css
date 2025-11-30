@@ -81,11 +81,16 @@
   border-color: #F87171;
 }
 
+.god-mode-active {
+  background-color: #d69e2e !important; /* Color dorado */
+  border-color: #f6e05e !important;
+  color: #1a202c !important; /* Texto oscuro para contraste */
+}
+
 .settings-toggle-button {
-  width: 6rem; /* Aumentado otro 10% */
-  height: 6rem; /* Aumentado otro 10% */
+  width: 7.26rem; /* Aumentado otro 10% */
+  height: 7.26rem; /* Aumentado otro 10% */
   border-radius: 50%;
-  border: 2px solid #374151;
   background-color: transparent; /* Fondo transparente para que la imagen sea la protagonista */
   cursor: pointer;
   padding: 0; /* Eliminar padding para que la imagen ocupe todo el espacio */

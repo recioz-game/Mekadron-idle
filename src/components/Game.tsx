@@ -6,8 +6,13 @@ import AuroraMessage from './AuroraMessage';
 import { TICK_INTERVAL } from '../data/gameConfig';
 
 const Game: React.FC = () => {
-  const { gameState, dispatch } = useGame();
+    const { gameState, dispatch } = useGame();
   const lastTick = useRef<number | null>(null);
+
+  // Mensaje de bienvenida de Aurora al iniciar el juego
+  useEffect(() => {
+    dispatch({ type: 'ADD_AURORA_MESSAGE', payload: { message: "Bienvenido, es hora de recoger chatarra.", messageKey: "welcome_message" } });
+  }, [dispatch]);
 
     // Game loop
   useEffect(() => {
@@ -96,8 +101,8 @@ const Game: React.FC = () => {
 
     return (
     <>
-      <GameScene />
-            <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 1000 }}>
+            <GameScene />
+            <div style={{ position: 'fixed', bottom: '2rem', left: '2rem', zIndex: 1000 }}>
         {gameState.aurora.activeMessages.map((msg, index) => (
           <div key={msg.id} style={{ marginBottom: index > 0 ? '1.6rem' : '0' }}>
             <AuroraMessage

@@ -15,9 +15,15 @@ export interface BuildableItem {
   time: number;
   prerequisites?: (state: GameState) => boolean;
   produces?: {
-    resource: keyof GameState['resources'] | keyof GameState['workshop']['drones'] | keyof GameState['energy'] | keyof GameState['storage'];
+    resource: keyof GameState['resources'] | keyof GameState['workshop']['drones'] | keyof GameState['energy'] | keyof GameState['storage'] | keyof GameState['vindicator']['bodegaResources'];
     amount?: number; // Por defecto es 1
   };
+  // Propiedades añadidas para el refactor
+  scrapProduction?: number;
+  energyProduction?: number;
+  energyConsumption?: number;
+  maxScrapBonus?: number;
+  maxEnergyBonus?: number;
 }
 
 export interface ShipyardProject {

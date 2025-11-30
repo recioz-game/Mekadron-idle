@@ -1,194 +1,180 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useGame } from '../context/GameContext';
 import './CombatScene.css';
-import { Bodega } from './Bodega';
+import { enemyAssets, vindicatorAssets } from '../data/assetMap';
+import UnitDisplay from './UnitDisplay';
+import laserVindicatorSfx from '../assets/audio/sfx/Laser vindicator.ogg';
+import laserEnemySfx from '../assets/audio/sfx/laser.wav';
+
+type AnimationPhase = 'idle' | 'playerAttack' | 'enemyDamage' | 'enemyAttack' | 'playerDamage' | 'victory' | 'defeat' | 'transition';
 
 const CombatScene: React.FC = () => {
   const { gameState, dispatch } = useGame();
   const { vindicator, activeBattle } = gameState;
 
-  const [isAutoCombatActive, setIsAutoCombatActive] = useState(false);
-  const [combatSpeed, setCombatSpeed] = useState<'slow' | 'normal' | 'fast'>('normal');
+  const [animationPhase, setAnimationPhase] = useState<AnimationPhase>('idle');
 
-  if (!activeBattle) {
-    // Cuando la batalla termina (activeBattle es null), nos aseguramos de que el combate automático se detenga.
-    if (isAutoCombatActive) {
-      setIsAutoCombatActive(false);
-    }
-    return <div>Cargando batalla...</div>;
-  }
+  // Busca los assets del enemigo y del vindicator en el mapa
+  const enemySprite = activeBattle ? enemyAssets[activeBattle.enemyName] : null;
+  const vindicatorSprite = vindicatorAssets[vindicator.vindicatorType];
 
-  const speedIntervals = {
-    slow: 2000,
-    normal: 1000,
-    fast: 500
-  };
+  const [audioVindicator] = useState(new Audio(laserVindicatorSfx));
+  const [audioEnemy] = useState(new Audio(laserEnemySfx));
 
+
+  const runCombatTurn = useCallback(() => {
+    if (animationPhase !== 'idle' || !activeBattle) return;
+    setAnimationPhase('playerAttack');
+  }, [animationPhase, activeBattle]);
+
+  // Efecto principal que actúa como una máquina de estados para la animación.
+  // Se dispara cada vez que cambia la fase de la animación o el estado de la batalla.
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | null = null;
+    if (!activeBattle) return;
 
-    if (isAutoCombatActive) {
-      interval = setInterval(() => {
-        dispatch({ type: 'PLAYER_ATTACK' });
-      }, speedIntervals[combatSpeed]);
+    // Chequeos de victoria/derrota al inicio de cada evaluación
+    if (activeBattle.enemyCurrentHealth <= 0) {
+      if (animationPhase !== 'victory') setAnimationPhase('victory');
+      return; // Detiene la secuencia
+    }
+    if (vindicator.currentHealth <= 0) {
+      if (animationPhase !== 'defeat') {
+        setAnimationPhase('defeat');
+      }
+      return; // Detiene la secuencia
     }
 
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [isAutoCombatActive, combatSpeed, dispatch]);
+    let timeoutId: number;
 
-  const escapeCombat = () => {
-    setIsAutoCombatActive(false);
-    dispatch({ type: 'ESCAPE_COMBAT' });
-  };
+    switch (animationPhase) {
+      case 'idle':
+        timeoutId = setTimeout(runCombatTurn, 1000); // Pausa entre turnos
+        break;
 
+      case 'playerAttack':
+        audioVindicator.play();
+        timeoutId = setTimeout(() => {
+          dispatch({ type: 'PLAYER_ATTACK' });
+          setAnimationPhase('enemyDamage');
+        }, 500);
+        break;
+
+      case 'enemyDamage':
+        // La comprobación de victoria se hace arriba, aquí solo esperamos para el contraataque
+        timeoutId = setTimeout(() => setAnimationPhase('enemyAttack'), 500);
+        break;
+
+      case 'enemyAttack':
+        audioEnemy.play();
+        timeoutId = setTimeout(() => {
+          dispatch({ type: 'ENEMY_RESPONSE' });
+          setAnimationPhase('playerDamage');
+        }, 500);
+        break;
+
+      case 'playerDamage':
+        // La comprobación de derrota se hace arriba, aquí solo esperamos para el fin de turno
+        timeoutId = setTimeout(() => setAnimationPhase('idle'), 500);
+        break;
+    }
+
+    return () => clearTimeout(timeoutId);
+  }, [animationPhase, activeBattle, vindicator.currentHealth, dispatch, runCombatTurn]);
+
+  // Efecto para iniciar el combate solo una vez cuando la batalla cambia
+  useEffect(() => {
+    if (activeBattle) {
+      setAnimationPhase('idle');
+    }
+  }, [activeBattle?.battleIndex, gameState.battleCount]);
+
+
+  const handleNextBattle = () => {
+    dispatch({ type: 'ADVANCE_TO_NEXT_BATTLE' });
+    setAnimationPhase('transition'); // Previene bucles y espera a que el estado se actualice
+  }
+  
+  if (!activeBattle) {
+    return <div className="combat-scene"><div>Cargando...</div></div>;
+  }
 
   return (
     <div className="combat-scene">
-      {/* Status Indicator */}
-      <div className="combat-status">
-        <span className={`status-indicator ${isAutoCombatActive ? 'running' : 'paused'}`}>
-          Estado: {isAutoCombatActive ? 'En combate' : 'Pausado'}
-        </span>
-      </div>
-
-      {/* Header with Health Bars - Advance Wars Style */}
-      <div className="combat-header">
-        {/* Vindicator Header */}
-        <div className="vindicator-header">
-          <div className="unit-name vindicator-name">VINDICATOR</div>
-          <div className="health-display">
-            <span className="health-label">VIDA:</span>
-            <div className="health-bar-container">
-              <div
-                className="health-fill vindicator-health"
-                style={{ width: `${(vindicator.currentHealth / vindicator.maxHealth) * 100}%` }}
-              ></div>
-            </div>
-            <span className="health-value">
-              {Math.round(vindicator.currentHealth)} / {Math.round(vindicator.maxHealth)}
-            </span>
-          </div>
-          <div className="health-display">
-            <span className="health-label">ESCUDO:</span>
-            <div className="health-bar-container">
-              <div
-                className="shield-fill"
-                style={{ width: `${(vindicator.currentShield / vindicator.maxShield) * 100}%` }}
-              ></div>
-            </div>
-            <span className="health-value">
-              {Math.round(vindicator.currentShield)} / {Math.round(vindicator.maxShield)}
-            </span>
-          </div>
-        </div>
-
-        {/* VS Separator */}
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          fontSize: '1.5rem',
-          fontWeight: 'bold',
-          color: '#ecc94b',
-          textShadow: '2px 2px 0px #000'
-        }}>
-          VS
-        </div>
-
-        {/* Enemy Header */}
-        <div className="enemy-header">
-          <div className="unit-name enemy-name">{activeBattle.enemyName.toUpperCase()}</div>
-          <div className="health-display">
-            <span className="health-label">VIDA:</span>
-            <div className="health-bar-container">
-              <div
-                className="health-fill enemy-health"
-                style={{ width: `${(activeBattle.enemyCurrentHealth / activeBattle.enemyMaxHealth) * 100}%` }}
-              ></div>
-            </div>
-            <span className="health-value">
-              {Math.round(activeBattle.enemyCurrentHealth)} / {Math.round(activeBattle.enemyMaxHealth)}
-            </span>
-          </div>
-          <div className="health-display">
-            <span className="health-label">ESCUDO:</span>
-            <div className="health-bar-container">
-              <div
-                className="shield-fill"
-                style={{ width: `${(activeBattle.enemyCurrentShield / activeBattle.enemyMaxShield) * 100}%` }}
-              ></div>
-            </div>
-            <span className="health-value">
-              {Math.round(activeBattle.enemyCurrentShield)} / {Math.round(activeBattle.enemyMaxShield)}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Combat Area - Split Screen */}
       <div className="combat-area">
-        {/* Vindicator Side */}
-        <div className="combatant vindicator-combatant">
-          <div className="unit-sprite">🚀</div>
-          <div className="unit-stats">
-            <div className="stat-item">DAÑO: {vindicator.damage}</div>
-            <div className="stat-item">TIPO: ASALTO</div>
-            <div className="stat-item">MOV: 6</div>
-            <div className="stat-item">RANGO: 1-2</div>
-          </div>
+        <div className={`combatant vindicator-combatant ${animationPhase === 'playerDamage' ? 'shake' : ''}`}>
+          {vindicatorSprite && (
+            <img 
+              src={(animationPhase === 'playerAttack') ? vindicatorSprite.shooting : vindicatorSprite.idle} 
+              alt="Vindicator" 
+              className="unit-sprite" 
+            />
+          )}
         </div>
 
-        {/* Enemy Side */}
-        <div className="combatant enemy-combatant">
-          <div className="unit-sprite">👾</div>
-          <div className="unit-stats">
-            <div className="stat-item">DAÑO: {activeBattle.enemyCurrentHealth > 0 ? '???' : '0'}</div>
-            <div className="stat-item">TIPO: ENEMIGO</div>
-            <div className="stat-item">MOV: 4</div>
-            <div className="stat-item">RANGO: 1</div>
-          </div>
+        <div className={`combatant enemy-combatant ${animationPhase === 'enemyDamage' ? 'shake' : ''}`}>
+          {enemySprite && (
+            <img 
+              src={(animationPhase === 'enemyAttack') ? enemySprite.shooting : enemySprite.idle} 
+              alt={activeBattle.enemyName} 
+              className="unit-sprite" 
+            />
+          )}
         </div>
       </div>
 
-      {/* Central Combat Controls */}
-      <div className="combat-controls-center">
-        {!isAutoCombatActive ? (
-          <button className="central-action-button" onClick={() => setIsAutoCombatActive(true)}>
-            ▶️ INICIAR COMBATE AUTOMÁTICO
-          </button>
-        ) : (
-          <button className="central-action-button" onClick={() => setIsAutoCombatActive(false)}>
-            ⏸️ PAUSAR COMBATE
-          </button>
-        )}
+      <UnitDisplay
+        name={vindicator.vindicatorType.includes('_') ? vindicator.vindicatorType.split('_')[1].toUpperCase() : vindicator.vindicatorType.toUpperCase()}
+        currentHealth={vindicator.currentHealth}
+        maxHealth={vindicator.maxHealth}
+        currentShield={vindicator.currentShield}
+        maxShield={vindicator.maxShield}
+        alignment="left"
+      />
 
-        <div className="speed-controls-center">
-          <label>Velocidad:</label>
-          <select
-            value={combatSpeed}
-            onChange={(e) => setCombatSpeed(e.target.value as 'slow' | 'normal' | 'fast')}
-            disabled={isAutoCombatActive}
-          >
-            <option value="slow">Lenta</option>
-            <option value="normal">Normal</option>
-            <option value="fast">Rápida</option>
-          </select>
-        </div>
+      <UnitDisplay
+        name={activeBattle.enemyName.toUpperCase()}
+        currentHealth={activeBattle.enemyCurrentHealth}
+        maxHealth={activeBattle.enemyMaxHealth}
+        currentShield={activeBattle.enemyCurrentShield}
+        maxShield={activeBattle.enemyMaxShield}
+        alignment="right"
+      />
 
-        <div className="secondary-actions">
+      {animationPhase === 'victory' && (
+        <>
+          <div className="victory-message">
+            <h2>VICTORIA</h2>
+          </div>
           <button 
-            className="secondary-button escape-button" 
-            onClick={escapeCombat} 
-            disabled={isAutoCombatActive}
+            className="secondary-button escape-button victory-button-left" 
+            onClick={() => dispatch({ type: 'ESCAPE_COMBAT' })}
           >
-            🏃 Escapar
+            Volver al Hangar
           </button>
-        </div>
-      </div>
+          <button 
+            className="central-action-button victory-button-right" 
+            onClick={handleNextBattle}
+          >
+            Siguiente Combate
+          </button>
+        </>
+      )}
+
+      {animationPhase === 'defeat' && (
+        <>
+          <div className="victory-message defeat-message">
+            <h2>DERROTA</h2>
+          </div>
+          <div className="combat-controls-center" style={{ position: 'absolute', bottom: '5%' }}>
+            <button 
+              className="secondary-button escape-button" 
+              onClick={() => dispatch({ type: 'ESCAPE_COMBAT' })}
+            >
+              Volver al Hangar
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };

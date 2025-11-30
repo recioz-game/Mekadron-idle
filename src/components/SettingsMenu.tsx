@@ -115,8 +115,14 @@ const SettingsMenu: React.FC = () => {
           
           <hr style={{ border: 'none', borderBottom: '1px solid #374151', marginBottom: '1rem' }} />
 
-                    {/* --- SECCIÓN DE DESARROLLO --- */}
+                              {/* --- SECCIÓN DE DESARROLLO --- */}
           <strong className="dev-section-title">AJUSTES DE DESARROLLO</strong>
+          <button
+            onClick={() => { dispatch({ type: 'TOGGLE_GOD_MODE' }); setIsOpen(false); }}
+            className={`dev-button ${gameState.godMode ? 'god-mode-active' : ''}`}
+          >
+            Modo Dios: {gameState.godMode ? 'Activado' : 'Desactivado'}
+          </button>
           <button
             onClick={handleDebugUnlock}
             className="dev-button"
@@ -135,59 +141,59 @@ const SettingsMenu: React.FC = () => {
           >
             Finalizar Expediciones
           </button>
-          <button
+                    <button
             onClick={handleDebugUnlockMK1}
             className="dev-button"
           >
-            Desbloquear Vindicator MK.I
+            Desbloquear VM01 — Origin
           </button>
            <button
             onClick={handleDebugUnlockMK2}
             className="dev-button"
                     >
-            Desbloquear Proyecto MK.II
+            Desbloquear VM02 — Interceptor
           </button>
           <button
             onClick={handleDebugUnlockMK3}
             className="dev-button"
                     >
-            Desbloquear Vindicator MK.III
+            Desbloquear VM03 — Devastator
           </button>
           <button
             onClick={handleDebugUnlockMK4}
             className="dev-button"
                     >
-            Desbloquear Vindicator MK.IV
+            Desbloquear VM04 — Reaper
           </button>
           <button
             onClick={handleDebugUnlockMK5}
             className="dev-button"
                     >
-            Desbloquear Vindicator MK.V
+            Desbloquear VM05 — Aegis
           </button>
                     <button
             onClick={handleDebugUnlockMK6}
             className="dev-button"
           >
-            Desbloquear Vindicator MK.VI
+            Desbloquear VM06 — Tempest
           </button>
           <button
             onClick={handleDebugUnlockMK7}
             className="dev-button"
                     >
-            Desbloquear Vindicator MK.VII
+            Desbloquear VM07 — Wraith
           </button>
           <button
             onClick={handleDebugUnlockMK8}
             className="dev-button"
                     >
-            Desbloquear Vindicator MK.VIII
+            Desbloquear VM08 — Phantom
           </button>
           <button
             onClick={handleDebugUnlockMK9}
             className="dev-button"
           >
-            Desbloquear Vindicator MK.IX
+            Desbloquear VM09 — Apex
           </button>
           <button
             onClick={handleResetGame}

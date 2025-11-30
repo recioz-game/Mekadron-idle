@@ -8,6 +8,7 @@ import { useDragToScroll } from '../hooks/useDragToScroll';
 
 interface ShipyardViewProps {
   shipyard: GameState['shipyard'];
+  vindicator: GameState['vindicator'];
   resources: GameState['resources'];
   researchPoints: number;
   blueprints: number;
@@ -16,6 +17,7 @@ interface ShipyardViewProps {
 
 const ShipyardView: React.FC<ShipyardViewProps> = ({ 
   shipyard,
+  vindicator,
   resources,
   researchPoints,
   blueprints,
@@ -24,7 +26,7 @@ const ShipyardView: React.FC<ShipyardViewProps> = ({
     const dispatch = useGameDispatch();
   const scrollRef = useDragToScroll<HTMLDivElement>();
   const currentProject = allShipyardProjects[shipyard.currentProjectIndex];
-  const allResources = { ...resources, researchPoints, blueprints };
+  const allResources = { ...resources, ...vindicator.bodegaResources, researchPoints, blueprints };
 
   const resourceLabels: { [key: string]: string } = {
     scrap: 'Chatarra',

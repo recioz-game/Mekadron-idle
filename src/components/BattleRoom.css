@@ -41,9 +41,18 @@
   text-align: center;
   color: #9CA3AF; /* Un color más suave que el título principal */
   font-size: 1.8rem;
-  margin-top: -1.6rem; /* Reduce el espacio con el título de arriba */
-  margin-bottom: 2.4rem;
+  margin: 0; /* Reseteamos el margen para el contenedor flex */
+  flex-grow: 1; /* Hacemos que el título ocupe el espacio central */
 }
+
+.chapter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Alinea los ítems */
+  margin-bottom: 2.4rem;
+  padding: 0 2rem; /* Añade un poco de padding para que el botón no esté pegado al borde */
+}
+
 
 
 .close-button {
@@ -132,9 +141,25 @@
 
 .destination-details {
   flex-grow: 1;
-  padding: 1.6rem;
+  padding: 2.4rem; /* Aumentamos el padding para más espacio */
   background-color: #1F2937;
   border-radius: 0.4rem;
+}
+
+.destination-details h3 {
+  font-size: 2.2rem; /* Aumentamos el tamaño del título de la zona */
+  margin-bottom: 1rem;
+}
+
+.destination-details p {
+  font-size: 1.6rem; /* Aumentamos el tamaño del lore/descripción */
+  color: #D1D5DB;
+  line-height: 1.7;
+}
+
+.next-battle-info h4 {
+  font-size: 2rem; /* Aumentamos el tamaño de "Próxima Batalla" */
+  color: #FBBF24;
 }
 
 .start-battle-btn {
@@ -152,20 +177,6 @@
 .start-battle-btn:disabled {
   background-color: #9CA3AF;
   cursor: not-allowed;
-}
-
-
-
-.enemy-stats {
-  background: rgba(239, 68, 68, 0.1);
-  border-radius: 0.8rem;
-  padding: 1rem;
-  margin: 1rem 0;
-}
-
-.enemy-stats p {
-  margin: 0.5rem 0;
-  font-size: 1.4rem;
 }
 
 /* Nuevos estilos para recompensas */
@@ -368,6 +379,13 @@
   margin: 0 0 1rem 0;
   font-size: 1.8rem;
   color: #F3F4F6;
+}
+
+.chapter-card-lore {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.4rem;
+  color: #9CA3AF; /* Gris claro para el lore */
+  line-height: 1.6;
 }
 
 .chapter-locked-text {

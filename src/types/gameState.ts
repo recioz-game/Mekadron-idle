@@ -109,8 +109,9 @@ export type DroneType = keyof GameState['workshop']['drones'];
 
 export interface GameState {
   currentScene: 'startMenu' | 'introScene' | 'main' | 'phase2Intro' | 'phase2Main' | 'combatScene';
-  phase2Unlocked: boolean;
+    phase2Unlocked: boolean;
   notificationQueue: GameNotification[];
+  godMode: boolean;
   battleCount: number;
   currentBackground: number; // <-- NUEVA PROP: Fondo actual (1-4)
     resources: {
@@ -214,7 +215,11 @@ export interface GameState {
       algorithmOptimization: number;
       constructionEfficiency: number;
       quantumComputing: number;
-      globalEfficiency: number;
+            globalEfficiency: number;
+
+      // Nuevas propiedades añadidas para consistencia
+      geologicalScanners: number;
+      automatedDistribution: number;
 
       storageOptimization: number;
       storageConstruction: number;
@@ -248,7 +253,7 @@ export interface GameState {
     progress: Record<string, Record<string, number>>;
   };
                                                 vindicator: {
-    vindicatorType: 'base' | 'mk1' | 'mk2_interceptor' | 'mk3_devastator' | 'mk4_reaper' | 'mk5_aegis' | 'mk6_tempest' | 'mk7_wraith' | 'mk8_phantom' | 'mk9_apex';
+    vindicatorType: 'base' | 'vm01_origin' | 'vm02_interceptor' | 'vm03_devastator' | 'vm04_reaper' | 'vm05_aegis' | 'vm06_tempest' | 'vm07_wraith' | 'vm08_phantom' | 'vm09_apex';
     maxHealth: number;
     currentHealth: number;
     maxShield: number;
@@ -267,49 +272,49 @@ export interface GameState {
       nucleoSingularidad: number;
       placasCasco: number;
       cableadoSuperconductor: number;
-      aleacionReforzada: number;
-      neuroChipCorrupto: number;
-      matrizCristalina: number;
-      IA_Fragmentada: number;
-      planosMK2: number;
+            aleacionReforzadaRobada: number;
+            neuroChipCorrupto: number;
+      matrizQuitinaCristal: number;
+      nucleoSinapticoFracturado: number;
+            planosMK2: number;
       // --- CAPITULO 3 ---
-      matrizDeManiobra: number;
-            placasDeSigilo: number;
-        planosDeInterceptor: number;
+      moduloManiobrasTácticas: number;
+            placasCamuflajeActivo: number;
+                planosDeInterceptor: number;
         // --- FIN CAPITULO 3 ---
         // --- CAPITULO 4 ---
-        nucleoDatosArcano: number;
-        placasAdamantioReforzado: number;
-                planosMK3: number;
+        placasDeAetherium: number;
+        nucleoPsionicoArmonico: number;
+                        planosMK3: number;
         // --- FIN CAPITULO 4 ---
         // --- CAPITULO 5 ---
-        tejidoEspaciotemporal: number;
-        singularidadEmbotellada: number;
+        tejidoAbisalRetorcido: number;
+        singularidadCorruptaContenida: number;
                 planosMK4: number;
         // --- FIN CAPITULO 5 ---
         // --- CAPITULO 6 ---
-        esquirlasDeReliquia: number;
-        codexAncestral: number;
+        aleacionReforzadaElite: number;
+        neuroChipCorruptoElite: number;
                 planosMK5: number;
         // --- FIN CAPITULO 6 ---
         // --- CAPITULO 7 ---
-        fragmentoHorizonteSucesos: number;
-        energiaPuntoCero: number;
+        matrizQuitinaCristalElite: number;
+        nucleoSinapticoFracturadoElite: number;
         planosMK6: number;
         // --- FIN CAPITULO 7 ---
         // --- CAPITULO 8 ---
-        esenciaDelVacio: number;
-        reliquiaCorrupta: number;
+        moduloManiobrasTácticasElite: number;
+        placasCamuflajeActivoElite: number;
                 planosMK7: number;
         // --- FIN CAPITULO 8 ---
         // --- CAPITULO 9 ---
-        nucleoEspectral: number;
-        conexionFantasmal: number;
+        placasDeAetheriumElite: number;
+        nucleoPsionicoArmonicoElite: number;
                 planosMK8: number;
         // --- FIN CAPITULO 9 ---
         // --- CAPITULO 10 ---
-        fragmentoDeCiudadela: number;
-        matrizDeOverlord: number;
+        tejidoAbisalRetorcidoElite: number;
+        singularidadCorruptaContenidaElite: number;
         planosMK9: number;
         // --- FIN CAPITULO 10 ---
         barraCombustible: number;
@@ -507,6 +512,7 @@ export interface GameState {
   notificationQueue: [],
   battleCount: 0,
   currentBackground: 1, // <-- NUEVA PROP: Fondo inicial (1)
+  godMode: false,
     resources: {
     scrap: 0,
     energy: 25,
@@ -623,8 +629,11 @@ export interface GameState {
       hullPlateProduction: 0,
       wiringProduction: 0,
       fuelRodProduction: 0,
-      smeltingEfficiency: 0,
+            smeltingEfficiency: 0,
       foundryEnergy: 0,
+      // Propiedades que faltaban en initialGameState
+      geologicalScanners: 0,
+      automatedDistribution: 0,
     }
   },
   energyBuyAmount: 1,
@@ -665,49 +674,49 @@ export interface GameState {
       nucleoSingularidad: 0,
       placasCasco: 0,
       cableadoSuperconductor: 0,
-      aleacionReforzada: 0,
+            aleacionReforzadaRobada: 0,
       neuroChipCorrupto: 0,
-      matrizCristalina: 0,
-      IA_Fragmentada: 0,
-      planosMK2: 0,
+      matrizQuitinaCristal: 0,
+      nucleoSinapticoFracturado: 0,
+            planosMK2: 0,
       // --- CAPITULO 3 ---
-      matrizDeManiobra: 0,
-              placasDeSigilo: 0,
+      moduloManiobrasTácticas: 0,
+              placasCamuflajeActivo: 0,
         planosDeInterceptor: 0,
         // --- FIN CAPITULO 3 ---
         // --- CAPITULO 4 ---
-        nucleoDatosArcano: 0,
-        placasAdamantioReforzado: 0,
+        nucleoPsionicoArmonico: 0,
+        placasDeAetherium: 0,
                 planosMK3: 0,
         // --- FIN CAPITULO 4 ---
         // --- CAPITULO 5 ---
-        tejidoEspaciotemporal: 0,
-        singularidadEmbotellada: 0,
+        tejidoAbisalRetorcido: 0,
+        singularidadCorruptaContenida: 0,
                 planosMK4: 0,
         // --- FIN CAPITULO 5 ---
         // --- CAPITULO 6 ---
-        esquirlasDeReliquia: 0,
-        codexAncestral: 0,
+                aleacionReforzadaElite: 0,
+        neuroChipCorruptoElite: 0,
                 planosMK5: 0,
         // --- FIN CAPITULO 6 ---
         // --- CAPITULO 7 ---
-        fragmentoHorizonteSucesos: 0,
-        energiaPuntoCero: 0,
+        matrizQuitinaCristalElite: 0,
+        nucleoSinapticoFracturadoElite: 0,
         planosMK6: 0,
         // --- FIN CAPITULO 7 ---
         // --- CAPITULO 8 ---
-        esenciaDelVacio: 0,
-        reliquiaCorrupta: 0,
+        moduloManiobrasTácticasElite: 0,
+        placasCamuflajeActivoElite: 0,
                 planosMK7: 0,
         // --- FIN CAPITULO 8 ---
         // --- CAPITULO 9 ---
-        nucleoEspectral: 0,
-        conexionFantasmal: 0,
+        placasDeAetheriumElite: 0,
+        nucleoPsionicoArmonicoElite: 0,
                 planosMK8: 0,
         // --- FIN CAPITULO 9 ---
         // --- CAPITULO 10 ---
-        fragmentoDeCiudadela: 0,
-        matrizDeOverlord: 0,
+        tejidoAbisalRetorcidoElite: 0,
+        singularidadCorruptaContenidaElite: 0,
         planosMK9: 0,
         // --- FIN CAPITULO 10 ---
         barraCombustible: 0,
@@ -840,8 +849,8 @@ export interface GameState {
       description: 'Aumenta la vida máxima del Vindicator',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: {
-        phase1Resources: { aleacionReforzada: 50, neuroChipCorrupto: 25 },
+            costPerStar: {
+        phase1Resources: { aleacionReforzadaRobada: 50, neuroChipCorrupto: 25 },
         phase2Resources: { fragmentosPlaca: 100, circuitosDañados: 50 },
       },
       statIncreasePerStar: { health: 100 }
@@ -853,7 +862,7 @@ export interface GameState {
       maxStars: 10,
       currentStars: 0,
       costPerStar: {
-        phase1Resources: { aleacionReforzada: 40, neuroChipCorrupto: 30 },
+        phase1Resources: { aleacionReforzadaRobada: 40, neuroChipCorrupto: 30 },
         phase2Resources: { fragmentosPlaca: 80, circuitosDañados: 60 },
       },
       statIncreasePerStar: { shield: 50 }
@@ -865,7 +874,7 @@ export interface GameState {
       maxStars: 10,
       currentStars: 0,
       costPerStar: {
-        phase1Resources: { aleacionReforzada: 60, neuroChipCorrupto: 20 },
+        phase1Resources: { aleacionReforzadaRobada: 60, neuroChipCorrupto: 20 },
         phase2Resources: { fragmentosPlaca: 120, circuitosDañados: 40 },
       },
       statIncreasePerStar: { damage: 10 }
@@ -878,7 +887,7 @@ export interface GameState {
       description: 'Aumenta la vida máxima del Interceptor.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { matrizDeManiobra: 50 }, phase2Resources: { placasDeSigilo: 25 } },
+      costPerStar: { phase1Resources: { moduloManiobrasTácticas: 50 }, phase2Resources: { placasCamuflajeActivo: 25 } },
       statIncreasePerStar: { health: 500 }
     },
     phasicShieldGenerator: {
@@ -887,7 +896,7 @@ export interface GameState {
       description: 'Aumenta el escudo máximo del Interceptor.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { matrizDeManiobra: 40 }, phase2Resources: { placasDeSigilo: 35 } },
+      costPerStar: { phase1Resources: { moduloManiobrasTácticas: 40 }, phase2Resources: { placasCamuflajeActivo: 35 } },
       statIncreasePerStar: { shield: 250 }
     },
     pulseIonCannons: {
@@ -896,7 +905,7 @@ export interface GameState {
       description: 'Aumenta el daño del Interceptor.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { matrizDeManiobra: 60 }, phase2Resources: { placasDeSigilo: 20 } },
+      costPerStar: { phase1Resources: { moduloManiobrasTácticas: 60 }, phase2Resources: { placasCamuflajeActivo: 20 } },
             statIncreasePerStar: { damage: 50 }
     }
   },
@@ -907,7 +916,7 @@ export interface GameState {
       description: 'Aumenta la vida máxima del Devastator.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { placasAdamantioReforzado: 50 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { placasDeAetherium: 50 }, phase2Resources: {} },
       statIncreasePerStar: { health: 1000 }
     },
     nucleoArcano: {
@@ -916,7 +925,7 @@ export interface GameState {
       description: 'Aumenta el escudo máximo del Devastator.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { nucleoDatosArcano: 50 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { nucleoPsionicoArmonico: 50 }, phase2Resources: {} },
       statIncreasePerStar: { shield: 500 }
     },
     canonesDeAsedio: {
@@ -925,7 +934,7 @@ export interface GameState {
       description: 'Aumenta el daño del Devastator.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { nucleoDatosArcano: 25, placasAdamantioReforzado: 25 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { nucleoPsionicoArmonico: 25, placasDeAetherium: 25 }, phase2Resources: {} },
             statIncreasePerStar: { damage: 100 }
     }
   },
@@ -936,7 +945,7 @@ export interface GameState {
       description: 'Aumenta la vida máxima del Reaper.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { tejidoEspaciotemporal: 50 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { tejidoAbisalRetorcido: 50 }, phase2Resources: {} },
       statIncreasePerStar: { health: 1500 }
     },
     singularidadContenida: {
@@ -945,7 +954,7 @@ export interface GameState {
       description: 'Aumenta el escudo máximo del Reaper.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { singularidadEmbotellada: 25 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { singularidadCorruptaContenida: 25 }, phase2Resources: {} },
       statIncreasePerStar: { shield: 250 }
     },
     lanzaderaOmega: {
@@ -954,7 +963,7 @@ export interface GameState {
       description: 'Aumenta el daño del Reaper.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { singularidadEmbotellada: 50 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { singularidadCorruptaContenida: 50 }, phase2Resources: {} },
             statIncreasePerStar: { damage: 250 }
     }
   },
@@ -965,7 +974,7 @@ export interface GameState {
       description: 'Aumenta la vida máxima del Aegis.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { esquirlasDeReliquia: 50 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { aleacionReforzadaElite: 50 }, phase2Resources: {} },
       statIncreasePerStar: { health: 3000 }
     },
     esquirlasRegenerativas: {
@@ -974,7 +983,7 @@ export interface GameState {
       description: 'Aumenta el escudo máximo del Aegis.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { esquirlasDeReliquia: 25, codexAncestral: 25 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { aleacionReforzadaElite: 25, neuroChipCorruptoElite: 25 }, phase2Resources: {} },
       statIncreasePerStar: { shield: 1500 }
     },
     codexPotenciado: {
@@ -983,7 +992,7 @@ export interface GameState {
       description: 'Aumenta el daño del Aegis.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { codexAncestral: 50 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { neuroChipCorruptoElite: 50 }, phase2Resources: {} },
             statIncreasePerStar: { damage: 150 }
     }
   },
@@ -994,7 +1003,7 @@ export interface GameState {
       description: 'Aumenta la vida máxima del Tempest.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { fragmentoHorizonteSucesos: 50 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { matrizQuitinaCristalElite: 50 }, phase2Resources: {} },
       statIncreasePerStar: { health: 2000 }
     },
     reactorDePuntoCero: {
@@ -1003,7 +1012,7 @@ export interface GameState {
       description: 'Aumenta el escudo máximo del Tempest.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { energiaPuntoCero: 25 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { nucleoSinapticoFracturadoElite: 25 }, phase2Resources: {} },
       statIncreasePerStar: { shield: 1000 }
     },
     canonesTempest: {
@@ -1012,7 +1021,7 @@ export interface GameState {
       description: 'Aumenta el daño del Tempest.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { energiaPuntoCero: 50 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { nucleoSinapticoFracturadoElite: 50 }, phase2Resources: {} },
       statIncreasePerStar: { damage: 400 }
     }
   },
@@ -1023,7 +1032,7 @@ export interface GameState {
       description: 'Aumenta la vida máxima del Wraith.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { esenciaDelVacio: 50 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { moduloManiobrasTácticasElite: 50 }, phase2Resources: {} },
       statIncreasePerStar: { health: 4000 }
     },
     nucleoDelVacio: {
@@ -1032,7 +1041,7 @@ export interface GameState {
       description: 'Aumenta el escudo máximo del Wraith.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { reliquiaCorrupta: 25 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { placasCamuflajeActivoElite: 25 }, phase2Resources: {} },
       statIncreasePerStar: { shield: 2000 }
     },
     canonesCorruptos: {
@@ -1041,7 +1050,7 @@ export interface GameState {
       description: 'Aumenta el daño del Wraith.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { reliquiaCorrupta: 50 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { placasCamuflajeActivoElite: 50 }, phase2Resources: {} },
             statIncreasePerStar: { damage: 800 }
     }
   },
@@ -1052,7 +1061,7 @@ export interface GameState {
       description: 'Aumenta la vida máxima del Phantom.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { nucleoEspectral: 50 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { placasDeAetheriumElite: 50 }, phase2Resources: {} },
       statIncreasePerStar: { health: 8000 }
     },
     conexionEspectral: {
@@ -1061,7 +1070,7 @@ export interface GameState {
       description: 'Aumenta el escudo máximo del Phantom.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { conexionFantasmal: 25 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { nucleoPsionicoArmonicoElite: 25 }, phase2Resources: {} },
       statIncreasePerStar: { shield: 4000 }
     },
     armasEtéreas: {
@@ -1070,7 +1079,7 @@ export interface GameState {
       description: 'Aumenta el daño del Phantom.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { conexionFantasmal: 50 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { nucleoPsionicoArmonicoElite: 50 }, phase2Resources: {} },
             statIncreasePerStar: { damage: 1600 }
     }
   },
@@ -1081,7 +1090,7 @@ export interface GameState {
       description: 'Aumenta la vida máxima del Apex.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { fragmentoDeCiudadela: 50 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { tejidoAbisalRetorcidoElite: 50 }, phase2Resources: {} },
       statIncreasePerStar: { health: 15000 }
     },
     matrizDefensiva: {
@@ -1090,7 +1099,7 @@ export interface GameState {
       description: 'Aumenta el escudo máximo del Apex.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { matrizDeOverlord: 25 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { singularidadCorruptaContenidaElite: 25 }, phase2Resources: {} },
       statIncreasePerStar: { shield: 7500 }
     },
     canonOverlord: {
@@ -1099,7 +1108,7 @@ export interface GameState {
       description: 'Aumenta el daño del Apex.',
       maxStars: 10,
       currentStars: 0,
-      costPerStar: { phase1Resources: { matrizDeOverlord: 50 }, phase2Resources: {} },
+      costPerStar: { phase1Resources: { singularidadCorruptaContenidaElite: 50 }, phase2Resources: {} },
       statIncreasePerStar: { damage: 3000 }
     }
   },

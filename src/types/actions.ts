@@ -77,8 +77,11 @@ export type ActionType =
   | { type: 'SELECT_CHAPTER'; payload: number }
   | { type: 'BACK_TO_CHAPTER_SELECT' }
   | { type: 'START_BATTLE' }
-  | { type: 'PLAYER_ATTACK' }
+      | { type: 'PLAYER_ATTACK' }
+  | { type: 'ENEMY_RESPONSE' }
+  | { type: 'ADVANCE_TO_NEXT_BATTLE' }
   | { type: 'ESCAPE_COMBAT' }
+  | { type: 'TOGGLE_GOD_MODE' }
     | { type: 'CRAFT_PURIFIED_METAL' }
     | { type: 'DISMANTLE_DRONE'; payload: { droneType: string; amount: number | 'max' } }
   | { type: 'RETROFIT_DRONE'; payload: { fromDrone: DroneType; toDrone: DroneType } }

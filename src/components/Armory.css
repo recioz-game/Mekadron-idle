@@ -1,3 +1,12 @@
+
+.level-up-bonus li.stat-bonus {
+  font-size: 1.6rem; /* Aumenta el tamaño de la fuente */
+  font-weight: bold;
+}
+
+.upgrade-cost .cost-list {
+  margin-top: 1rem; /* Añade espacio entre el título y la lista */
+}
 /* Armory Styles */
 .armory-view {
   padding: 1.6rem;
@@ -280,6 +289,8 @@
 .level-up-bonus,
 .upgrade-cost {
   margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .level-up-bonus h5,
@@ -287,6 +298,7 @@
   margin: 0 0 1rem 0;
   color: #9CA3AF;
   font-size: 1.4rem;
+  text-align: left; /* Align h5 text left */
 }
 
 .level-up-bonus ul,
@@ -297,6 +309,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  width: 100%; /* Make UL full width */
 }
 
 .level-up-bonus li {

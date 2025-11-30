@@ -1,55 +1,42 @@
 import React from 'react';
 import './ModulesPanel.css'; // Importar el archivo CSS
-import missionsButtonUrl from '../assets/images/ui/missions-button.png';
-import workshopButtonUrl from '../assets/images/ui/workshop-button.png';
-import storageButtonUrl from '../assets/images/ui/storage-button.png';
-import energyButtonUrl from '../assets/images/ui/energy-button.png';
-import laboratoryButtonUrl from '../assets/images/ui/tech-center-button.png'; // <-- ACTUALIZADO: Laboratorio
-import foundryButtonUrl from '../assets/images/ui/foundry-button.png';
-import expeditionsButtonUrl from '../assets/images/ui/expeditions-button.png';
-import shipyardButtonUrl from '../assets/images/ui/shipyard-button.png';
-import vindicatorButtonUrl from '../assets/images/ui/Vindicator-button.png';
+import missionsButtonUrl from '../assets/images/ui/buttons/missions-button.png';
+import workshopButtonUrl from '../assets/images/ui/buttons/workshop-button.png';
+import storageButtonUrl from '../assets/images/ui/buttons/storage-button.png';
+import energyButtonUrl from '../assets/images/ui/buttons/energy-button.png';
+import laboratoryButtonUrl from '../assets/images/ui/buttons/tech-center-button.png';
+import foundryButtonUrl from '../assets/images/ui/buttons/foundry-button.png';
+import expeditionsButtonUrl from '../assets/images/ui/buttons/expeditions-button.png';
+import shipyardButtonUrl from '../assets/images/ui/buttons/shipyard-button.png';
+import vindicatorButtonUrl from '../assets/images/ui/buttons/Vindicator-button.png';
 
 interface ModulesPanelProps {
   workshopUnlocked: boolean;
   energyUnlocked: boolean;
   storageUnlocked: boolean;
-  laboratoryUnlocked: boolean; // <-- ACTUALIZADO: Laboratorio
+  laboratoryUnlocked: boolean;
   foundryUnlocked: boolean;
   expeditionsUnlocked: boolean;
   shipyardUnlocked: boolean;
   phase2Unlocked: boolean;
   currentView: string;
   onModuleSelect: (module: string) => void;
-    scrapForUnlock: number;
-  mediumDronesForUnlock: number;
-  advancedSolarForUnlock: number;
-  foundryProtocolsUpgrade: number;
 }
 
 const ModulesPanel: React.FC<ModulesPanelProps> = React.memo(({ 
   workshopUnlocked,
   energyUnlocked,
   storageUnlocked,
-  laboratoryUnlocked, // <-- ACTUALIZADO: Laboratorio
+  laboratoryUnlocked,
   foundryUnlocked,
   expeditionsUnlocked,
   shipyardUnlocked,
   phase2Unlocked,
   currentView,
   onModuleSelect,
-    scrapForUnlock,
-  mediumDronesForUnlock,
-  advancedSolarForUnlock,
-  foundryProtocolsUpgrade
 }) => {
-  
-  
-
   return (
-        <div className="modules-panel">
-
-      {/* Misiones */}
+    <div className="modules-panel">
       <button 
         onClick={() => onModuleSelect('missions')}
         className="module-button"
@@ -60,8 +47,6 @@ const ModulesPanel: React.FC<ModulesPanelProps> = React.memo(({
           className={currentView === 'missions' ? 'active' : ''}
         />
       </button>
-
-      {/* Energía */}
       <button 
         onClick={() => energyUnlocked && onModuleSelect('energy')}
         className="module-button"
@@ -73,8 +58,6 @@ const ModulesPanel: React.FC<ModulesPanelProps> = React.memo(({
           className={currentView === 'energy' ? 'active' : ''}
         />
       </button>
-
-      {/* Taller */}
       <button 
         onClick={() => workshopUnlocked && onModuleSelect('workshop')}
         className="module-button"
@@ -86,8 +69,6 @@ const ModulesPanel: React.FC<ModulesPanelProps> = React.memo(({
           className={currentView === 'workshop' ? 'active' : ''}
         />
       </button>
-
-      {/* Almacén */}
       <button 
         onClick={() => storageUnlocked && onModuleSelect('storage')}
         className="module-button"
@@ -99,20 +80,17 @@ const ModulesPanel: React.FC<ModulesPanelProps> = React.memo(({
           className={currentView === 'storage' ? 'active' : ''}
         />
       </button>
-
-      {/* Laboratorio */}
       <button
         onClick={() => laboratoryUnlocked && onModuleSelect('laboratory')}
-          className="module-button"
+        className="module-button"
         disabled={!laboratoryUnlocked}
-        >
-          <img
+      >
+        <img
           src={laboratoryButtonUrl}
           alt="Laboratorio"
           className={currentView === 'laboratory' ? 'active' : ''}
-          />
-        </button>
-      {/* Fundición */}
+        />
+      </button>
       {foundryUnlocked && (
         <button
           onClick={() => onModuleSelect('foundry')}
@@ -125,8 +103,6 @@ const ModulesPanel: React.FC<ModulesPanelProps> = React.memo(({
           />
         </button>
       )}
-
-      {/* Expediciones */}
       {expeditionsUnlocked && (
         <button
           onClick={() => onModuleSelect('expeditions')}
@@ -139,8 +115,6 @@ const ModulesPanel: React.FC<ModulesPanelProps> = React.memo(({
           />
         </button>
       )}
-      
-      {/* Astillero */}
       {shipyardUnlocked && (
         <button
           onClick={() => onModuleSelect('shipyard')}
@@ -153,8 +127,6 @@ const ModulesPanel: React.FC<ModulesPanelProps> = React.memo(({
           />
         </button>
       )}
-
-      {/* Vindicator */}
       {phase2Unlocked && (
         <button
           onClick={() => onModuleSelect('goToPhase2')}
@@ -166,62 +138,9 @@ const ModulesPanel: React.FC<ModulesPanelProps> = React.memo(({
             className={currentView === 'goToPhase2' ? 'active' : ''}
           />
         </button>
-            )}
-
-      {/* Información de requisitos */}
-      {(!workshopUnlocked || !energyUnlocked || !storageUnlocked || !laboratoryUnlocked || !foundryUnlocked || !expeditionsUnlocked || !shipyardUnlocked) && (
-        <div className="unlock-requirements">
-          <strong>Requisitos de Desbloqueo:</strong>
-                    <ul>
-            {!energyUnlocked && (
-              <li className={scrapForUnlock >= 50 ? 'completed' : 'incomplete'}>
-                {scrapForUnlock >= 50 ? '✅' : '❌'} 50 Chatarra para desbloquear Energía
-              </li>
-            )}
-            {!workshopUnlocked && (
-              <li className={scrapForUnlock >= 75 ? 'completed' : 'incomplete'}>
-                {scrapForUnlock >= 75 ? '✅' : '❌'} 75 Chatarra para desbloquear Taller
-              </li>
-            )}
-            {!storageUnlocked && (
-              <li className={scrapForUnlock >= 100 ? 'completed' : 'incomplete'}>
-                {scrapForUnlock >= 100 ? '✅' : '❌'} 100 Chatarra para desbloquear Almacén
-                </li>
-            )}
-            {!laboratoryUnlocked && (
-              <>
-                <li className={mediumDronesForUnlock >= 3 ? 'completed' : 'incomplete'}>
-                  {mediumDronesForUnlock >= 3 ? '✅' : '❌'} 3 Drones Medios para desbloquear Laboratorio
-                </li>
-                <li className={advancedSolarForUnlock >= 1 ? 'completed' : 'incomplete'}>
-                  {advancedSolarForUnlock >= 1 ? '✅' : '❌'} 1 Panel Solar Avanzado para desbloquear Laboratorio
-              </li>
-                <li className={scrapForUnlock >= 1000 ? 'completed' : 'incomplete'}>
-                  {scrapForUnlock >= 1000 ? '✅' : '❌'} 1000 Chatarra para desbloquear Laboratorio
-                </li>
-              </>
-            )}
-            {!foundryUnlocked && (
-              <li className={foundryProtocolsUpgrade > 0 ? 'completed' : 'incomplete'}>
-                {foundryProtocolsUpgrade > 0 ? '✅' : '❌'} Investigar "Protocolos de Fundición" para desbloquear Fundición
-              </li>
-            )}
-            {!expeditionsUnlocked && (
-              <li className="incomplete">
-                ❌ Construye 1 Dron de Expedición para desbloquear Expediciones
-              </li>
-      )}
-            {!shipyardUnlocked && (
-              <li className="incomplete">
-                ❌ Construye 1 Dron Golem para desbloquear Astillero
-              </li>
-            )}
-          </ul>
-    </div>
       )}
     </div>
   );
 });
 
 export default ModulesPanel;
-

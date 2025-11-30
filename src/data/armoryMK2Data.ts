@@ -10,8 +10,8 @@ export const allArmoryMK2Modules: VindicatorModule[] = [
     slot: 'offensive',
     description: 'Aumenta el multiplicador de daño crítico en un 100% (del 150% base al 250%).',
     costs: {
-      matrizDeManiobra: 100,
-      placasDeSigilo: 50,
+      moduloManiobrasTácticas: 100,
+      placasCamuflajeActivo: 50,
       planosDeInterceptor: 10,
     },
     effects: {
@@ -24,8 +24,8 @@ export const allArmoryMK2Modules: VindicatorModule[] = [
     slot: 'offensive',
     description: 'Otorga un 25% de probabilidad de atacar una segunda vez en el mismo turno con un 50% del daño normal.',
     costs: {
-      matrizDeManiobra: 150,
-      placasDeSigilo: 25,
+      moduloManiobrasTácticas: 150,
+      placasCamuflajeActivo: 25,
       planosDeInterceptor: 10,
     },
     effects: {
@@ -41,8 +41,8 @@ export const allArmoryMK2Modules: VindicatorModule[] = [
     slot: 'defensive',
     description: 'Otorga un 20% de probabilidad de esquivar por completo un ataque enemigo.',
     costs: {
-      matrizDeManiobra: 50,
-      placasDeSigilo: 150,
+      moduloManiobrasTácticas: 50,
+      placasCamuflajeActivo: 150,
       planosDeInterceptor: 10,
     },
     effects: {
@@ -55,8 +55,8 @@ export const allArmoryMK2Modules: VindicatorModule[] = [
     slot: 'defensive',
     description: 'Al inicio del combate, el Vindicator es invisible durante 2 turnos. El primer ataque recibido en este estado falla garantizado.',
     costs: {
-      matrizDeManiobra: 75,
-      placasDeSigilo: 125,
+      moduloManiobrasTácticas: 75,
+      placasCamuflajeActivo: 125,
       planosDeInterceptor: 10,
     },
     effects: {
@@ -71,8 +71,8 @@ export const allArmoryMK2Modules: VindicatorModule[] = [
     slot: 'tactical',
     description: 'Cada ataque ignora un 25% del escudo enemigo, dañando directamente el casco.',
     costs: {
-      matrizDeManiobra: 125,
-      placasDeSigilo: 75,
+      moduloManiobrasTácticas: 125,
+      placasCamuflajeActivo: 75,
       planosDeInterceptor: 10,
     },
     effects: {
@@ -85,8 +85,8 @@ export const allArmoryMK2Modules: VindicatorModule[] = [
     slot: 'tactical',
     description: 'Si el Vindicator esquiva un ataque, su siguiente ataque inflige un 50% más de daño.',
     costs: {
-      matrizDeManiobra: 100,
-      placasDeSigilo: 100,
+      moduloManiobrasTácticas: 100,
+      placasCamuflajeActivo: 100,
       planosDeInterceptor: 10,
     },
     effects: {

@@ -9,10 +9,10 @@ import Armory from './Armory';
 import { Bodega } from './Bodega';
 
 // Importar las imágenes para los botones
-import battleRoomImage from '../assets/images/ui/battle-room-button.png';
-import armoryImage from '../assets/images/ui/armory-button.png';
-import bodegaButtonIcon from '../assets/images/ui/bodega-button.png';
-import returnStationImage from '../assets/images/ui/return-station-button.png';
+import battleRoomImage from '../assets/images/ui/buttons/battle-room-button.png';
+import armoryImage from '../assets/images/ui/buttons/armory-button.png';
+import bodegaButtonIcon from '../assets/images/ui/buttons/bodega-button.png';
+import returnStationImage from '../assets/images/ui/buttons/return-station-button.png';
 
 const Phase2Scene: React.FC = () => {
   const { gameState, dispatch } = useGame();
@@ -36,7 +36,7 @@ const Phase2Scene: React.FC = () => {
         </div>
         
         {/* 3. Panel de Módulos */}
-        <div className="modules-panel">
+        <div className="phase2-modules-panel">
           {/* Módulos de Fase 2 - Ahora con imágenes sin texto ni bordes */}
           <button
             onClick={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'battleRoom' })}

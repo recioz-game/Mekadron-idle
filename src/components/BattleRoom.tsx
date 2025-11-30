@@ -50,6 +50,7 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
           {/* <img src={chapter.imageUrl} alt={chapter.name} className="chapter-image" /> */}
           <div className="chapter-card-content">
             <h3 className="chapter-card-title">{chapter.name}</h3>
+            <p className="chapter-card-lore">{chapter.lore}</p>
             {isLocked ? (
               <p className="chapter-locked-text">Bloqueado</p>
             ) : (
@@ -74,7 +75,6 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
     return (
       <div className="battle-room-content">
         <div className="destination-list-header">
-           <button onClick={() => dispatch({ type: 'BACK_TO_CHAPTER_SELECT' })} className="back-button">‹ Volver a Capítulos</button>
         </div>
         <div className="destination-list">
           {chapter.destinations.map((dest, index) => {
@@ -82,7 +82,9 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
             const totalBattles = dest.battles.length;
             const isCompleted = totalBattles > 0 && battlesCompleted >= totalBattles;
             
+            // Lógica de bloqueo de destinos desactivada para pruebas
             let isLocked = false;
+            /*
             if (index > 0) {
               const prevDestination = chapter.destinations[index - 1];
               const prevBattlesCompleted = gameState.battleRoom.battlesCompleted[index - 1] || 0;
@@ -104,6 +106,7 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
                 isLocked = true;
               }
             }
+            */
 
             return (
               <button
@@ -172,11 +175,6 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
                   <p>{destination.description}</p>
                   <div className="next-battle-info">
                     <h4>Próxima Batalla: {nextBattle.enemyName}</h4>
-                    <div className="enemy-stats">
-                      <p>Vida: {formatNumber(nextBattle.health)}</p>
-                      <p>Escudo: {formatNumber(nextBattle.shield)}</p>
-                      <p>Daño: {formatNumber(nextBattle.damage)}</p>
-                    </div>
                     
                     <div className="battle-rewards">
                       <h5>🎁 Recompensas de Victoria:</h5>
@@ -241,9 +239,12 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
       </div>
       
       {battleRoom.selectedChapterIndex !== null && (
-        <h3 className="battle-view-subtitle">
-          {gameChapters[battleRoom.selectedChapterIndex].name}
-        </h3>
+        <div className="chapter-header">
+          <button onClick={() => dispatch({ type: 'BACK_TO_CHAPTER_SELECT' })} className="back-button">‹ Volver</button>
+          <h3 className="battle-view-subtitle">
+            {gameChapters[battleRoom.selectedChapterIndex].name}
+          </h3>
+        </div>
       )}
       
       {battleRoom.selectedChapterIndex === null 

@@ -1,6 +1,6 @@
 import { GameState } from '../types/gameState';
 
-export const updateVindicatorToMK1 = (state: GameState): GameState => {
+export const updateVindicatorToVM01 = (state: GameState): GameState => {
   const newUpgrades = { ...state.vindicatorUpgrades };
   Object.keys(newUpgrades).forEach(key => {
     (newUpgrades as any)[key].currentStars = 0;
@@ -10,7 +10,7 @@ export const updateVindicatorToMK1 = (state: GameState): GameState => {
     ...state,
     vindicator: {
       ...state.vindicator, // Preservar todas las propiedades de la bodega
-      vindicatorType: 'mk1' as 'mk1',
+      vindicatorType: 'vm01_origin' as 'vm01_origin',
       maxHealth: 1500,
       currentHealth: 1500,
       maxShield: 750,
@@ -41,13 +41,13 @@ export const updateVindicatorToMK1 = (state: GameState): GameState => {
   return newState;
 };
 
-export const updateVindicatorToMK2 = (state: GameState): GameState => {
-  // Transiciona el estado al Vindicator MK2 "Interceptor"
+export const updateVindicatorToVM02 = (state: GameState): GameState => {
+  // Transiciona el estado al Vindicator VM02 "Interceptor"
   const newState = {
     ...state,
     vindicator: {
       ...state.vindicator, // Conserva módulos si los hubiera
-      vindicatorType: 'mk2_interceptor' as 'mk2_interceptor',
+      vindicatorType: 'vm02_interceptor' as 'vm02_interceptor',
       maxHealth: 5200,
       currentHealth: 5200,
       maxShield: 2600,
@@ -78,13 +78,13 @@ export const updateVindicatorToMK2 = (state: GameState): GameState => {
   return newState;
 };
 
-export const updateVindicatorToMK3 = (state: GameState): GameState => {
-  // Transiciona el estado al Vindicator MK3 "Devastator"
+export const updateVindicatorToVM03 = (state: GameState): GameState => {
+  // Transiciona el estado al Vindicator VM03 "Devastator"
   const newState = {
     ...state,
     vindicator: {
       ...state.vindicator,
-      vindicatorType: 'mk3_devastator' as 'mk3_devastator',
+      vindicatorType: 'vm03_devastator' as 'vm03_devastator',
       maxHealth: 15000,
       currentHealth: 15000,
       maxShield: 7500,
@@ -113,13 +113,13 @@ export const updateVindicatorToMK3 = (state: GameState): GameState => {
   return newState;
 };
 
-export const updateVindicatorToMK4 = (state: GameState): GameState => {
-  // Transiciona el estado al Vindicator MK4 "Reaper"
+export const updateVindicatorToVM04 = (state: GameState): GameState => {
+  // Transiciona el estado al Vindicator VM04 "Reaper"
   const newState = {
     ...state,
     vindicator: {
       ...state.vindicator,
-      vindicatorType: 'mk4_reaper' as 'mk4_reaper',
+      vindicatorType: 'vm04_reaper' as 'vm04_reaper',
       maxHealth: 32000,
       currentHealth: 32000,
       maxShield: 16000,
@@ -148,13 +148,13 @@ export const updateVindicatorToMK4 = (state: GameState): GameState => {
   return newState;
 };
 
-export const updateVindicatorToMK5 = (state: GameState): GameState => {
-  // Transiciona el estado al Vindicator MK5 "Aegis"
+export const updateVindicatorToVM05 = (state: GameState): GameState => {
+  // Transiciona el estado al Vindicator VM05 "Aegis"
   const newState = {
     ...state,
     vindicator: {
       ...state.vindicator,
-      vindicatorType: 'mk5_aegis' as 'mk5_aegis',
+      vindicatorType: 'vm05_aegis' as 'vm05_aegis',
       maxHealth: 56000,
       currentHealth: 56000,
       maxShield: 21000,
@@ -183,13 +183,13 @@ export const updateVindicatorToMK5 = (state: GameState): GameState => {
   return newState;
 };
 
-export const updateVindicatorToMK6 = (state: GameState): GameState => {
-  // Transiciona el estado al Vindicator MK6 "Tempest"
+export const updateVindicatorToVM06 = (state: GameState): GameState => {
+  // Transiciona el estado al Vindicator VM06 "Tempest"
   const newState = {
     ...state,
     vindicator: {
       ...state.vindicator,
-      vindicatorType: 'mk6_tempest' as 'mk6_tempest',
+      vindicatorType: 'vm06_tempest' as 'vm06_tempest',
       maxHealth: 105000,
       currentHealth: 105000,
       maxShield: 45000,
@@ -218,12 +218,12 @@ export const updateVindicatorToMK6 = (state: GameState): GameState => {
   return newState;
 };
 
-export const updateVindicatorToMK7 = (state: GameState): GameState => {
+export const updateVindicatorToVM07 = (state: GameState): GameState => {
   const newState = {
     ...state,
     vindicator: {
       ...state.vindicator,
-      vindicatorType: 'mk7_wraith' as 'mk7_wraith',
+      vindicatorType: 'vm07_wraith' as 'vm07_wraith',
       maxHealth: 160000,
       currentHealth: 160000,
       maxShield: 72000,
@@ -252,12 +252,12 @@ export const updateVindicatorToMK7 = (state: GameState): GameState => {
   return newState;
 };
 
-export const updateVindicatorToMK8 = (state: GameState): GameState => {
+export const updateVindicatorToVM08 = (state: GameState): GameState => {
   const newState = {
     ...state,
     vindicator: {
       ...state.vindicator,
-      vindicatorType: 'mk8_phantom' as 'mk8_phantom',
+      vindicatorType: 'vm08_phantom' as 'vm08_phantom',
       maxHealth: 265000,
       currentHealth: 265000,
       maxShield: 125000,
@@ -286,12 +286,12 @@ export const updateVindicatorToMK8 = (state: GameState): GameState => {
   return newState;
 };
 
-export const updateVindicatorToMK9 = (state: GameState): GameState => {
+export const updateVindicatorToVM09 = (state: GameState): GameState => {
   const newState = {
     ...state,
     vindicator: {
       ...state.vindicator,
-      vindicatorType: 'mk9_apex' as 'mk9_apex',
+      vindicatorType: 'vm09_apex' as 'vm09_apex',
       maxHealth: 475000,
       currentHealth: 475000,
       maxShield: 230000,

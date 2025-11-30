@@ -45,3 +45,9 @@ html {
   scrollbar-width: auto;
   scrollbar-color: #4B5563 #1F2937;
 }
+
+/* --- ESTILOS DE TIPOGRAFÍA GLOBALES --- */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 0.05em; /* Un ligero espaciado para un look más "tech" */
+}

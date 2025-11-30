@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, lazy, Suspense } from 'react';
 import './GameScene.css'; // Importar el archivo CSS
 
-import mainThemeAudio from '../assets/audio/main-theme.wav'; // 1. Importar el audio
+import mainThemeAudio from '../assets/audio/music/main-theme.wav'; // 1. Importar el audio
 import { ExpeditionId, ActiveExpedition, DroneType } from '../types/gameState';
 import { useGameState, useGameDispatch } from '../context/GameContext';
 import ResourceBar from './ResourceBar';
@@ -13,11 +13,12 @@ import ModulesPanel from './ModulesPanel';
 // import MissionsPanel from './MissionsPanel'; // Lazy loaded
 // import Laboratory from './Laboratory'; // Lazy loaded
 // import FoundryView from './FoundryView'; // Lazy loaded
-// import ShipyardView from './ShipyardView'; // Lazy loaded
+// import ShipyardView from './ShipyardView'; // Lazy loaded 
 // import ExpeditionView from './ExpeditionView'; // Lazy loaded
 import SettingsMenu from './SettingsMenu';
-import NotificationToast from './NotificationToast';
+
 import FloatingTextHandler from './FloatingTextHandler';
+import UnlockRequirements from './UnlockRequirements';
 
 // Lazy load components
   const Workshop = lazy(() => import('./Workshop.tsx'));
@@ -349,7 +350,7 @@ const GameScene: React.FC = () => {
     }
   };
 
-    return (
+            return (
     <div className="game-scene-container" style={{ backgroundImage: `url(${getBackgroundUrl()})` }}>
       <ResourceBar />
 
@@ -357,17 +358,35 @@ const GameScene: React.FC = () => {
         <div className="energy-warning">
           <strong>Advertencia:</strong> Balance energético negativo. La producción de recursos está detenida.
         </div>
-      )}
+            )}
 
                                     <div className="main-content">
-        <div className="module-container">
-          <Suspense fallback={<div className="loading-module">Cargando Módulo...</div>}>
-            {renderActiveModule()}
-          </Suspense>
+        {/* Contenedor para toda la columna izquierda */}
+        <div className="main-view-wrapper">
+                  {/* El panel de desbloqueos solo se muestra si no hay una vista activa */}
+        {currentView === '' && <UnlockRequirements
+          workshopUnlocked={modules.workshop}
+          energyUnlocked={modules.energy}
+          storageUnlocked={modules.storage}
+          laboratoryUnlocked={modules.techCenter}
+          foundryUnlocked={modules.foundry}
+          expeditionsUnlocked={modules.expeditions}
+          shipyardUnlocked={modules.shipyard}
+          scrapForUnlock={resources.scrap}
+          mediumDronesForUnlock={drones.medium}
+          advancedSolarForUnlock={energy.advancedSolar}
+          foundryProtocolsUpgrade={techCenter.upgrades.foundryProtocols}
+        />}
+          <div className="module-container">
+            <Suspense fallback={<div className="loading-module">Cargando Módulo...</div>}>
+              {renderActiveModule()}
+            </Suspense>
+          </div>
         </div>
 
-                <ModulesPanel
-          workshopUnlocked={modules.workshop} // <-- CORREGIDO
+        {/* El panel de módulos ahora es el segundo hijo directo, forzándolo a la derecha */}
+        <ModulesPanel
+          workshopUnlocked={modules.workshop}
           energyUnlocked={modules.energy}
           storageUnlocked={modules.storage}
           laboratoryUnlocked={modules.techCenter}
@@ -377,20 +396,12 @@ const GameScene: React.FC = () => {
           phase2Unlocked={phase2Unlocked}
           currentView={currentView}
           onModuleSelect={onModuleSelect}
-          scrapForUnlock={resources.scrap}
-          mediumDronesForUnlock={drones.medium}
-          advancedSolarForUnlock={energy.advancedSolar}
-          foundryProtocolsUpgrade={techCenter.upgrades.foundryProtocols}
-        />
+                />
       </div>
 
       <SettingsMenu />
-            <NotificationToast
-        notification={notificationQueue && notificationQueue.length > 0 ? notificationQueue[0] : null}
-        onDismiss={onDismissNotification}
-      />
-      <FloatingTextHandler />
-      <audio ref={audioRef} src={mainThemeAudio} loop />
+<FloatingTextHandler /> 
+<audio ref={audioRef} src={mainThemeAudio} loop />
     </div>
   );
 };

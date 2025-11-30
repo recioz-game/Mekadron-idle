@@ -258,20 +258,16 @@ const loadState = (): GameState => {
     }
 
 
-    // Rehidratar el Set de mensajes de Aurora
-    if (storedState.aurora && Array.isArray(storedState.aurora.shownMessages)) {
-      storedState.aurora.shownMessages = new Set(storedState.aurora.shownMessages);
-    } else if (storedState.aurora) {
-      storedState.aurora.shownMessages = new Set();
-    }
-    console.log("Estado después de la migración:", storedState);
-
-    const mergedState = deepMerge(initialGameState, storedState);
+        const mergedState = deepMerge(initialGameState, storedState);
     console.log("Estado después de la fusión (deepMerge):", mergedState);
     
-    // Rehidratación final del Set
+    // REHIDRATACIÓN FINAL Y DEFINITIVA
+    // Asegurarse de que shownMessages sea siempre un Set antes de calcular los recursos offline
     if (mergedState.aurora && Array.isArray(mergedState.aurora.shownMessages)) {
       mergedState.aurora.shownMessages = new Set(mergedState.aurora.shownMessages);
+    } else if (mergedState.aurora) {
+      // Si no es un array (quizás es undefined o null), inicializarlo como un Set vacío
+      mergedState.aurora.shownMessages = new Set();
     }
 
     console.log("Calculando recursos offline...");

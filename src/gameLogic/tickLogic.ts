@@ -44,47 +44,6 @@ const checkAuroraMessages = (state: GameState): GameState => {
     }
   };
 
-  if (currentScene === 'main' && drones.basic === 0 && resources.scrap < 10 && !newShownMessages.has("initial")) {
-    addMessage("Sistema de reactivación iniciado. Recolecta chatarra para reparar los sistemas dañados de la estación. Consulta las Misiones para tus primeros objetivos.", "initial");
-  }
-    if (drones.basic === 1 && !newShownMessages.has("first_drone")) {
-        addMessage("Unidad de reparación funcional. Eficiencia: 12%. Buen inicio, técnico.", "first_drone");
-    }
-    if (energy.solarPanels === 1 && !newShownMessages.has("first_solar")) {
-        addMessage("Suministro energético estabilizado. Los sistemas de soporte vuelven a responder.", "first_solar");
-    }
-    if (drones.basic >= 5 && !newShownMessages.has("unlock_medium")) {
-        addMessage("Red de drones básicos operativa. Protocolos de ensamblaje medio disponibles en el Taller.", "unlock_medium");
-    }
-    if (drones.medium === 1 && !newShownMessages.has("first_medium")) {
-        addMessage("Eficiencia de recolección incrementada. Continué con la expansión de la flota.", "first_medium");
-    }
-    if (storage.basicStorage === 1 && !newShownMessages.has("first_storage")) {
-        addMessage("Depósitos restaurados. Capacidad de almacenamiento incrementada.", "first_storage");
-    }
-    if (drones.medium >= 3 && energy.advancedSolar >= 1 && 
-        !techCenter.unlocked && !newShownMessages.has("laboratory_available")) {
-        addMessage("He detectado que cumples los requisitos para reactivar el Laboratorio. Podríamos optimizar todos nuestros sistemas desde allí.", "laboratory_available");
-    }
-    if (techCenter.upgrades.reinforcedBasicDrones === 1 && !newShownMessages.has("reinforced_basic_unlocked")) {
-        addMessage("Protocolos de drones reforzados básicos desbloqueados. Ahora podemos construir unidades más resistentes en el Taller.", "reinforced_basic_unlocked");
-    }
-    if (techCenter.upgrades.reinforcedMediumDrones === 1 && !newShownMessages.has("reinforced_medium_unlocked")) {
-        addMessage("Tecnología de drones reforzados medios disponible. La eficiencia de recolección aumentará significativamente.", "reinforced_medium_unlocked");
-    }
-    if (techCenter.upgrades.reinforcedAdvancedDrones === 1 && !newShownMessages.has("reinforced_advanced_unlocked")) {
-        addMessage("Drones reforzados avanzados desbloqueados. Hemos alcanzado la cúspide de la automatización de reciclado.", "reinforced_advanced_unlocked");
-    }
-    if (techCenter.upgrades.researchEfficiency === 1 && !newShownMessages.has("research_efficiency_unlocked")) {
-        addMessage("Algoritmos de investigación optimizados. La generación base de puntos de investigación ha aumentado.", "research_efficiency_unlocked");
-    }
-    if (techCenter.upgrades.advancedAnalysis === 1 && !newShownMessages.has("advanced_analysis_unlocked")) {
-        addMessage("Sistemas de análisis avanzado activados. Los drones ahora contribuyen más a la investigación.", "advanced_analysis_unlocked");
-    }
-    if (techCenter.upgrades.algorithmOptimization === 1 && !newShownMessages.has("algorithm_optimization_unlocked")) {
-        addMessage("Optimización algorítmica completada. La energía sobrante genera significativamente más puntos de investigación.", "algorithm_optimization_unlocked");
-    }
-
   if (!stateChanged) {
     return state;
   }
@@ -100,16 +59,16 @@ const checkAuroraMessages = (state: GameState): GameState => {
 };
   
 
-export const processGameTick = (state: GameState): GameState => {
+export const processGameTick = (state: GameState): GameState & { auroraMessages: { message: string; messageKey: string }[] } => {
 
   const { upgrades } = state.techCenter;
   
   // --- FASE 1: PROCESAR COLAS DE CONSTRUCCIÓN ---
   
   let globalConstructionSpeed = 1 + (upgrades.constructionEfficiency * 0.05);
-  const poweredFabricatorsLevel = (upgrades as any).poweredFabricators || 0;
-  if (poweredFabricatorsLevel > 0 && state.resources.energy > 0 && state.resources.maxEnergy > 0 && state.resources.energy / state.resources.maxEnergy > 0.9) {
-    globalConstructionSpeed *= 1 + (poweredFabricatorsLevel * 0.10);
+  // Ya no se necesita el `|| 0` gracias a la corrección de tipos
+  if (upgrades.poweredFabricators > 0 && state.resources.energy > 0 && state.resources.maxEnergy > 0 && state.resources.energy / state.resources.maxEnergy > 0.9) {
+    globalConstructionSpeed *= 1 + (upgrades.poweredFabricators * 0.10);
   }
 
   const processQueuesForCategory = <
@@ -144,11 +103,11 @@ export const processGameTick = (state: GameState): GameState => {
           } else if (key === 'aceroEstructural') {
             speedMultiplier += (upgrades.steelProductionSpeed || 0) * 0.05;
           } else if (key === 'placasCasco') {
-            speedMultiplier += ((upgrades as any).hullPlateProduction || 0) * 0.05;
+            speedMultiplier += (upgrades.hullPlateProduction || 0) * 0.05;
           } else if (key === 'cableadoSuperconductor') {
-            speedMultiplier += ((upgrades as any).wiringProduction || 0) * 0.05;
+            speedMultiplier += (upgrades.wiringProduction || 0) * 0.05;
           } else if (key === 'barraCombustible') {
-            speedMultiplier += ((upgrades as any).fuelRodProduction || 0) * 0.05;
+            speedMultiplier += (upgrades.fuelRodProduction || 0) * 0.05;
           }
 
           // Aplicar el multiplicador de velocidad (valor > 1 acelera)
@@ -228,27 +187,77 @@ export const processGameTick = (state: GameState): GameState => {
   const prev = stateAfterQueues;
 
   const powerOptimizationMultiplier = 1 - (prev.techCenter.upgrades.powerOptimization * 0.05);
-    const totalEnergyConsumption = (prev.workshop.drones.basic * 1 + prev.workshop.drones.medium * 3 + prev.workshop.drones.advanced * 5 + prev.workshop.drones.reinforcedBasic * 3 + prev.workshop.drones.reinforcedMedium * 6 + prev.workshop.drones.reinforcedAdvanced * 12 + prev.workshop.drones.golem * 50 + prev.workshop.drones.wyrm * 200) * powerOptimizationMultiplier;
+  
+  // Refactor: Calcular el consumo de energía desde gameData
+  let totalEnergyConsumption = 0;
+  for (const key in prev.workshop.drones) {
+    const droneType = key as keyof typeof prev.workshop.drones;
+    const droneCount = prev.workshop.drones[droneType];
+    const droneData = gameData.workshop[droneType];
+    if (droneCount > 0 && droneData && droneData.energyConsumption) {
+      totalEnergyConsumption += droneCount * droneData.energyConsumption;
+    }
+  }
+  totalEnergyConsumption *= powerOptimizationMultiplier;
   
   const energyEfficiencyMultiplier = 1 + (prev.techCenter.upgrades.energyEfficiency * 0.10);
   const coreEfficiencyMultiplier = 1 + (prev.techCenter.upgrades.coreEfficiency * 0.10);
-  const totalEnergyProduction = (prev.energy.solarPanels * 3 + prev.energy.mediumSolarPanels * 10 + prev.energy.advancedSolar * 30) * energyEfficiencyMultiplier + 
-                              (prev.energy.energyCores * 50) * coreEfficiencyMultiplier +
-                              (prev.energy.stabilizedEnergyCores * 75) * coreEfficiencyMultiplier +
-                              (prev.energy.empoweredEnergyCores * 150) * coreEfficiencyMultiplier +
-                              ((prev.energy as any).fusionReactor * 250);
+
+  // Refactor: Calcular la producción de energía desde gameData
+  let totalEnergyProduction = 0;
+  for (const key in prev.energy) {
+    const energySource = key as keyof typeof prev.energy;
+    // Asegurarse de que no estamos procesando las colas aquí
+    if (energySource === 'queues') continue;
+
+    const sourceCount = prev.energy[energySource] as number;
+    const sourceData = (gameData.energy as any)[energySource];
+    
+    if (sourceCount > 0 && sourceData && sourceData.energyProduction) {
+      let multiplier = 1;
+      if (energySource.toLowerCase().includes('core')) {
+        multiplier = coreEfficiencyMultiplier;
+      } else if(energySource !== 'fusionReactor') {
+        multiplier = energyEfficiencyMultiplier;
+      }
+      totalEnergyProduction += sourceCount * sourceData.energyProduction * multiplier;
+    }
+  }
+
   
-  const automatedDistributionMultiplier = 1 + ((prev.techCenter.upgrades as any).automatedDistribution || 0) * 0.05;
+  const automatedDistributionMultiplier = 1 + (upgrades.automatedDistribution || 0) * 0.05;
 
   const baseMaxEnergy = 50;
-  const energyCoreBonus = prev.energy.energyCores * 100 + prev.energy.stabilizedEnergyCores * 150 + prev.energy.empoweredEnergyCores * 300;
-  const fusionReactorBonus = (prev.energy as any).fusionReactor * 1000;
-  const energyStorageBonus = (prev.storage.lithiumIonBattery * 50 + prev.storage.plasmaAccumulator * 250 + prev.storage.harmonicContainmentField * 1200) * (1 + (prev.techCenter.upgrades.energyStorage * 0.10));
-  const totalMaxEnergy = (baseMaxEnergy + energyCoreBonus + fusionReactorBonus + energyStorageBonus) * (1 + (prev.techCenter.upgrades.batteryTech * 0.15)) * automatedDistributionMultiplier;
+  let energyStorageBonus = 0;
+  // Refactor: Calcular bonus de energía desde gameData
+  for (const key in prev.energy) {
+    if (key === 'queues') continue;
+    const itemData = gameData.energy[key];
+    if (itemData && itemData.maxEnergyBonus) {
+      energyStorageBonus += (prev.energy[key as keyof typeof prev.energy] as number) * itemData.maxEnergyBonus;
+    }
+  }
+  for (const key in prev.storage) {
+    if (key === 'queues') continue;
+    const itemData = gameData.storage[key];
+    if (itemData && itemData.maxEnergyBonus) {
+      energyStorageBonus += (prev.storage[key as keyof typeof prev.storage] as number) * itemData.maxEnergyBonus * (1 + (upgrades.energyStorage * 0.10));
+    }
+  }
+  const totalMaxEnergy = (baseMaxEnergy + energyStorageBonus) * (1 + (upgrades.batteryTech * 0.15)) * automatedDistributionMultiplier;
 
   const baseMaxScrap = 150;
-  const storageBonus = (prev.storage.basicStorage * 50 + prev.storage.mediumStorage * 500 + prev.storage.advancedStorage * 5000 + prev.storage.quantumHoardUnit * 50000);
-  const totalMaxScrap = (baseMaxScrap + storageBonus) * (1 + (prev.techCenter.upgrades.storageOptimization * 0.15)) * (1 + (prev.techCenter.upgrades.cargoDrones * 0.10)) * automatedDistributionMultiplier;
+  let storageBonus = 0;
+  // Refactor: Calcular bonus de chatarra desde gameData
+  for (const key in prev.storage) {
+    if (key === 'queues') continue;
+    const itemData = gameData.storage[key];
+    if (itemData && itemData.maxScrapBonus) {
+      storageBonus += (prev.storage[key as keyof typeof prev.storage] as number) * itemData.maxScrapBonus;
+    }
+  }
+  const totalMaxScrap = (baseMaxScrap + storageBonus) * (1 + (upgrades.storageOptimization * 0.15)) * (1 + (upgrades.cargoDrones * 0.10)) * automatedDistributionMultiplier;
+
 
   const hasEnoughEnergy = prev.resources.energy > 0;
   
@@ -280,7 +289,20 @@ export const processGameTick = (state: GameState): GameState => {
   }
 
   const collectionMultiplier = 1 + (prev.techCenter.upgrades.collectionEfficiency * 0.10);
-    const totalScrapProduction = hasEnoughEnergy ? (prev.workshop.drones.basic * 1 + prev.workshop.drones.medium * 5 + prev.workshop.drones.advanced * 20 + prev.workshop.drones.reinforcedBasic * 8 + prev.workshop.drones.reinforcedMedium * 25 + prev.workshop.drones.reinforcedAdvanced * 80) * collectionMultiplier : 0;
+
+  // Refactor: Calcular la producción de chatarra desde gameData
+  let totalScrapProduction = 0;
+  if (hasEnoughEnergy) {
+    for (const key in prev.workshop.drones) {
+      const droneType = key as keyof typeof prev.workshop.drones;
+      const droneCount = prev.workshop.drones[droneType];
+      const droneData = gameData.workshop[droneType];
+      if (droneCount > 0 && droneData && droneData.scrapProduction) {
+        totalScrapProduction += droneCount * droneData.scrapProduction;
+      }
+    }
+    totalScrapProduction *= collectionMultiplier;
+  }
 
   const newEnergy = prev.resources.energy + (totalEnergyProduction - totalEnergyConsumption);
   const clampedEnergy = Math.max(0, Math.min(newEnergy, totalMaxEnergy));
@@ -293,7 +315,21 @@ export const processGameTick = (state: GameState): GameState => {
   
   // Determinar la bodega actual y sus capacidades
   const vindicatorType = prev.vindicator.vindicatorType;
-  const currentBodega = vindicatorType === 'mk1' ? prev.vindicator.bodegaMK1 : vindicatorType === 'mk2_interceptor' ? prev.vindicator.bodegaMK2 : prev.vindicator.bodegaBase;
+  
+  const bodegaMap = {
+    base: prev.vindicator.bodegaBase,
+    vm01_origin: prev.vindicator.bodegaMK1,
+    vm02_interceptor: prev.vindicator.bodegaMK2,
+    vm03_devastator: prev.vindicator.bodegaMK3,
+    vm04_reaper: prev.vindicator.bodegaMK4,
+    vm05_aegis: prev.vindicator.bodegaMK5,
+    vm06_tempest: prev.vindicator.bodegaMK6,
+    vm07_wraith: prev.vindicator.bodegaMK7,
+    vm08_phantom: prev.vindicator.bodegaMK8,
+    vm09_apex: prev.vindicator.bodegaMK9,
+  };
+
+  const currentBodega = bodegaMap[vindicatorType] || prev.vindicator.bodegaBase;
   const capacities = currentBodega.capacities;
 
   // Calcular el total actual de recursos por categoría
@@ -338,9 +374,8 @@ export const processGameTick = (state: GameState): GameState => {
   const newResearchPoints = prev.techCenter.researchPoints + researchPointsToAdd;
 
   let newBodegaResources = { ...prev.vindicator.bodegaResources };
-  const geologicalScannersLevel = (prev.techCenter.upgrades as any).geologicalScanners || 0;
-  if (geologicalScannersLevel > 0 && hasEnoughEnergy) {
-    const findChance = (totalDrones * 0.0001) * geologicalScannersLevel;
+  if (upgrades.geologicalScanners > 0 && hasEnoughEnergy) {
+    const findChance = (totalDrones * 0.0001) * upgrades.geologicalScanners;
     if (Math.random() < findChance) {
       if (Math.random() < 0.5) {
         newBodegaResources.fragmentosPlaca = (prev.vindicator.bodegaResources.fragmentosPlaca || 0) + 1;
@@ -389,27 +424,30 @@ export const processGameTick = (state: GameState): GameState => {
   if (stateAfterStats.workshop.drones.expeditionDrone > 0 && !newModules.expeditions) newModules.expeditions = true;
   if (stateAfterStats.workshop.drones.golem > 0 && !newModules.shipyard) newModules.shipyard = true;
   
-  let newNotifications = [...stateAfterStats.notificationQueue];
-  if (!modulesBefore.workshop && newModules.workshop) newNotifications.push({ id: `workshop-${Date.now()}`, title: 'Módulo de Taller Desbloqueado', message: 'Ahora puedes construir drones para automatizar la recolección de chatarra.' });
-  if (!modulesBefore.energy && newModules.energy) newNotifications.push({ id: `energy-${Date.now()}`, title: 'Módulo de Energía Desbloqueado', message: 'Ahora puedes construir paneles solares para generar energía y alimentar más drones.' });
-  if (!modulesBefore.storage && newModules.storage) newNotifications.push({ id: `storage-${Date.now()}`, title: 'Módulo de Almacenamiento Desbloqueado', message: 'Construye unidades de almacén para aumentar tu capacidad máxima de chatarra y energía.' });
-  if (!modulesBefore.techCenter && newModules.techCenter) newNotifications.push({ id: `laboratory-${Date.now()}`, title: 'Laboratorio Desbloqueado', message: 'Investiga nuevas tecnologías para mejorar tus drones, la producción de energía y mucho más.' });
-  if (!modulesBefore.foundry && newModules.foundry) newNotifications.push({ id: `foundry-${Date.now()}`, title: 'Fundición Desbloqueada', message: 'Refina chatarra en materiales avanzados para construir estructuras y drones más potentes.' });
-  if (!modulesBefore.expeditions && newModules.expeditions) newNotifications.push({ id: `expeditions-${Date.now()}`, title: 'Módulo de Expediciones Desbloqueado', message: 'Envía drones a lo desconocido para encontrar recursos que no se pueden fabricar.' });
-  if (!modulesBefore.shipyard && newModules.shipyard) newNotifications.push({ id: `shipyard-${Date.now()}`, title: 'Astillero Desbloqueado', message: '¡El objetivo final! Dona componentes para reconstruir la nave "Vindicator".' });
-  
-  let finalState = {
+  const auroraMessages: { message: string; messageKey: string }[] = [];
+  if (!modulesBefore.workshop && newModules.workshop) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: `unlock-workshop-${Date.now()}` });
+  if (!modulesBefore.energy && newModules.energy) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: `unlock-energy-${Date.now()}` });
+  if (!modulesBefore.storage && newModules.storage) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: `unlock-storage-${Date.now()}` });
+  if (!modulesBefore.techCenter && newModules.techCenter) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: `unlock-techCenter-${Date.now()}` });
+  if (!modulesBefore.foundry && newModules.foundry) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: `unlock-foundry-${Date.now()}` });
+  if (!modulesBefore.expeditions && newModules.expeditions) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: `unlock-expeditions-${Date.now()}` });
+  if (!modulesBefore.shipyard && newModules.shipyard) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: `unlock-shipyard-${Date.now()}` });
+
+  let stateWithNewModules = {
     ...stateAfterStats,
     modules: newModules,
     techCenter: newTechCenter,
-    notificationQueue: newNotifications
+    notificationQueue: state.notificationQueue, // Mantenemos la cola original sin cambios
   };
   
-  // Actualizar el fondo según el progreso
-  finalState = updateBackground(finalState);
-
+  // Actualizar el fondo y otros mensajes de Aurora
+  let finalState = updateBackground(stateWithNewModules);
   finalState = checkAuroraMessages(finalState);
 
-  return finalState;
+  // Combinar el estado final con los nuevos mensajes de desbloqueo
+  return {
+    ...finalState,
+    auroraMessages,
+  };
 };
 

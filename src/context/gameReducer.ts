@@ -10,7 +10,7 @@ import { ActionType } from '../types/actions';
 import { allArmoryMK1Modules } from '../data/armoryMK1Data';
 import { allArmoryMK2Modules } from '../data/armoryMK2Data';
 import { droneData } from '../data/droneData';
-import { updateVindicatorToMK1, updateVindicatorToMK2, updateVindicatorToMK3, updateVindicatorToMK4, updateVindicatorToMK5, updateVindicatorToMK6, updateVindicatorToMK7, updateVindicatorToMK8, updateVindicatorToMK9 } from '../gameLogic/utils';
+import { updateVindicatorToVM01, updateVindicatorToVM02, updateVindicatorToVM03, updateVindicatorToVM04, updateVindicatorToVM05, updateVindicatorToVM06, updateVindicatorToVM07, updateVindicatorToVM08, updateVindicatorToVM09 } from '../gameLogic/utils';
 import { bodegaData } from '../data/bodegaData';
 import { ResourceCategory } from '../data/categoryData';
 
@@ -295,8 +295,30 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       return state;
     }
 
-            case 'GAME_TICK': {
-      let stateAfterTick = processGameTick(state);
+                        case 'GAME_TICK': {
+      let stateAfterTick = processGameTick(state) as GameState & { auroraMessages?: { message: string; messageKey: string }[] };
+
+      // Procesar los mensajes de Aurora devueltos por tickLogic
+      if (stateAfterTick.auroraMessages && stateAfterTick.auroraMessages.length > 0) {
+        const newPendingMessages = [...stateAfterTick.aurora.pendingMessages];
+        const newShownMessages = new Set(stateAfterTick.aurora.shownMessages);
+
+        stateAfterTick.auroraMessages.forEach(msg => {
+          if (!newShownMessages.has(msg.messageKey)) {
+            newPendingMessages.push({ message: msg.message, key: msg.messageKey });
+            newShownMessages.add(msg.messageKey);
+          }
+        });
+
+        stateAfterTick.aurora = {
+          ...stateAfterTick.aurora,
+          pendingMessages: newPendingMessages,
+          shownMessages: newShownMessages,
+        };
+      }
+      
+      // Limpiar la propiedad temporal
+      delete stateAfterTick.auroraMessages;
 
       // --- Lógica de Cambio de Fondo ---
             // Transición a Phase 1 (fondo 2)
@@ -355,9 +377,10 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       return { ...state, activeExpeditions: finishedExpeditions };
         }
 
-        case 'DEBUG_UNLOCK_VINDICATOR_MK1': {
+            case 'DEBUG_UNLOCK_VINDICATOR_MK1': {
       // Acción atómica para establecer el estado de MK1 directamente
-              const tempState = updateVindicatorToMK1(state);
+                    const tempState = updateVindicatorToVM01(state);
+      tempState.vindicator.bodegaResources.barraCombustible = (tempState.vindicator.bodegaResources.barraCombustible || 0) + 5000;
                   return {
         ...tempState,
         phase2Unlocked: true,
@@ -369,15 +392,15 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       };
     }
 
-        case 'DEBUG_UNLOCK_VINDICATOR_MK2': {
+            case 'DEBUG_UNLOCK_VINDICATOR_MK2': {
       // Acción atómica para establecer el estado de MK2 directamente
       let tempState = state;
       // Primero, asegura que el estado base esté listo para MK2 (p.ej. MK1 desbloqueado)
-      if (tempState.vindicator.vindicatorType !== 'mk1' && tempState.vindicator.vindicatorType !== 'mk2_interceptor') {
-        tempState = updateVindicatorToMK1(tempState);
+      if (tempState.vindicator.vindicatorType !== 'vm01_origin' && tempState.vindicator.vindicatorType !== 'vm02_interceptor') {
+        tempState = updateVindicatorToVM01(tempState);
       }
       // Luego, actualiza a MK2
-      tempState = updateVindicatorToMK2(tempState);
+      tempState = updateVindicatorToVM02(tempState);
 
       return {
         ...tempState,
@@ -390,18 +413,18 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       };
     }
 
-    case 'DEBUG_UNLOCK_VINDICATOR_MK3': {
+        case 'DEBUG_UNLOCK_VINDICATOR_MK3': {
       // Acción atómica para establecer el estado de MK3 directamente
       let tempState = state;
       // Asegurar que se ha pasado por los estados anteriores
       if (tempState.vindicator.vindicatorType === 'base') {
-        tempState = updateVindicatorToMK1(tempState);
+        tempState = updateVindicatorToVM01(tempState);
       }
-      if (tempState.vindicator.vindicatorType === 'mk1') {
-        tempState = updateVindicatorToMK2(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm01_origin') {
+        tempState = updateVindicatorToVM02(tempState);
       }
       // Actualizar a MK3
-      tempState = updateVindicatorToMK3(tempState);
+      tempState = updateVindicatorToVM03(tempState);
 
       return {
         ...tempState,
@@ -414,21 +437,21 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       };
     }
 
-    case 'DEBUG_UNLOCK_VINDICATOR_MK4': {
+        case 'DEBUG_UNLOCK_VINDICATOR_MK4': {
       // Acción atómica para establecer el estado de MK4 directamente
       let tempState = state;
       // Asegurar que se ha pasado por los estados anteriores
       if (tempState.vindicator.vindicatorType === 'base') {
-        tempState = updateVindicatorToMK1(tempState);
+        tempState = updateVindicatorToVM01(tempState);
       }
-      if (tempState.vindicator.vindicatorType === 'mk1') {
-        tempState = updateVindicatorToMK2(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm01_origin') {
+        tempState = updateVindicatorToVM02(tempState);
       }
-      if (tempState.vindicator.vindicatorType === 'mk2_interceptor') {
-        tempState = updateVindicatorToMK3(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm02_interceptor') {
+        tempState = updateVindicatorToVM03(tempState);
       }
       // Actualizar a MK4
-      tempState = updateVindicatorToMK4(tempState);
+      tempState = updateVindicatorToVM04(tempState);
 
       return {
         ...tempState,
@@ -441,13 +464,13 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       };
     }
 
-    case 'DEBUG_UNLOCK_VINDICATOR_MK5': {
+        case 'DEBUG_UNLOCK_VINDICATOR_MK5': {
       let tempState = state;
-      if (tempState.vindicator.vindicatorType === 'base') tempState = updateVindicatorToMK1(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk1') tempState = updateVindicatorToMK2(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk2_interceptor') tempState = updateVindicatorToMK3(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk3_devastator') tempState = updateVindicatorToMK4(tempState);
-      tempState = updateVindicatorToMK5(tempState);
+      if (tempState.vindicator.vindicatorType === 'base') tempState = updateVindicatorToVM01(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm01_origin') tempState = updateVindicatorToVM02(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm02_interceptor') tempState = updateVindicatorToVM03(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm03_devastator') tempState = updateVindicatorToVM04(tempState);
+      tempState = updateVindicatorToVM05(tempState);
 
       return {
         ...tempState,
@@ -460,14 +483,14 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       };
     }
 
-    case 'DEBUG_UNLOCK_VINDICATOR_MK6': {
+        case 'DEBUG_UNLOCK_VINDICATOR_MK6': {
       let tempState = state;
-      if (tempState.vindicator.vindicatorType === 'base') tempState = updateVindicatorToMK1(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk1') tempState = updateVindicatorToMK2(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk2_interceptor') tempState = updateVindicatorToMK3(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk3_devastator') tempState = updateVindicatorToMK4(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk4_reaper') tempState = updateVindicatorToMK5(tempState);
-      tempState = updateVindicatorToMK6(tempState);
+      if (tempState.vindicator.vindicatorType === 'base') tempState = updateVindicatorToVM01(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm01_origin') tempState = updateVindicatorToVM02(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm02_interceptor') tempState = updateVindicatorToVM03(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm03_devastator') tempState = updateVindicatorToVM04(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm04_reaper') tempState = updateVindicatorToVM05(tempState);
+      tempState = updateVindicatorToVM06(tempState);
 
       return {
         ...tempState,
@@ -480,15 +503,15 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       };
     }
 
-    case 'DEBUG_UNLOCK_VINDICATOR_MK7': {
+        case 'DEBUG_UNLOCK_VINDICATOR_MK7': {
       let tempState = state;
-      if (tempState.vindicator.vindicatorType === 'base') tempState = updateVindicatorToMK1(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk1') tempState = updateVindicatorToMK2(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk2_interceptor') tempState = updateVindicatorToMK3(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk3_devastator') tempState = updateVindicatorToMK4(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk4_reaper') tempState = updateVindicatorToMK5(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk5_aegis') tempState = updateVindicatorToMK6(tempState);
-      tempState = updateVindicatorToMK7(tempState);
+      if (tempState.vindicator.vindicatorType === 'base') tempState = updateVindicatorToVM01(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm01_origin') tempState = updateVindicatorToVM02(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm02_interceptor') tempState = updateVindicatorToVM03(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm03_devastator') tempState = updateVindicatorToVM04(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm04_reaper') tempState = updateVindicatorToVM05(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm05_aegis') tempState = updateVindicatorToVM06(tempState);
+      tempState = updateVindicatorToVM07(tempState);
 
       return {
         ...tempState,
@@ -501,16 +524,16 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       };
     }
 
-    case 'DEBUG_UNLOCK_VINDICATOR_MK8': {
+        case 'DEBUG_UNLOCK_VINDICATOR_MK8': {
       let tempState = state;
-      if (tempState.vindicator.vindicatorType === 'base') tempState = updateVindicatorToMK1(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk1') tempState = updateVindicatorToMK2(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk2_interceptor') tempState = updateVindicatorToMK3(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk3_devastator') tempState = updateVindicatorToMK4(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk4_reaper') tempState = updateVindicatorToMK5(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk5_aegis') tempState = updateVindicatorToMK6(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk6_tempest') tempState = updateVindicatorToMK7(tempState);
-      tempState = updateVindicatorToMK8(tempState);
+      if (tempState.vindicator.vindicatorType === 'base') tempState = updateVindicatorToVM01(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm01_origin') tempState = updateVindicatorToVM02(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm02_interceptor') tempState = updateVindicatorToVM03(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm03_devastator') tempState = updateVindicatorToVM04(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm04_reaper') tempState = updateVindicatorToVM05(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm05_aegis') tempState = updateVindicatorToVM06(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm06_tempest') tempState = updateVindicatorToVM07(tempState);
+      tempState = updateVindicatorToVM08(tempState);
 
       return {
         ...tempState,
@@ -523,17 +546,17 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       };
     }
 
-    case 'DEBUG_UNLOCK_VINDICATOR_MK9': {
+        case 'DEBUG_UNLOCK_VINDICATOR_MK9': {
       let tempState = state;
-      if (tempState.vindicator.vindicatorType === 'base') tempState = updateVindicatorToMK1(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk1') tempState = updateVindicatorToMK2(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk2_interceptor') tempState = updateVindicatorToMK3(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk3_devastator') tempState = updateVindicatorToMK4(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk4_reaper') tempState = updateVindicatorToMK5(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk5_aegis') tempState = updateVindicatorToMK6(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk6_tempest') tempState = updateVindicatorToMK7(tempState);
-      if (tempState.vindicator.vindicatorType === 'mk7_wraith') tempState = updateVindicatorToMK8(tempState);
-      tempState = updateVindicatorToMK9(tempState);
+      if (tempState.vindicator.vindicatorType === 'base') tempState = updateVindicatorToVM01(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm01_origin') tempState = updateVindicatorToVM02(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm02_interceptor') tempState = updateVindicatorToVM03(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm03_devastator') tempState = updateVindicatorToVM04(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm04_reaper') tempState = updateVindicatorToVM05(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm05_aegis') tempState = updateVindicatorToVM06(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm06_tempest') tempState = updateVindicatorToVM07(tempState);
+      if (tempState.vindicator.vindicatorType === 'vm07_wraith') tempState = updateVindicatorToVM08(tempState);
+      tempState = updateVindicatorToVM09(tempState);
 
       return {
         ...tempState,
@@ -607,75 +630,45 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
             });
           });
 
-          newState.shipyard = {
+                    newState.shipyard = {
             ...shipyard,
             currentProjectIndex: nextProjectIndex,
             progress: newEmptyProgress,
           };
           
-                                        if (currentProject.id === 'vindicator_base') {
-                        newState.phase2Unlocked = true;
+          // Unificar todos los mensajes de construcción en uno solo de Aurora
+          const auroraMessage = {
+            message: "Nueva nave de combate construida. ¡A combatir!",
+            messageKey: `ship-built-${currentProject.id}-${Date.now()}`
+          };
+          
+          // Actualizar estado del Vindicator según el proyecto
+          if (currentProject.id === 'vindicator_base') {
+            newState.phase2Unlocked = true;
             newState.currentScene = 'phase2Intro';
             newState.vindicator.bodegaResources.barraCombustible = (newState.vindicator.bodegaResources.barraCombustible || 0) + 500;
-            newState.notificationQueue = [
-              ...state.notificationQueue,
-              { id: `vindicator-built-${Date.now()}`, title: '¡Vindicator Construido!', message: 'La Fase 2 está ahora disponible. ¡Accede a la Sala de Batalla!' }
-            ];
-                                                                                          } else if (currentProject.id === 'vindicator_mk1') {
-            newState = updateVindicatorToMK1(newState);
-                        newState.notificationQueue = [
-              ...state.notificationQueue,
-              { id: `mk1-built-${Date.now()}`, title: '¡Vindicator Mk.I Construido!', message: 'Tu nave ha sido mejorada a un nuevo chasis. El sistema de mejoras anterior ha sido completado.' }
-            ];
-                    } else if (currentProject.id === 'vindicator_mk2_interceptor') {
-            newState = updateVindicatorToMK2(newState);
-            newState.notificationQueue = [
-              ...state.notificationQueue,
-              { id: `mk2-built-${Date.now()}`, title: '¡Vindicator MK2 "Interceptor" Construido!', message: 'Tu nave ahora es un Interceptor, optimizado para la velocidad y el sigilo.' }
-            ];
-                    } else if (currentProject.id === 'vindicator_mk3_devastator') {
-            newState = updateVindicatorToMK3(newState);
-            newState.notificationQueue = [
-              ...state.notificationQueue,
-              { id: `mk3-built-${Date.now()}`, title: '¡Vindicator MK3 "Devastator" Construido!', message: 'Tu nave ha sido reconstruida como una plataforma de asalto pesado.' }
-            ];
-                    } else if (currentProject.id === 'vindicator_mk4_reaper') {
-            newState = updateVindicatorToMK4(newState);
-            newState.notificationQueue = [
-              ...state.notificationQueue,
-              { id: `mk4-built-${Date.now()}`, title: '¡Vindicator MK4 "Reaper" Construido!', message: 'Tu nave ahora es un cañón de cristal, imbuido con poder de singularidad.' }
-            ];
-                    } else if (currentProject.id === 'vindicator_mk5_aegis') {
-            newState = updateVindicatorToMK5(newState);
-            newState.notificationQueue = [
-              ...state.notificationQueue,
-              { id: `mk5-built-${Date.now()}`, title: '¡Vindicator MK5 "Aegis" Construido!', message: 'Tu nave ha alcanzado la cima de la tecnología defensiva.' }
-            ];
+          } else if (currentProject.id === 'vindicator_mk1') {
+            newState = updateVindicatorToVM01(newState);
+          } else if (currentProject.id === 'vindicator_mk2_interceptor') {
+            newState = updateVindicatorToVM02(newState);
+          } else if (currentProject.id === 'vindicator_mk3_devastator') {
+            newState = updateVindicatorToVM03(newState);
+          } else if (currentProject.id === 'vindicator_mk4_reaper') {
+            newState = updateVindicatorToVM04(newState);
+          } else if (currentProject.id === 'vindicator_mk5_aegis') {
+            newState = updateVindicatorToVM05(newState);
           } else if (currentProject.id === 'vindicator_mk6_tempest') {
-                        newState = updateVindicatorToMK6(newState);
-            newState.notificationQueue = [
-              ...state.notificationQueue,
-              { id: `mk6-built-${Date.now()}`, title: '¡Vindicator MK6 "Tempest" Construido!', message: 'Una tormenta de poder inestable está ahora a tu disposición.' }
-            ];
+            newState = updateVindicatorToVM06(newState);
           } else if (currentProject.id === 'vindicator_mk7_wraith') {
-            newState = updateVindicatorToMK7(newState);
-                        newState.notificationQueue = [
-              ...state.notificationQueue,
-              { id: `mk7-built-${Date.now()}`, title: '¡Vindicator MK7 "Wraith" Construido!', message: 'Has dominado los ecos del vacío para crear una nave fantasmal.' }
-            ];
+            newState = updateVindicatorToVM07(newState);
           } else if (currentProject.id === 'vindicator_mk8_phantom') {
-            newState = updateVindicatorToMK8(newState);
-                        newState.notificationQueue = [
-              ...state.notificationQueue,
-              { id: `mk8-built-${Date.now()}`, title: '¡Vindicator MK8 "Phantom" Construido!', message: 'Tu nave ahora puede caminar entre dimensiones, una verdadera aparición.' }
-            ];
+            newState = updateVindicatorToVM08(newState);
           } else if (currentProject.id === 'vindicator_mk9_apex') {
-            newState = updateVindicatorToMK9(newState);
-            newState.notificationQueue = [
-              ...state.notificationQueue,
-              { id: `mk9-built-${Date.now()}`, title: '¡Vindicator MK9 "Apex" Construido!', message: 'Has alcanzado la cima de la tecnología. Eres imparable.' }
-            ];
+            newState = updateVindicatorToVM09(newState);
           }
+          
+          // Llamada recursiva para añadir el mensaje de Aurora
+          return gameReducer(newState, { type: 'ADD_AURORA_MESSAGE', payload: auroraMessage });
         }
         return newState;
       }
@@ -968,18 +961,20 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
           };
 
           let notificationMessage = "Recompensas obtenidas: ";
-                    for (const [resource, range] of Object.entries(expeditionData.rewards)) {
-            const [min, max] = range as [number, number];
-            const amount = Math.floor(Math.random() * (max - min + 1)) + min;
-            const resourceKey = resource as keyof typeof newBodegaResources;
-            (newBodegaResources[resourceKey] as number) = (newBodegaResources[resourceKey] || 0) + amount;
-            
-            const resourceName = resourceNames[resource] || resource;
-            notificationMessage += `${amount} de ${resourceName}, `;
-          }
+                              let auroraMessage = {
+            message: "Expedición finalizada con éxito.",
+            messageKey: `exp-success-${Date.now()}`
+          };
+          
+          const newState = {
+            ...state,
+            vindicator: { ...state.vindicator, bodegaResources: newBodegaResources },
+            activeExpeditions: remainingExpeditions
+          };
 
-          return { ...state, vindicator: { ...state.vindicator, bodegaResources: newBodegaResources }, activeExpeditions: remainingExpeditions, notificationQueue: [...state.notificationQueue, { id: `exp-success-${Date.now()}`, title: `Éxito en ${expeditionData.title}`, message: notificationMessage.slice(0, -2) }] };
-                } else {
+          // Llamada recursiva para añadir el mensaje de Aurora
+          return gameReducer(newState, { type: 'ADD_AURORA_MESSAGE', payload: auroraMessage });
+        } else {
           const droneSelfRepairLevel = state.techCenter.upgrades.droneSelfRepair || 0;
           const survivalChance = droneSelfRepairLevel * 0.10; // 10% por nivel
           
@@ -997,12 +992,12 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
           const finalDronesLost = initialDronesLost - dronesSurvived;
           const droneType = expeditionData.droneType;
           
-          let message = `La expedición fracasó. Se han perdido ${finalDronesLost} drones.`;
-          if (dronesSurvived > 0) {
-            message += ` ¡Pero ${dronesSurvived} lograron regresar gracias a los autómatas de auto-reparación!`;
-          }
+          let auroraMessage = {
+            message: "La expedición ha fracasado.",
+            messageKey: `exp-fail-${Date.now()}`
+          };
 
-          return {
+          const newState = {
             ...state,
             workshop: {
               ...state.workshop,
@@ -1012,15 +1007,10 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
               },
             },
             activeExpeditions: remainingExpeditions,
-            notificationQueue: [
-              ...state.notificationQueue,
-              {
-                id: `exp-fail-${Date.now()}`,
-                title: `Fracaso en ${expeditionData.title}`,
-                message: message,
-              },
-            ],
           };
+          
+          // Llamada recursiva para añadir el mensaje de Aurora
+          return gameReducer(newState, { type: 'ADD_AURORA_MESSAGE', payload: auroraMessage });
         }
     }
 
@@ -1063,29 +1053,29 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
 
       if (!moduleData) return state;
 
-      const { vindicator } = state;
+                  const { vindicator } = state;
             const costs = moduleData.costs;
       
-      const isMK2Module = 'matrizDeManiobra' in costs;
+      const isMK2Module = 'moduloManiobrasTácticas' in costs;
 
       const canAfford = isMK2Module
-        ? (vindicator.bodegaResources.matrizDeManiobra >= costs.matrizDeManiobra &&
-           vindicator.bodegaResources.placasDeSigilo >= costs.placasDeSigilo &&
+        ? (vindicator.bodegaResources.moduloManiobrasTácticas >= costs.moduloManiobrasTácticas &&
+           vindicator.bodegaResources.placasCamuflajeActivo >= costs.placasCamuflajeActivo &&
            vindicator.bodegaResources.planosDeInterceptor >= costs.planosDeInterceptor)
-        : (vindicator.bodegaResources.matrizCristalina >= costs.matrizCristalina &&
-           vindicator.bodegaResources.IA_Fragmentada >= costs.IA_Fragmentada &&
+        : (vindicator.bodegaResources.matrizQuitinaCristal >= costs.matrizQuitinaCristal &&
+           vindicator.bodegaResources.nucleoSinapticoFracturado >= costs.nucleoSinapticoFracturado &&
            vindicator.bodegaResources.planosMK2 >= costs.planosMK2);
       
       if (!canAfford) return state;
 
       const newBodegaResources = { ...vindicator.bodegaResources };
       if (isMK2Module) {
-        newBodegaResources.matrizDeManiobra -= costs.matrizDeManiobra;
-        newBodegaResources.placasDeSigilo -= costs.placasDeSigilo;
+        newBodegaResources.moduloManiobrasTácticas -= costs.moduloManiobrasTácticas;
+        newBodegaResources.placasCamuflajeActivo -= costs.placasCamuflajeActivo;
         newBodegaResources.planosDeInterceptor -= costs.planosDeInterceptor;
       } else {
-        newBodegaResources.matrizCristalina -= costs.matrizCristalina;
-        newBodegaResources.IA_Fragmentada -= costs.IA_Fragmentada;
+        newBodegaResources.matrizQuitinaCristal -= costs.matrizQuitinaCristal;
+        newBodegaResources.nucleoSinapticoFracturado -= costs.nucleoSinapticoFracturado;
         newBodegaResources.planosMK2 -= costs.planosMK2;
       }
 
@@ -1160,21 +1150,21 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       return state;
     }
 
-                case 'UPGRADE_BODEGA_CATEGORY': {
+                    case 'UPGRADE_BODEGA_CATEGORY': {
       const { category } = action.payload;
       const { vindicator } = state;
       const vindicatorType = vindicator.vindicatorType;
       
                         let type: 'base' | 'mk1' | 'mk2' | 'mk3' | 'mk4' | 'mk5' | 'mk6' | 'mk7' | 'mk8' | 'mk9';
-      if (vindicatorType === 'mk1') type = 'mk1';
-      else if (vindicatorType === 'mk2_interceptor') type = 'mk2';
-      else if (vindicatorType === 'mk3_devastator') type = 'mk3';
-      else if (vindicatorType === 'mk4_reaper') type = 'mk4';
-      else if (vindicatorType === 'mk5_aegis') type = 'mk5';
-      else if (vindicatorType === 'mk6_tempest') type = 'mk6';
-      else if (vindicatorType === 'mk7_wraith') type = 'mk7';
-      else if (vindicatorType === 'mk8_phantom') type = 'mk8';
-      else if (vindicatorType === 'mk9_apex') type = 'mk9';
+            if (vindicatorType === 'vm01_origin') type = 'mk1';
+      else if (vindicatorType === 'vm02_interceptor') type = 'mk2';
+      else if (vindicatorType === 'vm03_devastator') type = 'mk3';
+      else if (vindicatorType === 'vm04_reaper') type = 'mk4';
+      else if (vindicatorType === 'vm05_aegis') type = 'mk5';
+      else if (vindicatorType === 'vm06_tempest') type = 'mk6';
+      else if (vindicatorType === 'vm07_wraith') type = 'mk7';
+      else if (vindicatorType === 'vm08_phantom') type = 'mk8';
+      else if (vindicatorType === 'vm09_apex') type = 'mk9';
       else type = 'base';
       
       const bodegaConfig = bodegaData[type]?.[category as ResourceCategory];
@@ -1215,6 +1205,13 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         };
       }
       return state;
+    }
+    
+    case 'TOGGLE_GOD_MODE': {
+      return {
+        ...state,
+        godMode: !state.godMode
+      };
     }
 
 

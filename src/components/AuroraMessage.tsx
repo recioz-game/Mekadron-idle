@@ -33,72 +33,57 @@ const AuroraMessage: React.FC<AuroraMessageProps> = ({
     setIsVisible(false);
     // Esperar a que termine la animación de salida antes de llamar a onClose
     setTimeout(onClose, 300);
-  };
+    };
 
   return (
-        <div style={{
+    <div style={{
       maxWidth: '40rem',
-      backgroundColor: '#111827',
-      color: '#E5E7EB',
-      padding: '1.6rem',
-      borderRadius: '0.8rem',
-      border: '2px solid #06B6D4',
-      boxShadow: '0 0.4rem 1.2rem rgba(0,0,0,0.5)',
-      transform: isVisible ? 'translateX(0)' : 'translateX(100%)',
+      minHeight: '18rem',
+      position: 'relative',
+      fontFamily: 'Inter, sans-serif',
+      transform: isVisible ? 'translateX(0)' : 'translateX(-100%)',
       opacity: isVisible ? 1 : 0,
       transition: 'all 0.3s ease-in-out',
-      fontFamily: 'Inter, sans-serif'
+      
+      boxSizing: 'border-box',
+      backgroundImage: `url('src/assets/images/ui/buttons/aurora-message-panel.png')`,
+      backgroundSize: '100% 100%',
+      backgroundRepeat: 'no-repeat',
+
+      // --- ESTA ES LA ÚNICA LÍNEA QUE NECESITAS ---
+      // Mueve la caja que contiene el texto Y la cruceta JUNTOS.
+      padding: '10rem 5rem 3rem 5rem'
     }}>
-      <div style={{
-                display: 'flex',
-        alignItems: 'flex-start',
-        gap: '1.2rem'
-      }}>
-                <div style={{
-          width: '3.2rem',
-          height: '3.2rem',
-          backgroundColor: '#06B6D4',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-          fontSize: '1.8rem',
-          fontWeight: 'bold'
+            {/* Contenido en dos filas separadas */}
+      <div>
+        {/* Fila 1: Botón */}
+        <div style={{ textAlign: 'right', marginBottom: '1rem' /* Espacio entre botón y texto */ }}>
+          <button 
+            onClick={handleClose}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#06B6D4', // Azul fluorescente
+              textShadow: '0 0 5px rgba(6, 182, 212, 0.7)', // Efecto de brillo
+              cursor: 'pointer',
+              fontSize: '2.5rem',
+              padding: '0',
+              lineHeight: '1'
+            }}
+          >
+            ×
+          </button>
+        </div>
+        
+        {/* Fila 2: Texto */}
+        <p style={{ 
+          margin: 0, 
+          lineHeight: '1.4',
+          fontSize: '1.4rem',
+          color: '#E5E7EB',
         }}>
-          A
-        </div>
-        <div style={{ flex: 1 }}>
-          <div style={{
-                        display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            marginBottom: '0.8rem'
-          }}>
-            <strong style={{ color: '#06B6D4' }}>AURORA</strong>
-            <button 
-              onClick={handleClose}
-              style={{
-                background: 'none',
-                border: 'none',
-                                color: '#9CA3AF',
-                cursor: 'pointer',
-                fontSize: '2rem',
-                padding: '0 0.4rem',
-                marginLeft: '1.6rem'
-              }}
-            >
-              ×
-            </button>
-          </div>
-                    <p style={{ 
-            margin: 0, 
-            lineHeight: '1.4',
-            fontSize: '1.4rem'
-          }}>
-            {message}
-          </p>
-        </div>
+          {message}
+        </p>
       </div>
     </div>
   );

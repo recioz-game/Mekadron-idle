@@ -1,13 +1,15 @@
 /* Advance Wars Style Combat Scene */
 .combat-scene {
-  display: grid;
-  grid-template-rows: auto 1fr auto auto;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  display: flex; /* Cambiado a flex */
+  flex-direction: column;
+  justify-content: center; /* Centrar el contenido verticalmente */
+  align-items: center; /* Centrar el contenido horizontalmente */
   width: 100%;
   height: 100vh;
   padding: 1rem;
-  background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
+  background-image: url('/src/assets/images/enemies/Capitulo 1/fondo para combates.png');
+  background-size: cover;
+  background-position: center;
   color: #E5E7EB;
   font-family: 'Courier New', monospace;
   position: relative;
@@ -111,42 +113,40 @@
   text-shadow: 1px 1px 2px #000;
 }
 
-/* Combat Area - Split Screen */
+/* Combat Area - Ahora un contenedor posicional */
 .combat-area {
   grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  padding: 1rem;
+  position: relative;
+  width: 100%;
+  height: 60%; /* Ajusta la altura del área de combate */
 }
 
 .combatant {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  background: rgba(0, 0, 0, 0.6);
-  border: 3px solid;
-  border-radius: 12px;
-  position: relative;
-  min-height: 200px;
+  justify-content: flex-end; /* Alinea el contenido (stats) abajo */
+  position: absolute;
+  bottom: 10%; /* Posición desde abajo */
+  width: 40%; /* Ancho del contenedor del combatiente */
+  height: 80%; /* Altura del contenedor del combatiente */
 }
 
 .vindicator-combatant {
-  border-color: #63b3ed;
-  background: linear-gradient(135deg, rgba(43, 108, 176, 0.3), rgba(49, 130, 206, 0.1));
+  left: 5%; /* Posición a la izquierda */
 }
 
 .enemy-combatant {
-  border-color: #fc8181;
-  background: linear-gradient(135deg, rgba(197, 48, 48, 0.3), rgba(229, 62, 62, 0.1));
+  right: 5%; /* Posición a la derecha */
 }
 
 .unit-sprite {
-  font-size: 4rem;
+  max-width: 390px; /* Aumentado otro 25% */
+  max-height: 390px; /* Aumentado otro 25% */
+  width: auto;
+  height: auto;
+  filter: drop-shadow(3px 3px 5px rgba(0, 0, 0, 0.7));
   margin-bottom: 1rem;
-  filter: drop-shadow(2px 2px 4px #000);
 }
 
 .unit-stats {
@@ -293,6 +293,8 @@
   display: flex;
   gap: 0.5rem;
   margin-top: 0.5rem;
+  width: 100%;
+  justify-content: space-between;
 }
 
 .secondary-button {
@@ -351,3 +353,55 @@
   }
 }
 
+/* Animación de Temblor */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+}
+
+.shake {
+  animation: shake 0.3s linear;
+}
+
+/* --- Estilos para la Pantalla de Victoria --- */
+
+.victory-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  text-align: center;
+}
+
+.victory-message h2 {
+  font-size: 8rem; /* Tamaño grande */
+  color: #ecc94b; /* Color dorado */
+  margin: 0;
+  text-shadow: 
+    0 0 15px rgba(255, 215, 0, 0.7),
+    4px 4px 2px #000;
+}
+
+.defeat-message h2 {
+  color: #c53030; /* Color rojo */
+  text-shadow: 
+    0 0 15px rgba(229, 62, 62, 0.7),
+    4px 4px 2px #000;
+}
+
+.victory-button-left {
+  position: absolute;
+  bottom: 5%;
+  left: 5%;
+  z-index: 20;
+}
+
+.victory-button-right {
+  position: absolute;
+  bottom: 5%;
+  right: 5%;
+  z-index: 20;
+}

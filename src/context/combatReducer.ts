@@ -149,13 +149,64 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
           shieldPiercing
         );
       }
+      
+      // La lógica del enemigo, regeneración y resolución se han movido a ENEMY_RESPONSE
+      
+      return {
+        ...state,
+        activeBattle: {
+          ...activeBattle,
+          enemyCurrentShield: enemyDamageResult.newShield,
+          enemyCurrentHealth: enemyDamageResult.newHealth,
+        },
+      };
+    }
+
+    case 'ENEMY_RESPONSE': {
+      if (!state.activeBattle) {
+        return state;
+      }
+
+      let { activeBattle, vindicator } = state;
+      const enemy = allDestinations[activeBattle.destinationIndex].battles[activeBattle.battleIndex];
+
+      const equippedModules = {
+        offensive: allModules.find(m => m.id === vindicator.modules.offensive),
+        defensive: allModules.find(m => m.id === vindicator.modules.defensive),
+        tactical: allModules.find(m => m.id === vindicator.modules.tactical),
+      };
+
+      let enemyDamage = enemy.damage;
+      if (equippedModules.tactical?.id === 'mod_frequency_disruptor') {
+        enemyDamage *= (1 - equippedModules.tactical.effects.enemyDamageReduction);
+      }
+
+      const applyDamage = (damage: number, targetShield: number, targetHealth: number, shieldPiercing: number = 0): { newShield: number; newHealth: number } => {
+        let remainingDamage = damage;
+        let newShield = targetShield;
+        let newHealth = targetHealth;
+        
+        const piercingDamage = remainingDamage * shieldPiercing;
+        remainingDamage -= piercingDamage;
+        newHealth = Math.max(0, newHealth - piercingDamage);
+
+        const shieldDamage = Math.min(newShield, remainingDamage);
+        newShield -= shieldDamage;
+        remainingDamage -= shieldDamage;
+        if (remainingDamage > 0) {
+          newHealth = Math.max(0, newHealth - remainingDamage);
+        }
+        return { newShield, newHealth };
+      };
 
       // --- 2. ENEMIGO ATACA (SI SIGUE VIVO) ---
       let vindicatorDamageResult = { newShield: vindicator.currentShield, newHealth: vindicator.currentHealth };
-      if (enemyDamageResult.newHealth > 0) {
+      let finalEnemyStatus = { newShield: activeBattle.enemyCurrentShield, newHealth: activeBattle.enemyCurrentHealth };
+      
+      if (activeBattle.enemyCurrentHealth > 0) {
         const shieldBeforeAttack = vindicator.currentShield;
         
-        let enemyAttackDamage = enemyDamage;
+        let enemyAttackDamage = state.godMode ? 0 : enemyDamage; // <-- MODO DIOS
         if (activeBattle.cloakTurnsRemaining && activeBattle.cloakTurnsRemaining > 0) {
           enemyAttackDamage = 0;
           activeBattle = { ...activeBattle, cloakTurnsRemaining: activeBattle.cloakTurnsRemaining - 1 };
@@ -178,7 +229,9 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
             overloadMultiplier = equippedModules.offensive.effects.overloadDamageMultiplier;
           }
           const overloadDamage = Math.floor(vindicator.damage * overloadMultiplier);
-          enemyDamageResult = applyDamage(overloadDamage, enemyDamageResult.newShield, enemyDamageResult.newHealth);
+          const enemyOverloadResult = applyDamage(overloadDamage, activeBattle.enemyCurrentShield, activeBattle.enemyCurrentHealth);
+          finalEnemyStatus.newShield = enemyOverloadResult.newShield;
+          finalEnemyStatus.newHealth = enemyOverloadResult.newHealth;
         }
       }
       
@@ -203,9 +256,10 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
 
       const updatedActiveBattle = {
         ...activeBattle,
-        enemyCurrentShield: enemyDamageResult.newShield,
-        enemyCurrentHealth: enemyDamageResult.newHealth,
+        enemyCurrentShield: finalEnemyStatus.newShield,
+        enemyCurrentHealth: finalEnemyStatus.newHealth,
       };
+
 
       // --- 4. RESOLUCIÓN DEL TURNO (VICTORIA/DERROTA) ---
       if (updatedVindicator.currentHealth <= 0) {
@@ -229,86 +283,14 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
         };
 
       } else if (updatedActiveBattle.enemyCurrentHealth <= 0) {
-        // --- VICTORIA (CORREGIDO) ---
-        const newBattlesCompleted = [...state.battleRoom.battlesCompleted];
-        const currentWins = newBattlesCompleted[activeBattle.destinationIndex] || 0;
-        newBattlesCompleted[activeBattle.destinationIndex] = currentWins + 1;
-
-        const destination = allDestinations[activeBattle.destinationIndex];
-        const nextBattleIndex = newBattlesCompleted[activeBattle.destinationIndex];
-
-        if (nextBattleIndex < destination.battles.length) {
-          // Hay más batallas en este destino
-          const nextEnemy = destination.battles[nextBattleIndex];
-          
-          const newBodegaResources = { ...state.vindicator.bodegaResources };
-          const reward = enemy.reward;
-          if (reward.aleacionReforzada) newBodegaResources.aleacionReforzada += reward.aleacionReforzada;
-          if (reward.neuroChipCorrupto) newBodegaResources.neuroChipCorrupto += reward.neuroChipCorrupto;
-          if (reward.matrizCristalina) newBodegaResources.matrizCristalina += reward.matrizCristalina;
-          if (reward.IA_Fragmentada) newBodegaResources.IA_Fragmentada += reward.IA_Fragmentada;
-          if (reward.planosMK2) newBodegaResources.planosMK2 += reward.planosMK2;
-          if (reward.matrizDeManiobra) newBodegaResources.matrizDeManiobra += reward.matrizDeManiobra;
-          if (reward.placasDeSigilo) newBodegaResources.placasDeSigilo += reward.placasDeSigilo;
-          if (reward.planosDeInterceptor) newBodegaResources.planosDeInterceptor += reward.planosDeInterceptor;
-
-          return {
-            ...state,
-            resources: {
-              ...state.resources,
-              scrap: state.resources.scrap + (enemy.reward.scrap ?? 0),
-            },
-            vindicator: { 
-              ...updatedVindicator,
-              bodegaResources: newBodegaResources,
-            },
-            blueprints: state.blueprints + (enemy.reward.blueprints ?? 0),
-            battleRoom: {
-              ...state.battleRoom,
-              battlesCompleted: newBattlesCompleted,
-            },
-            activeBattle: {
-              ...updatedActiveBattle,
-              battleIndex: nextBattleIndex,
-              enemyName: nextEnemy.enemyName,
-              enemyMaxHealth: nextEnemy.health,
-              enemyCurrentHealth: nextEnemy.health,
-              enemyMaxShield: nextEnemy.shield,
-              enemyCurrentShield: nextEnemy.shield,
-            },
-          };
-        } else {
-          // No hay más batallas - destino completado
-          const newBodegaResources = { ...state.vindicator.bodegaResources };
-          const reward = enemy.reward;
-          if (reward.aleacionReforzada) newBodegaResources.aleacionReforzada += reward.aleacionReforzada;
-          if (reward.neuroChipCorrupto) newBodegaResources.neuroChipCorrupto += reward.neuroChipCorrupto;
-          if (reward.matrizCristalina) newBodegaResources.matrizCristalina += reward.matrizCristalina;
-          if (reward.IA_Fragmentada) newBodegaResources.IA_Fragmentada += reward.IA_Fragmentada;
-          if (reward.planosMK2) newBodegaResources.planosMK2 += reward.planosMK2;
-          if (reward.matrizDeManiobra) newBodegaResources.matrizDeManiobra += reward.matrizDeManiobra;
-          if (reward.placasDeSigilo) newBodegaResources.placasDeSigilo += reward.placasDeSigilo;
-          if (reward.planosDeInterceptor) newBodegaResources.planosDeInterceptor += reward.planosDeInterceptor;
-          
-          return {
-            ...state,
-            currentScene: 'phase2Main',
-            activeBattle: null,
-            resources: {
-              ...state.resources,
-              scrap: state.resources.scrap + (enemy.reward.scrap ?? 0),
-            },
-            vindicator: { 
-              ...updatedVindicator,
-              bodegaResources: newBodegaResources,
-            },
-            blueprints: state.blueprints + (enemy.reward.blueprints ?? 0),
-            battleRoom: {
-              ...state.battleRoom,
-              battlesCompleted: newBattlesCompleted,
-            },
-          };
-        }
+        // --- VICTORIA (TEMPORAL) ---
+        // Simplemente actualiza el estado para reflejar la victoria, pero no avances.
+        // El componente se encargará de despachar ADVANCE_TO_NEXT_BATTLE.
+        return {
+          ...state,
+          vindicator: updatedVindicator,
+          activeBattle: updatedActiveBattle,
+        };
       } else {
         // --- LA BATALLA CONTINÚA ---
         return {
@@ -319,6 +301,73 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
       }
     }
 
+    case 'ADVANCE_TO_NEXT_BATTLE': {
+      if (!state.activeBattle) return state;
+
+      const { activeBattle, vindicator } = state;
+      const enemy = allDestinations[activeBattle.destinationIndex].battles[activeBattle.battleIndex];
+
+      // --- Lógica de recompensas y avance ---
+      const newBattlesCompleted = [...state.battleRoom.battlesCompleted];
+      const currentWins = newBattlesCompleted[activeBattle.destinationIndex] || 0;
+      newBattlesCompleted[activeBattle.destinationIndex] = currentWins + 1;
+
+      const destination = allDestinations[activeBattle.destinationIndex];
+      const nextBattleIndex = newBattlesCompleted[activeBattle.destinationIndex];
+
+      const newBodegaResources = { ...vindicator.bodegaResources };
+      const reward = enemy.reward;
+      if (reward.aleacionReforzada) newBodegaResources.aleacionReforzada += reward.aleacionReforzada;
+      if (reward.neuroChipCorrupto) newBodegaResources.neuroChipCorrupto += reward.neuroChipCorrupto;
+      if (reward.matrizCristalina) newBodegaResources.matrizCristalina += reward.matrizCristalina;
+      if (reward.IA_Fragmentada) newBodegaResources.IA_Fragmentada += reward.IA_Fragmentada;
+      if (reward.planosMK2) newBodegaResources.planosMK2 += reward.planosMK2;
+      if (reward.matrizDeManiobra) newBodegaResources.matrizDeManiobra += reward.matrizDeManiobra;
+      if (reward.placasDeSigilo) newBodegaResources.placasDeSigilo += reward.placasDeSigilo;
+      if (reward.planosDeInterceptor) newBodegaResources.planosDeInterceptor += reward.planosDeInterceptor;
+      
+      const newState = {
+        ...state,
+        resources: {
+          ...state.resources,
+          scrap: state.resources.scrap + (enemy.reward.scrap ?? 0),
+        },
+        vindicator: { 
+          ...vindicator,
+          bodegaResources: newBodegaResources,
+        },
+        blueprints: state.blueprints + (enemy.reward.blueprints ?? 0),
+        battleRoom: {
+          ...state.battleRoom,
+          battlesCompleted: newBattlesCompleted,
+        },
+      };
+
+      if (nextBattleIndex < destination.battles.length) {
+        // Cargar siguiente enemigo
+        const nextEnemy = destination.battles[nextBattleIndex];
+        return {
+          ...newState,
+          battleCount: state.battleCount + 1, // Forzamos un re-renderizado de la escena de combate
+          activeBattle: {
+            ...activeBattle,
+            battleIndex: nextBattleIndex,
+            enemyName: nextEnemy.enemyName,
+            enemyMaxHealth: nextEnemy.health,
+            enemyCurrentHealth: nextEnemy.health,
+            enemyMaxShield: nextEnemy.shield,
+            enemyCurrentShield: nextEnemy.shield,
+          },
+        };
+      } else {
+        // Destino completado
+        return {
+          ...newState,
+          currentScene: 'phase2Main',
+          activeBattle: null,
+        };
+      }
+    }
     
     case 'ESCAPE_COMBAT': {
       if (!state.activeBattle) {
@@ -336,11 +385,7 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
           ...state.battleRoom,
           battlesCompleted: newBattlesCompleted,
         },
-        vindicator: {
-          ...state.vindicator,
-          currentHealth: state.vindicator.maxHealth,
-          currentShield: 0,
-        }
+        // Se elimina la restauración de vida y escudo para que se mantenga el estado actual.
       };
     }
 
