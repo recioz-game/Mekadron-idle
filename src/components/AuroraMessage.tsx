@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import auroraPanelUrl from '../assets/images/ui/buttons/aurora-message-panel.png';
 
 interface AuroraMessageProps {
   message: string;
@@ -45,8 +46,8 @@ const AuroraMessage: React.FC<AuroraMessageProps> = ({
       opacity: isVisible ? 1 : 0,
       transition: 'all 0.3s ease-in-out',
       
-      boxSizing: 'border-box',
-      backgroundImage: `url('src/assets/images/ui/buttons/aurora-message-panel.png')`,
+            boxSizing: 'border-box',
+      backgroundImage: `url(${auroraPanelUrl})`,
       backgroundSize: '100% 100%',
       backgroundRepeat: 'no-repeat',
 
