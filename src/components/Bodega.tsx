@@ -1,5 +1,5 @@
 // src/components/Bodega.tsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import './Bodega.css';
 import { formatNumber } from '../utils/formatNumber';
@@ -10,6 +10,9 @@ import { resourceMetadata } from '../data/resourceMetadata';
 import { allArmoryMK1Modules } from '../data/armoryMK1Data';
 import { allArmoryMK2Modules } from '../data/armoryMK2Data';
 
+interface BodegaProps {
+  onClose: () => void;
+}
 
 const categoryDisplayOrder: ResourceCategory[] = ['materialesIndustriales', 'componentesBatalla', 'materialesExoticos'];
 const categoryNames: Record<ResourceCategory, string> = {
@@ -18,8 +21,14 @@ const categoryNames: Record<ResourceCategory, string> = {
   materialesExoticos: 'Materiales Exóticos',
 };
 
-export const Bodega: React.FC = () => {
+export const Bodega: React.FC<BodegaProps> = ({ onClose }) => {
+  const [isVisible, setIsVisible] = useState(false);
   const { gameState, dispatch } = useGame();
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 10);
+    return () => clearTimeout(timer);
+  }, []);
   const { vindicator, vindicatorUpgrades, vindicatorMK2Upgrades, vindicatorMK3Upgrades, vindicatorMK4Upgrades, vindicatorMK5Upgrades } = gameState;
   const { bodegaResources, vindicatorType } = vindicator;
 
@@ -125,9 +134,10 @@ export const Bodega: React.FC = () => {
   };
 
   return (
-    <div className="bodega-view">
+    <div className={`bodega-view ${gameState.settings.uiAnimationsEnabled ? 'view-fade-in' : ''} ${isVisible ? 'visible' : ''}`}>
       <div className="bodega-view-header">
         <h2>BODEGA DEL VINDICATOR {type !== 'base' ? type.toUpperCase() : ''}</h2>
+        <button onClick={onClose} className="view-close-button">×</button>
       </div>
 
       <div className="bodega-top-section">
@@ -141,9 +151,9 @@ export const Bodega: React.FC = () => {
               <img src={resourceInfo.icon} alt={resourceInfo.name} className="resource-card-icon" />
               <span className="resource-card-name">{resourceInfo.name}</span>
               <div className="resource-card-amount">
-                <span>{formatNumber(currentAmount)}</span>
+                <span>{formatNumber(currentAmount, gameState.settings.numberFormat)}</span>
                 <span>/</span>
-                <span>{formatNumber(currentBodega.capacities[resourceCategories[resourceKey]])}</span>
+                <span>{formatNumber(currentBodega.capacities[resourceCategories[resourceKey]], gameState.settings.numberFormat)}</span>
               </div>
         </div>
           );
@@ -171,10 +181,10 @@ export const Bodega: React.FC = () => {
             <div className="upgrade-option" key={category}>
               <div className="upgrade-info">
                 <h4>{categoryNames[category]} (Nivel {level})</h4>
-                <p>+ {formatNumber(bodegaConfig.capacityIncrease)} capacidad</p>
+                <p>+ {formatNumber(bodegaConfig.capacityIncrease, gameState.settings.numberFormat)} capacidad</p>
                 <div className="upgrade-cost">
                   <img src={resourceMeta.icon} alt={resourceMeta.name} className="cost-icon-img" />
-                  <span className="cost-amount">{formatNumber(cost)}</span>
+                  <span className="cost-amount">{formatNumber(cost, gameState.settings.numberFormat)}</span>
                 </div>
               </div>
               <button className={`upgrade-button ${!canAfford ? 'disabled' : ''}`} onClick={() => handleUpgrade(category)} disabled={!canAfford}>

@@ -1,6 +1,7 @@
 import React from 'react';
 import './ResourceBar.css'; // Importar el archivo CSS
 import { useResources, useWorkshop, useRates, useVindicator } from '../hooks/useSelectors';
+import { useGame } from '../context/GameContext'; // Importar el hook principal
 import { formatNumber } from '../utils/formatNumber';
 
 // Importar los nuevos iconos de recursos
@@ -13,6 +14,7 @@ import plateFragmentsIcon from '../assets/images/ui/plate-fragments-icon.png';
 import fuelRodIconSm from '../assets/images/ui/fuel-rod-icon_sm.png';
 
 const ResourceBar: React.FC = React.memo(() => {
+  const { gameState } = useGame(); // Obtener gameState para los ajustes
   const rates = useRates();
     const workshop = useWorkshop();
   const { drones } = workshop;
@@ -36,44 +38,44 @@ const ResourceBar: React.FC = React.memo(() => {
         <div className="resource-bar">
       {/* CONTENEDOR IZQUIERDA: Recursos principales */}
                         <div className="resource-group">
-        <div className="resource-item" title="Chatarra">
+                <div className="resource-item" title="Chatarra">
           <img src={scrapIcon} alt="Chatarra" className="resource-icon-img" />
-          <span>{formatNumber(scrap)} / {formatNumber(maxScrap)}</span>
+          <span>{formatNumber(scrap, gameState.settings.numberFormat)} / {formatNumber(maxScrap, gameState.settings.numberFormat)}</span>
         </div>
         <div className="resource-item" title="Energía">
           <img src={energyIcon} alt="Energía" className="resource-icon-img" />
-          <span>{formatNumber(energy)} / {formatNumber(maxEnergy)}</span>
+          <span>{formatNumber(energy, gameState.settings.numberFormat)} / {formatNumber(maxEnergy, gameState.settings.numberFormat)}</span>
         </div>
         
         {/* RECURSOS DE BODEGA - SIEMPRE VISIBLES SI HAN SIDO DESBLOQUEADOS */}
         {'metalRefinado' in bodegaResources && (
           <div className="resource-item" title="Metal Refinado">
             <img src={refinedMetalIconSm} alt="Metal Refinado" className="resource-icon-img" />
-            <span>{formatNumber(bodegaResources.metalRefinado ?? 0)}</span>
+            <span>{formatNumber(bodegaResources.metalRefinado ?? 0, gameState.settings.numberFormat)}</span>
           </div>
         )}
         {'aceroEstructural' in bodegaResources && (
           <div className="resource-item" title="Acero Estructural">
             <img src={structuralSteelIconSm} alt="Acero Estructural" className="resource-icon-img" />
-            <span>{formatNumber(bodegaResources.aceroEstructural ?? 0)}</span>
+            <span>{formatNumber(bodegaResources.aceroEstructural ?? 0, gameState.settings.numberFormat)}</span>
           </div>
         )}
         {'placasCasco' in bodegaResources && (
           <div className="resource-item" title="Placas de Casco">
             <img src={hullPlateIconSm} alt="Placas de Casco" className="resource-icon-img" />
-            <span>{formatNumber(bodegaResources.placasCasco ?? 0)}</span>
+            <span>{formatNumber(bodegaResources.placasCasco ?? 0, gameState.settings.numberFormat)}</span>
           </div>
         )}
         {'fragmentosPlaca' in bodegaResources && (
           <div className="resource-item" title="Fragmentos de Placa">
             <img src={plateFragmentsIcon} alt="Fragmentos de Placa" className="resource-icon-img" />
-            <span>{formatNumber(bodegaResources.fragmentosPlaca ?? 0)}</span>
+            <span>{formatNumber(bodegaResources.fragmentosPlaca ?? 0, gameState.settings.numberFormat)}</span>
           </div>
         )}
         {'barraCombustible' in bodegaResources && (
           <div className="resource-item" title="Barras de Combustible">
             <img src={fuelRodIconSm} alt="Barras de Combustible" className="resource-icon-img" />
-            <span>{formatNumber(bodegaResources.barraCombustible ?? 0)}</span>
+            <span>{formatNumber(bodegaResources.barraCombustible ?? 0, gameState.settings.numberFormat)}</span>
           </div>
         )}
       </div>

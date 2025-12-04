@@ -94,16 +94,13 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
 
   
 
-    return (
-    <div className="workshop-container" ref={scrollRef}>
-      <div className="workshop-header">
-        <h2>TALLER DE DRONES</h2>
+            return (
+    <div className="workshop-container">
+      <div className="workshop-content-area" ref={scrollRef}>
         <button onClick={onClose} className="close-button">
-          Cerrar
+          &times;
         </button>
-      </div>
-
-      <div className="drone-category" style={{ borderColor: '#F59E0B' }}>
+              <div className="drone-category" style={{ borderColor: '#F59E0B' }}>
         <h3 style={{ color: '#F59E0B' }}>DRONES DE RECICLADO</h3>
         <BuyAmountSelector buyAmount={buyAmount} onSetBuyAmount={onSetBuyAmount} />
         
@@ -430,12 +427,13 @@ const Workshop: React.FC<WorkshopProps> = React.memo(({
               ])}
               className={`build-button ${scrap >= wyrmCost.scrap && aceroEstructural >= wyrmCost.steel && drones.golem >= 1 ? 'unlocked' : ''}`}
             >
-                            Encargar Dron Wyrm {buyAmount === 'max' && `(${wyrmMax})`}
+                                        Encargar Dron Wyrm {buyAmount === 'max' && `(${wyrmMax})`}
             </BotonConTooltip>
           </div>
           <img src={droneWyrmImg} alt="Dron Wyrm" className="drone-item-image" />
         </div>
       )}
+      </div>
     </div>
   );
 });

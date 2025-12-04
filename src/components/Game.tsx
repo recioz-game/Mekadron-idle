@@ -3,18 +3,14 @@ import React, { useEffect, useRef } from 'react';
 import { useGame } from '../context/GameContext';
 import GameScene from './GameScene';
 import AuroraMessage from './AuroraMessage';
+import AuroraMessageHandler from './AuroraMessageHandler'; // <-- AÑADIR IMPORTACIÓN
 import { TICK_INTERVAL } from '../data/gameConfig';
 
 const Game: React.FC = () => {
-    const { gameState, dispatch } = useGame();
+        const { gameState, dispatch } = useGame();
   const lastTick = useRef<number | null>(null);
 
-  // Mensaje de bienvenida de Aurora al iniciar el juego
-  useEffect(() => {
-    dispatch({ type: 'ADD_AURORA_MESSAGE', payload: { message: "Bienvenido, es hora de recoger chatarra.", messageKey: "welcome_message" } });
-  }, [dispatch]);
-
-    // Game loop
+  // Game loop
   useEffect(() => {
     let frameId: number;
 
@@ -99,10 +95,11 @@ const Game: React.FC = () => {
     return () => clearInterval(interval);
   }, [gameState.aurora.pendingMessages.length, gameState.aurora.activeMessages.length, dispatch]);
 
-    return (
+      return (
     <>
-            <GameScene />
-            <div style={{ position: 'fixed', bottom: '2rem', left: '2rem', zIndex: 1000 }}>
+      <AuroraMessageHandler /> 
+      <GameScene />
+      <div style={{ position: 'fixed', bottom: '2rem', left: '2rem', zIndex: 1000 }}>
         {gameState.aurora.activeMessages.map((msg, index) => (
           <div key={msg.id} style={{ marginBottom: index > 0 ? '1.6rem' : '0' }}>
             <AuroraMessage

@@ -424,14 +424,16 @@ export const processGameTick = (state: GameState): GameState & { auroraMessages:
   if (stateAfterStats.workshop.drones.expeditionDrone > 0 && !newModules.expeditions) newModules.expeditions = true;
   if (stateAfterStats.workshop.drones.golem > 0 && !newModules.shipyard) newModules.shipyard = true;
   
-  const auroraMessages: { message: string; messageKey: string }[] = [];
-  if (!modulesBefore.workshop && newModules.workshop) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: `unlock-workshop-${Date.now()}` });
-  if (!modulesBefore.energy && newModules.energy) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: `unlock-energy-${Date.now()}` });
-  if (!modulesBefore.storage && newModules.storage) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: `unlock-storage-${Date.now()}` });
-  if (!modulesBefore.techCenter && newModules.techCenter) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: `unlock-techCenter-${Date.now()}` });
-  if (!modulesBefore.foundry && newModules.foundry) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: `unlock-foundry-${Date.now()}` });
-  if (!modulesBefore.expeditions && newModules.expeditions) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: `unlock-expeditions-${Date.now()}` });
-  if (!modulesBefore.shipyard && newModules.shipyard) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: `unlock-shipyard-${Date.now()}` });
+  const auroraMessages: { message: string; messageKey: string; audioId?: number }[] = [];
+  if (state.settings.auroraNotificationsEnabled) {
+    if (!modulesBefore.workshop && newModules.workshop) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: 'unlock-workshop', audioId: 5 });
+    if (!modulesBefore.energy && newModules.energy) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: 'unlock-energy', audioId: 5 });
+    if (!modulesBefore.storage && newModules.storage) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: 'unlock-storage', audioId: 5 });
+    if (!modulesBefore.techCenter && newModules.techCenter) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: 'unlock-techCenter', audioId: 5 });
+    if (!modulesBefore.foundry && newModules.foundry) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: 'unlock-foundry', audioId: 5 });
+    if (!modulesBefore.expeditions && newModules.expeditions) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: 'unlock-expeditions', audioId: 5 });
+    if (!modulesBefore.shipyard && newModules.shipyard) auroraMessages.push({ message: 'Nuevo módulo desbloqueado.', messageKey: 'unlock-shipyard', audioId: 5 });
+  }
 
   let stateWithNewModules = {
     ...stateAfterStats,

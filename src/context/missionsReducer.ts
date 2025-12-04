@@ -6,7 +6,7 @@ import { allShipyardProjects } from '../data/shipyardData';
 export const missionsReducer = (state: GameState, action: ActionType): GameState => {
   switch (action.type) {
     case 'UPDATE_MISSION_PROGRESS': {
-      const { resources, workshop, energy, storage, techCenter, modules, shipyard, missions, rates } = state;
+      const { resources, workshop, energy, storage, techCenter, modules, shipyard, missions, rates, vindicator } = state;
       const { drones } = workshop;
       let vindicatorCompletedThisTick = false;
 
@@ -20,13 +20,13 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
             currentProgress = (techCenter.unlocked ? 1 : 0) + (modules.foundry ? 1 : 0);
             break;
           case 'main_2_produce_alloys':
-            currentProgress = resources.metalRefinado + resources.aceroEstructural;
+            currentProgress = vindicator.bodegaResources.metalRefinado + vindicator.bodegaResources.aceroEstructural;
             break;
           case 'main_3_expeditions':
             currentProgress = state.activeExpeditions.filter(exp => exp.completionTimestamp > 0).length;
             break;
           case 'main_4_fabricate_components':
-            currentProgress = resources.placasCasco + resources.cableadoSuperconductor;
+            currentProgress = vindicator.bodegaResources.placasCasco + vindicator.bodegaResources.cableadoSuperconductor;
             break;
           case 'main_5_final_assembly': {
             const currentProject = allShipyardProjects[shipyard.currentProjectIndex];
@@ -95,7 +95,7 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
             currentProgress = techCenter.researchPoints;
             break;
           case 'sec_2_2_first_alloy':
-            currentProgress = resources.metalRefinado > 0 ? 1 : 0;
+            currentProgress = vindicator.bodegaResources.metalRefinado > 0 ? 1 : 0;
             break;
           case 'sec_2_3_always_optimizing':
             currentProgress = Object.values(techCenter.upgrades).filter(level => level > 0).length;
@@ -108,7 +108,7 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
             }
             break;
           case 'sec_2_5_basic_metallurgy':
-            currentProgress = resources.metalRefinado;
+            currentProgress = vindicator.bodegaResources.metalRefinado;
             break;
           case 'sec_2_6_one_step_ahead':
             currentProgress = drones.advanced > 0 ? 1 : 0;
@@ -120,7 +120,7 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
             currentProgress = drones.reinforcedBasic + drones.reinforcedMedium + drones.reinforcedAdvanced;
             break;
           case 'sec_2_9_advanced_siderurgy':
-            currentProgress = resources.aceroEstructural;
+            currentProgress = vindicator.bodegaResources.aceroEstructural;
             break;
           case 'sec_2_10_collective_mind_ii':
             currentProgress = techCenter.researchPoints;
@@ -137,7 +137,7 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
             currentProgress = resources.scrap;
             break;
           case 'sec_3_5_final_preparations':
-            if(resources.metalRefinado >= 500 && resources.aceroEstructural >= 100){
+            if(vindicator.bodegaResources.metalRefinado >= 500 && vindicator.bodegaResources.aceroEstructural >= 100){
               currentProgress = 600;
             } else {
               currentProgress = 0;
@@ -152,7 +152,7 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
           case 'sec_3_8_legendary_treasure_hunter':
             break;
           case 'sec_3_9_mass_production':
-            currentProgress = resources.metalRefinado + resources.aceroEstructural;
+            currentProgress = vindicator.bodegaResources.metalRefinado + vindicator.bodegaResources.aceroEstructural;
             break;
           case 'sec_3_10_industrial_empire':
             currentProgress = rates.scrapPerSecond;
@@ -217,6 +217,7 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
         ...state.workshop,
         drones: { ...state.workshop.drones } // <-- Crear una copia del objeto drones
       };
+      let newBodegaResources = { ...state.vindicator.bodegaResources };
       switch (mission.reward.type) {
         case 'scrap':
           newResources.scrap += mission.reward.value;
@@ -225,7 +226,7 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
           newResources.energy += mission.reward.value;
           break;
         case 'nucleoSingularidad':
-          newResources.nucleoSingularidad += mission.reward.value;
+          newBodegaResources.nucleoSingularidad += mission.reward.value;
           break;
         case 'drone':
           // Lógica para añadir un dron básico
@@ -253,19 +254,26 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
         ...state,
         resources: newResources,
         workshop: newWorkshop,
+        vindicator: { ...state.vindicator, bodegaResources: newBodegaResources },
         missions: {
           ...state.missions,
           activeMissions: finalActiveMissions,
           completedMissions: newCompletedMissions,
+        },
+        aurora: { // <-- Crear una nueva sección aurora
+          ...state.aurora,
+          pendingMessages: mission.isMain 
+            ? [
+                ...state.aurora.pendingMessages,
+                {
+                  message: `Misión principal completada: ${mission.title}. Nuevos objetivos disponibles.`,
+                  key: `mission_complete_${mission.id}`,
+                  audioId: 2
+                }
+              ]
+            : state.aurora.pendingMessages
         }
       };
-
-      if (mission.isMain) {
-        newState.aurora.pendingMessages.push({
-          message: `Misión principal completada: ${mission.title}. Nuevos objetivos disponibles.`,
-          key: `mission_complete_${mission.id}`
-        });
-      }
 
       return newState;
     }

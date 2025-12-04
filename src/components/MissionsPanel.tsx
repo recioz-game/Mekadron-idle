@@ -118,19 +118,17 @@ const MissionsPanel: React.FC<MissionsPanelProps> = React.memo(({ onClose }) => 
     );
   };
 
-    return (
-    <div className="missions-panel-container" ref={scrollRef}>
-      <div className="missions-panel-header">
-        <h2>SISTEMA DE MISIONES</h2>
+        return (
+            <div className="missions-panel-container">
+      <div className="missions-content-area" ref={scrollRef}>
         <button 
           onClick={onClose}
           className="close-button"
         >
-          Cerrar
+          &times;
         </button>
-      </div>
 
-      {/* Misiones Principales */}
+              {/* Misiones Principales */}
       {mainMissions.length > 0 && (
                 <div className="mission-category">
           <h3 style={{ color: '#D946EF', borderBottom: '1px solid #D946EF' }}>MISIÓN PRINCIPAL</h3>
@@ -151,7 +149,7 @@ const MissionsPanel: React.FC<MissionsPanelProps> = React.memo(({ onClose }) => 
         )}
       </div>
 
-      {/* Misiones Completadas */}
+                  {/* Misiones Completadas */}
       {completedMissions.length > 0 && (
         <div>
           <h3 style={{ color: '#22C55E' }}>MISIONES COMPLETADAS</h3>
@@ -165,6 +163,7 @@ const MissionsPanel: React.FC<MissionsPanelProps> = React.memo(({ onClose }) => 
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 });

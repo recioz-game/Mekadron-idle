@@ -1,111 +1,287 @@
-/* src/components/SettingsMenu.css */
+/* SettingsMenu.css */
 .settings-menu-container {
+  /* Contenedor del botón de engranaje, se mantiene igual */
   position: fixed;
   bottom: 1.6rem;
   right: 1.6rem;
   z-index: 1000;
-  font-family: Inter, sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.settings-menu-content {
-  padding: 1.6rem;
-  background-color: #111827;
-  border-radius: 0.8rem;
-  border: 2px solid #374151;
-  margin-bottom: 0.8rem;
-  width: 28rem;
-}
-
-.settings-section-title {
-  color: #E5E7EB;
-  font-size: 1.4rem;
-  display: block;
-  margin-bottom: 1.6rem;
-}
-
-.volume-control {
-  margin-bottom: 1.6rem;
-}
-
-.volume-control label {
-  display: block;
-  margin-bottom: 0.8rem;
-  font-size: 1.4rem;
-}
-
-.volume-control input[type="range"] {
-  width: 100%;
-}
-
-.settings-button,
-.dev-button {
-  padding: 0.8rem;
-  color: #E5E7EB; /* Texto claro */
-  border: 1px solid #4B5563;
-  border-radius: 0.4rem;
-  cursor: pointer;
-  font-size: 1.2rem;
-  width: 100%;
-  margin-bottom: 1rem;
-  background-color: #374151; /* Fondo gris oscuro */
-  text-align: center;
-  transition: background-color 0.2s, border-color 0.2s;
-}
-
-.settings-button:hover,
-.dev-button:hover {
-  background-color: #4B5563;
-  border-color: #9CA3AF;
-}
-
-.dev-section-title {
-  color: #EF4444;
-  font-size: 1.4rem;
-  display: block;
-  margin-bottom: 1rem;
-}
-
-/* Color específico para botones de "peligro" */
-.reset-button,
-.exit-button {
-  background-color: #991B1B;
-  border-color: #EF4444;
-}
-
-.reset-button:hover,
-.exit-button:hover {
-  background-color: #B91C1C;
-  border-color: #F87171;
-}
-
-.god-mode-active {
-  background-color: #d69e2e !important; /* Color dorado */
-  border-color: #f6e05e !important;
-  color: #1a202c !important; /* Texto oscuro para contraste */
 }
 
 .settings-toggle-button {
-  width: 7.26rem; /* Aumentado otro 10% */
-  height: 7.26rem; /* Aumentado otro 10% */
-  border-radius: 50%;
-  background-color: transparent; /* Fondo transparente para que la imagen sea la protagonista */
+  width: 5.445rem; 
+  height: 5.445rem; 
+  background-color: transparent;
   cursor: pointer;
-  padding: 0; /* Eliminar padding para que la imagen ocupe todo el espacio */
+  padding: 0;
+  border: none;
+  transition: transform 0.2s ease;
+}
+
+.settings-toggle-button:hover {
+  transform: scale(1.1);
 }
 
 .settings-toggle-button img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Asegura que la imagen cubra el botón sin deformarse */
-  border-radius: 50%; /* Mantener la forma circular */
+  object-fit: cover;
 }
 
-@media (max-width: 768px) {
-  .settings-menu-container {
-    bottom: 0.8rem;
-    right: 0.8rem;
-  }
+/* Contenedor principal que centra el panel */
+.settings-panel-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* El panel de ajustes */
+.settings-panel {
+  width: 90%;
+  max-width: 800px;
+  height: 80%;
+  max-height: 600px;
+  background-color: #0b1c3d; /* Fondo azul oscuro */
+  border: 2px solid #38bdf8; /* Borde azul cian */
+  border-radius: 12px;
+  display: flex;
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+}
+
+.settings-sidebar {
+  width: 200px;
+  background-color: rgba(13, 33, 66, 0.8);
+  border-right: 1px solid #1e3a8a;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.settings-sidebar button {
+  width: 100%;
+  padding: 1rem;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #a5f3fc;
+  text-align: left;
+  font-size: 1.6rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.settings-sidebar button:hover {
+  background-color: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.settings-sidebar button.active {
+  background-color: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  font-weight: bold;
+}
+
+.settings-content {
+  flex-grow: 1;
+  padding: 2.5rem;
+  position: relative;
+  overflow-y: auto;
+}
+
+/* Estilos para los contenidos de las pestañas */
+.sound-settings, .dev-settings, .save-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.settings-section-title, .dev-section-title {
+  color: #a5f3fc;
+  font-size: 2rem;
+  text-transform: uppercase;
+  border-bottom: 1px solid #1e3a8a;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.volume-control, .toggle-control, .setting-option, .setting-option-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.volume-control label, .toggle-control label, .setting-option label, .setting-option-vertical > label {
+  font-size: 1.6rem; /* Un poco más grande para el título de la opción */
+  color: #E5E7EB;
+  margin-bottom: 1rem;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  background: #1e3a8a;
+  border-radius: 5px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #38bdf8;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 5px #38bdf8;
+}
+
+.toggle-button {
+  padding: 0.8rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  border: 1px solid;
+  align-self: flex-start;
+  transition: background-color 0.2s ease;
+}
+
+/* Estilos para los botones de elección (toggles y grupos) */
+.toggle-button {
+  /* Estilo base para todos los toggles */
+  background-color: #374151;
+  border-color: #4B5563;
+  color: #E5E7EB;
+}
+
+.toggle-button.on,
+.button-group .toggle-button.active,
+.button-choice .toggle-button.active {
+  background-color: #22c55e; /* Color activo/encendido */
+  border-color: #16a34a;
+  color: white;
+}
+
+.toggle-button.off {
+  background-color: #ef4444; /* Color apagado */
+  border-color: #dc2626;
+  color: white;
+}
+
+/* Contenedor para un grupo de botones en la misma línea */
+.button-group {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Nuevos estilos para layout vertical de opciones */
+.button-choice {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid #1e3a8a; /* Línea separadora */
+}
+
+.button-choice:first-of-type {
+  border-top: 1px solid #1e3a8a; /* Línea superior para el primero */
+}
+
+.button-choice .toggle-button {
+  width: 120px; /* Ancho fijo para los botones */
+  flex-shrink: 0;
+}
+
+.choice-description p {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.4rem;
+  color: #a5f3fc;
+}
+
+.choice-description span {
+  font-size: 1.2rem;
+  color: #6b7280;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+}
+
+/* Estilos para la pestaña de Partida */
+.save-description p {
+  margin: 0 0 0.5rem 0;
+  color: #a5f3fc;
+}
+.save-description strong {
+  color: #ef4444;
+  font-weight: bold;
+}
+
+.save-textarea {
+  width: 100%;
+  min-height: 80px;
+  background-color: #1e3a8a;
+  border: 1px solid #38bdf8;
+  color: #e0f2fe;
+  border-radius: 4px;
+  padding: 0.5rem;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+}
+
+.action-button {
+  padding: 0.8rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  border: 1px solid;
+  align-self: flex-start;
+  transition: background-color 0.2s ease;
+  background-color: #38bdf8;
+  border-color: #0ea5e9;
+  color: #075985;
+}
+
+.action-button.import {
+  background-color: #f59e0b;
+  border-color: #d97706;
+  color: #78350f;
+}
+
+.action-button.reset {
+  background-color: #ef4444;
+  border-color: #dc2626;
+  color: white;
+}
+
+.dev-button {
+  padding: 0.8rem;
+  color: #E5E7EB;
+  border: 1px solid #4B5563;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-size: 1.2rem;
+  width: 100%;
+  background-color: #374151;
+  text-align: center;
+}
+
+.dev-button:hover {
+  background-color: #4B5563;
+  border-color: #9CA3AF;
+}
+
+.dev-button.reset-button {
+  background-color: #991B1B;
+  border-color: #EF4444;
+}
+
+.dev-button.god-mode-active {
+  background-color: #d69e2e !important;
+  border-color: #f6e05e !important;
+  color: #1a202c !important;
 }

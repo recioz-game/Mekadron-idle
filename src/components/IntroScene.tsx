@@ -8,9 +8,8 @@ interface IntroSceneProps {
 const IntroScene: React.FC<IntroSceneProps> = ({ onComplete }) => {
   return (
     <div className="intro-scene-container">
-      <video
+            <video
         autoPlay
-        muted
         playsInline
         onEnded={onComplete}
         className="intro-video"

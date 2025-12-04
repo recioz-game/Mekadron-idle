@@ -1,34 +1,71 @@
 /* src/components/StorageView.css */
 .storage-view-container {
-  background-color: #111827;
+  /* Fondo con border-image */
+  border-style: solid;
+  border-color: transparent;
+  border-width: 40px;
+  border-image-source: url('../assets/images/ui/panels/storage_panel.png');
+  border-image-slice: 40 fill;
+  border-image-repeat: stretch;
+
   color: #E5E7EB;
-  padding: 1.6rem;
+  padding: 4rem 0.5rem 1rem; /* Subido el texto */
   font-family: Inter, sans-serif;
-  overflow: auto; /* Permite el scroll */
+  overflow: hidden;
 }
 
-.storage-view-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 3.2rem;
-}
-
-.storage-view-header h2 {
-  font-size: 2.4rem;
-  flex-grow: 1;
-  text-align: center;
-  margin: 0;
+.storage-content-area {
+  position: relative;
+  overflow-y: auto;
+  padding-right: 1rem;
+  height: 100%;
+  padding-top: 3.5rem;
+  padding-bottom: 2rem;
 }
 
 .close-button {
-  padding: 0.8rem 1.6rem;
-  background-color: #EF4444;
-  color: white;
+  position: absolute;
+  top: 3.5rem;
+  right: 1rem;
+  z-index: 10;
+  background-color: transparent;
   border: none;
-  border-radius: 0.4rem;
+  color: #60A5FA; /* Color Azul Acero */
   cursor: pointer;
-  font-size: 1.4rem;
+  font-size: 3.5rem;
+  line-height: 1;
+  padding: 0;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.close-button:hover {
+  background-color: rgba(96, 165, 250, 0.2); /* Azul con transparencia */
+}
+
+/* Estilos para la barra de scroll personalizada */
+.storage-content-area::-webkit-scrollbar {
+  width: 8px;
+}
+
+.storage-content-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.storage-content-area::-webkit-scrollbar-thumb {
+  background-color: #60A5FA; /* Color Azul Acero */
+  border-radius: 20px;
+  border: 3px solid transparent;
+}
+
+.storage-content-area {
+  scrollbar-width: thin;
+  scrollbar-color: #60A5FA transparent;
 }
 
 .storage-item {

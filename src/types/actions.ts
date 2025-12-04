@@ -1,5 +1,5 @@
 import { ResourceCategory } from '../data/categoryData';
-import { ExpeditionId, ActiveExpedition, DroneType } from './gameState';
+import { ExpeditionId, ActiveExpedition, DroneType, GameState } from './gameState';
 
 // src/types/actions.ts
 
@@ -13,7 +13,7 @@ export type ActionType =
   | { type: 'CLOSE_CURRENT_VIEW' }
   | { type: 'REMOVE_AURORA_MESSAGE'; payload: { messageId: number } }
   | { type: 'PROCESS_AURORA_QUEUE' }
-  | { type: 'ADD_AURORA_MESSAGE'; payload: { message: string; messageKey: string } }
+      | { type: 'ADD_AURORA_MESSAGE'; payload: { message: string; messageKey: string; audioId?: number } }
   | { type: 'GAME_TICK' }
     | { type: 'UPDATE_MISSION_PROGRESS' }
   | { type: 'CLAIM_REWARD'; payload: string }
@@ -112,5 +112,14 @@ export type ActionType =
   | { type: 'CLAIM_EXPEDITION_REWARDS'; payload: ActiveExpedition }
   | { type: 'CRAFT_VINDICATOR_MODULE'; payload: { moduleId: string } } // <-- NUEVO
   | { type: 'EQUIP_VINDICATOR_MODULE'; payload: { moduleId: string; slot: 'offensive' | 'defensive' | 'tactical' } } // <-- NUEVO
-  | { type: 'UPGRADE_BODEGA_CATEGORY'; payload: { category: ResourceCategory } }
-  | { type: 'SET_VOLUME'; payload: number };
+    | { type: 'UPGRADE_BODEGA_CATEGORY'; payload: { category: ResourceCategory } }
+  | { type: 'SET_MASTER_VOLUME'; payload: number }
+  | { type: 'SET_MUSIC_VOLUME'; payload: number }
+    | { type: 'SET_SFX_VOLUME'; payload: number }
+  | { type: 'TOGGLE_VOICES_MUTED' }
+    | { type: 'TOGGLE_UI_ANIMATIONS' }
+  | { type: 'TOGGLE_FLOATING_TEXT' }
+  | { type: 'SET_NUMBER_FORMAT'; payload: 'full' | 'abbreviated' | 'scientific' }
+  | { type: 'TOGGLE_AURORA_NOTIFICATIONS' }
+  | { type: 'TOGGLE_ACTION_CONFIRMATIONS' }
+  | { type: 'LOAD_STATE'; payload: GameState };

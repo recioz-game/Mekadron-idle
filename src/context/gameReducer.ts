@@ -173,16 +173,17 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
             };
         }
 
-    case 'PROCESS_AURORA_QUEUE': {
+        case 'PROCESS_AURORA_QUEUE': {
         if (state.aurora.pendingMessages.length === 0) {
             return state;
         }
 
-        const newMessageToAdd = state.aurora.pendingMessages[0];
+                const newMessageToAdd = state.aurora.pendingMessages[0];
         const newActiveMessage = {
             id: Date.now(),
             text: newMessageToAdd.message,
             key: newMessageToAdd.key,
+            audioId: newMessageToAdd.audioId
         };
 
         return {
@@ -195,8 +196,8 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         };
     }
 
-    case 'ADD_AURORA_MESSAGE': {
-        const { message, messageKey } = action.payload;
+        case 'ADD_AURORA_MESSAGE': {
+        const { message, messageKey, audioId } = action.payload;
         if (state.aurora.shownMessages.has(messageKey)) {
             return state;
         }
@@ -207,7 +208,7 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
             ...state,
             aurora: {
                 ...state.aurora,
-                pendingMessages: [...state.aurora.pendingMessages, { message, key: messageKey }],
+                pendingMessages: [...state.aurora.pendingMessages, { message, key: messageKey, audioId }],
                 shownMessages: newShownMessages,
             }
         };
@@ -636,10 +637,11 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
             progress: newEmptyProgress,
           };
           
-          // Unificar todos los mensajes de construcción en uno solo de Aurora
+                    // Unificar todos los mensajes de construcción en uno solo de Aurora
           const auroraMessage = {
             message: "Nueva nave de combate construida. ¡A combatir!",
-            messageKey: `ship-built-${currentProject.id}-${Date.now()}`
+            messageKey: `ship-built-${currentProject.id}-${Date.now()}`,
+            audioId: 8 // <-- AUDIO AÑADIDO
           };
           
           // Actualizar estado del Vindicator según el proyecto
@@ -960,10 +962,11 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
             neuroChipCorrupto: 'Neuro-Chip Corrupto',
           };
 
-          let notificationMessage = "Recompensas obtenidas: ";
-                              let auroraMessage = {
+                    let notificationMessage = "Recompensas obtenidas: ";
+                                                            let auroraMessage = {
             message: "Expedición finalizada con éxito.",
-            messageKey: `exp-success-${Date.now()}`
+            messageKey: `exp-success-${Date.now()}`,
+            audioId: 6
           };
           
           const newState = {
@@ -990,11 +993,12 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
           }
 
           const finalDronesLost = initialDronesLost - dronesSurvived;
-          const droneType = expeditionData.droneType;
+                    const droneType = expeditionData.droneType;
           
-          let auroraMessage = {
+                    let auroraMessage = {
             message: "La expedición ha fracasado.",
-            messageKey: `exp-fail-${Date.now()}`
+            messageKey: `exp-fail-${Date.now()}`,
+            audioId: 7 // <-- CORREGIDO
           };
 
           const newState = {
@@ -1009,22 +1013,50 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
             activeExpeditions: remainingExpeditions,
           };
           
-          // Llamada recursiva para añadir el mensaje de Aurora
-          return gameReducer(newState, { type: 'ADD_AURORA_MESSAGE', payload: auroraMessage });
+                    return gameReducer(newState, { type: 'ADD_AURORA_MESSAGE', payload: auroraMessage });
         }
     }
+            case 'SET_MASTER_VOLUME':
+      return {
+        ...state,
+        settings: {
+          ...state.settings,
+          masterVolume: action.payload,
+        },
+      };
 
-        case 'SET_VOLUME': {
-        return {
-            ...state,
-            settings: {
-                ...state.settings,
-                volume: action.payload,
-            }
-        };
-    }
+    case 'SET_MUSIC_VOLUME':
+      return {
+        ...state,
+        settings: {
+          ...state.settings,
+          musicVolume: action.payload,
+        },
+      };
+
+    case 'SET_SFX_VOLUME':
+      return {
+        ...state,
+        settings: {
+          ...state.settings,
+          sfxVolume: action.payload,
+        },
+      };
+
+    case 'TOGGLE_VOICES_MUTED':
+      return { ...state, settings: { ...state.settings, voicesMuted: !state.settings.voicesMuted } };
+    case 'TOGGLE_UI_ANIMATIONS':
+      return { ...state, settings: { ...state.settings, uiAnimationsEnabled: !state.settings.uiAnimationsEnabled } };
+        case 'TOGGLE_FLOATING_TEXT':
+      return { ...state, settings: { ...state.settings, floatingTextEnabled: !state.settings.floatingTextEnabled } };
+        case 'SET_NUMBER_FORMAT':
+      return { ...state, settings: { ...state.settings, numberFormat: action.payload } };
+    case 'TOGGLE_AURORA_NOTIFICATIONS':
+      return { ...state, settings: { ...state.settings, auroraNotificationsEnabled: !state.settings.auroraNotificationsEnabled } };
+    case 'TOGGLE_ACTION_CONFIRMATIONS':
+      return { ...state, settings: { ...state.settings, actionConfirmationsEnabled: !state.settings.actionConfirmationsEnabled } };
     
-    // --- Nuevas Acciones para la Sala de Batalla ---
+    
     case 'SELECT_CHAPTER':
       return {
         ...state,

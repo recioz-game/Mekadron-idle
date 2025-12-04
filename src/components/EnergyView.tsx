@@ -100,19 +100,17 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
     empoweredEnergyCores * 150 +
     fusionReactors * 250;
 
-    return (
-    <div className="energy-view-container" ref={scrollRef}>
-      <div className="energy-view-header">
-        <h2>MÓDULO DE ENERGÍA</h2>
+        return (
+    <div className="energy-view-container">
+      <div className="energy-content-area" ref={scrollRef}>
         <button 
           onClick={onClose}
           className="close-button"
         >
-          Cerrar
+          &times;
         </button>
-      </div>
 
-            {/* Resumen Energético */}
+                                    {/* Resumen Energético */}
       <div className="energy-summary">
         <div className="summary-header" onClick={() => setIsSummaryOpen(!isSummaryOpen)}>
           <h3 style={{ color: '#06B6D4' }}>RESUMEN ENERGÉTICO</h3>
@@ -327,6 +325,7 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
           <img src={fusionReactorImg} alt="Reactor de Fusión" className="energy-item-image" />
         </div>
       )}
+      </div>
     </div>
   );
 });

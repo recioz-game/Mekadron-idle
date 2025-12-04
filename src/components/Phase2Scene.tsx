@@ -18,6 +18,14 @@ const Phase2Scene: React.FC = () => {
   const { gameState, dispatch } = useGame();
   const { vindicator, currentView } = gameState;
 
+  const handleModuleClick = (module: string) => {
+    if (currentView === module) {
+      dispatch({ type: 'CLOSE_CURRENT_VIEW' });
+    } else {
+      dispatch({ type: 'SET_CURRENT_VIEW', payload: module });
+    }
+  };
+
   const handleCloseView = () => {
     dispatch({ type: 'CLOSE_CURRENT_VIEW' });
   };
@@ -32,26 +40,26 @@ const Phase2Scene: React.FC = () => {
         <div className="content-area">
           {currentView === 'battleRoom' && <BattleRoom onClose={handleCloseView} />}
           {currentView === 'armory' && <Armory onClose={handleCloseView} />}
-          {currentView === 'bodega' && <Bodega />}
+          {currentView === 'bodega' && <Bodega onClose={handleCloseView} />}
         </div>
         
         {/* 3. Panel de Módulos */}
         <div className="phase2-modules-panel">
           {/* Módulos de Fase 2 - Ahora con imágenes sin texto ni bordes */}
           <button
-            onClick={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'battleRoom' })}
+            onClick={() => handleModuleClick('battleRoom')}
             className={`image-button ${currentView === 'battleRoom' ? 'active' : ''}`}
           >
             <img src={battleRoomImage} alt="Sala de Batalla" className="button-image" />
           </button>
           <button
-            onClick={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'armory' })}
+            onClick={() => handleModuleClick('armory')}
             className={`image-button ${currentView === 'armory' ? 'active' : ''}`}
           >
             <img src={armoryImage} alt="Armería" className="button-image" />
           </button>
           <button
-            onClick={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'bodega' })}
+            onClick={() => handleModuleClick('bodega')}
             className={`image-button ${currentView === 'bodega' ? 'active' : ''}`}
           >
             <img src={bodegaButtonIcon} alt="Bodega" className="button-image" />

@@ -167,34 +167,31 @@ const ShipyardView: React.FC<ShipyardViewProps> = ({
     );
   };
 
-        return (
-    <div className="shipyard-view-container" ref={scrollRef}>
-      {currentProject ? (
-        <>
-          <div className="shipyard-view-header">
-            <h2>ASTILLERO - PROYECTO "{currentProject.name.toUpperCase()}"</h2>
-            <button onClick={onClose} className="close-button">
-              Cerrar
-            </button>
-          </div>
-          <div className="shipyard-intro">
-            <p>{projectDescriptions[currentProject.id] || "Iniciando nuevo proyecto..."}</p>
-          </div>
-          {Object.entries(currentProject.costs).map(([componentId, componentData]) => 
-            renderComponentProgress(componentId, componentData)
-          )}
-        </>
-      ) : (
-        <div className="shipyard-view-container">
-          <div className="shipyard-view-header">
-            <h2>ASTILLERO</h2>
-            <button onClick={onClose} className="close-button">Cerrar</button>
-          </div>
-          <div className="shipyard-intro">
-            <p>¡Todos los proyectos del astillero han sido completados!</p>
-          </div>
-        </div>
-      )}
+          return (
+    <div className="shipyard-view-container">
+      <div className="shipyard-content-area" ref={scrollRef}>
+        <button onClick={onClose} className="close-button">
+          &times;
+        </button>
+        {currentProject ? (
+          <>
+            <div className="shipyard-intro">
+              <h2 className="shipyard-project-title">ASTILLERO - PROYECTO "{currentProject.name.toUpperCase()}"</h2>
+              <p>{projectDescriptions[currentProject.id] || "Iniciando nuevo proyecto..."}</p>
+            </div>
+            {Object.entries(currentProject.costs).map(([componentId, componentData]) => 
+              renderComponentProgress(componentId, componentData)
+            )}
+          </>
+        ) : (
+          <>
+            <div className="shipyard-intro">
+              <h2 className="shipyard-project-title">ASTILLERO</h2>
+              <p>¡Todos los proyectos del astillero han sido completados!</p>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

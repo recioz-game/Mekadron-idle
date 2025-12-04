@@ -1,4 +1,3 @@
-/* ... (estilos existentes) ... */
 
 @media (max-width: 768px) {
   .battle-room-content {
@@ -28,6 +27,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 3.2rem;
+  position: relative; 
 }
 
 .battle-view-header h2 {
@@ -39,30 +39,18 @@
 
 .battle-view-subtitle {
   text-align: center;
-  color: #9CA3AF; /* Un color más suave que el título principal */
+  color: #9CA3AF; 
   font-size: 1.8rem;
-  margin: 0; /* Reseteamos el margen para el contenedor flex */
-  flex-grow: 1; /* Hacemos que el título ocupe el espacio central */
+  margin: 0; 
+  flex-grow: 1; 
 }
 
 .chapter-header {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Alinea los ítems */
+  justify-content: space-between; 
   margin-bottom: 2.4rem;
-  padding: 0 2rem; /* Añade un poco de padding para que el botón no esté pegado al borde */
-}
-
-
-
-.close-button {
-  padding: 0.8rem 1.6rem;
-  background-color: #EF4444; /* Rojo */
-  color: white;
-  border: none;
-  border-radius: 0.4rem;
-  cursor: pointer;
-  font-size: 1.4rem;
+  padding: 0 2rem; 
 }
 
 .battle-room-content {
@@ -94,7 +82,7 @@
 }
 
 .destination-list-item.active {
-  border-color: #22C55E; /* Verde para activo */
+  border-color: #22C55E; 
 }
 
 .destination-list-item.completed {
@@ -114,7 +102,7 @@
 }
 
 .destination-list-item.locked:hover {
-  border-color: #EF4444; /* Rojo para indicar bloqueo */
+  border-color: #EF4444; 
 }
 
 .lock-icon {
@@ -141,24 +129,24 @@
 
 .destination-details {
   flex-grow: 1;
-  padding: 2.4rem; /* Aumentamos el padding para más espacio */
+  padding: 2.4rem; 
   background-color: #1F2937;
   border-radius: 0.4rem;
 }
 
 .destination-details h3 {
-  font-size: 2.2rem; /* Aumentamos el tamaño del título de la zona */
+  font-size: 2.2rem; 
   margin-bottom: 1rem;
 }
 
 .destination-details p {
-  font-size: 1.6rem; /* Aumentamos el tamaño del lore/descripción */
+  font-size: 1.6rem; 
   color: #D1D5DB;
   line-height: 1.7;
 }
 
 .next-battle-info h4 {
-  font-size: 2rem; /* Aumentamos el tamaño de "Próxima Batalla" */
+  font-size: 2rem; 
   color: #FBBF24;
 }
 
@@ -179,7 +167,6 @@
   cursor: not-allowed;
 }
 
-/* Nuevos estilos para recompensas */
 .battle-rewards {
   background: rgba(34, 197, 94, 0.1);
   border: 1px solid #22C55E;
@@ -267,7 +254,6 @@
   font-size: 1.8rem;
 }
 
-/* Estilos para destinos de jefe */
 .boss-destination {
   border-color: #F59E0B !important;
   background: linear-gradient(135deg, #1F2937, #374151) !important;
@@ -317,7 +303,6 @@
   font-weight: bold;
 }
 
-/* Estilos para el nuevo carrusel de capítulos */
 .chapter-carousel {
   display: flex;
   justify-content: center;
@@ -327,65 +312,91 @@
 }
 
 .nav-arrow {
-  background-color: #374151;
-  color: #E5E7EB;
+  background-color: transparent;
   border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 20px;
+  padding: 0;
   cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: background-color 0.2s;
+  transition: transform 0.2s ease-in-out;
 }
 
 .nav-arrow:hover {
-  background-color: #4B5563;
+  transform: scale(1.1);
+}
+
+.nav-arrow img {
+  display: block;
+  width: 50px; 
+  height: 50px; 
 }
 
 .chapter-card {
-  background-color: #1F2937;
-  border: 2px solid #4B5563;
+  background-color: rgba(31, 41, 55, 0.6); /* Mayor transparencia */
+  border: 1px solid red; /* Borde de línea roja */
   border-radius: 12px;
-  width: 300px; /* Ancho fijo para la tarjeta */
+  width: 700px; /* Ancho para acomodar el layout */
+  max-width: 90vw;
   overflow: hidden;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .chapter-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-}
-
-.chapter-card.locked {
-  opacity: 0.6;
-}
-
-.chapter-image {
-  width: 100%;
-  height: 180px; /* Altura para la imagen */
-  object-fit: cover;
-  background-color: #374151; /* Placeholder si no hay imagen */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .chapter-card-content {
-  padding: 1.5rem;
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 .chapter-card-title {
   margin: 0 0 1rem 0;
-  font-size: 1.8rem;
+  padding-bottom: 1rem;
+  font-size: 2rem;
   color: #F3F4F6;
+  text-align: center;
+  border-bottom: 1px solid #374151;
+}
+
+.chapter-card-body {
+  display: grid;
+  grid-template-columns: 200px 1fr; /* Columna fija para imagen, flexible para texto */
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+  flex-grow: 1;
+  align-items: flex-start;
+}
+
+.chapter-image {
+  width: 100%;
+  height: auto;
+  max-height: 250px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .chapter-card-lore {
-  margin: 0 0 1.5rem 0;
-  font-size: 1.4rem;
-  color: #9CA3AF; /* Gris claro para el lore */
+  margin: 0;
+  font-size: 1.5rem;
+  color: #D1D5DB;
   line-height: 1.6;
+  text-align: left; /* Descripción justificada a la izquierda */
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 1rem; /* Espacio para la barra de scroll */
+}
+
+.chapter-card-footer {
+  padding-top: 1.5rem;
+  margin-top: auto;
+  border-top: 1px solid #374151;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .chapter-locked-text {
@@ -394,23 +405,25 @@
 }
 
 .select-chapter-button {
-  background-color: #10B981;
-  color: white;
+  background-color: transparent;
   border: none;
-  border-radius: 6px;
-  padding: 0.8rem 1.5rem;
-  font-size: 1rem;
-  font-weight: bold;
+  padding: 0;
+  border-radius: 0;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: transform 0.2s ease;
+  justify-self: center; /* Centrar el botón */
 }
 
 .select-chapter-button:hover {
-  background-color: #059669;
+  transform: scale(1.05); /* Agrandar ligeramente */
 }
 
+.select-chapter-button img {
+  display: block;
+  width: 150px; /* Ancho del botón, ajústalo si es necesario */
+  height: auto;
+}
 
-/* --- Estilos para la cabecera de la lista de destinos --- */
 .destination-list-header {
   display: flex;
   align-items: center;
@@ -447,6 +460,5 @@
 
 .infinite-mode-section h3 {
   margin-bottom: 15px;
-  color: #a0aec0; /* Un color ligeramente diferente para el título de la sección */
+  color: #a0aec0; 
 }
-

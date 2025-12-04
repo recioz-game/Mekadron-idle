@@ -1,62 +1,97 @@
 /* src/components/Laboratory.css */
-/* Contenedor principal */
-.tech-center-container {
-  background-color: #111827;
+.laboratory-container {
+  /* Fondo con border-image */
+  border-style: solid;
+  border-color: transparent;
+  border-width: 40px;
+  border-image-source: url('../assets/images/ui/panels/laboratory_panel.png');
+  border-image-slice: 40 fill;
+  border-image-repeat: stretch;
+
   color: #E5E7EB;
-  padding: 1.6rem;
+  padding: 9rem 0.5rem 1rem;
   font-family: Inter, sans-serif;
+  overflow: hidden;
+  height: 100%; /* Asegura que el contenedor ocupe la altura disponible */
+  display: flex; /* Para que el hijo ocupe el 100% de altura */
+}
+
+.laboratory-content-area {
+  position: relative;
+  overflow: auto; /* Scroll en ambas direcciones */
   height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.tech-center-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.tech-center-header h2 {
-  font-size: 2.4rem;
-  flex-grow: 1;
-  text-align: center;
-  margin: 0;
-  color: #E5E7EB;
 }
 
 .close-button {
-  padding: 0.8rem 1.6rem;
-  background-color: #EF4444;
-  color: white;
+  position: absolute;
+  top: 4rem; /* Bajado un poco */
+  right: 1rem;
+  z-index: 20;
+  background-color: transparent;
   border: none;
-  border-radius: 0.4rem;
+  color: #10B981; /* Color Esmeralda */
   cursor: pointer;
-  font-size: 1.4rem;
+  font-size: 3.5rem;
+  line-height: 1;
+  padding: 0;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
 }
 
+.close-button:hover {
+  background-color: rgba(16, 185, 129, 0.2); /* Esmeralda con transparencia */
+}
+
+/* Estilos para la barra de scroll personalizada */
+.laboratory-content-area::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.laboratory-content-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.laboratory-content-area::-webkit-scrollbar-thumb {
+  background-color: #10B981; /* Color Esmeralda */
+  border-radius: 20px;
+  border: 3px solid transparent;
+}
+
+.laboratory-content-area {
+  scrollbar-width: thin;
+  scrollbar-color: #10B981 transparent;
+}
+
+/* Ajustes para el contenido del laboratorio */
 .research-points-summary {
-  padding: 1rem;
-  background-color: #1F2937;
-  border-radius: 0.8rem;
-  margin-bottom: 2rem;
   text-align: center;
+  margin-bottom: 2rem;
+  margin-top: 4rem; /* Añadido para bajar el título */
   position: relative;
-  border: 2px solid #374151;
+  z-index: 10;
+  padding: 1rem;
+  border-radius: 8px;
 }
 
 .research-points-summary h3 {
-  color: #06B6D4;
-  margin: 0;
   display: inline-flex;
   align-items: center;
+  cursor: pointer;
+  color: #06B6D4;
+  margin: 0;
   gap: 1rem;
   font-size: 2rem;
 }
 
 .info-icon {
-  cursor: pointer;
   font-size: 1.4rem;
+  color: #9CA3AF;
   border: 1px solid #9CA3AF;
   border-radius: 50%;
   width: 2.4rem;
@@ -66,17 +101,6 @@
   align-items: center;
 }
 
-/* Contenedor del árbol con scroll */
-.tech-tree-scroll-container {
-  overflow: auto; /* Cambiado de overflow-x a overflow para permitir scroll en ambas direcciones */
-  flex-grow: 1;
-  padding: 1rem;
-  background-color: #0d1117;
-  border-radius: 0.8rem;
-  position: relative;
-}
-
-/* Contenedor de la Cuadrícula (Grid) */
 .tech-tree-grid-container {
   display: grid;
   grid-auto-flow: column;
@@ -87,7 +111,6 @@
   min-width: max-content;
 }
 
-/* Banner de cada Rama */
 .branch-banner {
   grid-column: 1 / -1;
   align-self: start;
@@ -99,7 +122,6 @@
   margin-left: 1rem;
 }
 
-/* Tarjeta de Tecnología (posicionada por Grid) */
 .tech-card {
   padding: 1.5rem;
   background-color: #1F2937;
@@ -167,15 +189,9 @@
 /* Estilos para el hook useDragToScroll */
 body.grabbing {
   cursor: grabbing;
-  user-select: none; /* Evita seleccionar texto mientras se arrastra */
-}
-.tech-tree-scroll-container {
-  cursor: grab;
+  user-select: none;
 }
 
-@media (max-width: 768px) {
-  .tech-tree-grid-container {
-    grid-template-columns: repeat(10, 260px);
-    gap: 1.5rem 2.5rem;
-  }
+.laboratory-content-area {
+  cursor: grab;
 }

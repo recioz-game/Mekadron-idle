@@ -106,17 +106,15 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
   const plasmaAccumulatorMax = getMaxAffordable({ scrap: plasmaAccumulatorCost });
   const harmonicContainmentFieldMax = getMaxAffordable({ scrap: harmonicContainmentFieldScrapCost, metalRefinado: harmonicContainmentFieldMetalCost });
 
-    return (
-    <div className="storage-view-container" ref={scrollRef}>
-      <div className="storage-view-header">
-        <h2>MÓDULO DE ALMACÉN</h2>
+        return (
+    <div className="storage-view-container">
+      <div className="storage-content-area" ref={scrollRef}>
         <button 
           onClick={onClose}
           className="close-button"
         >
-          Cerrar
+          &times;
         </button>
-      </div>
 
             <BuyAmountSelector buyAmount={buyAmount} onSetBuyAmount={onSetBuyAmount} />
 
@@ -335,47 +333,48 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
         <img src={accumulatorPlasmaImg} alt="Acumulador de Plasma" className="storage-item-image" />
       </div>
 
-            {/* Campo de Contención Armónico */}
+                        {/* Campo de Contención Armónico */}
             <div className={`storage-item ${scrap >= harmonicContainmentFieldScrapCost && metalRefinado >= harmonicContainmentFieldMetalCost && plasmaAccumulator >= 3 ? 'unlocked' : ''} ${plasmaAccumulator >= 3 ? '' : 'locked'}`}>
-        <div className="storage-item-content">
-          <h3 style={{ color: '#D946EF' }}>Campo de Contención Armónico</h3>
-          <p>Capacidad: +{formatNumber(1200)} energía máxima</p>
-          <p>Coste: {formatNumber(harmonicContainmentFieldScrapCost)} chatarra y {formatNumber(harmonicContainmentFieldMetalCost)} metal refinado</p>
-          <p>Construidos: {harmonicContainmentField} | En cola: {harmonicContainmentFieldQueue.queue}</p>
-          {harmonicContainmentFieldQueue.queue > 0 && (
-            <div className="queue-controls">
-              <button onClick={() => onCancel('harmonicContainmentField', 1)}>Cancelar 1</button>
-              <button onClick={() => onCancel('harmonicContainmentField', 'all')}>Cancelar Todo</button>
+              <div className="storage-item-content">
+                <h3 style={{ color: '#D946EF' }}>Campo de Contención Armónico</h3>
+                <p>Capacidad: +{formatNumber(1200)} energía máxima</p>
+                <p>Coste: {formatNumber(harmonicContainmentFieldScrapCost)} chatarra y {formatNumber(harmonicContainmentFieldMetalCost)} metal refinado</p>
+                <p>Construidos: {harmonicContainmentField} | En cola: {harmonicContainmentFieldQueue.queue}</p>
+                {harmonicContainmentFieldQueue.queue > 0 && (
+                  <div className="queue-controls">
+                    <button onClick={() => onCancel('harmonicContainmentField', 1)}>Cancelar 1</button>
+                    <button onClick={() => onCancel('harmonicContainmentField', 'all')}>Cancelar Todo</button>
+                  </div>
+                )}
+                <p>T/U: {harmonicContainmentFieldQueue.time}s</p>
+                <p>Requisitos: 3 Acumuladores de Plasma</p>
+                
+                {harmonicContainmentFieldQueue.queue > 0 && <ProgressBar progress={harmonicContainmentFieldQueue.progress} time={harmonicContainmentFieldQueue.time} />}
+                
+                <BotonConTooltip
+                  onClick={onBuildHarmonicContainmentField}
+                  disabled={scrap < harmonicContainmentFieldScrapCost || metalRefinado < harmonicContainmentFieldMetalCost || plasmaAccumulator < 3}
+                  tooltipText={getTooltipText([
+                    { amount: harmonicContainmentFieldScrapCost, current: scrap, text: 'Chatarra' },
+                    { amount: harmonicContainmentFieldMetalCost, current: metalRefinado, text: 'Metal Refinado' },
+                    { amount: 3, current: plasmaAccumulator, text: 'Acumuladores de Plasma' }
+                  ])}
+                  className={`build-button ${scrap >= harmonicContainmentFieldScrapCost && metalRefinado >= harmonicContainmentFieldMetalCost && plasmaAccumulator >= 3 ? 'unlocked' : ''}`}
+                  style={{ backgroundColor: scrap >= harmonicContainmentFieldScrapCost && metalRefinado >= harmonicContainmentFieldMetalCost && plasmaAccumulator >= 3 ? '#D946EF' : '#9CA3AF' }}
+                >
+                  Encargar Campo de Contención {buyAmount === 'max' && `(${harmonicContainmentFieldMax})`}
+                </BotonConTooltip>
+                {plasmaAccumulator < 3 && (
+                  <p className="requirement-warning">
+                                  ⚠️ Necesitas 3 Acumuladores de Plasma
+                  </p>
+                )}
+              </div>
+              <img src={harmonicContainmentFieldImg} alt="Campo de Contención Armónico" className="storage-item-image" />
             </div>
-          )}
-          <p>T/U: {harmonicContainmentFieldQueue.time}s</p>
-          <p>Requisitos: 3 Acumuladores de Plasma</p>
-          
-          {harmonicContainmentFieldQueue.queue > 0 && <ProgressBar progress={harmonicContainmentFieldQueue.progress} time={harmonicContainmentFieldQueue.time} />}
-          
-          <BotonConTooltip
-            onClick={onBuildHarmonicContainmentField}
-            disabled={scrap < harmonicContainmentFieldScrapCost || metalRefinado < harmonicContainmentFieldMetalCost || plasmaAccumulator < 3}
-            tooltipText={getTooltipText([
-              { amount: harmonicContainmentFieldScrapCost, current: scrap, text: 'Chatarra' },
-              { amount: harmonicContainmentFieldMetalCost, current: metalRefinado, text: 'Metal Refinado' },
-              { amount: 3, current: plasmaAccumulator, text: 'Acumuladores de Plasma' }
-            ])}
-            className={`build-button ${scrap >= harmonicContainmentFieldScrapCost && metalRefinado >= harmonicContainmentFieldMetalCost && plasmaAccumulator >= 3 ? 'unlocked' : ''}`}
-            style={{ backgroundColor: scrap >= harmonicContainmentFieldScrapCost && metalRefinado >= harmonicContainmentFieldMetalCost && plasmaAccumulator >= 3 ? '#D946EF' : '#9CA3AF' }}
-          >
-            Encargar Campo de Contención {buyAmount === 'max' && `(${harmonicContainmentFieldMax})`}
-          </BotonConTooltip>
-          {plasmaAccumulator < 3 && (
-            <p className="requirement-warning">
-                            ⚠️ Necesitas 3 Acumuladores de Plasma
-            </p>
-          )}
+          </div>
         </div>
-        <img src={harmonicContainmentFieldImg} alt="Campo de Contención Armónico" className="storage-item-image" />
-      </div>
-    </div>
-  );
+    );
 });
 
 export default StorageView;

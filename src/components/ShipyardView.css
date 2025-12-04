@@ -1,34 +1,72 @@
 /* src/components/ShipyardView.css */
 .shipyard-view-container {
-  background-color: #111827;
+  /* Fondo con border-image */
+  border-style: solid;
+  border-color: transparent;
+  border-width: 40px;
+  border-image-source: url('../assets/images/ui/panels/shipyard_panel.png');
+  border-image-slice: 40 fill;
+  border-image-repeat: stretch;
+
   color: #E5E7EB;
-  padding: 1.6rem;
+  padding: 4rem 0.5rem 1rem; /* Subido el texto */
   font-family: Inter, sans-serif;
-  max-height: 80vh;
+  overflow: hidden;
+}
+
+.shipyard-content-area {
+  position: relative;
   overflow-y: auto;
-}
-
-.shipyard-view-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2.4rem;
-}
-
-.shipyard-view-header h2 {
-  font-size: 2rem;
-  text-align: center;
-  flex-grow: 1;
-  color: #F59E0B;
+  padding-right: 1rem;
+  height: 100%;
+  padding-top: 3.5rem;
+  padding-bottom: 2rem;
+  cursor: grab; /* Añadido para el hook de arrastre */
 }
 
 .close-button {
-  padding: 0.8rem 1.6rem;
-  background-color: #EF4444;
-  color: white;
+  position: absolute;
+  top: 3.5rem; /* Bajado para alinear con el título */
+  right: 1rem;
+  z-index: 10;
+  background-color: transparent;
   border: none;
-  border-radius: 0.4rem;
+  color: #FFD700; /* Color Amarillo Eléctrico */
   cursor: pointer;
+  font-size: 3.5rem;
+  line-height: 1;
+  padding: 0;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.close-button:hover {
+  background-color: rgba(255, 215, 0, 0.2); /* Amarillo con transparencia */
+}
+
+/* Estilos para la barra de scroll personalizada */
+.shipyard-content-area::-webkit-scrollbar {
+  width: 8px;
+}
+
+.shipyard-content-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.shipyard-content-area::-webkit-scrollbar-thumb {
+  background-color: #FFD700; /* Color Amarillo Eléctrico */
+  border-radius: 20px;
+  border: 3px solid transparent;
+}
+
+.shipyard-content-area {
+  scrollbar-width: thin;
+  scrollbar-color: #FFD700 transparent;
 }
 
 .shipyard-intro {

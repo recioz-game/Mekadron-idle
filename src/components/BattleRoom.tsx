@@ -1,19 +1,50 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { gameChapters } from '../data/battleData'; // Cambiado
 import './BattleRoom.css';
 import { formatNumber } from '../utils/formatNumber';
+import chapter1Image from '../assets/images/chapters/chapters_cap_1.png';
+import chapter2Image from '../assets/images/chapters/chapters_cap_2.png';
+import chapter3Image from '../assets/images/chapters/chapters_cap_3.png';
+import chapter4Image from '../assets/images/chapters/chapters_cap_4.png';
+import chapter5Image from '../assets/images/chapters/chapters_cap_5.png';
+import scrapIcon from '../assets/images/ui/scrap-icon.png';
+import fuelRodIcon from '../assets/images/ui/fuel-rod-icon.png';
+import corruptNeurochipIcon from '../assets/images/ui/corrupt-neurochip-icon.png';
+import blueprintIcon from '../assets/images/ui/resources/plano 32x32.png';
+import navArrowLeft from '../assets/images/ui/buttons/nav-arrow-left.png';
+import navArrowRight from '../assets/images/ui/buttons/nav-arrow-right.png';
+import enterButton from '../assets/images/ui/buttons/enter-button.png';
 
 interface BattleRoomProps {
   onClose: () => void;
 }
 
 const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
+  const [isVisible, setIsVisible] = useState(false);
   const { gameState, dispatch } = useGame();
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 10);
+    return () => clearTimeout(timer);
+  }, []);
   const { battleRoom } = gameState;
 
   // --- NUEVA LÓGICA DE SELECCIÓN DE CAPÍTULO ---
   const [currentChapterIndex, setCurrentChapterIndex] = React.useState(0);
+
+  const chapterImages = [
+  chapter1Image, // Cap 1
+  chapter2Image, // Cap 2
+  chapter3Image, // Cap 3
+  chapter4Image, // Cap 4
+  chapter5Image, // Cap 5
+  chapter1Image, // Cap 6 (Difícil 1)
+  chapter2Image, // Cap 7 (Difícil 2)
+  chapter3Image, // Cap 8 (Difícil 3)
+  chapter4Image, // Cap 9 (Difícil 4)
+  chapter5Image, // Cap 10 (Difícil 5)
+];
 
   const handleNextChapter = () => {
     setCurrentChapterIndex((prevIndex) => (prevIndex + 1) % gameChapters.length);
@@ -44,23 +75,26 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
 
     return (
       <div className="chapter-carousel">
-        <button onClick={handlePrevChapter} className="nav-arrow prev-arrow">◀</button>
+        <button onClick={handlePrevChapter} className="nav-arrow prev-arrow"><img src={navArrowLeft} alt="Anterior" /></button>
         <div className={`chapter-card ${isLocked ? 'locked' : ''}`}>
-          {/* Aquí iría la imagen del capítulo */}
-          {/* <img src={chapter.imageUrl} alt={chapter.name} className="chapter-image" /> */}
-          <div className="chapter-card-content">
-            <h3 className="chapter-card-title">{chapter.name}</h3>
+        <div className="chapter-card-content">
+          <h3 className="chapter-card-title">{chapter.name}</h3>
+          <div className="chapter-card-body">
+            <img src={chapterImages[currentChapterIndex] || 'https://via.placeholder.com/200'} alt={chapter.name} className="chapter-image" />
             <p className="chapter-card-lore">{chapter.lore}</p>
+          </div>
+          <div className="chapter-card-footer">
             {isLocked ? (
               <p className="chapter-locked-text">Bloqueado</p>
             ) : (
               <button onClick={handleSelectChapter} className="select-chapter-button">
-                Entrar
+                <img src={enterButton} alt="Entrar" />
               </button>
             )}
           </div>
         </div>
-        <button onClick={handleNextChapter} className="nav-arrow next-arrow">▶</button>
+      </div>
+        <button onClick={handleNextChapter} className="nav-arrow next-arrow"><img src={navArrowRight} alt="Siguiente" /></button>
       </div>
   );
   };
@@ -159,14 +193,14 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
               const nextBattle = destination.battles[battlesCompleted];
 
               // Diccionario de metadatos de recompensas
-              const rewardMetadata: { [key: string]: { name: string; icon: string } } = {
-                scrap: { name: 'Chatarra', icon: '💰' },
+              const rewardMetadata: { [key: string]: { name: string; icon: string | { src: string; alt: string } } } = {
+                scrap: { name: 'Chatarra', icon: { src: scrapIcon, alt: 'Chatarra' } },
                 aleacionReforzada: { name: 'Aleación Reforzada', icon: '🛡️' },
-                neuroChipCorrupto: { name: 'Neuro-Chip Corrupto', icon: '🧠' },
+                neuroChipCorrupto: { name: 'Neuro-Chip Corrupto', icon: { src: corruptNeurochipIcon, alt: 'Neuro-Chip Corrupto' } },
                 matrizCristalina: { name: 'Matriz Cristalina', icon: '💎' },
                 IA_Fragmentada: { name: 'IA Fragmentada', icon: '💾' },
-                planosMK2: { name: 'Planos MK2', icon: '📜' },
-                blueprints: { name: 'Planos', icon: ' blueprint-icon-class' }, // Puedes usar una clase para un icono de imagen
+                planosMK2: { name: 'Planos MK2', icon: { src: blueprintIcon, alt: 'Planos MK2' } },
+                blueprints: { name: 'Planos', icon: { src: blueprintIcon, alt: 'Planos' } }, // Puedes usar una clase para un icono de imagen
               };
 
               return (
@@ -186,8 +220,10 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
 
                           return (
                             <div className="reward-item" key={key}>
-                              <span className="reward-icon">{meta.icon}</span>
-                              <span className="reward-amount">{formatNumber(value)}</span>
+                              <span className="reward-icon">
+                                {typeof meta.icon === 'string' ? meta.icon : <img src={meta.icon.src} alt={meta.icon.alt} style={{ width: '32px', height: '32px' }} />}
+                              </span>
+                              <span className="reward-amount">{formatNumber(value, gameState.settings.numberFormat)}</span>
                               <span className="reward-name">{meta.name}</span>
                             </div>
                           );
@@ -196,7 +232,7 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
                     </div>
                     
                     <div className="fuel-cost">
-                      <span className="fuel-icon">⛽</span>
+                      <img src={fuelRodIcon} alt="Barra de Combustible" className="fuel-icon" style={{ width: '32px', height: '32px' }} />
                       Coste: 1 Barra de Combustible
                     </div>
                     
@@ -230,12 +266,10 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="battle-view">
+    <div className={`battle-view ${gameState.settings.uiAnimationsEnabled ? 'view-fade-in' : ''} ${isVisible ? 'visible' : ''}`}>
       <div className="battle-view-header">
-        <h2>SALA DE BATALLA</h2>
-        <button onClick={onClose} className="close-button">
-          Cerrar
-        </button>
+        <h2></h2>
+        <button onClick={onClose} className="view-close-button red">×</button>
       </div>
       
       {battleRoom.selectedChapterIndex !== null && (

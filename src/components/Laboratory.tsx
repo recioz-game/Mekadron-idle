@@ -157,37 +157,34 @@ const Laboratory: React.FC<LaboratoryProps> = ({ gameState, onResearchUpgrade, o
     );
   }
 
-  return (
-    <div className="tech-center-container">
-      <div className="tech-center-header">
-        <h2>LABORATORIO</h2>
+    return (
+    <div className="laboratory-container">
+      <div className="laboratory-content-area" ref={scrollRef}>
         <button onClick={onClose} className="close-button">
-          Cerrar
+          &times;
         </button>
-      </div>
         
-      <div className="research-points-summary">
-        <h3 
-          onMouseEnter={() => setShowTooltip(true)}
-          onMouseLeave={() => setShowTooltip(false)}
-        >
-          <span>🧪 Puntos de Investigación: {formatNumber(researchPoints)}</span>
-          <span className="info-icon">
-            ⓘ
-          </span>
-        </h3>
-        {showTooltip && (
-          <ResearchTooltip
-            base={baseResearch}
-            fromDrones={droneResearch}
-            fromEnergy={energyResearch}
-            total={totalResearchPerSecond}
-            quantumComputingLevel={upgrades.quantumComputing || 0}
-          />
-        )}
-      </div>
-      
-      <div className="tech-tree-scroll-container" ref={scrollRef}>
+        <div className="research-points-summary">
+          <h3 
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+          >
+            <span>🧪 Puntos de Investigación: {formatNumber(researchPoints)}</span>
+            <span className="info-icon">
+              ⓘ
+            </span>
+          </h3>
+          {showTooltip && (
+            <ResearchTooltip
+              base={baseResearch}
+              fromDrones={droneResearch}
+              fromEnergy={energyResearch}
+              total={totalResearchPerSecond}
+              quantumComputingLevel={upgrades.quantumComputing || 0}
+            />
+          )}
+        </div>
+        
         <Xwrapper>
           <div className="tech-tree-grid-container">
                         {/* Renderizar Banners de Ramas */}
@@ -267,9 +264,10 @@ const Laboratory: React.FC<LaboratoryProps> = ({ gameState, onResearchUpgrade, o
 const ResearchTooltip: React.FC<{base: number, fromDrones: number, fromEnergy: number, total: number, quantumComputingLevel: number}> = 
 ({ base, fromDrones, fromEnergy, total, quantumComputingLevel }) => {
   return (
-    <div style={{
+        <div style={{
       position: 'absolute',
-      bottom: '100%',
+      top: '100%', // Cambiado de 'bottom' a 'top'
+      marginTop: '0.5rem', // Espacio extra
       left: '50%',
       transform: 'translateX(-50%)',
       backgroundColor: '#111827',

@@ -82,7 +82,7 @@ const calculateOfflineResources = (loadedState: GameState): GameState => {
             // Añadir el mensaje a la cola de Aurora
       simulatedState.aurora.pendingMessages.push({
         message: message.trim(),
-        key: `offline_production_${Date.now()}`
+        key: 'offline_production_welcome_back'
       });
     }
   }
@@ -177,20 +177,15 @@ const applyBulkOfflineProduction = (state: GameState, seconds: number): GameStat
 
 // Carga el estado inicial, intentando recuperarlo de localStorage
 const loadState = (): GameState => {
-  console.log("Iniciando la carga del estado...");
   try {
     const serializedState = localStorage.getItem('mekadron-savegame');
     if (serializedState === null) {
-      console.log("No se encontró partida guardada. Usando estado inicial.");
       return initialGameState;
     }
-    console.log("Partida guardada encontrada. Procesando...");
     const storedState = JSON.parse(serializedState);
-    console.log("Estado guardado parseado:", storedState);
 
     // --- MIGRACIÓN DE DATOS ESTRUCTURAL: workshop.drones ---
     if (storedState.drones && !storedState.workshop?.drones) {
-      console.log("Migrando estructura de drones...");
       if (!storedState.workshop) {
         storedState.workshop = { ...initialGameState.workshop };
       }
@@ -200,7 +195,6 @@ const loadState = (): GameState => {
 
     // --- MIGRACIÓN DE DATOS DE AURORA ---
     if (storedState.aurora && (storedState.aurora.currentMessage || storedState.aurora.messageQueue)) {
-      console.log("Migrando estructura de Aurora...");
       const migratedPendingMessages = [];
       if (storedState.aurora.currentMessage) {
         migratedPendingMessages.push({
@@ -219,7 +213,6 @@ const loadState = (): GameState => {
 
     // --- MIGRACIÓN DE DATOS DE SHIPYARD ---
     if (!storedState.shipyard?.progress) {
-      console.log("Migrando estructura de Shipyard (progress)...");
       if (!storedState.shipyard) {
         storedState.shipyard = { ...initialGameState.shipyard };
       }
@@ -228,14 +221,12 @@ const loadState = (): GameState => {
 
     // --- MIGRACIÓN DE DATOS DE BODEGA ---
     if (storedState.vindicator && storedState.vindicator.bodega) {
-      console.log("Migrando estructura de Bodega...");
       if (!storedState.vindicator.bodegaResources) {
         storedState.vindicator.bodegaResources = storedState.vindicator.bodega.resources;
       }
       delete storedState.vindicator.bodega;
     }
     if (storedState.resources.metalRefinado) { // Mover recursos de la raíz a la bodega
-      console.log("Migrando recursos raíz a la Bodega...");
       if (!storedState.vindicator.bodegaResources) {
         storedState.vindicator.bodegaResources = initialGameState.vindicator.bodegaResources;
       }
@@ -259,7 +250,6 @@ const loadState = (): GameState => {
 
 
         const mergedState = deepMerge(initialGameState, storedState);
-    console.log("Estado después de la fusión (deepMerge):", mergedState);
     
     // REHIDRATACIÓN FINAL Y DEFINITIVA
     // Asegurarse de que shownMessages sea siempre un Set antes de calcular los recursos offline
@@ -270,9 +260,7 @@ const loadState = (): GameState => {
       mergedState.aurora.shownMessages = new Set();
     }
 
-    console.log("Calculando recursos offline...");
     const finalState = calculateOfflineResources(mergedState);
-    console.log("Estado final listo para usar:", finalState);
     return finalState;
   } catch (err) {
     console.error("No se pudo cargar la partida guardada:", err);
@@ -310,7 +298,12 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [gameState, dispatch] = useReducer(gameReducer, loadState());
   const [floatingTexts, setFloatingTexts] = useState<FloatingTextData[]>([]);
 
-  const showFloatingText = useCallback((text: string, x: number, y: number) => {
+    const showFloatingText = useCallback((text: string, x: number, y: number) => {
+    // Si los textos flotantes están desactivados, no hacer nada.
+    if (!gameState.settings.floatingTextEnabled) {
+      return;
+    }
+
     const newText: FloatingTextData = {
       id: Date.now(),
       text,
@@ -318,7 +311,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       y,
     };
     setFloatingTexts(currentTexts => [...currentTexts, newText]);
-  }, []);
+  }, [gameState.settings.floatingTextEnabled]);
 
   // Limpia los textos después de que la animación termine
   useEffect(() => {

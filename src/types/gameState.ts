@@ -98,10 +98,11 @@ export interface VindicatorUpgrade {
 
 // Nueva interfaz para un mensaje de Aurora
 export interface AuroraMessageState {
-  id: number;
-  text: string;
-  key: string;
-}
+    id: number;
+    text: string;
+    key: string;
+    audioId?: number;
+  }
 
 // Tipo para definir explícitamente todos los nombres de recursos
 export type ResourceType = keyof GameState['resources'];
@@ -177,9 +178,9 @@ export interface GameState {
     harmonicContainmentField: number;
     queues: ReturnType<typeof createQueues<'storage'>>;
   };
-  aurora: {
+    aurora: {
     activeMessages: AuroraMessageState[];
-    pendingMessages: Array<{ message: string; key: string }>;
+    pendingMessages: Array<{ message: string; key: string; audioId?: number }>;
     shownMessages: Set<string>;
   };
         missions: {
@@ -264,7 +265,7 @@ export interface GameState {
       defensive: string | null;
       tactical: string | null;
     };
-        bodegaResources: {
+                bodegaResources: {
       metalRefinado: number;
       aceroEstructural: number;
       fragmentosPlaca: number;
@@ -290,29 +291,39 @@ export interface GameState {
         // --- CAPITULO 5 ---
         tejidoAbisalRetorcido: number;
         singularidadCorruptaContenida: number;
-                planosMK4: number;
+                        planosMK4: number;
         // --- FIN CAPITULO 5 ---
         // --- CAPITULO 6 ---
+        esquirlasDeReliquia: number;
+        codexAncestral: number;
         aleacionReforzadaElite: number;
         neuroChipCorruptoElite: number;
                 planosMK5: number;
         // --- FIN CAPITULO 6 ---
         // --- CAPITULO 7 ---
+        fragmentoHorizonteSucesos: number;
+        energiaPuntoCero: number;
         matrizQuitinaCristalElite: number;
         nucleoSinapticoFracturadoElite: number;
         planosMK6: number;
         // --- FIN CAPITULO 7 ---
         // --- CAPITULO 8 ---
+        esenciaDelVacio: number;
+        reliquiaCorrupta: number;
         moduloManiobrasTácticasElite: number;
         placasCamuflajeActivoElite: number;
                 planosMK7: number;
         // --- FIN CAPITULO 8 ---
         // --- CAPITULO 9 ---
+        nucleoEspectral: number;
+        conexionFantasmal: number;
         placasDeAetheriumElite: number;
         nucleoPsionicoArmonicoElite: number;
                 planosMK8: number;
         // --- FIN CAPITULO 9 ---
         // --- CAPITULO 10 ---
+        fragmentoDeCiudadela: number;
+        matrizDeOverlord: number;
         tejidoAbisalRetorcidoElite: number;
         singularidadCorruptaContenidaElite: number;
         planosMK9: number;
@@ -499,8 +510,16 @@ export interface GameState {
     cloakTurnsRemaining?: number;
     dodgeBonusNextTurn?: boolean;
   } | null;
-  settings: {
-    volume: number; // 0-100
+      settings: {
+    masterVolume: number; // 0-100
+    musicVolume: number; // 0-100
+    sfxVolume: number; // 0-100
+    voicesMuted: boolean;
+        uiAnimationsEnabled: boolean;
+    floatingTextEnabled: boolean;
+    numberFormat: 'full' | 'abbreviated' | 'scientific';
+    auroraNotificationsEnabled: boolean;
+    actionConfirmationsEnabled: boolean;
   };
     lastSaveTimestamp?: number;
 }
@@ -692,29 +711,39 @@ export interface GameState {
         // --- CAPITULO 5 ---
         tejidoAbisalRetorcido: 0,
         singularidadCorruptaContenida: 0,
-                planosMK4: 0,
+                        planosMK4: 0,
         // --- FIN CAPITULO 5 ---
         // --- CAPITULO 6 ---
+        esquirlasDeReliquia: 0,
+        codexAncestral: 0,
                 aleacionReforzadaElite: 0,
         neuroChipCorruptoElite: 0,
                 planosMK5: 0,
         // --- FIN CAPITULO 6 ---
         // --- CAPITULO 7 ---
+        fragmentoHorizonteSucesos: 0,
+        energiaPuntoCero: 0,
         matrizQuitinaCristalElite: 0,
         nucleoSinapticoFracturadoElite: 0,
         planosMK6: 0,
         // --- FIN CAPITULO 7 ---
         // --- CAPITULO 8 ---
+        esenciaDelVacio: 0,
+        reliquiaCorrupta: 0,
         moduloManiobrasTácticasElite: 0,
         placasCamuflajeActivoElite: 0,
                 planosMK7: 0,
         // --- FIN CAPITULO 8 ---
         // --- CAPITULO 9 ---
+        nucleoEspectral: 0,
+        conexionFantasmal: 0,
         placasDeAetheriumElite: 0,
         nucleoPsionicoArmonicoElite: 0,
                 planosMK8: 0,
         // --- FIN CAPITULO 9 ---
         // --- CAPITULO 10 ---
+        fragmentoDeCiudadela: 0,
+        matrizDeOverlord: 0,
         tejidoAbisalRetorcidoElite: 0,
         singularidadCorruptaContenidaElite: 0,
         planosMK9: 0,
@@ -1115,8 +1144,16 @@ export interface GameState {
   blueprints: 0,
   vindicatorLevel: 1,
   activeBattle: null,
-  settings: {
-    volume: 75
+      settings: {
+    masterVolume: 75,
+    musicVolume: 100,
+    sfxVolume: 100,
+    voicesMuted: false,
+        uiAnimationsEnabled: true,
+    floatingTextEnabled: true,
+    numberFormat: 'abbreviated',
+    auroraNotificationsEnabled: true,
+    actionConfirmationsEnabled: true,
   },
   lastSaveTimestamp: undefined
 };

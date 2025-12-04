@@ -1,24 +1,52 @@
 import React, { useEffect, useState } from 'react';
+import { useGame } from '../context/GameContext'; // Importar el hook del contexto
 import auroraPanelUrl from '../assets/images/ui/buttons/aurora-message-panel.png';
+
+// --- Importación dinámica de todos los audios ---
+const audioFiles = import.meta.glob('../assets/audio/aurora/*.mp3', { eager: true, as: 'url' });
+
+// Crear un mapa ordenado para acceder fácilmente
+const audioMap = new Map<number, string>();
+for (const path in audioFiles) {
+  const match = path.match(/aurora_message_(\d+)\.mp3$/);
+  if (match) {
+    const id = parseInt(match[1], 10);
+    audioMap.set(id, audioFiles[path]);
+  }
+}
 
 interface AuroraMessageProps {
   message: string;
+  audioId?: number; // Nueva propiedad
   onClose: () => void;
   autoHide?: boolean;
 }
 
 const AuroraMessage: React.FC<AuroraMessageProps> = ({ 
   message, 
+  audioId,
   onClose, 
   autoHide = true 
 }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const { gameState } = useGame(); // Acceder al estado del juego
 
-  // Animar la entrada al montar el componente
+  // Reproducir sonido al montar el componente
   useEffect(() => {
     setIsVisible(true);
-  }, []);
 
+        if (audioId && audioMap.has(audioId) && !gameState.settings.voicesMuted) {
+      const audioSrc = audioMap.get(audioId);
+      if (audioSrc) {
+        const audio = new Audio(audioSrc);
+        // El volumen de la voz ahora depende del volumen general y el de efectos (SFX)
+        const finalVolume = (gameState.settings.masterVolume / 100) * (gameState.settings.sfxVolume / 100);
+        audio.volume = finalVolume;
+        audio.play().catch(e => console.error("Error al reproducir audio:", e));
+      }
+    }
+  }, []); // El array vacío asegura que esto se ejecute solo una vez
+  
   // Controlar el auto-cierre
   useEffect(() => {
     if (autoHide) {
@@ -32,12 +60,13 @@ const AuroraMessage: React.FC<AuroraMessageProps> = ({
 
   const handleClose = () => {
     setIsVisible(false);
-    // Esperar a que termine la animación de salida antes de llamar a onClose
+    
     setTimeout(onClose, 300);
     };
 
   return (
     <div style={{
+      width: '40rem',
       maxWidth: '40rem',
       minHeight: '18rem',
       position: 'relative',

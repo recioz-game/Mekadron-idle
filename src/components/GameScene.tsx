@@ -1,20 +1,13 @@
-import React, { useCallback, useEffect, useRef, lazy, Suspense } from 'react';
+import React, { useCallback, useEffect, useRef, lazy, Suspense, useState } from 'react';
 import './GameScene.css'; // Importar el archivo CSS
 
-import mainThemeAudio from '../assets/audio/music/main-theme.wav'; // 1. Importar el audio
+import mainThemeAudio from '../assets/audio/music/main-theme.wav';
+import energyWarningAudio from '../assets/audio/aurora/aurora_message_004.mp3'; // <-- AUDIO AÑADIDO
 import { ExpeditionId, ActiveExpedition, DroneType } from '../types/gameState';
 import { useGameState, useGameDispatch } from '../context/GameContext';
 import ResourceBar from './ResourceBar';
 import CollectionButton from './CollectionButton';
 import ModulesPanel from './ModulesPanel';
-// import Workshop from './Workshop'; // Lazy loaded
-// import EnergyView from './EnergyView'; // Lazy loaded
-// import StorageView from './StorageView'; // Lazy loaded
-// import MissionsPanel from './MissionsPanel'; // Lazy loaded
-// import Laboratory from './Laboratory'; // Lazy loaded
-// import FoundryView from './FoundryView'; // Lazy loaded
-// import ShipyardView from './ShipyardView'; // Lazy loaded 
-// import ExpeditionView from './ExpeditionView'; // Lazy loaded
 import SettingsMenu from './SettingsMenu';
 
 import FloatingTextHandler from './FloatingTextHandler';
@@ -36,22 +29,7 @@ const GameScene: React.FC = () => {
     if (!gameState || !gameState.workshop?.drones || !gameState.techCenter) {
       return <div>Cargando...</div>;
     }
-  const dispatch = useGameDispatch();
-  const audioRef = useRef<HTMLAudioElement>(null);
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = gameState.settings.volume / 100;
-    }
-  }, [gameState.settings.volume]);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (audio) {
-      audio.play().catch(() => console.log("La reproducción automática fue bloqueada. Se requiere interacción del usuario."));
-    }
-  }, []);
-
+        const dispatch = useGameDispatch();
   const {  
     currentView, 
     workshopBuyAmount, 
@@ -70,20 +48,67 @@ const GameScene: React.FC = () => {
     rates,
     notificationQueue,
     phase2Unlocked, // <-- OBTENER EL NUEVO ESTADO
-    currentBackground // <-- NUEVO: Obtener el fondo actual
+                currentBackground // <-- NUEVO: Obtener el fondo actual
   } = gameState;
   const { drones, queues: workshopQueues } = workshop;
+
+  const [isViewVisible, setIsViewVisible] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const hasPlayedEnergyWarning = useRef(false); // <-- Control para que suene una sola vez
+
+  // Efecto para el audio de advertencia de energía
+  useEffect(() => {
+    const isEnergyNegative = gameState.resources.energy <= 0 && gameState.resources.energyProduction < gameState.resources.energyConsumption;
+
+        if (isEnergyNegative && !hasPlayedEnergyWarning.current && !gameState.settings.voicesMuted) {
+      const audio = new Audio(energyWarningAudio);
+      const finalSfxVolume = (gameState.settings.masterVolume / 100) * (gameState.settings.sfxVolume / 100);
+      audio.volume = finalSfxVolume;
+      audio.play();
+      hasPlayedEnergyWarning.current = true; // Marcar como reproducido
+    } else if (!isEnergyNegative && hasPlayedEnergyWarning.current) {
+      hasPlayedEnergyWarning.current = false; // Resetear cuando la energía vuelva a ser positiva
+    }
+  }, [gameState.resources.energy, gameState.resources.energyProduction, gameState.resources.energyConsumption, gameState.settings.masterVolume, gameState.settings.sfxVolume, gameState.settings.voicesMuted]);
+
+  useEffect(() => {
+    // Para la animación de entrada de los módulos
+    if (currentView) {
+      setIsViewVisible(false); // Primero lo ocultamos para reiniciar la animación
+      const timer = setTimeout(() => setIsViewVisible(true), 10);
+      return () => clearTimeout(timer);
+    } else {
+      setIsViewVisible(false);
+    }
+  }, [currentView]);
+
+    useEffect(() => {
+    if (audioRef.current) {
+      // Calcular el volumen final: (Master / 100) * (Music / 100)
+      const finalVolume = (gameState.settings.masterVolume / 100) * (gameState.settings.musicVolume / 100);
+      audioRef.current.volume = finalVolume;
+    }
+  }, [gameState.settings.masterVolume, gameState.settings.musicVolume]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.play().catch(() => console.log("La reproducción automática fue bloqueada. Se requiere interacción del usuario."));
+    }
+  }, []);
   const onDismissNotification = useCallback(() => {
     dispatch({ type: 'DISMISS_NOTIFICATION' });
   }, [dispatch]);
 
-    const onModuleSelect = useCallback((module: string) => {
+        const onModuleSelect = useCallback((module: string) => {
     if (module === 'goToPhase2') {
       dispatch({ type: 'GO_TO_PHASE_2' });
+    } else if (module === gameState.currentView) {
+      dispatch({ type: 'CLOSE_CURRENT_VIEW' });
     } else {
       dispatch({ type: 'SET_CURRENT_VIEW', payload: module });
     }
-  }, [dispatch]);
+  }, [dispatch, gameState.currentView]);
 
   const onClose = useCallback(() => dispatch({ type: 'CLOSE_CURRENT_VIEW' }), [dispatch]);
 
@@ -102,9 +127,14 @@ const GameScene: React.FC = () => {
   const onCancelWorkshopItem = useCallback((itemName: string, amount: number | 'all') => {
     dispatch({ type: 'CANCEL_QUEUE_ITEM', payload: { category: 'workshop', itemName, amount } });
   }, [dispatch]);
-    const onDismantleDrone = useCallback((droneType: string, amount: number | 'max') => {
+        const onDismantleDrone = useCallback((droneType: string, amount: number | 'max') => {
+    if (gameState.settings.actionConfirmationsEnabled) {
+      if (!window.confirm(`¿Estás seguro de que quieres desmantelar ${amount === 'max' ? 'todos los' : amount} drones de tipo ${droneType}?`)) {
+        return; // El usuario canceló la acción
+      }
+    }
     dispatch({ type: 'DISMANTLE_DRONE', payload: { droneType, amount } });
-  }, [dispatch]);
+  }, [dispatch, gameState.settings.actionConfirmationsEnabled]);
     const onRetrofitDrone = useCallback((fromDrone: DroneType, toDrone: DroneType) => {
     dispatch({ type: 'RETROFIT_DRONE', payload: { fromDrone, toDrone } });
   }, [dispatch]);
@@ -163,7 +193,7 @@ const GameScene: React.FC = () => {
     return new URL(`../assets/images/backgrounds/Phase${currentBackground - 1}-background.png`, import.meta.url).href
   };
 
-  const renderActiveModule = () => {
+    const renderActiveModule = useCallback(() => {
     switch (currentView) {
                   case 'workshop':
         return (
@@ -344,11 +374,11 @@ const GameScene: React.FC = () => {
             <CollectionButton
               onCollectScrap={() => dispatch({ type: 'COLLECT_SCRAP' })}
               scrapPerClick={rates.scrapPerClick}
-            />
+                        />
           </div>
         );
     }
-  };
+  }, [currentView, gameState, workshopBuyAmount, energyBuyAmount, storageBuyAmount, foundryBuyAmount, onClose, onCloseView, onBuildBasicDrone, onBuildMediumDrone, onBuildAdvancedDrone, onBuildReinforcedBasic, onBuildReinforcedMedium, onBuildReinforcedAdvanced, onBuildGolemDrone, onBuildExpeditionDrone, onBuildExpeditionV2Drone, onBuildWyrm, onDismantleDrone, onRetrofitDrone, onSetWorkshopBuyAmount, onCancelWorkshopItem, onBuildSolarPanel, onBuildMediumSolar, onBuildAdvancedSolar, onBuildEnergyCore, onBuildStabilizedEnergyCore, onBuildEmpoweredEnergyCore, onBuildFusionReactor, onSetEnergyBuyAmount, onCancelEnergyItem, onBuildBasicStorage, onBuildMediumStorage, onBuildAdvancedStorage, onBuildQuantumHoardUnit, onBuildLithiumIonBattery, onBuildPlasmaAccumulator, onBuildHarmonicContainmentField, onSetStorageBuyAmount, onCancelStorageItem, onStartExpedition, onClaimExpeditionReward, onCraftRefinedMetal, onCraftStructuralSteel, onCraftHullPlate, onCraftSuperconductorWiring, onCraftFuelRod, onCraftPurifiedMetal, onSetFoundryBuyAmount, onCancelFoundryItem]);
 
             return (
     <div className="game-scene-container" style={{ backgroundImage: `url(${getBackgroundUrl()})` }}>
@@ -376,8 +406,8 @@ const GameScene: React.FC = () => {
           mediumDronesForUnlock={drones.medium}
           advancedSolarForUnlock={energy.advancedSolar}
           foundryProtocolsUpgrade={techCenter.upgrades.foundryProtocols}
-        />}
-          <div className="module-container">
+                />}
+          <div className={`module-container ${currentView && gameState.settings.uiAnimationsEnabled ? `view-fade-in ${isViewVisible ? 'visible' : ''}` : ''}`} key={currentView}>
             <Suspense fallback={<div className="loading-module">Cargando Módulo...</div>}>
               {renderActiveModule()}
             </Suspense>

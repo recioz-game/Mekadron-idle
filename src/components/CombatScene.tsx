@@ -21,6 +21,13 @@ const CombatScene: React.FC = () => {
   const [audioVindicator] = useState(new Audio(laserVindicatorSfx));
   const [audioEnemy] = useState(new Audio(laserEnemySfx));
 
+  useEffect(() => {
+    const finalSfxVolume = (gameState.settings.masterVolume / 100) * (gameState.settings.sfxVolume / 100);
+    audioVindicator.volume = finalSfxVolume;
+    audioEnemy.volume = finalSfxVolume;
+  }, [gameState.settings.masterVolume, gameState.settings.sfxVolume, audioVindicator, audioEnemy]);
+
+
 
   const runCombatTurn = useCallback(() => {
     if (animationPhase !== 'idle' || !activeBattle) return;

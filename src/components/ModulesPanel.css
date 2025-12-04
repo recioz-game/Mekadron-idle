@@ -2,7 +2,7 @@
 .modules-panel {
   width: 23rem;
   padding: 4rem 1.6rem 1.6rem 1.6rem; /* Padding superior para bajar botones */
-  margin: 1rem 1rem 1rem 0;
+  margin: 0.5rem 1rem 1rem 0;
   align-self: flex-start;
   max-height: calc(100vh - 4rem);
 
@@ -36,7 +36,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  margin-top: -1.4rem; /* Reducido otro 25% */
+  margin-top: -0.8rem; /* Aumentado para mayor separación */
 }
 
 /* Aplicar margen solo al primer botón para alinearlo arriba */

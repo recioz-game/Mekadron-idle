@@ -42,6 +42,16 @@ export interface Battle {
     fragmentoDeCiudadela?: number;
     matrizDeOverlord?: number;
     planosMK9?: number;
+        aleacionReforzadaElite?: number;
+    neuroChipCorruptoElite?: number;
+    matrizQuitinaCristalElite?: number;
+    nucleoSinapticoFracturadoElite?: number;
+    moduloManiobrasTácticasElite?: number;
+    placasCamuflajeActivoElite?: number;
+    placasDeAetheriumElite?: number;
+    nucleoPsionicoArmonicoElite?: number;
+    tejidoAbisalRetorcidoElite?: number;
+    singularidadCorruptaContenidaElite?: number;
   };
   type?: 'regular' | 'mini-boss' | 'boss';
 }
@@ -194,80 +204,80 @@ export const gameChapters: Chapter[] = [
         name: "Cinturón Khelar",
         description: "Un anillo de chatarra espacial lleno de restos de guerra. Pequeñas bandas se esconden entre montañas de metal oxidado.",
         battles: [
-          { enemyName: "Desguazador Khelar", health: 100, shield: 25, damage: 15, reward: { scrap: 10, aleacionReforzadaRobada: 1, neuroChipCorrupto: 0 } },
-          { enemyName: "Desguazador Khelar", health: 110, shield: 30, damage: 16, reward: { scrap: 12, aleacionReforzadaRobada: 1, neuroChipCorrupto: 0 } },
-          { enemyName: "Desguazador Khelar", health: 125, shield: 50, damage: 20, reward: { scrap: 15, aleacionReforzadaRobada: 1, neuroChipCorrupto: 0 } },
-          { enemyName: "Desguazador Khelar", health: 140, shield: 55, damage: 22, reward: { scrap: 18, aleacionReforzadaRobada: 2, neuroChipCorrupto: 0 } },
-          { enemyName: "Triturador Óxido", health: 200, shield: 75, damage: 25, reward: { scrap: 25, aleacionReforzadaRobada: 2, neuroChipCorrupto: 1, blueprints: 1 }, type: 'mini-boss' },
+          { enemyName: "Desguazador Khelar", health: 100, shield: 25, damage: 15, reward: { scrap: 100, aleacionReforzadaRobada: 1, neuroChipCorrupto: 0 } },
+          { enemyName: "Desguazador Khelar", health: 110, shield: 30, damage: 16, reward: { scrap: 120, aleacionReforzadaRobada: 1, neuroChipCorrupto: 0 } },
+          { enemyName: "Desguazador Khelar", health: 125, shield: 50, damage: 20, reward: { scrap: 150, aleacionReforzadaRobada: 1, neuroChipCorrupto: 0 } },
+          { enemyName: "Desguazador Khelar", health: 140, shield: 55, damage: 22, reward: { scrap: 180, aleacionReforzadaRobada: 2, neuroChipCorrupto: 0 } },
+          { enemyName: "Triturador Óxido", health: 200, shield: 75, damage: 25, reward: { scrap: 250, aleacionReforzadaRobada: 2, neuroChipCorrupto: 1, blueprints: 1 }, type: 'mini-boss' },
           { enemyName: "Recolector Errante", health: 160, shield: 60, damage: 24, reward: { scrap: 22, aleacionReforzadaRobada: 2, neuroChipCorrupto: 0 } },
-          { enemyName: "Recolector Errante", health: 180, shield: 70, damage: 26, reward: { scrap: 26, aleacionReforzadaRobada: 2, neuroChipCorrupto: 1 } },
-          { enemyName: "Recolector Errante", health: 220, shield: 100, damage: 28, reward: { scrap: 30, aleacionReforzadaRobada: 3, neuroChipCorrupto: 1 } },
-          { enemyName: "Recolector Errante", health: 250, shield: 120, damage: 30, reward: { scrap: 35, aleacionReforzadaRobada: 3, neuroChipCorrupto: 1 } },
-          { enemyName: "Capataz Chatarra", health: 400, shield: 150, damage: 40, reward: { scrap: 100, aleacionReforzadaRobada: 5, neuroChipCorrupto: 2, blueprints: 5 }, type: 'boss' },
+          { enemyName: "Recolector Errante", health: 180, shield: 70, damage: 26, reward: { scrap: 260, aleacionReforzadaRobada: 2, neuroChipCorrupto: 1 } },
+          { enemyName: "Recolector Errante", health: 220, shield: 100, damage: 28, reward: { scrap: 300, aleacionReforzadaRobada: 3, neuroChipCorrupto: 1 } },
+          { enemyName: "Recolector Errante", health: 250, shield: 120, damage: 30, reward: { scrap: 350, aleacionReforzadaRobada: 3, neuroChipCorrupto: 1 } },
+          { enemyName: "Capataz Chatarra", health: 400, shield: 150, damage: 40, reward: { scrap: 1000, aleacionReforzadaRobada: 5, neuroChipCorrupto: 2, blueprints: 5 }, type: 'boss' },
         ],
       },
       {
         name: "Ancla Roja",
         description: "Asteroide hueco convertido en refugio pirata. Talleres clandestinos, torretas robadas y pilotos veteranos.",
         battles: [
-          { enemyName: "Vigilante Carmesí", health: 150, shield: 50, damage: 25, reward: { scrap: 20, aleacionReforzadaRobada: 2, neuroChipCorrupto: 0 } },
-          { enemyName: "Vigilante Carmesí", health: 165, shield: 55, damage: 27, reward: { scrap: 24, aleacionReforzadaRobada: 2, neuroChipCorrupto: 0 } },
-          { enemyName: "Vigilante Carmesí", health: 200, shield: 100, damage: 30, reward: { scrap: 30, aleacionReforzadaRobada: 3, neuroChipCorrupto: 0 } },
+          { enemyName: "Vigilante Carmesí", health: 150, shield: 50, damage: 25, reward: { scrap: 200, aleacionReforzadaRobada: 2, neuroChipCorrupto: 0 } },
+          { enemyName: "Vigilante Carmesí", health: 165, shield: 55, damage: 27, reward: { scrap: 240, aleacionReforzadaRobada: 2, neuroChipCorrupto: 0 } },
+          { enemyName: "Vigilante Carmesí", health: 200, shield: 100, damage: 30, reward: { scrap: 300, aleacionReforzadaRobada: 3, neuroChipCorrupto: 0 } },
           { enemyName: "Vigilante Carmesí", health: 220, shield: 110, damage: 32, reward: { scrap: 36, aleacionReforzadaRobada: 3, neuroChipCorrupto: 1 } },
-          { enemyName: "Martillo Rojo", health: 300, shield: 75, damage: 35, reward: { scrap: 45, aleacionReforzadaRobada: 3, neuroChipCorrupto: 1, blueprints: 2 }, type: 'mini-boss' },
-          { enemyName: "Garfio del Vacío", health: 260, shield: 80, damage: 34, reward: { scrap: 40, aleacionReforzadaRobada: 4, neuroChipCorrupto: 1 } },
-          { enemyName: "Garfio del Vacío", health: 280, shield: 90, damage: 36, reward: { scrap: 48, aleacionReforzadaRobada: 4, neuroChipCorrupto: 1 } },
-          { enemyName: "Garfio del Vacío", health: 350, shield: 150, damage: 38, reward: { scrap: 55, aleacionReforzadaRobada: 5, neuroChipCorrupto: 2 } },
-          { enemyName: "Garfio del Vacío", health: 380, shield: 170, damage: 40, reward: { scrap: 65, aleacionReforzadaRobada: 5, neuroChipCorrupto: 2 } },
-          { enemyName: "Contramaestre Sangrefría", health: 550, shield: 200, damage: 50, reward: { scrap: 150, aleacionReforzadaRobada: 8, neuroChipCorrupto: 3, blueprints: 6 }, type: 'boss' },
+          { enemyName: "Martillo Rojo", health: 300, shield: 75, damage: 35, reward: { scrap: 450, aleacionReforzadaRobada: 3, neuroChipCorrupto: 1, blueprints: 2 }, type: 'mini-boss' },
+          { enemyName: "Garfio del Vacío", health: 260, shield: 80, damage: 34, reward: { scrap: 400, aleacionReforzadaRobada: 4, neuroChipCorrupto: 1 } },
+          { enemyName: "Garfio del Vacío", health: 280, shield: 90, damage: 36, reward: { scrap: 480, aleacionReforzadaRobada: 4, neuroChipCorrupto: 1 } },
+          { enemyName: "Garfio del Vacío", health: 350, shield: 150, damage: 38, reward: { scrap: 550, aleacionReforzadaRobada: 5, neuroChipCorrupto: 2 } },
+          { enemyName: "Garfio del Vacío", health: 380, shield: 170, damage: 40, reward: { scrap: 650, aleacionReforzadaRobada: 5, neuroChipCorrupto: 2 } },
+          { enemyName: "Contramaestre Sangrefría", health: 550, shield: 200, damage: 50, reward: { scrap: 1500, aleacionReforzadaRobada: 8, neuroChipCorrupto: 3, blueprints: 6 }, type: 'boss' },
         ],
       },
       {
         name: "Nebulosa del Rumor Azul",
         description: "Una nebulosa densa que distorsiona todos los sensores. Los piratas usan la niebla para emboscadas precisas.",
         battles: [
-          { enemyName: "Sombra Azul", health: 250, shield: 100, damage: 30, reward: { scrap: 35, aleacionReforzadaRobada: 3, neuroChipCorrupto: 0 } },
-          { enemyName: "Sombra Azul", health: 275, shield: 110, damage: 33, reward: { scrap: 40, aleacionReforzadaRobada: 3, neuroChipCorrupto: 1 } },
-          { enemyName: "Sombra Azul", health: 300, shield: 125, damage: 40, reward: { scrap: 50, aleacionReforzadaRobada: 4, neuroChipCorrupto: 1 } },
-          { enemyName: "Sombra Azul", health: 330, shield: 135, damage: 42, reward: { scrap: 60, aleacionReforzadaRobada: 4, neuroChipCorrupto: 1 } },
-          { enemyName: "Acechador Nebular", health: 500, shield: 150, damage: 45, reward: { scrap: 80, aleacionReforzadaRobada: 5, neuroChipCorrupto: 2, blueprints: 3 }, type: 'mini-boss' },
-          { enemyName: "Espectro Turquesa", health: 380, shield: 160, damage: 44, reward: { scrap: 70, aleacionReforzadaRobada: 5, neuroChipCorrupto: 2 } },
-          { enemyName: "Espectro Turquesa", health: 410, shield: 175, damage: 46, reward: { scrap: 85, aleacionReforzadaRobada: 6, neuroChipCorrupto: 2 } },
-          { enemyName: "Espectro Turquesa", health: 480, shield: 200, damage: 48, reward: { scrap: 100, aleacionReforzadaRobada: 7, neuroChipCorrupto: 3 } },
-          { enemyName: "Espectro Turquesa", health: 520, shield: 220, damage: 50, reward: { scrap: 120, aleacionReforzadaRobada: 8, neuroChipCorrupto: 3 } },
-          { enemyName: "Capitán Brumahelada", health: 700, shield: 300, damage: 60, reward: { scrap: 250, aleacionReforzadaRobada: 10, neuroChipCorrupto: 5, blueprints: 7 }, type: 'boss' },
+          { enemyName: "Sombra Azul", health: 250, shield: 100, damage: 30, reward: { scrap: 350, aleacionReforzadaRobada: 3, neuroChipCorrupto: 0 } },
+          { enemyName: "Sombra Azul", health: 275, shield: 110, damage: 33, reward: { scrap: 400, aleacionReforzadaRobada: 3, neuroChipCorrupto: 1 } },
+          { enemyName: "Sombra Azul", health: 300, shield: 125, damage: 40, reward: { scrap: 500, aleacionReforzadaRobada: 4, neuroChipCorrupto: 1 } },
+          { enemyName: "Sombra Azul", health: 330, shield: 135, damage: 42, reward: { scrap: 600, aleacionReforzadaRobada: 4, neuroChipCorrupto: 1 } },
+          { enemyName: "Acechador Nebular", health: 500, shield: 150, damage: 45, reward: { scrap: 800, aleacionReforzadaRobada: 5, neuroChipCorrupto: 2, blueprints: 3 }, type: 'mini-boss' },
+          { enemyName: "Espectro Turquesa", health: 380, shield: 160, damage: 44, reward: { scrap: 700, aleacionReforzadaRobada: 5, neuroChipCorrupto: 2 } },
+          { enemyName: "Espectro Turquesa", health: 410, shield: 175, damage: 46, reward: { scrap: 850, aleacionReforzadaRobada: 6, neuroChipCorrupto: 2 } },
+          { enemyName: "Espectro Turquesa", health: 480, shield: 200, damage: 48, reward: { scrap: 1000, aleacionReforzadaRobada: 7, neuroChipCorrupto: 3 } },
+          { enemyName: "Espectro Turquesa", health: 520, shield: 220, damage: 50, reward: { scrap: 1200, aleacionReforzadaRobada: 8, neuroChipCorrupto: 3 } },
+          { enemyName: "Capitán Brumahelada", health: 700, shield: 300, damage: 60, reward: { scrap: 2500, aleacionReforzadaRobada: 10, neuroChipCorrupto: 5, blueprints: 7 }, type: 'boss' },
         ],
       },
       {
         name: "Dominio Grifo",
         description: "Restos orbitales de una antigua colonia minera. El Clan Grifo domina con tácticas directas y drones reciclados.",
         battles: [
-          { enemyName: "Ala Grifo", health: 350, shield: 150, damage: 45, reward: { scrap: 60, aleacionReforzadaRobada: 4, neuroChipCorrupto: 1 } },
-          { enemyName: "Ala Grifo", health: 380, shield: 165, damage: 47, reward: { scrap: 70, aleacionReforzadaRobada: 4, neuroChipCorrupto: 1 } },
-          { enemyName: "Ala Grifo", health: 500, shield: 200, damage: 50, reward: { scrap: 80, aleacionReforzadaRobada: 5, neuroChipCorrupto: 2 } },
-          { enemyName: "Ala Grifo", health: 540, shield: 220, damage: 52, reward: { scrap: 95, aleacionReforzadaRobada: 5, neuroChipCorrupto: 2 } },
-          { enemyName: "Heraldo del Grifo", health: 700, shield: 250, damage: 60, reward: { scrap: 130, aleacionReforzadaRobada: 8, neuroChipCorrupto: 3, blueprints: 4 }, type: 'mini-boss' },
-          { enemyName: "Talón Férreo", health: 600, shield: 250, damage: 55, reward: { scrap: 110, aleacionReforzadaRobada: 6, neuroChipCorrupto: 2 } },
-          { enemyName: "Talón Férreo", health: 650, shield: 275, damage: 58, reward: { scrap: 125, aleacionReforzadaRobada: 7, neuroChipCorrupto: 3 } },
-          { enemyName: "Talón Férreo", health: 750, shield: 300, damage: 62, reward: { scrap: 140, aleacionReforzadaRobada: 8, neuroChipCorrupto: 3 } },
-          { enemyName: "Talón Férreo", health: 800, shield: 330, damage: 65, reward: { scrap: 160, aleacionReforzadaRobada: 9, neuroChipCorrupto: 4 } },
-          { enemyName: "Jefe Picoteador", health: 950, shield: 400, damage: 75, reward: { scrap: 350, aleacionReforzadaRobada: 12, neuroChipCorrupto: 6, blueprints: 8 }, type: 'boss' },
+          { enemyName: "Ala Grifo", health: 350, shield: 150, damage: 45, reward: { scrap: 600, aleacionReforzadaRobada: 4, neuroChipCorrupto: 1 } },
+          { enemyName: "Ala Grifo", health: 380, shield: 165, damage: 47, reward: { scrap: 700, aleacionReforzadaRobada: 4, neuroChipCorrupto: 1 } },
+          { enemyName: "Ala Grifo", health: 500, shield: 200, damage: 50, reward: { scrap: 800, aleacionReforzadaRobada: 5, neuroChipCorrupto: 2 } },
+          { enemyName: "Ala Grifo", health: 540, shield: 220, damage: 52, reward: { scrap: 950, aleacionReforzadaRobada: 5, neuroChipCorrupto: 2 } },
+          { enemyName: "Heraldo del Grifo", health: 700, shield: 250, damage: 60, reward: { scrap: 1300, aleacionReforzadaRobada: 8, neuroChipCorrupto: 3, blueprints: 4 }, type: 'mini-boss' },
+          { enemyName: "Talón Férreo", health: 600, shield: 250, damage: 55, reward: { scrap: 1100, aleacionReforzadaRobada: 6, neuroChipCorrupto: 2 } },
+          { enemyName: "Talón Férreo", health: 650, shield: 275, damage: 58, reward: { scrap: 1250, aleacionReforzadaRobada: 7, neuroChipCorrupto: 3 } },
+          { enemyName: "Talón Férreo", health: 750, shield: 300, damage: 62, reward: { scrap: 1400, aleacionReforzadaRobada: 8, neuroChipCorrupto: 3 } },
+          { enemyName: "Talón Férreo", health: 800, shield: 330, damage: 65, reward: { scrap: 1600, aleacionReforzadaRobada: 9, neuroChipCorrupto: 4 } },
+          { enemyName: "Jefe Picoteador", health: 950, shield: 400, damage: 75, reward: { scrap: 3500, aleacionReforzadaRobada: 12, neuroChipCorrupto: 6, blueprints: 8 }, type: 'boss' },
         ],
       },
       {
         name: "Fortaleza Garra Negra",
         description: "Una fortaleza espacial móvil, núcleo defensivo de la Hermandad. Cargada de torretas, cazas y escudos improvisados.",
         battles: [
-          { enemyName: "Ronda Negra", health: 450, shield: 150, damage: 40, reward: { scrap: 100, aleacionReforzadaRobada: 6, neuroChipCorrupto: 2 } },
-          { enemyName: "Ronda Negra", health: 480, shield: 160, damage: 42, reward: { scrap: 120, aleacionReforzadaRobada: 6, neuroChipCorrupto: 2 } },
-          { enemyName: "Ronda Negra", health: 550, shield: 200, damage: 45, reward: { scrap: 150, aleacionReforzadaRobada: 8, neuroChipCorrupto: 3 } },
-          { enemyName: "Ronda Negra", health: 590, shield: 220, damage: 48, reward: { scrap: 180, aleacionReforzadaRobada: 8, neuroChipCorrupto: 3 } },
-          { enemyName: "Azote del Vacío", health: 650, shield: 250, damage: 50, reward: { scrap: 220, aleacionReforzadaRobada: 10, neuroChipCorrupto: 5, blueprints: 5 }, type: 'mini-boss' },
-          { enemyName: "Saqueador Élite", health: 620, shield: 240, damage: 52, reward: { scrap: 200, aleacionReforzadaRobada: 9, neuroChipCorrupto: 4 } },
-          { enemyName: "Saqueador Élite", health: 670, shield: 260, damage: 54, reward: { scrap: 240, aleacionReforzadaRobada: 10, neuroChipCorrupto: 4 } },
-          { enemyName: "Saqueador Élite", health: 720, shield: 280, damage: 56, reward: { scrap: 280, aleacionReforzadaRobada: 11, neuroChipCorrupto: 5 } },
-          { enemyName: "Saqueador Élite", health: 770, shield: 300, damage: 58, reward: { scrap: 320, aleacionReforzadaRobada: 12, neuroChipCorrupto: 5 } },
-          { enemyName: "Capitán Atronador", health: 1100, shield: 450, damage: 70, reward: { scrap: 500, aleacionReforzadaRobada: 15, neuroChipCorrupto: 8, blueprints: 10 }, type: 'boss' },
+          { enemyName: "Ronda Negra", health: 450, shield: 150, damage: 40, reward: { scrap: 1000, aleacionReforzadaRobada: 6, neuroChipCorrupto: 2 } },
+          { enemyName: "Ronda Negra", health: 480, shield: 160, damage: 42, reward: { scrap: 1200, aleacionReforzadaRobada: 6, neuroChipCorrupto: 2 } },
+          { enemyName: "Ronda Negra", health: 550, shield: 200, damage: 45, reward: { scrap: 1500, aleacionReforzadaRobada: 8, neuroChipCorrupto: 3 } },
+          { enemyName: "Ronda Negra", health: 590, shield: 220, damage: 48, reward: { scrap: 1800, aleacionReforzadaRobada: 8, neuroChipCorrupto: 3 } },
+          { enemyName: "Azote del Vacío", health: 650, shield: 250, damage: 50, reward: { scrap: 2200, aleacionReforzadaRobada: 10, neuroChipCorrupto: 5, blueprints: 5 }, type: 'mini-boss' },
+          { enemyName: "Saqueador Élite", health: 620, shield: 240, damage: 52, reward: { scrap: 2000, aleacionReforzadaRobada: 9, neuroChipCorrupto: 4 } },
+          { enemyName: "Saqueador Élite", health: 670, shield: 260, damage: 54, reward: { scrap: 2400, aleacionReforzadaRobada: 10, neuroChipCorrupto: 4 } },
+          { enemyName: "Saqueador Élite", health: 720, shield: 280, damage: 56, reward: { scrap: 2800, aleacionReforzadaRobada: 11, neuroChipCorrupto: 5 } },
+          { enemyName: "Saqueador Élite", health: 770, shield: 300, damage: 58, reward: { scrap: 3200, aleacionReforzadaRobada: 12, neuroChipCorrupto: 5 } },
+          { enemyName: "Capitán Atronador", health: 1100, shield: 450, damage: 70, reward: { scrap: 5000, aleacionReforzadaRobada: 15, neuroChipCorrupto: 8, blueprints: 10 }, type: 'boss' },
         ],
       },
       {
@@ -275,7 +285,7 @@ export const gameChapters: Chapter[] = [
         description: "El caudillo de la Hermandad del Vacío y pirata más temido del sector. Su fragata ha sobrevivido a más batallas de las que se registran oficialmente.",
         isBoss: true,
         battles: [
-          { enemyName: "Fragata Skullbreaker", health: 2500, shield: 800, damage: 100, reward: { scrap: 1500, aleacionReforzadaRobada: 50, neuroChipCorrupto: 25, blueprints: 25, matrizQuitinaCristal: 10 }, type: 'boss' },
+          { enemyName: "Fragata Skullbreaker", health: 2500, shield: 800, damage: 100, reward: { scrap: 15000, aleacionReforzadaRobada: 50, neuroChipCorrupto: 25, blueprints: 25, matrizQuitinaCristal: 10 }, type: 'boss' },
         ],
       },
     ]

@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { vindicatorLevelData, vindicatorMK2LevelData, vindicatorMK3LevelData, vindicatorMK4LevelData, vindicatorMK5LevelData, vindicatorMK6LevelData, vindicatorMK7LevelData, vindicatorMK8LevelData, vindicatorMK9LevelData } from '../data/battleData';
 import { allArmoryMK1Modules } from '../data/armoryMK1Data';
 import { allArmoryMK2Modules } from '../data/armoryMK2Data';
 import { formatNumber } from '../utils/formatNumber';
 import './Armory.css';
+import { gameConfig } from '../data/gameConfig'; // <-- Importar configuración
 import fuelRodIcon from '../assets/images/ui/fuel-rod-icon.png';
 import scrapIcon from '../assets/images/ui/scrap-icon.png';
 import reinforcedAlloyIcon from '../assets/images/ui/reinforced-alloy-icon.png';
@@ -23,11 +24,18 @@ interface ArmoryProps {
 
 
 const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
+  const [isVisible, setIsVisible] = useState(false);
   const { gameState, dispatch } = useGame();
   const { vindicator, resources, blueprints, vindicatorLevel, vindicatorUpgrades, vindicatorMK2Upgrades, vindicatorMK3Upgrades, vindicatorMK4Upgrades, vindicatorMK5Upgrades, vindicatorMK6Upgrades } = gameState;
+  
+  useEffect(() => {
+    // Activa la animación de entrada justo después de que el componente se monte
+    const timer = setTimeout(() => setIsVisible(true), 10);
+    return () => clearTimeout(timer);
+  }, []);
   const { bodegaResources } = vindicator;
 
-  // Mapa de nombres de Vindicator para la UI
+  
   const vindicatorNameMap: Record<string, string> = {
     base: 'VINDICATOR',
     vm01_origin: 'VM01 — ORIGIN',
@@ -41,7 +49,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
     vm09_apex: 'VM09 — APEX',
   };
   
-  // --- Lógica Dinámica ---
+  
   const isVM01 = vindicator.vindicatorType === 'vm01_origin';
   const isVM02 = vindicator.vindicatorType === 'vm02_interceptor';
   const isVM03 = vindicator.vindicatorType === 'vm03_devastator';
@@ -79,12 +87,12 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
   } else if (isVM02) {
     upgradesToDisplay = vindicatorMK2Upgrades;
     upgradeActionType = 'UPGRADE_VINDICATOR_MK2_STAR';
-  } else if (!isVM01) { // Solo mostrar para base
+  } else if (!isVM01) { 
     upgradesToDisplay = vindicatorUpgrades;
     upgradeActionType = 'UPGRADE_VINDICATOR_STAR';
   }
 
-  // Sistema de Niveles
+  
   let levelData = vindicatorLevelData;
   let levelUpActionType: 'LEVEL_UP_VINDICATOR' | 'LEVEL_UP_VINDICATOR_MK2' | 'LEVEL_UP_VINDICATOR_MK3' | 'LEVEL_UP_VINDICATOR_MK4' | 'LEVEL_UP_VINDICATOR_MK5' | 'LEVEL_UP_VINDICATOR_MK6' | 'LEVEL_UP_VINDICATOR_MK7' | 'LEVEL_UP_VINDICATOR_MK8' | 'LEVEL_UP_VINDICATOR_MK9' = 'LEVEL_UP_VINDICATOR';
   let blueprintResource = blueprints;
@@ -132,7 +140,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
     blueprintLabel = 'Planos MK9';
   }
 
-  // Sistema de Módulos
+  
   const showModules = isVM01 || isVM02 || isVM03 || isVM04 || isVM05 || isVM06 || isVM07 || isVM08 || isVM09;
   const moduleList = isVM01 ? allArmoryMK1Modules : allArmoryMK2Modules; // Necesitará Módulos MK3/4/5
   const armoryTitle = `Armería del ${vindicatorNameMap[vindicator.vindicatorType] || 'Vindicator'}`;
@@ -169,25 +177,16 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
     planos: planosIcon,
   };
 
-  // --- Lógica de Reparación ---
-  const HEALTH_REPAIR_COST_PER_POINT = 50;
-  const SHIELD_REPAIR_COST_PER_POINT = 0.2;
-
-  let repairCostMultiplier = 1;
-  if (isVM01) {
-    repairCostMultiplier = 1.25; // 25% más caro
-  } else if (isVM02) {
-    repairCostMultiplier = 1.5; // 50% más caro
-  }
+  const repairCostMultiplier = (gameConfig.repair.repairCostMultipliers as any)[vindicator.vindicatorType] || 1;
 
   const calculateHealthRepairCost = () => {
     const missingHealth = vindicator.maxHealth - vindicator.currentHealth;
-    return Math.floor(missingHealth * HEALTH_REPAIR_COST_PER_POINT * repairCostMultiplier);
+    return Math.floor(missingHealth * gameConfig.repair.healthCostPerPoint * repairCostMultiplier);
   };
 
   const calculateShieldRepairCost = () => {
     const missingShield = vindicator.maxShield - vindicator.currentShield;
-    return Math.floor(missingShield * SHIELD_REPAIR_COST_PER_POINT * repairCostMultiplier * 10) / 10;
+    return Math.floor(missingShield * gameConfig.repair.shieldCostPerPoint * repairCostMultiplier * 10) / 10;
   };
 
   const repairHealth = () => {
@@ -216,16 +215,16 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
   const canRepairHealth = missingHealth > 0 && resources.scrap >= healthRepairCost;
   const canRepairShield = missingShield > 0 && bodegaResources.barraCombustible >= shieldRepairCost;
 
-  const healthCostPerPoint = (HEALTH_REPAIR_COST_PER_POINT * repairCostMultiplier);
-  const shieldCostPerPoint = (SHIELD_REPAIR_COST_PER_POINT * repairCostMultiplier);
+  const healthCostPerPoint = (gameConfig.repair.healthCostPerPoint * repairCostMultiplier);
+  const shieldCostPerPoint = (gameConfig.repair.shieldCostPerPoint * repairCostMultiplier);
 
   const armoryHeaderTitle = `ARMERÍA - ${vindicatorNameMap[vindicator.vindicatorType] || 'VINDICATOR'}`;
 
   return (
-    <div className="armory-view">
+    <div className={`armory-view ${gameState.settings.uiAnimationsEnabled ? 'view-fade-in' : ''} ${isVisible ? 'visible' : ''}`}>
       <div className="armory-view-header">
         <h2>{armoryHeaderTitle}</h2>
-        <button onClick={onClose} className="close-button">Cerrar</button>
+        <button onClick={onClose} className="view-close-button red">×</button>
       </div>
 
       <div className="armory-content">
@@ -234,11 +233,11 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
             <h3>Estado Actual</h3>
             <div className="status-bars">
               <div className="status-bar">
-                <span>Vida: {formatNumber(vindicator.currentHealth)} / {formatNumber(vindicator.maxHealth)}</span>
+                <span>Vida: {formatNumber(vindicator.currentHealth, gameState.settings.numberFormat)} / {formatNumber(vindicator.maxHealth, gameState.settings.numberFormat)}</span>
                 <div className="bar-container"><div className="health-fill" style={{ width: `${(vindicator.currentHealth / vindicator.maxHealth) * 100}%` }}></div></div>
               </div>
               <div className="status-bar">
-                <span>Escudo: {formatNumber(vindicator.currentShield)} / {formatNumber(vindicator.maxShield)}</span>
+                <span>Escudo: {formatNumber(vindicator.currentShield, gameState.settings.numberFormat)} / {formatNumber(vindicator.maxShield, gameState.settings.numberFormat)}</span>
                 <div className="bar-container"><div className="shield-fill" style={{ width: `${(vindicator.currentShield / vindicator.maxShield) * 100}%` }}></div></div>
               </div>
             </div>
@@ -248,10 +247,10 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
             <div className="repair-option">
               <div className="repair-info">
                 <h4 title={`Coste: ${healthCostPerPoint.toFixed(0)} Chatarra por punto`}>Reparar Vida</h4>
-                <p>Repara {formatNumber(missingHealth)} puntos de vida faltantes</p>
+                <p>Repara {formatNumber(missingHealth, gameState.settings.numberFormat)} puntos de vida faltantes</p>
                 <div className="repair-cost">
                   <img src={scrapIcon} alt="Chatarra" className="cost-icon-img" />
-                  <span className="cost-amount">{formatNumber(healthRepairCost)}</span>
+                  <span className="cost-amount">{formatNumber(healthRepairCost, gameState.settings.numberFormat)}</span>
                   <span className="cost-name">Chatarra</span>
                 </div>
               </div>
@@ -262,7 +261,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
             <div className="repair-option">
               <div className="repair-info">
                 <h4 title={`Coste: ${shieldCostPerPoint.toFixed(2)} Barras de Combustible por punto`}>Reparar Escudo</h4>
-                <p>Repara {formatNumber(missingShield)} puntos de escudo faltantes</p>
+                <p>Repara {formatNumber(missingShield, gameState.settings.numberFormat)} puntos de escudo faltantes</p>
                 <div className="repair-cost">
                   <img src={fuelRodIcon} alt="Combustible" className="cost-icon-img" />
                   <span className="cost-amount">{shieldRepairCost.toFixed(1)}</span>
@@ -313,8 +312,8 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                                   <div className="upgrade-cost">
                                       <h5>COSTE PRÓXIMA MEJORA:</h5>
                                       <ul className="cost-list">
-                                          {(Object.entries(phase1Resources) as [string, number][]).map(([res, cost]) => <li key={res} className={(bodegaResources as any)[res] >= cost ? 'has-enough' : 'not-enough'}><img src={resourceIcons[res]} alt={resourceLabels[res]} className="cost-icon-img" /><span>{resourceLabels[res] || res}:</span><span>{formatNumber((bodegaResources as any)[res])} / {formatNumber(cost)}</span></li>)}
-                                          {(Object.entries(phase2Resources) as [string, number][]).map(([res, cost]) => <li key={res} className={(bodegaResources as any)[res] >= cost ? 'has-enough' : 'not-enough'}><img src={resourceIcons[res]} alt={resourceLabels[res]} className="cost-icon-img" /><span>{resourceLabels[res] || res}:</span><span>{formatNumber((bodegaResources as any)[res])} / {formatNumber(cost)}</span></li>)}
+                                          {(Object.entries(phase1Resources) as [string, number][]).map(([res, cost]) => <li key={res} className={(bodegaResources as any)[res] >= cost ? 'has-enough' : 'not-enough'}><img src={resourceIcons[res]} alt={resourceLabels[res]} className="cost-icon-img" /><span>{resourceLabels[res] || res}:</span><span>{formatNumber((bodegaResources as any)[res], gameState.settings.numberFormat)} / {formatNumber(cost, gameState.settings.numberFormat)}</span></li>)}
+                                          {(Object.entries(phase2Resources) as [string, number][]).map(([res, cost]) => <li key={res} className={(bodegaResources as any)[res] >= cost ? 'has-enough' : 'not-enough'}><img src={resourceIcons[res]} alt={resourceLabels[res]} className="cost-icon-img" /><span>{resourceLabels[res] || res}:</span><span>{formatNumber((bodegaResources as any)[res], gameState.settings.numberFormat)} / {formatNumber(cost, gameState.settings.numberFormat)}</span></li>)}
                                       </ul>
                                   </div>
                                   <button className={`upgrade-button ${canUpgrade ? '' : 'disabled'}`} onClick={handleUpgrade} disabled={!canUpgrade}>
@@ -357,7 +356,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                                         <li className={hasEnoughBlueprints ? 'has-enough' : 'not-enough'}>
                                             <img src={planosIcon} alt={blueprintLabel} className="cost-icon-img" />
                                             <span>{blueprintLabel}:</span>
-                                            <span>{formatNumber(blueprintResource)} / {formatNumber(nextLevel.blueprintCost)}</span>
+                                            <span>{formatNumber(blueprintResource, gameState.settings.numberFormat)} / {formatNumber(nextLevel.blueprintCost, gameState.settings.numberFormat)}</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -407,7 +406,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                               <li key={resource} className={hasEnough ? 'has-enough' : 'not-enough'}>
                                 {icon && <img src={icon} alt={label} className="cost-icon-img" />}
                                 <span>{label}:</span>
-                                <span>{formatNumber((bodegaResources as any)[resourceKey] || 0)} / {formatNumber(cost as number)}</span>
+                                <span>{formatNumber((bodegaResources as any)[resourceKey] || 0, gameState.settings.numberFormat)} / {formatNumber(cost as number, gameState.settings.numberFormat)}</span>
                               </li>
                             );
                           })}
@@ -452,7 +451,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                                         <li className={hasEnoughBlueprints ? 'has-enough' : 'not-enough'}>
                                             <img src={planosIcon} alt={blueprintLabel} className="cost-icon-img" />
                                             <span>{blueprintLabel}:</span>
-                                            <span>{formatNumber(blueprintResource)} / {formatNumber(nextLevel.blueprintCost)}</span>
+                                            <span>{formatNumber(blueprintResource, gameState.settings.numberFormat)} / {formatNumber(nextLevel.blueprintCost, gameState.settings.numberFormat)}</span>
                                         </li>
                                     </ul>
                                 </div>

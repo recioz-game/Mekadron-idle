@@ -69,129 +69,128 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
 
     const scrollRef = useDragToScroll<HTMLDivElement>();
 
-  return (
-    <div className="foundry-view-container" ref={scrollRef}>
-      <div className="foundry-view-header">
-        <h2>FUNDICIÓN</h2>
+    return (
+    <div className="foundry-view-container">
+      <div className="foundry-content-area" ref={scrollRef}>
         <button onClick={onClose} className="close-button">
-          Cerrar
+          &times;
         </button>
-      </div>
 
-      <BuyAmountSelector buyAmount={buyAmount} onSetBuyAmount={onSetBuyAmount} />
+                        <BuyAmountSelector buyAmount={buyAmount} onSetBuyAmount={onSetBuyAmount} />
 
                                                                               {/* Metal Refinado */}
-      <div className={`foundry-item ${maxMetal > 0 ? 'available' : ''}`}>
-        <div className="foundry-item-content">
-          <h4 style={{ color: '#F59E0B' }}>Metal Refinado</h4>
-          <p>Coste: {formatNumber(metalCost.scrap)} Chatarra + {formatNumber(metalCost.energy)} Energía</p>
-          <p>En Posesión: {formatNumber(metalRefinado)}</p>
-          <QueueControls queue={metalRefinadoQueue} itemName='metalRefinado' onCancel={onCancel} />
-          <button 
-            onClick={onCraftRefinedMetal} 
-            disabled={maxMetal <= 0}
-            className={`craft-button ${maxMetal > 0 ? 'available' : ''}`}
-          >
-            Encargar {buyAmount === 'max' && `(${maxMetal})`}
-          </button>
-        </div>
-        <img src={refinedMetalIcon} alt="Metal Refinado" className="foundry-item-image" />
-      </div>
-
-      {/* Acero Estructural */}
-      <div className={`foundry-item ${maxSteel > 0 ? 'available' : ''}`}>
-        <div className="foundry-item-content">
-          <h4 style={{ color: '#06B6D4' }}>Acero Estructural</h4>
-          <p>Coste: {formatNumber(steelCost.scrap)} Chatarra + {steelCost.metal} Metal + {steelCost.energy} Energía</p>
-          <p>En Posesión: {formatNumber(aceroEstructural)}</p>
-          <QueueControls queue={aceroEstructuralQueue} itemName='aceroEstructural' onCancel={onCancel} />
-          <button 
-            onClick={onCraftStructuralSteel} 
-            disabled={maxSteel <= 0}
-            className={`craft-button ${maxSteel > 0 ? 'available' : ''}`}
-          >
-            Encargar {buyAmount === 'max' && `(${maxSteel})`}
-          </button>
-        </div>
-        <img src={structuralSteelIcon} alt="Acero Estructural" className="foundry-item-image" />
-      </div>
-
-      <h3 className="section-title">Componentes de Nave</h3>
-      
-      {/* Placas de Casco */}
-      <div className={`foundry-item ${maxPlate > 0 ? 'available' : ''}`}>
-        <div className="foundry-item-content">
-          <h4 style={{ color: '#F59E0B' }}>Placa de Casco Reforzado</h4>
-          <p>Coste: {plateCost.fragmentos} Fragmentos + {plateCost.acero} Acero + {plateCost.energy} Energía</p>
-          <p>En Posesión: {formatNumber(placasCasco)}</p>
-          <QueueControls queue={placasCascoQueue} itemName='placasCasco' onCancel={onCancel} />
-          <button 
-            onClick={onCraftHullPlate} 
-            disabled={maxPlate <= 0}
-            className={`craft-button ${maxPlate > 0 ? 'available' : ''}`}
-          >
-            Encargar {buyAmount === 'max' && `(${maxPlate})`}
-          </button>
-        </div>
-        <img src={hullPlateIcon} alt="Placa de Casco" className="foundry-item-image" />
-      </div>
-
-      {/* Cableado de Superconductores */}
-      <div className={`foundry-item ${maxWiring > 0 ? 'available' : ''}`}>
-        <div className="foundry-item-content">
-          <h4 style={{ color: '#06B6D4' }}>Cableado de Superconductores</h4>
-          <p>Coste: {wiringCost.circuitos} Circuitos + {wiringCost.metal} Metal + {wiringCost.energy} Energía</p>
-          <p>En Posesión: {formatNumber(cableadoSuperconductor)}</p>
-          <QueueControls queue={cableadoSuperconductorQueue} itemName='cableadoSuperconductor' onCancel={onCancel} />
-          <button 
-            onClick={onCraftSuperconductorWiring} 
-            disabled={maxWiring <= 0}
-            className={`craft-button ${maxWiring > 0 ? 'available' : ''}`}
-          >
-            Encargar {buyAmount === 'max' && `(${maxWiring})`}
-          </button>
-        </div>
-        <img src={superconductorWiringIcon} alt="Cableado" className="foundry-item-image" />
-      </div>
-
-      {/* Barra de Combustible */}
-      <div className={`foundry-item ${maxFuelRod > 0 ? 'available' : ''}`}>
-        <div className="foundry-item-content">
-          <h4 style={{ color: '#FCD34D' }}>Barra de Combustible</h4>
-          <p>Coste: {fuelRodCost.metal} Metal + {fuelRodCost.acero} Acero + {fuelRodCost.energy} Energía</p>
-          <p>En Posesión: {formatNumber(barraCombustible)}</p>
-          <QueueControls queue={barraCombustibleQueue} itemName='barraCombustible' onCancel={onCancel} />
-          <button 
-            onClick={onCraftFuelRod} 
-            disabled={maxFuelRod <= 0}
-            className={`craft-button ${maxFuelRod > 0 ? 'available' : ''}`}
-          >
-            Encargar {buyAmount === 'max' && `(${maxFuelRod})`}
-          </button>
-        </div>
-        <img src={fuelRodIcon} alt="Barra de Combustible" className="foundry-item-image" />
-      </div>
-
-            {/* Purificación de Chatarra (Condicional) */}
-      {(upgrades as any).scrapPurification > 0 && (
-        <div className={`crafting-item ${maxPurified > 0 ? 'available' : ''}`} style={{ borderColor: maxPurified > 0 ? '#A855F7' : '' }}>
-          <div className="crafting-item-content full-width">
-            <div className="crafting-item-info">
-              <h4 style={{ color: '#A855F7' }}>Purificación de Chatarra</h4>
-              <p>Convierte una gran cantidad de recursos básicos en Metal Refinado. Es ineficiente, pero útil en emergencias.</p>
-              <p>Coste: {formatNumber(purificationCost.scrap)} Chatarra + {formatNumber(purificationCost.energy)} Energía</p>
-            </div>
+        <div className={`foundry-item ${maxMetal > 0 ? 'available' : ''}`}>
+          <div className="foundry-item-content">
+            <h4 style={{ color: '#F59E0B' }}>Metal Refinado</h4>
+            <p>Coste: {formatNumber(metalCost.scrap)} Chatarra + {formatNumber(metalCost.energy)} Energía</p>
+            <p>En Posesión: {formatNumber(metalRefinado)}</p>
+            <QueueControls queue={metalRefinadoQueue} itemName='metalRefinado' onCancel={onCancel} />
             <button 
-              onClick={onCraftPurifiedMetal} 
-              disabled={maxPurified <= 0}
-              className={`craft-button ${maxPurified > 0 ? 'available' : ''}`}
-              style={{ backgroundColor: maxPurified > 0 ? '#A855F7' : '', color: maxPurified > 0 ? 'white' : '' }}
+              onClick={onCraftRefinedMetal} 
+              disabled={maxMetal <= 0}
+              className={`craft-button ${maxMetal > 0 ? 'available' : ''}`}
             >
-              Purificar Chatarra {buyAmount === 'max' && `(${maxPurified})`}
+              Encargar {buyAmount === 'max' && `(${maxMetal})`}
             </button>
           </div>
+          <img src={refinedMetalIcon} alt="Metal Refinado" className="foundry-item-image" />
         </div>
-      )}
+
+        {/* Acero Estructural */}
+        <div className={`foundry-item ${maxSteel > 0 ? 'available' : ''}`}>
+          <div className="foundry-item-content">
+            <h4 style={{ color: '#06B6D4' }}>Acero Estructural</h4>
+            <p>Coste: {formatNumber(steelCost.scrap)} Chatarra + {steelCost.metal} Metal + {steelCost.energy} Energía</p>
+            <p>En Posesión: {formatNumber(aceroEstructural)}</p>
+            <QueueControls queue={aceroEstructuralQueue} itemName='aceroEstructural' onCancel={onCancel} />
+            <button 
+              onClick={onCraftStructuralSteel} 
+              disabled={maxSteel <= 0}
+              className={`craft-button ${maxSteel > 0 ? 'available' : ''}`}
+            >
+              Encargar {buyAmount === 'max' && `(${maxSteel})`}
+            </button>
+          </div>
+          <img src={structuralSteelIcon} alt="Acero Estructural" className="foundry-item-image" />
+        </div>
+
+        <h3 className="section-title">Componentes de Nave</h3>
+        
+        {/* Placas de Casco */}
+        <div className={`foundry-item ${maxPlate > 0 ? 'available' : ''}`}>
+          <div className="foundry-item-content">
+            <h4 style={{ color: '#F59E0B' }}>Placa de Casco Reforzado</h4>
+            <p>Coste: {plateCost.fragmentos} Fragmentos + {plateCost.acero} Acero + {plateCost.energy} Energía</p>
+            <p>En Posesión: {formatNumber(placasCasco)}</p>
+            <QueueControls queue={placasCascoQueue} itemName='placasCasco' onCancel={onCancel} />
+            <button 
+              onClick={onCraftHullPlate} 
+              disabled={maxPlate <= 0}
+              className={`craft-button ${maxPlate > 0 ? 'available' : ''}`}
+            >
+              Encargar {buyAmount === 'max' && `(${maxPlate})`}
+            </button>
+          </div>
+          <img src={hullPlateIcon} alt="Placa de Casco" className="foundry-item-image" />
+        </div>
+
+        {/* Cableado de Superconductores */}
+        <div className={`foundry-item ${maxWiring > 0 ? 'available' : ''}`}>
+          <div className="foundry-item-content">
+            <h4 style={{ color: '#06B6D4' }}>Cableado de Superconductores</h4>
+            <p>Coste: {wiringCost.circuitos} Circuitos + {wiringCost.metal} Metal + {wiringCost.energy} Energía</p>
+            <p>En Posesión: {formatNumber(cableadoSuperconductor)}</p>
+            <QueueControls queue={cableadoSuperconductorQueue} itemName='cableadoSuperconductor' onCancel={onCancel} />
+            <button 
+              onClick={onCraftSuperconductorWiring} 
+              disabled={maxWiring <= 0}
+              className={`craft-button ${maxWiring > 0 ? 'available' : ''}`}
+            >
+              Encargar {buyAmount === 'max' && `(${maxWiring})`}
+            </button>
+          </div>
+          <img src={superconductorWiringIcon} alt="Cableado" className="foundry-item-image" />
+        </div>
+
+        {/* Barra de Combustible */}
+        <div className={`foundry-item ${maxFuelRod > 0 ? 'available' : ''}`}>
+          <div className="foundry-item-content">
+            <h4 style={{ color: '#FCD34D' }}>Barra de Combustible</h4>
+            <p>Coste: {fuelRodCost.metal} Metal + {fuelRodCost.acero} Acero + {fuelRodCost.energy} Energía</p>
+            <p>En Posesión: {formatNumber(barraCombustible)}</p>
+            <QueueControls queue={barraCombustibleQueue} itemName='barraCombustible' onCancel={onCancel} />
+            <button 
+              onClick={onCraftFuelRod} 
+              disabled={maxFuelRod <= 0}
+              className={`craft-button ${maxFuelRod > 0 ? 'available' : ''}`}
+            >
+              Encargar {buyAmount === 'max' && `(${maxFuelRod})`}
+            </button>
+          </div>
+          <img src={fuelRodIcon} alt="Barra de Combustible" className="foundry-item-image" />
+        </div>
+
+              {/* Purificación de Chatarra (Condicional) */}
+        {(upgrades as any).scrapPurification > 0 && (
+          <div className={`crafting-item ${maxPurified > 0 ? 'available' : ''}`} style={{ borderColor: maxPurified > 0 ? '#A855F7' : '' }}>
+            <div className="crafting-item-content full-width">
+              <div className="crafting-item-info">
+                <h4 style={{ color: '#A855F7' }}>Purificación de Chatarra</h4>
+                <p>Convierte una gran cantidad de recursos básicos en Metal Refinado. Es ineficiente, pero útil en emergencias.</p>
+                <p>Coste: {formatNumber(purificationCost.scrap)} Chatarra + {formatNumber(purificationCost.energy)} Energía</p>
+              </div>
+              <button 
+                onClick={onCraftPurifiedMetal} 
+                disabled={maxPurified <= 0}
+                className={`craft-button ${maxPurified > 0 ? 'available' : ''}`}
+                style={{ backgroundColor: maxPurified > 0 ? '#A855F7' : '', color: maxPurified > 0 ? 'white' : '' }}
+              >
+                Purificar Chatarra {buyAmount === 'max' && `(${maxPurified})`}
+              </button>
+      </div>
+      </div>
+        )}
+      </div>
     </div>
   );
 });

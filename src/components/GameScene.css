@@ -1,5 +1,6 @@
 /* src/components/GameScene.css */
 .game-scene-container {
+  position: relative; /* Para que sea el contexto de .energy-warning */
   background-color: #0F172A;
   background-size: cover;
   background-position: center;
@@ -47,17 +48,22 @@
 }
 
 .energy-warning {
-  padding: 1.2rem 2.4rem; /* Más espaciado interno */
+  position: absolute; /* Para que flote sobre el contenido */
+  top: 13rem; /* Distancia desde la parte superior del contenedor */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+
+  padding: 1.2rem 2.4rem;
   background-color: #450A0A;
   color: #FEE2E2;
   text-align: center;
-  font-family: 'Orbitron', sans-serif; /* Nueva fuente */
+  font-family: 'Orbitron', sans-serif;
   font-size: 1.6rem;
-  border: 2px solid #7F1D1D; /* Borde completo, no solo abajo */
-  border-radius: 1.2rem; /* Esquinas redondeadas */
-  width: fit-content; /* Se ajusta al contenido */
-  margin: 1rem auto; /* Centrado horizontalmente con margen vertical */
-  box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); /* Resplandor rojo sutil */
+  border: 2px solid #7F1D1D;
+  border-radius: 1.2rem;
+  width: fit-content;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
 }
 
 /* Estilos para móviles */
