@@ -116,10 +116,13 @@ export type ActionType =
   | { type: 'SET_MASTER_VOLUME'; payload: number }
   | { type: 'SET_MUSIC_VOLUME'; payload: number }
     | { type: 'SET_SFX_VOLUME'; payload: number }
+  | { type: 'SET_VOICE_VOLUME'; payload: number }
   | { type: 'TOGGLE_VOICES_MUTED' }
     | { type: 'TOGGLE_UI_ANIMATIONS' }
   | { type: 'TOGGLE_FLOATING_TEXT' }
   | { type: 'SET_NUMBER_FORMAT'; payload: 'full' | 'abbreviated' | 'scientific' }
   | { type: 'TOGGLE_AURORA_NOTIFICATIONS' }
   | { type: 'TOGGLE_ACTION_CONFIRMATIONS' }
+  | { type: 'SHOW_CREDITS' }
+  | { type: 'CLOSE_CREDITS' }
   | { type: 'LOAD_STATE'; payload: GameState };

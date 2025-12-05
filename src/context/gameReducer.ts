@@ -306,7 +306,7 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
 
         stateAfterTick.auroraMessages.forEach(msg => {
           if (!newShownMessages.has(msg.messageKey)) {
-            newPendingMessages.push({ message: msg.message, key: msg.messageKey });
+            newPendingMessages.push({ message: msg.message, key: msg.messageKey, audioId: (msg as any).audioId });
             newShownMessages.add(msg.messageKey);
           }
         });
@@ -1034,12 +1034,21 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         },
       };
 
-    case 'SET_SFX_VOLUME':
+        case 'SET_SFX_VOLUME':
       return {
         ...state,
         settings: {
           ...state.settings,
           sfxVolume: action.payload,
+        },
+      };
+
+    case 'SET_VOICE_VOLUME':
+      return {
+        ...state,
+        settings: {
+          ...state.settings,
+          voiceVolume: action.payload,
         },
       };
 
@@ -1053,9 +1062,21 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       return { ...state, settings: { ...state.settings, numberFormat: action.payload } };
     case 'TOGGLE_AURORA_NOTIFICATIONS':
       return { ...state, settings: { ...state.settings, auroraNotificationsEnabled: !state.settings.auroraNotificationsEnabled } };
-    case 'TOGGLE_ACTION_CONFIRMATIONS':
+        case 'TOGGLE_ACTION_CONFIRMATIONS':
       return { ...state, settings: { ...state.settings, actionConfirmationsEnabled: !state.settings.actionConfirmationsEnabled } };
     
+        case 'SHOW_CREDITS':
+      return { 
+        ...state, 
+        previousScene: state.currentScene, 
+        currentScene: 'creditsScene' 
+      };
+
+    case 'CLOSE_CREDITS':
+      return { 
+        ...state, 
+        currentScene: state.previousScene || 'startMenu' 
+      };
     
     case 'SELECT_CHAPTER':
       return {

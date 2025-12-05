@@ -30,14 +30,14 @@ const AuroraMessageHandler: React.FC = () => {
 
     // Paso 2: Guía para construir el panel solar (se muestra DESPUÉS del de bienvenida)
     if (safeShownMessages.has("welcome_message") && !safeShownMessages.has("tutorial_step_1")) {
-      addAuroraMessage("Nuestra primera prioridad es la energía. Construye un Panel Solar para empezar la restauración.", "tutorial_step_1", 2);
+      addAuroraMessage("Nuestra primera prioridad es la energía. Construye un Panel Solar para empezar la restauración.", "tutorial_step_1");
       return;
     }
 
     // Paso 3: Guía para construir el dron (después de construir un panel)
     if (safeShownMessages.has("tutorial_step_1") && !safeShownMessages.has("tutorial_step_2")) {
       if (energy.solarPanels > 0) {
-        addAuroraMessage("Excelente. Con la energía estabilizándose, ahora necesitamos recursos. Construye un Dron Básico en el Taller.", "tutorial_step_2", 3);
+        addAuroraMessage("Excelente. Con la energía estabilizándose, ahora necesitamos recursos. Construye un Dron Básico en el Taller.", "tutorial_step_2");
         return;
       }
     }
@@ -45,7 +45,7 @@ const AuroraMessageHandler: React.FC = () => {
     // Paso 4: Guía de vuelta a las misiones (después de construir un dron)
     if (safeShownMessages.has("tutorial_step_2") && !safeShownMessages.has("tutorial_step_3")) {
       if (workshop.drones.basic > 0) {
-        addAuroraMessage("Buen trabajo. El dron recolectará chatarra automáticamente. Revisa el panel de Misiones para ver tus siguientes objetivos.", "tutorial_step_3", 4);
+        addAuroraMessage("Buen trabajo. El dron recolectará chatarra automáticamente. Revisa el panel de Misiones para ver tus siguientes objetivos.", "tutorial_step_3");
         return;
       }
     }

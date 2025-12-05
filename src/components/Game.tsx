@@ -103,7 +103,8 @@ const Game: React.FC = () => {
         {gameState.aurora.activeMessages.map((msg, index) => (
           <div key={msg.id} style={{ marginBottom: index > 0 ? '1.6rem' : '0' }}>
             <AuroraMessage
-              message={msg.text}
+                            message={msg.text}
+              audioId={msg.audioId}
               onClose={() => dispatch({ type: 'REMOVE_AURORA_MESSAGE', payload: { messageId: msg.id } })}
             />
           </div>

@@ -1,0 +1,105 @@
+/* src/components/CreditsScene.css */
+.credits-scene {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+  color: #E5E7EB;
+  font-family: 'Inter', sans-serif;
+  z-index: 2000;
+  overflow: hidden; /* Oculta el texto que se sale de la pantalla */
+}
+
+@keyframes scrollCredits {
+  0% {
+    transform: translate(-50%, 100%);
+    opacity: 0;
+  }
+  10% {
+    transform: translate(-50%, 90%);
+    opacity: 1;
+  }
+  90% {
+    transform: translate(-50%, -100%);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -110%);
+    opacity: 0;
+  }
+}
+
+.credits-scroll-container {
+  width: 100%;
+  max-width: 800px;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 100%;
+  /* El transform inicial se mueve a la animación */
+  animation: scrollCredits 40s linear forwards;
+  text-align: center;
+}
+
+.credits-section {
+  margin-bottom: 3rem;
+}
+
+.credits-section h2 {
+  font-family: 'Orbitron', sans-serif;
+  color: #06B6D4; /* Azul cian */
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 5px rgba(6, 182, 212, 0.5);
+}
+
+.credits-section p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin: 0.5rem 0;
+  color: #D1D5DB; /* Un gris un poco más claro */
+}
+
+/* Para la estructura "Título: Nombre" */
+.credits-section p span {
+  color: #9CA3AF; /* Un gris más suave para el "cargo" */
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.credits-final-thanks {
+  padding-top: 5rem;
+  padding-bottom: 10rem;
+}
+
+.credits-final-thanks h2 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2.5rem;
+  color: #F59E0B; /* Naranja */
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.7);
+}
+
+.credits-close-button {
+  position: fixed; /* Lo fijamos en la pantalla */
+  bottom: 2rem; /* A 2rem del borde inferior */
+  right: 2rem; /* A 2rem del borde derecho */
+  padding: 12px 25px;
+  background-color: rgba(8, 51, 68, 0.8);
+  color: #06B6D4;
+  border: 1px solid #06B6D4;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-family: 'Orbitron', sans-serif;
+  transition: all 0.2s ease-in-out;
+  z-index: 2001; /* Por encima del texto que se desplaza */
+}
+
+.credits-close-button:hover {
+  background-color: #06B6D4;
+  color: #000;
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.7);
+}

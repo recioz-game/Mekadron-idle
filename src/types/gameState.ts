@@ -109,12 +109,13 @@ export type ResourceType = keyof GameState['resources'];
 export type DroneType = keyof GameState['workshop']['drones'];
 
 export interface GameState {
-  currentScene: 'startMenu' | 'introScene' | 'main' | 'phase2Intro' | 'phase2Main' | 'combatScene';
+  currentScene: 'startMenu' | 'introScene' | 'main' | 'phase2Intro' | 'phase2Main' | 'combatScene' | 'creditsScene';
     phase2Unlocked: boolean;
   notificationQueue: GameNotification[];
   godMode: boolean;
   battleCount: number;
   currentBackground: number; // <-- NUEVA PROP: Fondo actual (1-4)
+  previousScene?: GameState['currentScene'];
     resources: {
     scrap: number;
     energy: number;
@@ -514,6 +515,7 @@ export interface GameState {
     masterVolume: number; // 0-100
     musicVolume: number; // 0-100
     sfxVolume: number; // 0-100
+    voiceVolume: number; // 0-100
     voicesMuted: boolean;
         uiAnimationsEnabled: boolean;
     floatingTextEnabled: boolean;
@@ -531,6 +533,7 @@ export interface GameState {
   notificationQueue: [],
   battleCount: 0,
   currentBackground: 1, // <-- NUEVA PROP: Fondo inicial (1)
+  previousScene: undefined,
   godMode: false,
     resources: {
     scrap: 0,
@@ -1148,6 +1151,7 @@ export interface GameState {
     masterVolume: 75,
     musicVolume: 100,
     sfxVolume: 100,
+    voiceVolume: 100,
     voicesMuted: false,
         uiAnimationsEnabled: true,
     floatingTextEnabled: true,

@@ -35,17 +35,18 @@ const AuroraMessage: React.FC<AuroraMessageProps> = ({
   useEffect(() => {
     setIsVisible(true);
 
-        if (audioId && audioMap.has(audioId) && !gameState.settings.voicesMuted) {
+            if (audioId && audioMap.has(audioId)) {
       const audioSrc = audioMap.get(audioId);
       if (audioSrc) {
         const audio = new Audio(audioSrc);
-        // El volumen de la voz ahora depende del volumen general y el de efectos (SFX)
-        const finalVolume = (gameState.settings.masterVolume / 100) * (gameState.settings.sfxVolume / 100);
+        const finalVolume = (gameState.settings.masterVolume / 100) * (gameState.settings.voiceVolume / 100);
         audio.volume = finalVolume;
-        audio.play().catch(e => console.error("Error al reproducir audio:", e));
+        if (finalVolume > 0) {
+          audio.play().catch(e => console.error("Error al reproducir audio:", e));
+        }
       }
     }
-  }, []); // El array vacío asegura que esto se ejecute solo una vez
+  }, [audioId, gameState.settings.masterVolume, gameState.settings.voiceVolume]); // El array vacío asegura que esto se ejecute solo una vez
   
   // Controlar el auto-cierre
   useEffect(() => {

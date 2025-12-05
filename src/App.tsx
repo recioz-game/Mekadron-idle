@@ -7,6 +7,7 @@ import Game from './components/Game';
 import Phase2Intro from './components/Phase2Intro';
 import Phase2Scene from './components/Phase2Scene';
 import CombatScene from './components/CombatScene';
+import CreditsScene from './components/CreditsScene'; // <-- Importar CreditsScene
 import ErrorBoundary from './components/ErrorBoundary';
 import { useEffect } from 'react';
 
@@ -37,8 +38,10 @@ const App: React.FC = () => {
         return <Phase2Intro onComplete={() => dispatch({ type: 'GO_TO_PHASE_2' })} />;
             case 'phase2Main':
         return <Phase2Scene />;
-            case 'combatScene':
+                        case 'combatScene':
         return <CombatScene key={gameState.battleCount} />;
+      case 'creditsScene': // <-- Añadir este caso
+        return <CreditsScene />;
       default:
         return <StartMenu onStartGame={() => dispatch({ type: 'START_GAME' })} />;
     }

@@ -13,7 +13,7 @@ const SettingsMenu: React.FC = () => {
   const [exportData, setExportData] = useState('');
   const [importData, setImportData] = useState('');
 
-  const { masterVolume, musicVolume, sfxVolume, voicesMuted, uiAnimationsEnabled, floatingTextEnabled, numberFormat, auroraNotificationsEnabled, actionConfirmationsEnabled } = gameState.settings;
+  const { masterVolume, musicVolume, sfxVolume, voiceVolume, uiAnimationsEnabled, floatingTextEnabled, numberFormat, auroraNotificationsEnabled, actionConfirmationsEnabled } = gameState.settings;
 
   const isPhase2 = gameState.currentScene === 'phase2Main';
   const currentIcon = isPhase2 ? settingsButtonPhase2Icon : settingsButtonIcon;
@@ -99,15 +99,13 @@ const SettingsMenu: React.FC = () => {
               <label>Música (BSO): {musicVolume}%</label>
               <input type="range" min="0" max="100" value={musicVolume} onChange={(e) => dispatch({ type: 'SET_MUSIC_VOLUME', payload: Number(e.target.value) })} />
             </div>
-            <div className="volume-control">
+                        <div className="volume-control">
               <label>Efectos (SFX): {sfxVolume}%</label>
               <input type="range" min="0" max="100" value={sfxVolume} onChange={(e) => dispatch({ type: 'SET_SFX_VOLUME', payload: Number(e.target.value) })} />
             </div>
-            <div className="toggle-control">
-              <label>Voces (Aurora)</label>
-              <button onClick={() => dispatch({ type: 'TOGGLE_VOICES_MUTED' })} className={`toggle-button ${voicesMuted ? 'off' : 'on'}`}>
-                {voicesMuted ? 'Silenciadas' : 'Activadas'}
-              </button>
+            <div className="volume-control">
+              <label>Voces (Aurora): {voiceVolume}%</label>
+              <input type="range" min="0" max="100" value={voiceVolume} onChange={(e) => dispatch({ type: 'SET_VOICE_VOLUME', payload: Number(e.target.value) })} />
             </div>
           </div>
         );
@@ -284,6 +282,7 @@ const SettingsMenu: React.FC = () => {
               <button onClick={() => setActiveTab('visuals')} className={activeTab === 'visuals' ? 'active' : ''}>Visuales</button>
               <button onClick={() => setActiveTab('gameplay')} className={activeTab === 'gameplay' ? 'active' : ''}>Jugabilidad</button>
               <button onClick={() => setActiveTab('save')} className={activeTab === 'save' ? 'active' : ''}>Partida</button>
+              <button onClick={() => dispatch({ type: 'SHOW_CREDITS' })}>Créditos</button>
               {import.meta.env.DEV && (
                 <button onClick={() => setActiveTab('dev')} className={activeTab === 'dev' ? 'active' : ''}>Desarrollo</button>
               )}
