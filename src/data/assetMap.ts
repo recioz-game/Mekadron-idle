@@ -514,42 +514,42 @@ export const enemyAssets: Record<string, EnemyAsset> = {
 export const vindicatorAssets: Record<string, EnemyAsset> = {
   base: {
     idle: '/src/assets/images/vindicators/base.png',
-    shooting: '/src/assets/images/vindicators/base_disparando.png'
+    shooting: '/src/assets/images/vindicators/base_shooting.png'
   },
   vm01_origin: {
     idle: '/src/assets/images/vindicators/vm01_origin.png',
-    shooting: '/src/assets/images/vindicators/vm01_origin_disparando.png'
+    shooting: '/src/assets/images/vindicators/vm01_origin_shooting.png'
   },
   vm02_interceptor: {
     idle: '/src/assets/images/vindicators/vm02_interceptor.png',
-    shooting: '/src/assets/images/vindicators/vm02_interceptor_disparando.png'
+    shooting: '/src/assets/images/vindicators/vm02_interceptor_shooting.png'
   },
   vm03_devastator: {
     idle: '/src/assets/images/vindicators/vm03_devastator.png',
-    shooting: '/src/assets/images/vindicators/vm03_devastator_disparando.png'
+    shooting: '/src/assets/images/vindicators/vm03_devastator_shooting.png'
   },
   vm04_reaper: {
     idle: '/src/assets/images/vindicators/vm04_reaper.png',
-    shooting: '/src/assets/images/vindicators/vm04_reaper_disparando.png'
+    shooting: '/src/assets/images/vindicators/vm04_reaper_shooting.png'
   },
   vm05_aegis: {
     idle: '/src/assets/images/vindicators/vm05_aegis.png',
-    shooting: '/src/assets/images/vindicators/vm05_aegis_disparando.png'
+    shooting: '/src/assets/images/vindicators/vm05_aegis_shooting.png'
   },
   vm06_tempest: {
     idle: '/src/assets/images/vindicators/vm06_tempest.png',
-    shooting: '/src/assets/images/vindicators/vm06_tempest_disparando.png'
+    shooting: '/src/assets/images/vindicators/vm06_tempest_shooting.png'
   },
   vm07_wraith: {
     idle: '/src/assets/images/vindicators/vm07_wraith.png',
-    shooting: '/src/assets/images/vindicators/vm07_wraith_disparando.png'
+    shooting: '/src/assets/images/vindicators/vm07_wraith_shooting.png'
   },
   vm08_phantom: {
     idle: '/src/assets/images/vindicators/vm08_phantom.png',
-    shooting: '/src/assets/images/vindicators/vm08_phantom_disparando.png'
+    shooting: '/src/assets/images/vindicators/vm08_phantom_shooting.png'
   },
   vm09_apex: {
     idle: '/src/assets/images/vindicators/vm09_apex.png',
-    shooting: '/src/assets/images/vindicators/vm09_apex_disparando.png'
+    shooting: '/src/assets/images/vindicators/vm09_apex_shooting.png'
   },
 };
