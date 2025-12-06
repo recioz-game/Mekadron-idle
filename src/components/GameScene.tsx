@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, lazy, Suspense, useState } from 'react';
 import './GameScene.css'; // Importar el archivo CSS
 
-import mainThemeAudio from '../assets/audio/music/main-theme.wav';
 import energyWarningAudio from '../assets/audio/aurora/aurora_message_004.mp3'; // <-- AUDIO AÑADIDO
 import { ExpeditionId, ActiveExpedition, DroneType } from '../types/gameState';
 import { useGameState, useGameDispatch } from '../context/GameContext';
@@ -52,9 +51,51 @@ const GameScene: React.FC = () => {
   } = gameState;
   const { drones, queues: workshopQueues } = workshop;
 
-  const [isViewVisible, setIsViewVisible] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const hasPlayedEnergyWarning = useRef(false); // <-- Control para que suene una sola vez
+      const [isViewVisible, setIsViewVisible] = useState(false);
+  const hasPlayedEnergyWarning = useRef(false);
+
+    // --- NUEVO: Texto flotante para la producción automática ---
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!gameState.settings.floatingTextEnabled) return;
+
+      const createFloatingText = (text: string, xPosition: number, type: 'scrap' | 'metal' | 'steel') => {
+        const mockMouseEvent = {
+          clientX: window.innerWidth * xPosition,
+          clientY: window.innerHeight * 0.05
+        };
+        const event = new CustomEvent('showFloatingText', {
+          detail: { text, originalEvent: mockMouseEvent, type }
+        });
+        document.dispatchEvent(event);
+      };
+
+                  // Chatarra
+      if (gameState.rates.scrapPerSecond !== 0) {
+        const sign = gameState.rates.scrapPerSecond > 0 ? '+' : '';
+        createFloatingText(`${sign}${gameState.rates.scrapPerSecond.toFixed(1)}`, 0.88, 'scrap');
+      }
+
+      // Metal Refinado
+      if (gameState.rates.metalPerSecond > 0) {
+        createFloatingText(`+${gameState.rates.metalPerSecond.toFixed(1)}`, 0.3, 'metal');
+      }
+      
+      // Acero Estructural
+      if (gameState.rates.steelPerSecond > 0) {
+        createFloatingText(`+${gameState.rates.steelPerSecond.toFixed(1)}`, 0.35, 'steel');
+      }
+
+    }, 1000); // Se ejecuta cada segundo
+
+        return () => clearInterval(interval);
+  }, [
+    gameState.settings.floatingTextEnabled, 
+    gameState.rates.scrapPerSecond, 
+    gameState.rates.metalPerSecond, 
+    gameState.rates.steelPerSecond
+  ]);
+
 
   // Efecto para el audio de advertencia de energía
   useEffect(() => {
@@ -80,22 +121,7 @@ const GameScene: React.FC = () => {
     } else {
       setIsViewVisible(false);
     }
-  }, [currentView]);
-
-    useEffect(() => {
-    if (audioRef.current) {
-      // Calcular el volumen final: (Master / 100) * (Music / 100)
-      const finalVolume = (gameState.settings.masterVolume / 100) * (gameState.settings.musicVolume / 100);
-      audioRef.current.volume = finalVolume;
-    }
-  }, [gameState.settings.masterVolume, gameState.settings.musicVolume]);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (audio) {
-      audio.play().catch(() => console.log("La reproducción automática fue bloqueada. Se requiere interacción del usuario."));
-    }
-  }, []);
+    }, [currentView]);
   const onDismissNotification = useCallback(() => {
     dispatch({ type: 'DISMISS_NOTIFICATION' });
   }, [dispatch]);
@@ -219,11 +245,12 @@ const GameScene: React.FC = () => {
             onSetBuyAmount={onSetWorkshopBuyAmount}
             onClose={onClose}
             onCancel={onCancelWorkshopItem}
+            numberFormat={gameState.settings.numberFormat}
           />
         );
       case 'energy':
         return (
-                    <EnergyView
+                                        <EnergyView
             scrap={resources.scrap}
             currentEnergy={resources.energy}
             maxEnergy={resources.maxEnergy}
@@ -255,6 +282,7 @@ const GameScene: React.FC = () => {
             onCancel={onCancelEnergyItem}
             upgrades={techCenter.upgrades}
             metalRefinado={gameState.vindicator.bodegaResources.metalRefinado}
+            numberFormat={gameState.settings.numberFormat}
           />
         );
             case 'storage':
@@ -392,26 +420,26 @@ const GameScene: React.FC = () => {
 
                                     <div className="main-content">
         {/* Contenedor para toda la columna izquierda */}
-        <div className="main-view-wrapper">
-                  {/* El panel de desbloqueos solo se muestra si no hay una vista activa */}
-        {currentView === '' && <UnlockRequirements
-          workshopUnlocked={modules.workshop}
-          energyUnlocked={modules.energy}
-          storageUnlocked={modules.storage}
-          laboratoryUnlocked={modules.techCenter}
-          foundryUnlocked={modules.foundry}
-          expeditionsUnlocked={modules.expeditions}
-          shipyardUnlocked={modules.shipyard}
-          scrapForUnlock={resources.scrap}
-          mediumDronesForUnlock={drones.medium}
-          advancedSolarForUnlock={energy.advancedSolar}
-          foundryProtocolsUpgrade={techCenter.upgrades.foundryProtocols}
-                />}
-          <div className={`module-container ${currentView && gameState.settings.uiAnimationsEnabled ? `view-fade-in ${isViewVisible ? 'visible' : ''}` : ''}`} key={currentView}>
-            <Suspense fallback={<div className="loading-module">Cargando Módulo...</div>}>
-              {renderActiveModule()}
-            </Suspense>
-          </div>
+                <div className="main-view-wrapper">
+          <Suspense fallback={<div className="loading-module">Cargando...</div>}>
+            {/* El panel de desbloqueos solo se muestra si no hay una vista activa */}
+            {currentView === '' && <UnlockRequirements
+              workshopUnlocked={modules.workshop}
+              energyUnlocked={modules.energy}
+              storageUnlocked={modules.storage}
+              laboratoryUnlocked={modules.techCenter}
+              foundryUnlocked={modules.foundry}
+              expeditionsUnlocked={modules.expeditions}
+              shipyardUnlocked={modules.shipyard}
+              scrapForUnlock={resources.scrap}
+              mediumDronesForUnlock={drones.medium}
+              advancedSolarForUnlock={energy.advancedSolar}
+              foundryProtocolsUpgrade={techCenter.upgrades.foundryProtocols}
+            />}
+            <div className={`module-container ${currentView && gameState.settings.uiAnimationsEnabled ? `view-fade-in ${isViewVisible ? 'visible' : ''}` : ''}`} key={currentView}>
+                {renderActiveModule()}
+            </div>
+          </Suspense>
         </div>
 
         {/* El panel de módulos ahora es el segundo hijo directo, forzándolo a la derecha */}
@@ -429,9 +457,7 @@ const GameScene: React.FC = () => {
                 />
       </div>
 
-      <SettingsMenu />
-<FloatingTextHandler /> 
-<audio ref={audioRef} src={mainThemeAudio} loop />
+            <SettingsMenu />
     </div>
   );
 };

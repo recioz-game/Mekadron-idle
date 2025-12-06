@@ -12,14 +12,22 @@ interface BuildConfiguration {
 
 // Función genérica para manejar la construcción y el crafteo (VERSIÓN INMUTABLE)
 const handleBuild = (state: GameState, config: BuildConfiguration): GameState => {
+  // Aplicar la reducción de coste de chatarra para drones
+  const droneScrapCostReduction = state.techCenter.upgrades.droneScrapCost * 0.05; // 5% de reducción por nivel
+  let modifiedCosts = { ...config.costs };
+
+  if (config.queuePath[0] === 'workshop' && modifiedCosts.scrap) {
+    modifiedCosts.scrap *= (1 - droneScrapCostReduction);
+  }
+
   // 1. Comprobar prerrequisitos
   if (config.prerequisites && !config.prerequisites(state)) {
     console.warn(`Prerequisites not met for ${config.queuePath[2]}`);
     return state;
   }
 
-  // 2. Calcular la cantidad máxima que se puede permitir
-  const costEntries = Object.entries(config.costs);
+  // 2. Calcular la cantidad máxima que se puede permitir (usando los costes modificados)
+  const costEntries = Object.entries(modifiedCosts);
   if (costEntries.length === 0) return state;
 
   const maxAffordableAmounts = costEntries.map(([resource, cost]) => {
@@ -39,7 +47,7 @@ const handleBuild = (state: GameState, config: BuildConfiguration): GameState =>
     return state;
   }
 
-  // 4. Crear un nuevo objeto de recursos
+  // 4. Crear un nuevo objeto de recursos (usando los costes modificados)
   const newResources = { ...state.resources };
   const newBodegaResources = { ...state.vindicator.bodegaResources };
   for (const [resource, cost] of costEntries) {

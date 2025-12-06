@@ -44,7 +44,7 @@ const CreditsScene: React.FC = () => {
         
         <div className="credits-section">
           <h2>Playtesters / QA (Control de Calidad)</h2>
-          <p>Ricardo Hernández, Alexei Kramanenco, </p>
+          <p>Ricardo Hernández, Dr.Alexei Kramanenco, </p>
         </div>
 
         <div className="credits-section">

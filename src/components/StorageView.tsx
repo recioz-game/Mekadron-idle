@@ -3,6 +3,7 @@ import './StorageView.css'; // Importar el archivo CSS
 import BuyAmountSelector from './BuyAmountSelector';
 import { formatNumber } from '../utils/formatNumber';
 import BotonConTooltip from './BotonConTooltip';
+import QueueControls from './QueueControls';
 import { gameData } from '../data/gameData';
 import { useDragToScroll } from '../hooks/useDragToScroll';
 
@@ -122,26 +123,29 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
         <div className="storage-item-content">
           <h3 style={{ color: '#F59E0B' }}>Almacén Básico</h3>
           <p>Capacidad: +{formatNumber(50)} chatarra máxima</p>
-          <p>Coste: {formatNumber(basicStorageCost)} chatarra</p>
+                    <p>Coste: {formatNumber(basicStorageCost)} chatarra</p>
           <p>Construidos: {basicStorage} | En cola: {basicStorageQueue.queue}</p>
+
           {basicStorageQueue.queue > 0 && (
-            <div className="queue-controls">
-              <button onClick={() => onCancel('basicStorage', 1)}>Cancelar 1</button>
-              <button onClick={() => onCancel('basicStorage', 'all')}>Cancelar Todo</button>
+            <div>
+              <p className="time-info">T/U: {basicStorageQueue.time}s | En cola: {basicStorageQueue.queue}</p>
+              <ProgressBar progress={basicStorageQueue.progress} time={basicStorageQueue.time} />
             </div>
           )}
-          <p>T/U: {basicStorageQueue.time}s</p>
-          
-          {basicStorageQueue.queue > 0 && <ProgressBar progress={basicStorageQueue.progress} time={basicStorageQueue.time} />}
-          
-          <BotonConTooltip
-            onClick={onBuildBasicStorage}
-            disabled={scrap < basicStorageCost}
-            tooltipText={getTooltipText([{ amount: basicStorageCost, current: scrap, text: 'Chatarra' }])}
-            className={`build-button ${scrap >= basicStorageCost ? 'unlocked' : ''}`}
-          >
-            Encargar Almacén Básico {buyAmount === 'max' && `(${basicStorageMax})`}
-          </BotonConTooltip>
+
+          <div className="build-actions">
+            <BotonConTooltip
+              onClick={onBuildBasicStorage}
+              disabled={scrap < basicStorageCost}
+              tooltipText={getTooltipText([{ amount: basicStorageCost, current: scrap, text: 'Chatarra' }])}
+              className={`build-button ${scrap >= basicStorageCost ? 'unlocked' : ''}`}
+            >
+              Encargar Almacén Básico {buyAmount === 'max' && `(${basicStorageMax})`}
+            </BotonConTooltip>
+            {basicStorageQueue.queue > 0 && (
+              <QueueControls itemName='basicStorage' onCancel={onCancel} />
+            )}
+          </div>
         </div>
         <img src={storageBasicImg} alt="Almacén Básico" className="storage-item-image" />
       </div>
@@ -151,30 +155,33 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
         <div className="storage-item-content">
           <h3 style={{ color: '#22C55E' }}>Almacén Medio</h3>
           <p>Capacidad: +{formatNumber(500)} chatarra máxima</p>
-          <p>Coste: {formatNumber(mediumStorageCost)} chatarra</p>
+                    <p>Coste: {formatNumber(mediumStorageCost)} chatarra</p>
           <p>Construidos: {mediumStorage} | En cola: {mediumStorageQueue.queue}</p>
-          {mediumStorageQueue.queue > 0 && (
-            <div className="queue-controls">
-              <button onClick={() => onCancel('mediumStorage', 1)}>Cancelar 1</button>
-              <button onClick={() => onCancel('mediumStorage', 'all')}>Cancelar Todo</button>
-            </div>
-          )}
-          <p>T/U: {mediumStorageQueue.time}s</p>
           <p>Requisitos: 3 Almacenes Básicos</p>
 
-          {mediumStorageQueue.queue > 0 && <ProgressBar progress={mediumStorageQueue.progress} time={mediumStorageQueue.time} />}
-          
-          <BotonConTooltip
-            onClick={onBuildMediumStorage}
-            disabled={scrap < mediumStorageCost || basicStorage < 3}
-            tooltipText={getTooltipText([
-              { amount: mediumStorageCost, current: scrap, text: 'Chatarra' },
-              { amount: 3, current: basicStorage, text: 'Almacenes Básicos' }
-            ])}
-            className={`build-button ${scrap >= mediumStorageCost && basicStorage >= 3 ? 'unlocked' : ''}`}
-          >
-            Encargar Almacén Medio {buyAmount === 'max' && `(${mediumStorageMax})`}
-          </BotonConTooltip>
+          {mediumStorageQueue.queue > 0 && (
+            <div>
+              <p className="time-info">T/U: {mediumStorageQueue.time}s | En cola: {mediumStorageQueue.queue}</p>
+              <ProgressBar progress={mediumStorageQueue.progress} time={mediumStorageQueue.time} />
+            </div>
+          )}
+
+          <div className="build-actions">
+            <BotonConTooltip
+              onClick={onBuildMediumStorage}
+              disabled={scrap < mediumStorageCost || basicStorage < 3}
+              tooltipText={getTooltipText([
+                { amount: mediumStorageCost, current: scrap, text: 'Chatarra' },
+                { amount: 3, current: basicStorage, text: 'Almacenes Básicos' }
+              ])}
+              className={`build-button ${scrap >= mediumStorageCost && basicStorage >= 3 ? 'unlocked' : ''}`}
+            >
+              Encargar Almacén Medio {buyAmount === 'max' && `(${mediumStorageMax})`}
+            </BotonConTooltip>
+            {mediumStorageQueue.queue > 0 && (
+              <QueueControls itemName='mediumStorage' onCancel={onCancel} />
+            )}
+          </div>
           {basicStorage < 3 && (
             <p className="requirement-warning">
               ⚠️ Necesitas 3 Almacenes Básicos
@@ -189,31 +196,34 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
         <div className="storage-item-content">
           <h3 style={{ color: '#D946EF' }}>Almacén Avanzado</h3>
           <p>Capacidad: +{formatNumber(5000)} chatarra máxima</p>
-          <p>Coste: {formatNumber(advancedStorageCost)} chatarra</p>
+                    <p>Coste: {formatNumber(advancedStorageCost)} chatarra</p>
           <p>Construidos: {advancedStorage} | En cola: {advancedStorageQueue.queue}</p>
-          {advancedStorageQueue.queue > 0 && (
-            <div className="queue-controls">
-              <button onClick={() => onCancel('advancedStorage', 1)}>Cancelar 1</button>
-              <button onClick={() => onCancel('advancedStorage', 'all')}>Cancelar Todo</button>
-            </div>
-          )}
-          <p>T/U: {advancedStorageQueue.time}s</p>
           <p>Requisitos: 1 Almacén Medio</p>
 
-          {advancedStorageQueue.queue > 0 && <ProgressBar progress={advancedStorageQueue.progress} time={advancedStorageQueue.time} />}
-          
-          <BotonConTooltip
-            onClick={onBuildAdvancedStorage}
-            disabled={scrap < advancedStorageCost || mediumStorage < 1}
-            tooltipText={getTooltipText([
-              { amount: advancedStorageCost, current: scrap, text: 'Chatarra' },
-              { amount: 1, current: mediumStorage, text: 'Almacenes Medios' }
-            ])}
-            className={`build-button ${scrap >= advancedStorageCost && mediumStorage >= 1 ? 'unlocked' : ''}`}
-            style={{ backgroundColor: scrap >= advancedStorageCost && mediumStorage >= 1 ? '#D946EF' : '#9CA3AF' }}
-          >
-            Encargar Almacén Avanzado {buyAmount === 'max' && `(${advancedStorageMax})`}
-          </BotonConTooltip>
+          {advancedStorageQueue.queue > 0 && (
+            <div>
+              <p className="time-info">T/U: {advancedStorageQueue.time}s | En cola: {advancedStorageQueue.queue}</p>
+              <ProgressBar progress={advancedStorageQueue.progress} time={advancedStorageQueue.time} />
+            </div>
+          )}
+
+          <div className="build-actions">
+            <BotonConTooltip
+              onClick={onBuildAdvancedStorage}
+              disabled={scrap < advancedStorageCost || mediumStorage < 1}
+              tooltipText={getTooltipText([
+                { amount: advancedStorageCost, current: scrap, text: 'Chatarra' },
+                { amount: 1, current: mediumStorage, text: 'Almacenes Medios' }
+              ])}
+              className={`build-button ${scrap >= advancedStorageCost && mediumStorage >= 1 ? 'unlocked' : ''}`}
+              style={{ backgroundColor: scrap >= advancedStorageCost && mediumStorage >= 1 ? '#D946EF' : '#9CA3AF' }}
+            >
+              Encargar Almacén Avanzado {buyAmount === 'max' && `(${advancedStorageMax})`}
+            </BotonConTooltip>
+            {advancedStorageQueue.queue > 0 && (
+              <QueueControls itemName='advancedStorage' onCancel={onCancel} />
+            )}
+          </div>
           {mediumStorage < 1 && (
             <p className="requirement-warning">
               ⚠️ Necesitas 1 Almacén Medio
@@ -228,32 +238,35 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
         <div className="storage-item-content">
           <h3 style={{ color: '#D946EF' }}>Unidad de Acopio Cuántico</h3>
           <p>Capacidad: +{formatNumber(50000)} chatarra máxima</p>
-          <p>Coste: {formatNumber(quantumHoardUnitScrapCost)} chatarra y {formatNumber(quantumHoardUnitMetalCost)} metal refinado</p>
+                    <p>Coste: {formatNumber(quantumHoardUnitScrapCost)} chatarra y {formatNumber(quantumHoardUnitMetalCost)} metal refinado</p>
           <p>Construidos: {quantumHoardUnit} | En cola: {quantumHoardUnitQueue.queue}</p>
-          {quantumHoardUnitQueue.queue > 0 && (
-            <div className="queue-controls">
-              <button onClick={() => onCancel('quantumHoardUnit', 1)}>Cancelar 1</button>
-              <button onClick={() => onCancel('quantumHoardUnit', 'all')}>Cancelar Todo</button>
-            </div>
-          )}
-          <p>T/U: {quantumHoardUnitQueue.time}s</p>
           <p>Requisitos: 3 Almacenes Avanzados</p>
           
-          {quantumHoardUnitQueue.queue > 0 && <ProgressBar progress={quantumHoardUnitQueue.progress} time={quantumHoardUnitQueue.time} />}
+          {quantumHoardUnitQueue.queue > 0 && (
+            <div>
+              <p className="time-info">T/U: {quantumHoardUnitQueue.time}s | En cola: {quantumHoardUnitQueue.queue}</p>
+              <ProgressBar progress={quantumHoardUnitQueue.progress} time={quantumHoardUnitQueue.time} />
+            </div>
+          )}
           
-          <BotonConTooltip
-            onClick={onBuildQuantumHoardUnit}
-            disabled={scrap < quantumHoardUnitScrapCost || metalRefinado < quantumHoardUnitMetalCost || advancedStorage < 3}
-            tooltipText={getTooltipText([
-              { amount: quantumHoardUnitScrapCost, current: scrap, text: 'Chatarra' },
-              { amount: quantumHoardUnitMetalCost, current: metalRefinado, text: 'Metal Refinado' },
-              { amount: 3, current: advancedStorage, text: 'Almacenes Avanzados' }
-            ])}
-            className={`build-button ${scrap >= quantumHoardUnitScrapCost && metalRefinado >= quantumHoardUnitMetalCost && advancedStorage >= 3 ? 'unlocked' : ''}`}
-            style={{ backgroundColor: scrap >= quantumHoardUnitScrapCost && metalRefinado >= quantumHoardUnitMetalCost && advancedStorage >= 3 ? '#D946EF' : '#9CA3AF' }}
-          >
-            Encargar Acopio Cuántico {buyAmount === 'max' && `(${quantumHoardUnitMax})`}
-          </BotonConTooltip>
+          <div className="build-actions">
+            <BotonConTooltip
+              onClick={onBuildQuantumHoardUnit}
+              disabled={scrap < quantumHoardUnitScrapCost || metalRefinado < quantumHoardUnitMetalCost || advancedStorage < 3}
+              tooltipText={getTooltipText([
+                { amount: quantumHoardUnitScrapCost, current: scrap, text: 'Chatarra' },
+                { amount: quantumHoardUnitMetalCost, current: metalRefinado, text: 'Metal Refinado' },
+                { amount: 3, current: advancedStorage, text: 'Almacenes Avanzados' }
+              ])}
+              className={`build-button ${scrap >= quantumHoardUnitScrapCost && metalRefinado >= quantumHoardUnitMetalCost && advancedStorage >= 3 ? 'unlocked' : ''}`}
+              style={{ backgroundColor: scrap >= quantumHoardUnitScrapCost && metalRefinado >= quantumHoardUnitMetalCost && advancedStorage >= 3 ? '#D946EF' : '#9CA3AF' }}
+            >
+              Encargar Acopio Cuántico {buyAmount === 'max' && `(${quantumHoardUnitMax})`}
+            </BotonConTooltip>
+            {quantumHoardUnitQueue.queue > 0 && (
+              <QueueControls itemName='quantumHoardUnit' onCancel={onCancel} />
+            )}
+          </div>
           {advancedStorage < 3 && (
             <p className="requirement-warning">
               ⚠️ Necesitas 3 Almacenes Avanzados
@@ -271,26 +284,29 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
         <div className="storage-item-content">
           <h3 style={{ color: '#06B6D4' }}>Batería de Iones de Litio</h3>
           <p>Capacidad: +{formatNumber(50)} energía máxima</p>
-          <p>Coste: {formatNumber(lithiumIonBatteryCost)} chatarra</p>
+                    <p>Coste: {formatNumber(lithiumIonBatteryCost)} chatarra</p>
           <p>Construidos: {lithiumIonBattery} | En cola: {lithiumIonBatteryQueue.queue}</p>
+
           {lithiumIonBatteryQueue.queue > 0 && (
-            <div className="queue-controls">
-              <button onClick={() => onCancel('lithiumIonBattery', 1)}>Cancelar 1</button>
-              <button onClick={() => onCancel('lithiumIonBattery', 'all')}>Cancelar Todo</button>
+            <div>
+              <p className="time-info">T/U: {lithiumIonBatteryQueue.time}s | En cola: {lithiumIonBatteryQueue.queue}</p>
+              <ProgressBar progress={lithiumIonBatteryQueue.progress} time={lithiumIonBatteryQueue.time} />
             </div>
           )}
-          <p>T/U: {lithiumIonBatteryQueue.time}s</p>
 
-          {lithiumIonBatteryQueue.queue > 0 && <ProgressBar progress={lithiumIonBatteryQueue.progress} time={lithiumIonBatteryQueue.time} />}
-          
-          <BotonConTooltip
-            onClick={onBuildLithiumIonBattery}
-            disabled={scrap < lithiumIonBatteryCost}
-            tooltipText={getTooltipText([{ amount: lithiumIonBatteryCost, current: scrap, text: 'Chatarra' }])}
-            className={`build-button ${scrap >= lithiumIonBatteryCost ? 'unlocked' : ''}`}
-          >
-                        Encargar Batería {buyAmount === 'max' && `(${lithiumIonBatteryMax})`}
-          </BotonConTooltip>
+          <div className="build-actions">
+            <BotonConTooltip
+              onClick={onBuildLithiumIonBattery}
+              disabled={scrap < lithiumIonBatteryCost}
+              tooltipText={getTooltipText([{ amount: lithiumIonBatteryCost, current: scrap, text: 'Chatarra' }])}
+              className={`build-button ${scrap >= lithiumIonBatteryCost ? 'unlocked' : ''}`}
+            >
+              Encargar Batería {buyAmount === 'max' && `(${lithiumIonBatteryMax})`}
+            </BotonConTooltip>
+            {lithiumIonBatteryQueue.queue > 0 && (
+              <QueueControls itemName='lithiumIonBattery' onCancel={onCancel} />
+            )}
+          </div>
         </div>
         <img src={batteryLithiumIonImg} alt="Batería de Iones de Litio" className="storage-item-image" />
       </div>
@@ -300,30 +316,33 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
         <div className="storage-item-content">
           <h3 style={{ color: '#06B6D4' }}>Acumulador de Plasma</h3>
           <p>Capacidad: +{formatNumber(250)} energía máxima</p>
-          <p>Coste: {formatNumber(plasmaAccumulatorCost)} chatarra</p>
+                    <p>Coste: {formatNumber(plasmaAccumulatorCost)} chatarra</p>
           <p>Construidos: {plasmaAccumulator} | En cola: {plasmaAccumulatorQueue.queue}</p>
-          {plasmaAccumulatorQueue.queue > 0 && (
-            <div className="queue-controls">
-              <button onClick={() => onCancel('plasmaAccumulator', 1)}>Cancelar 1</button>
-              <button onClick={() => onCancel('plasmaAccumulator', 'all')}>Cancelar Todo</button>
-            </div>
-          )}
-          <p>T/U: {plasmaAccumulatorQueue.time}s</p>
           <p>Requisitos: 5 Baterías de Iones de Litio</p>
 
-          {plasmaAccumulatorQueue.queue > 0 && <ProgressBar progress={plasmaAccumulatorQueue.progress} time={plasmaAccumulatorQueue.time} />}
+          {plasmaAccumulatorQueue.queue > 0 && (
+            <div>
+              <p className="time-info">T/U: {plasmaAccumulatorQueue.time}s | En cola: {plasmaAccumulatorQueue.queue}</p>
+              <ProgressBar progress={plasmaAccumulatorQueue.progress} time={plasmaAccumulatorQueue.time} />
+            </div>
+          )}
           
-          <BotonConTooltip
-            onClick={onBuildPlasmaAccumulator}
-            disabled={scrap < plasmaAccumulatorCost || lithiumIonBattery < 5}
-            tooltipText={getTooltipText([
-              { amount: plasmaAccumulatorCost, current: scrap, text: 'Chatarra' },
-              { amount: 5, current: lithiumIonBattery, text: 'Baterías de Iones de Litio' }
-            ])}
-            className={`build-button ${scrap >= plasmaAccumulatorCost && lithiumIonBattery >= 5 ? 'unlocked' : ''}`}
-          >
-            Encargar Acumulador {buyAmount === 'max' && `(${plasmaAccumulatorMax})`}
-          </BotonConTooltip>
+          <div className="build-actions">
+            <BotonConTooltip
+              onClick={onBuildPlasmaAccumulator}
+              disabled={scrap < plasmaAccumulatorCost || lithiumIonBattery < 5}
+              tooltipText={getTooltipText([
+                { amount: plasmaAccumulatorCost, current: scrap, text: 'Chatarra' },
+                { amount: 5, current: lithiumIonBattery, text: 'Baterías de Iones de Litio' }
+              ])}
+              className={`build-button ${scrap >= plasmaAccumulatorCost && lithiumIonBattery >= 5 ? 'unlocked' : ''}`}
+            >
+              Encargar Acumulador {buyAmount === 'max' && `(${plasmaAccumulatorMax})`}
+            </BotonConTooltip>
+            {plasmaAccumulatorQueue.queue > 0 && (
+              <QueueControls itemName='plasmaAccumulator' onCancel={onCancel} />
+            )}
+          </div>
           {lithiumIonBattery < 5 && (
             <p className="requirement-warning">
                             ⚠️ Necesitas 5 Baterías de Iones de Litio
@@ -338,32 +357,35 @@ const StorageView: React.FC<StorageViewProps> = React.memo(({
               <div className="storage-item-content">
                 <h3 style={{ color: '#D946EF' }}>Campo de Contención Armónico</h3>
                 <p>Capacidad: +{formatNumber(1200)} energía máxima</p>
-                <p>Coste: {formatNumber(harmonicContainmentFieldScrapCost)} chatarra y {formatNumber(harmonicContainmentFieldMetalCost)} metal refinado</p>
+                                <p>Coste: {formatNumber(harmonicContainmentFieldScrapCost)} chatarra y {formatNumber(harmonicContainmentFieldMetalCost)} metal refinado</p>
                 <p>Construidos: {harmonicContainmentField} | En cola: {harmonicContainmentFieldQueue.queue}</p>
-                {harmonicContainmentFieldQueue.queue > 0 && (
-                  <div className="queue-controls">
-                    <button onClick={() => onCancel('harmonicContainmentField', 1)}>Cancelar 1</button>
-                    <button onClick={() => onCancel('harmonicContainmentField', 'all')}>Cancelar Todo</button>
-                  </div>
-                )}
-                <p>T/U: {harmonicContainmentFieldQueue.time}s</p>
                 <p>Requisitos: 3 Acumuladores de Plasma</p>
                 
-                {harmonicContainmentFieldQueue.queue > 0 && <ProgressBar progress={harmonicContainmentFieldQueue.progress} time={harmonicContainmentFieldQueue.time} />}
+                {harmonicContainmentFieldQueue.queue > 0 && (
+                  <div>
+                    <p className="time-info">T/U: {harmonicContainmentFieldQueue.time}s | En cola: {harmonicContainmentFieldQueue.queue}</p>
+                    <ProgressBar progress={harmonicContainmentFieldQueue.progress} time={harmonicContainmentFieldQueue.time} />
+                  </div>
+                )}
                 
-                <BotonConTooltip
-                  onClick={onBuildHarmonicContainmentField}
-                  disabled={scrap < harmonicContainmentFieldScrapCost || metalRefinado < harmonicContainmentFieldMetalCost || plasmaAccumulator < 3}
-                  tooltipText={getTooltipText([
-                    { amount: harmonicContainmentFieldScrapCost, current: scrap, text: 'Chatarra' },
-                    { amount: harmonicContainmentFieldMetalCost, current: metalRefinado, text: 'Metal Refinado' },
-                    { amount: 3, current: plasmaAccumulator, text: 'Acumuladores de Plasma' }
-                  ])}
-                  className={`build-button ${scrap >= harmonicContainmentFieldScrapCost && metalRefinado >= harmonicContainmentFieldMetalCost && plasmaAccumulator >= 3 ? 'unlocked' : ''}`}
-                  style={{ backgroundColor: scrap >= harmonicContainmentFieldScrapCost && metalRefinado >= harmonicContainmentFieldMetalCost && plasmaAccumulator >= 3 ? '#D946EF' : '#9CA3AF' }}
-                >
-                  Encargar Campo de Contención {buyAmount === 'max' && `(${harmonicContainmentFieldMax})`}
-                </BotonConTooltip>
+                <div className="build-actions">
+                  <BotonConTooltip
+                    onClick={onBuildHarmonicContainmentField}
+                    disabled={scrap < harmonicContainmentFieldScrapCost || metalRefinado < harmonicContainmentFieldMetalCost || plasmaAccumulator < 3}
+                    tooltipText={getTooltipText([
+                      { amount: harmonicContainmentFieldScrapCost, current: scrap, text: 'Chatarra' },
+                      { amount: harmonicContainmentFieldMetalCost, current: metalRefinado, text: 'Metal Refinado' },
+                      { amount: 3, current: plasmaAccumulator, text: 'Acumuladores de Plasma' }
+                    ])}
+                    className={`build-button ${scrap >= harmonicContainmentFieldScrapCost && metalRefinado >= harmonicContainmentFieldMetalCost && plasmaAccumulator >= 3 ? 'unlocked' : ''}`}
+                    style={{ backgroundColor: scrap >= harmonicContainmentFieldScrapCost && metalRefinado >= harmonicContainmentFieldMetalCost && plasmaAccumulator >= 3 ? '#D946EF' : '#9CA3AF' }}
+                  >
+                    Encargar Campo de Contención {buyAmount === 'max' && `(${harmonicContainmentFieldMax})`}
+                  </BotonConTooltip>
+                  {harmonicContainmentFieldQueue.queue > 0 && (
+                    <QueueControls itemName='harmonicContainmentField' onCancel={onCancel} />
+                  )}
+                </div>
                 {plasmaAccumulator < 3 && (
                   <p className="requirement-warning">
                                   ⚠️ Necesitas 3 Acumuladores de Plasma

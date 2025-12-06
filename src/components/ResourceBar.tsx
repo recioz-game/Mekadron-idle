@@ -120,8 +120,8 @@ const ResourceBar: React.FC = React.memo(() => {
             </div>
             <div className="rates-item" title="Producción de Acero Estructural">
               <img src={structuralSteelIconSm} alt="Acero/s" className="resource-icon-img" />
-              <span className="positive-rate">
-                {(drones.wyrm * 0.1).toFixed(1)}
+                            <span className="positive-rate">
+                {(drones.wyrm * 0.25).toFixed(1)}
               </span>
             </div>
           </>

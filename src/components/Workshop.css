@@ -26,7 +26,7 @@
   padding-right: 2rem; /* Aumentado para estrechar y dejar espacio a la barra */
 }
 
-.close-button {
+.workshop-container .close-button {
   position: absolute;
   top: 3.5rem; /* Ajuste para alinear con el título */
   right: 1rem;
@@ -47,42 +47,37 @@
   transition: background-color 0.2s;
 }
 
-.close-button:hover {
+.workshop-container .close-button:hover {
   background-color: rgba(245, 158, 11, 0.2); /* Naranja con transparencia */
 }
 
 /* Estilos para la barra de scroll personalizada */
-.workshop-content-area::-webkit-scrollbar {
+.workshop-container .workshop-content-area::-webkit-scrollbar {
   width: 8px;
 }
-
-.workshop-content-area::-webkit-scrollbar-track {
+.workshop-container .workshop-content-area::-webkit-scrollbar-track {
   background: transparent;
 }
-
-.workshop-content-area::-webkit-scrollbar-thumb {
+.workshop-container .workshop-content-area::-webkit-scrollbar-thumb {
   background-color: #F59E0B; /* Color Naranja Óxido */
   border-radius: 20px;
   border: 3px solid transparent;
 }
-
-.workshop-content-area {
+.workshop-container .workshop-content-area {
   scrollbar-width: thin;
   scrollbar-color: #F59E0B transparent;
 }
-
-.drone-category {
+.workshop-container .drone-category {
   padding: 1.6rem;
   background-color: transparent; /* Corregido para eliminar el doble fondo */
   border-radius: 0.4rem;
   margin-bottom: 3.2rem;
 }
-
-.drone-category h3 {
+.workshop-container .drone-category h3 {
   font-size: 2rem;
   margin-top: 0;
 }
-.drone-item {
+.workshop-container .drone-item {
   padding: 1.6rem;
   background-color: #1F2937; /* Color de fondo corregido */
   border-radius: 0.8rem; /* Aumentado para mayor redondeo */
@@ -92,46 +87,44 @@
   align-items: center;
   gap: 2.4rem; /* Aumentado para más espacio */
 }
-
-.drone-item-image {
+.workshop-container .drone-item-image {
   width: 150px; /* Aumentado un 50% */
   height: 150px; /* Aumentado un 50% */
   object-fit: cover;
   border-radius: 0.4rem;
   flex-shrink: 0;
 }
-
-.drone-item-content {
+.workshop-container .drone-item-content {
   flex-grow: 1; /* El contenido ocupa el resto del espacio */
 }
-
-.drone-item.unlocked {
+.workshop-container .drone-item.unlocked {
   border-color: #22C55E;
 }
-
-.drone-item.locked {
+.workshop-container .drone-item.locked {
   opacity: 0.6;
 }
-
-.drone-info p {
+.workshop-container .drone-info p {
   margin: 0.8rem 0;
   font-size: 1.6rem; /* Aumentado */
 }
-
-.drone-title {
+.workshop-container .drone-title {
   font-size: 2.2rem !important; /* Aumentado */
   margin-bottom: 0 !important;
 }
-
-.controls-container {
+.workshop-container .controls-container {
   display: flex;
   gap: 0.8rem;
   align-items: center;
   margin-top: 0.8rem;
   flex-wrap: wrap;
 }
-
-.build-button {
+.workshop-container .build-actions {
+  display: flex;
+  gap: 0.8rem;
+  align-items: stretch; /* Para que ambos botones tengan la misma altura */
+  margin-top: 0.8rem;
+}
+.workshop-container .build-button {
   padding: 1.2rem 2.4rem;
   background-color: #9CA3AF;
   color: #0F172A;
@@ -139,34 +132,69 @@
   border-radius: 0.4rem;
   font-weight: bold;
   font-size: 1.6rem;
-  margin-top: 0.8rem;
   width: 100%; /* Este es el estilo correcto que usan las otras vistas */
 }
-
-.build-button.unlocked {
+.workshop-container .build-button.unlocked {
   background-color: #22C55E;
 }
-
-.requirement-warning {
+.workshop-container .requirement-warning {
   color: #F59E0B;
   font-size: 1.4rem;
   margin-top: 0.8rem;
 }
-
+.workshop-container .time-info {
+  margin: 0 0 0.8rem 0; /* Margen inferior */
+  font-size: 1.2rem;
+  text-align: center;
+}
+.workshop-container .progress-bar-container {
+  width: 100%;
+  background-color: #374151;
+  border-radius: 0.4rem;
+  margin-bottom: 0.8rem; /* Margen inferior */
+  border: 1px solid #4B5563;
+}
+.workshop-container .progress-bar {
+  background-color: #F59E0B; /* Color Naranja */
+  height: 0.8rem; /* Un poco más gruesa */
+  border-radius: 0.4rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 4px #F59E0B, 0 0 8px #F59E0B; /* Brillo Naranja */
+  border: 1px solid #F59E0B; /* Borde del color temático */
+}
+.workshop-container .progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 10px,
+    rgba(255, 255, 255, 0.1) 10px,
+    rgba(255, 255, 255, 0.1) 20px
+  );
+  animation: scanline-perfect 1.5s linear infinite;
+}
+@keyframes scanline-perfect {
+  from { background-position: 0 0; }
+  to { background-position: 20px 0; } /* Mover exactamente el ancho del patrón */
+}
 @media (max-width: 768px) {
   .workshop-container {
     padding: 1.2rem;
   }
-  
-  .workshop-header {
+  .workshop-container .workshop-header {
     margin-bottom: 1.6rem;
   }
-  
-  .drone-category {
+  .workshop-container .drone-category {
     padding: 1.2rem;
   }
-  
-  .drone-item {
+  .workshop-container .drone-item {
     padding: 1.2rem;
   }
 }
+

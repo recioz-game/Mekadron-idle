@@ -23,7 +23,7 @@
   padding-bottom: 2rem;
 }
 
-.close-button {
+.storage-view-container .close-button {
   position: absolute;
   top: 3.5rem;
   right: 1rem;
@@ -44,31 +44,27 @@
   transition: background-color 0.2s;
 }
 
-.close-button:hover {
+.storage-view-container .close-button:hover {
   background-color: rgba(96, 165, 250, 0.2); /* Azul con transparencia */
 }
 
 /* Estilos para la barra de scroll personalizada */
-.storage-content-area::-webkit-scrollbar {
+.storage-view-container .storage-content-area::-webkit-scrollbar {
   width: 8px;
 }
-
-.storage-content-area::-webkit-scrollbar-track {
+.storage-view-container .storage-content-area::-webkit-scrollbar-track {
   background: transparent;
 }
-
-.storage-content-area::-webkit-scrollbar-thumb {
+.storage-view-container .storage-content-area::-webkit-scrollbar-thumb {
   background-color: #60A5FA; /* Color Azul Acero */
   border-radius: 20px;
   border: 3px solid transparent;
 }
-
-.storage-content-area {
+.storage-view-container .storage-content-area {
   scrollbar-width: thin;
   scrollbar-color: #60A5FA transparent;
 }
-
-.storage-item {
+.storage-view-container .storage-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -78,67 +74,76 @@
   margin-bottom: 1.6rem;
   border: 2px solid #374151;
 }
-
-.storage-item-content {
+.storage-view-container .storage-item-content {
   flex-grow: 1;
 }
-
-.storage-item-image {
+.storage-view-container .storage-item-image {
   width: 150px;
   height: 150px;
   object-fit: contain;
   margin-left: 1.6rem;
 }
-
-.storage-item.unlocked {
+.storage-view-container .storage-item.unlocked {
   border-color: #22C55E;
 }
-
-.storage-item.locked {
+.storage-view-container .storage-item.locked {
   opacity: 0.6;
 }
-
-.storage-item h3 {
+.storage-view-container .storage-item h3 {
   margin-top: 0;
   font-size: 1.8rem;
 }
-
-.storage-item p {
+.storage-view-container .storage-item p {
   margin: 0.8rem 0;
   font-size: 1.4rem;
 }
-
-.queue-controls {
+.storage-view-container .build-actions {
   display: flex;
   gap: 0.8rem;
+  align-items: stretch;
   margin-top: 0.8rem;
 }
-
-.queue-controls button {
-  flex-grow: 1;
-  background-color: #FBBF24;
-  border: none;
-  padding: 0.8rem;
-  border-radius: 0.4rem;
-  cursor: pointer;
-  color: #1F2937;
-  font-size: 1.4rem;
+.storage-view-container .time-info {
+  margin: 0 0 0.8rem 0;
+  font-size: 1.2rem;
+  text-align: center;
 }
-
-.progress-bar-container {
+.storage-view-container .progress-bar-container {
   width: 100%;
   background-color: #374151;
   border-radius: 0.4rem;
   margin-top: 0.8rem;
 }
-
-.progress-bar {
-  background-color: #22C55E;
-  height: 0.5rem;
+.storage-view-container .progress-bar {
+  background-color: #60A5FA; /* Color Azul Acero */
+  height: 0.8rem;
   border-radius: 0.4rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 4px #60A5FA, 0 0 8px #60A5FA; /* Brillo Azul */
+  border: 1px solid #60A5FA;
 }
-
-.build-button {
+.storage-view-container .progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 10px,
+    rgba(255, 255, 255, 0.1) 10px,
+    rgba(255, 255, 255, 0.1) 20px
+  );
+  animation: scanline-perfect 1.5s linear infinite;
+}
+@keyframes scanline-perfect {
+  from { background-position: 0 0; }
+  to { background-position: 20px 0; }
+}
+.storage-view-container .build-button {
   padding: 1.2rem 2.4rem;
   background-color: #9CA3AF;
   color: #0F172A;
@@ -146,30 +151,25 @@
   border-radius: 0.4rem;
   font-weight: bold;
   font-size: 1.6rem;
-  margin-top: 0.8rem;
   width: 100%;
 }
-
-.build-button.unlocked {
+.storage-view-container .build-button.unlocked {
   background-color: #22C55E;
 }
-
-.requirement-warning {
+.storage-view-container .requirement-warning {
   color: #F59E0B;
   font-size: 1.4rem;
   margin-top: 0.8rem;
 }
-
 @media (max-width: 768px) {
   .storage-view-container {
     padding: 1.2rem;
   }
-
-  .storage-view-header {
+  .storage-view-container .storage-view-header {
     margin-bottom: 1.6rem;
   }
-
-  .storage-item {
+  .storage-view-container .storage-item {
     padding: 1.2rem;
   }
 }
+

@@ -121,17 +121,18 @@
   color: #EF4444;
 }
 
-.send-button {
+.send-button, .claim-button {
   width: 100%;
-  padding: 1rem 2rem; /* Reducido */
+  padding: 1.2rem 2.4rem;
   margin-top: 1.6rem;
-  color: white;
+  color: #0F172A;
+  font-weight: bold;
+  font-size: 1.6rem;
   border: none;
   border-radius: 0.4rem;
-  font-size: 1.4rem; /* Reducido */
 }
 
-.send-button:disabled {
+.send-button:disabled, .claim-button:disabled {
   background-color: #9CA3AF;
   cursor: not-allowed;
 }
@@ -139,6 +140,12 @@
 .send-button:not(:disabled) {
   background-color: #22C55E;
   cursor: pointer;
+}
+
+.claim-button:not(:disabled) {
+  background-color: #A78BFA; /* Color Púrpura */
+  cursor: pointer;
+  color: white;
 }
 
 @media (max-width: 768px) {

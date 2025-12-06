@@ -289,6 +289,7 @@ export const processGameTick = (state: GameState): GameState & { auroraMessages:
   }
 
   const collectionMultiplier = 1 + (prev.techCenter.upgrades.collectionEfficiency * 0.10);
+  const globalEfficiencyMultiplier = 1 + (prev.techCenter.upgrades.globalEfficiency * 0.05); // Bonificación del 5% por nivel
 
   // Refactor: Calcular la producción de chatarra desde gameData
   let totalScrapProduction = 0;
@@ -302,6 +303,7 @@ export const processGameTick = (state: GameState): GameState & { auroraMessages:
       }
     }
     totalScrapProduction *= collectionMultiplier;
+    totalScrapProduction *= globalEfficiencyMultiplier; // Aplicar la nueva bonificación
   }
 
   const newEnergy = prev.resources.energy + (totalEnergyProduction - totalEnergyConsumption);
@@ -404,7 +406,12 @@ export const processGameTick = (state: GameState): GameState & { auroraMessages:
           aceroEstructural: clampedAceroEstructural,
         }
     },
-    rates: { ...prev.rates, scrapPerSecond: totalScrapProduction },
+    rates: { 
+      ...prev.rates, 
+      scrapPerSecond: totalScrapProduction - golemScrapConsumption - wyrmScrapConsumption,
+      metalPerSecond: golemMetalProduction,
+      steelPerSecond: wyrmSteelProduction
+    },
     techCenter: { ...prev.techCenter, researchPoints: newResearchPoints },
   };
   
@@ -417,7 +424,7 @@ export const processGameTick = (state: GameState): GameState & { auroraMessages:
   if (stateAfterStats.resources.scrap >= 75 && !newModules.workshop) newModules.workshop = true;
   if (stateAfterStats.resources.scrap >= 50 && !newModules.energy) newModules.energy = true;
   if (stateAfterStats.resources.scrap >= 100 && !newModules.storage) newModules.storage = true;
-    if (stateAfterStats.workshop.drones.medium >= 3 && stateAfterStats.energy.advancedSolar >= 1 && stateAfterStats.resources.scrap >= 1000 && !newModules.techCenter) {
+    if (stateAfterStats.workshop.drones.medium >= 5 && stateAfterStats.energy.advancedSolar >= 1 && stateAfterStats.resources.scrap >= 1000 && !newModules.techCenter) {
     newModules.techCenter = true;
     newTechCenter.unlocked = true;
   }

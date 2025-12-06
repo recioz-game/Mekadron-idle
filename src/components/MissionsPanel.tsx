@@ -23,7 +23,7 @@ const MissionsPanel: React.FC<MissionsPanelProps> = React.memo(({ onClose }) => 
     return Math.min((mission.current / mission.target) * 100, 100);
   };
 
-  const getRewardText = (reward: Mission['reward']) => {
+    const getRewardText = (reward: Mission['reward']) => {
     switch (reward.type) {
       case 'scrap':
         return `+${reward.value} Chatarra`;
@@ -31,8 +31,13 @@ const MissionsPanel: React.FC<MissionsPanelProps> = React.memo(({ onClose }) => 
         return `+${reward.value} Energía`;
       case 'drone':
         return `Dron Básico`;
+      case 'nucleoSingularidad':
+        return `1x Núcleo de Singularidad`;
       case 'unlock':
-        return `Desbloqueo de ${reward.value}`;
+        if (reward.value === 2) {
+          return `Desbloqueo: Fase 2`;
+        }
+        return `Desbloqueo`;
       default:
         return 'Recompensa';
     }

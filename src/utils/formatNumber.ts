@@ -21,14 +21,18 @@ export const formatNumber = (num: number, format: 'full' | 'abbreviated' | 'scie
 
   const suffix = suffixes[tier];
   const scale = Math.pow(10, tier * 3);
-  const scaled = num / scale;
+    const scaled = num / scale;
 
-  // Formateo mejorado para evitar ".0" innecesarios y mostrar más precisión
+  // Usa toPrecision para un mejor control y luego elimina los ceros innecesarios
+  let formattedNumber;
   if (scaled < 10) {
-    return scaled.toFixed(2) + suffix;
+    formattedNumber = scaled.toPrecision(3);
   } else if (scaled < 100) {
-    return scaled.toFixed(1) + suffix;
+    formattedNumber = scaled.toPrecision(3);
   } else {
-    return Math.floor(scaled) + suffix;
+    formattedNumber = scaled.toPrecision(3);
   }
+
+  // Elimina los ".0" al final y los ceros sobrantes
+  return parseFloat(formattedNumber).toString() + suffix;
 };

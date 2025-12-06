@@ -9,10 +9,36 @@ import Phase2Scene from './components/Phase2Scene';
 import CombatScene from './components/CombatScene';
 import CreditsScene from './components/CreditsScene'; // <-- Importar CreditsScene
 import ErrorBoundary from './components/ErrorBoundary';
-import { useEffect } from 'react';
+import FloatingTextHandler from './components/FloatingTextHandler'; // <-- Importar FloatingTextHandler
+import { useEffect, useRef } from 'react';
+import mainThemeAudio from './assets/audio/music/main-theme.mp3';
 
 const App: React.FC = () => {
-  const { gameState, dispatch } = useGame();
+    const { gameState, dispatch } = useGame();
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  // --- Music Director ---
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    // 1. Adjust Volume
+    const finalVolume = (gameState.settings.masterVolume / 100) * (gameState.settings.musicVolume / 100);
+    audio.volume = finalVolume;
+
+    // 2. Play or Pause based on scene
+    const shouldPlayMusic = gameState.currentScene === 'main' || gameState.currentScene === 'phase2Main';
+
+    if (shouldPlayMusic && finalVolume > 0) {
+      audio.play().catch(error => {
+        // La reproducción automática puede fallar, es normal.
+        console.log("Music play prevented by browser, will try again after user interaction.");
+      });
+    } else {
+      audio.pause();
+    }
+    
+  }, [gameState.currentScene, gameState.settings.masterVolume, gameState.settings.musicVolume]);
 
   useEffect(() => {
     const handleResetGame = () => {
@@ -48,10 +74,12 @@ const App: React.FC = () => {
   };
 
     return (
-    <div className="game-container">
+        <div className="game-container">
       <ErrorBoundary>
         {renderCurrentScene()}
       </ErrorBoundary>
+      <audio ref={audioRef} src={mainThemeAudio} loop />
+      <FloatingTextHandler />
     </div>
   );
 };

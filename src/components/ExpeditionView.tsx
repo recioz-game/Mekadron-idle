@@ -3,6 +3,7 @@ import './ExpeditionView.css'; // Importar el archivo CSS
 import { GameState, ExpeditionId, ActiveExpedition } from '../types/gameState';
 import { allExpeditionsData } from '../data/expeditionsData';
 import { formatNumber } from '../utils/formatNumber';
+import BotonConTooltip from './BotonConTooltip';
 import { useDragToScroll } from '../hooks/useDragToScroll';
 
 interface ExpeditionViewProps {
@@ -94,15 +95,17 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
                 <div key={activeExp.instanceId} className="expedition-item">
                   <h4>{data.title}</h4>
                   <p>{activeExp.dronesSent} {data.droneType === 'expeditionV2Drone' ? 'Drones (DE-2)' : 'Drones (DE-1)'} enviados.</p>
-                  {isComplete ? (
+                                    {isComplete ? (
                     <div>
                       <p style={{color: '#22C55E'}}>¡Expedición Completada!</p>
-                      <button 
+                                            <BotonConTooltip
                         onClick={() => onClaimReward(activeExp)}
                         className="claim-button"
+                        disabled={false}
+                        tooltipText=""
                       >
                         Reclamar Recompensa
-                      </button>
+                      </BotonConTooltip>
                     </div>
                   ) : (
                     <p>Tiempo Restante: <ExpeditionTimer completionTimestamp={activeExp.completionTimestamp} /></p>

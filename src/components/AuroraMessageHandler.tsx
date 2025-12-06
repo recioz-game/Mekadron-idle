@@ -22,8 +22,13 @@ const AuroraMessageHandler: React.FC = () => {
 
     if (currentScene !== 'main') return;
 
-    // Paso 1: TU Mensaje de bienvenida original con audio
-    if (!safeShownMessages.has("welcome_message")) {
+    // Paso 1: Mensaje de bienvenida SOLO si es una partida realmente nueva
+    if (
+      !safeShownMessages.has("welcome_message") &&
+      gameState.workshop.drones.basic === 0 &&
+      gameState.energy.solarPanels === 0 &&
+      gameState.resources.scrap < 50
+    ) {
       addAuroraMessage("Bienvenido, es hora de recoger chatarra.", "welcome_message", 1);
       return;
     }

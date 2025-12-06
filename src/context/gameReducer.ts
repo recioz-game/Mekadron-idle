@@ -331,7 +331,8 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         stateAfterTick.currentBackground = 3;
       }
       
-            // Ya no es necesario llamar al missionsReducer aquí, se hace a nivel global
+                        // Ya no es necesario llamar al missionsReducer aquí, se hace a nivel global
+      stateAfterTick = missionsReducer(stateAfterTick, { type: 'UPDATE_MISSION_PROGRESS' }); // <-- CORRECCIÓN: Llamar con la acción correcta
       return stateAfterTick;
     }
 
@@ -945,39 +946,50 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
           console.error(`Expedition data not found for id: ${activeExpedition.id}`);
           return state;
         }
-        const remainingExpeditions = state.activeExpeditions.filter(exp => exp.instanceId !== activeExpedition.instanceId); // <-- CORREGIDO
+                const remainingExpeditions = state.activeExpeditions.filter(exp => exp.instanceId !== activeExpedition.instanceId);
         const wasSuccessful = Math.random() > expeditionData.risk.chance;
+
+        let tempState = { ...state }; // Empezamos con una copia del estado actual
 
         if (wasSuccessful) {
           const newBodegaResources = { ...state.vindicator.bodegaResources };
-          
-          // Diccionario para nombres de recursos
-          const resourceNames: { [key: string]: string } = {
-            scrap: 'Chatarra',
-            metalRefinado: 'Metal Refinado',
-            aceroEstructural: 'Acero Estructural',
-            fragmentosPlaca: 'Fragmentos de Placa',
-            circuitosDañados: 'Circuitos Dañados',
-            aleacionReforzada: 'Aleación Reforzada',
-            neuroChipCorrupto: 'Neuro-Chip Corrupto',
-          };
+          let finalMessage: string;
+          const gainedRewards: string[] = [];
 
-                    let notificationMessage = "Recompensas obtenidas: ";
-                                                            let auroraMessage = {
-            message: "Expedición finalizada con éxito.",
-            messageKey: `exp-success-${Date.now()}`,
-            audioId: 6
-          };
+          // Calcular y añadir recompensas
+          for (const [resource, range] of Object.entries(expeditionData.rewards)) {
+            if (range) {
+              const [min, max] = range;
+              const amount = Math.floor(Math.random() * (max - min + 1)) + min;
+              
+              if (amount > 0) {
+                const key = resource as keyof typeof newBodegaResources;
+                newBodegaResources[key] = (newBodegaResources[key] || 0) + amount;
+                const formattedResourceName = resource.replace(/([A-Z])/g, ' $1').toLowerCase();
+                gainedRewards.push(`${amount} de ${formattedResourceName}`);
+              }
+            }
+          }
           
-          const newState = {
+          if (gainedRewards.length > 0) {
+            finalMessage = `Expedición finalizada con éxito. Recompensas: ${gainedRewards.join(', ')}.`;
+          } else {
+            finalMessage = "Expedición finalizada con éxito, pero no se encontraron recursos valiosos.";
+          }
+
+          // Actualizar el estado temporal con los resultados
+          tempState = {
             ...state,
             vindicator: { ...state.vindicator, bodegaResources: newBodegaResources },
-            activeExpeditions: remainingExpeditions
+            activeExpeditions: remainingExpeditions,
+            aurora: {
+              ...state.aurora,
+              pendingMessages: [...state.aurora.pendingMessages, { message: finalMessage, key: `exp-success-${Date.now()}`, audioId: 6 }]
+            }
           };
 
-          // Llamada recursiva para añadir el mensaje de Aurora
-          return gameReducer(newState, { type: 'ADD_AURORA_MESSAGE', payload: auroraMessage });
         } else {
+                    // ... (lógica de fracaso sin cambios)
           const droneSelfRepairLevel = state.techCenter.upgrades.droneSelfRepair || 0;
           const survivalChance = droneSelfRepairLevel * 0.10; // 10% por nivel
           
@@ -993,15 +1005,13 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
           }
 
           const finalDronesLost = initialDronesLost - dronesSurvived;
-                    const droneType = expeditionData.droneType;
+          const droneType = expeditionData.droneType;
           
-                    let auroraMessage = {
-            message: "La expedición ha fracasado.",
-            messageKey: `exp-fail-${Date.now()}`,
-            audioId: 7 // <-- CORREGIDO
-          };
+          const finalMessage = "La expedición ha fracasado.";
 
-          const newState = {
+
+          // Actualizar el estado temporal con los resultados
+          tempState = {
             ...state,
             workshop: {
               ...state.workshop,
@@ -1011,10 +1021,13 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
               },
             },
             activeExpeditions: remainingExpeditions,
+            aurora: {
+              ...state.aurora,
+              pendingMessages: [...state.aurora.pendingMessages, { message: finalMessage, key: `exp-fail-${Date.now()}`, audioId: 7 }]
+            }
           };
-          
-                    return gameReducer(newState, { type: 'ADD_AURORA_MESSAGE', payload: auroraMessage });
         }
+        return tempState; // Devolver el estado final y seguro
     }
             case 'SET_MASTER_VOLUME':
       return {

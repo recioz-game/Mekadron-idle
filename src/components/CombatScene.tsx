@@ -4,7 +4,7 @@ import './CombatScene.css';
 import { enemyAssets, vindicatorAssets } from '../data/assetMap';
 import UnitDisplay from './UnitDisplay';
 import laserVindicatorSfx from '../assets/audio/sfx/Laser vindicator.ogg';
-import laserEnemySfx from '../assets/audio/sfx/laser.wav';
+import laserEnemySfx from '../assets/audio/sfx/laser.mp3';
 
 type AnimationPhase = 'idle' | 'playerAttack' | 'enemyDamage' | 'enemyAttack' | 'playerDamage' | 'victory' | 'defeat' | 'transition';
 

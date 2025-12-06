@@ -7,24 +7,26 @@ interface FloatingText {
   text: string;
   x: number;
   y: number;
+  type: 'click' | 'scrap' | 'metal' | 'steel'; // Tipos más específicos
 }
 
 const FloatingTextHandler: React.FC = () => {
   const [texts, setTexts] = useState<FloatingText[]>([]);
 
-  const showFloatingText = useCallback((e: MouseEvent, textToShow: string) => {
+  const showFloatingText = useCallback((e: MouseEvent, textToShow: string, type: FloatingText['type'] = 'click') => {
     const newText: FloatingText = {
       id: Date.now(),
       text: textToShow,
       x: e.clientX,
       y: e.clientY,
+      type: type,
     };
     setTexts(currentTexts => [...currentTexts, newText]);
   }, []);
 
   useEffect(() => {
     const handleCustomTextEvent = ((e: CustomEvent) => {
-      showFloatingText(e.detail.originalEvent, e.detail.text);
+      showFloatingText(e.detail.originalEvent, e.detail.text, e.detail.type);
     }) as EventListener;
     
     document.addEventListener('showFloatingText', handleCustomTextEvent);
@@ -47,7 +49,7 @@ const FloatingTextHandler: React.FC = () => {
       {texts.map(text => (
         <span 
           key={text.id} 
-          className="floating-text"
+          className={`floating-text auto ${text.type !== 'click' ? text.type : ''}`} // Aplicar clases scrap, metal, steel
           style={{ 
             left: text.x, 
             top: text.y, 

@@ -145,9 +145,11 @@ export interface GameState {
     };
     queues: ReturnType<typeof createQueues<'workshop'>>;
   };
-  rates: {
+    rates: {
     scrapPerClick: number;
     scrapPerSecond: number;
+    metalPerSecond: number;
+    steelPerSecond: number;
   };
     modules: {
     workshop: boolean; // <-- AÑADIDO
@@ -564,9 +566,11 @@ export interface GameState {
     },
     queues: createQueues('workshop')
   },
-  rates: {
+    rates: {
     scrapPerClick: 1,
-    scrapPerSecond: 0
+    scrapPerSecond: 0,
+    metalPerSecond: 0,
+    steelPerSecond: 0
   },
     modules: {
     workshop: false, // <-- AÑADIDO

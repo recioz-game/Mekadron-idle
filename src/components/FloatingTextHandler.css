@@ -23,3 +23,18 @@
   animation: floatUp 3s ease-out forwards;
   z-index: 1000;
 }
+
+/* NUEVA CLASE para el texto automático */
+.floating-text.auto {
+  font-size: 1.8rem;
+  color: #D2B48C; /* Color marrón/arena para chatarra */
+}
+
+/* Colores para nuevos recursos */
+.floating-text.metal {
+  color: #F59E0B; /* Naranja */
+}
+
+.floating-text.steel {
+  color: #06B6D4; /* Azul claro */
+}

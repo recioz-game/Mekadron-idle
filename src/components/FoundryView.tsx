@@ -3,8 +3,18 @@ import './FoundryView.css'; // Importar el archivo CSS
 import { GameState } from '../types/gameState';
 import BuyAmountSelector from './BuyAmountSelector';
 import { formatNumber } from '../utils/formatNumber';
+import BotonConTooltip from './BotonConTooltip';
 import { useDragToScroll } from '../hooks/useDragToScroll';
 import QueueControls from './QueueControls';
+
+const ProgressBar = ({ progress, time }: { progress: number; time: number }) => (
+  <div className="progress-bar-container">
+    <div 
+      className="progress-bar"
+      style={{ width: `${(progress / time) * 100}%` }} 
+    />
+  </div>
+);
 
 // Importar los nuevos iconos
 import refinedMetalIcon from '../assets/images/ui/refined-metal-icon.png';
@@ -65,9 +75,15 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
   const maxPlate = Math.min(Math.floor(fragmentosPlaca / plateCost.fragmentos), Math.floor(aceroEstructural / plateCost.acero), Math.floor(energy / plateCost.energy));
   const maxWiring = Math.min(Math.floor(circuitosDañados / wiringCost.circuitos), Math.floor(metalRefinado / wiringCost.metal), Math.floor(energy / wiringCost.energy));
   const maxFuelRod = Math.min(Math.floor(metalRefinado / fuelRodCost.metal), Math.floor(aceroEstructural / fuelRodCost.acero), Math.floor(energy / fuelRodCost.energy));
-  const maxPurified = Math.min(Math.floor(scrap / purificationCost.scrap), Math.floor(energy / purificationCost.energy));
+    const maxPurified = Math.min(Math.floor(scrap / purificationCost.scrap), Math.floor(energy / purificationCost.energy));
 
     const scrollRef = useDragToScroll<HTMLDivElement>();
+
+    const getTooltipText = (requirements: { resource?: string, amount: number, current: number, text: string }[]): string => {
+      const missing = requirements.filter(req => req.current < req.amount);
+      if (missing.length === 0) return '';
+      return 'Requiere: ' + missing.map(req => `${req.text} (${formatNumber(req.amount)})`).join(', ');
+    };
 
     return (
     <div className="foundry-view-container">
@@ -78,94 +94,178 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
 
                         <BuyAmountSelector buyAmount={buyAmount} onSetBuyAmount={onSetBuyAmount} />
 
-                                                                              {/* Metal Refinado */}
-        <div className={`foundry-item ${maxMetal > 0 ? 'available' : ''}`}>
+                                                                                      {/* Metal Refinado */}
+        <div className={`foundry-item ${maxMetal > 0 ? 'unlocked' : ''}`}>
           <div className="foundry-item-content">
             <h4 style={{ color: '#F59E0B' }}>Metal Refinado</h4>
             <p>Coste: {formatNumber(metalCost.scrap)} Chatarra + {formatNumber(metalCost.energy)} Energía</p>
-            <p>En Posesión: {formatNumber(metalRefinado)}</p>
-            <QueueControls queue={metalRefinadoQueue} itemName='metalRefinado' onCancel={onCancel} />
-            <button 
-              onClick={onCraftRefinedMetal} 
-              disabled={maxMetal <= 0}
-              className={`craft-button ${maxMetal > 0 ? 'available' : ''}`}
-            >
-              Encargar {buyAmount === 'max' && `(${maxMetal})`}
-            </button>
+            <p>En Posesión: {formatNumber(metalRefinado)} | En cola: {metalRefinadoQueue.queue}</p>
+            
+            {metalRefinadoQueue.queue > 0 && (
+              <div>
+                <p className="time-info">T/U: {metalRefinadoQueue.time}s</p>
+                <ProgressBar progress={metalRefinadoQueue.progress} time={metalRefinadoQueue.time} />
+              </div>
+            )}
+            
+                        <div className="build-actions">
+              <BotonConTooltip
+                onClick={onCraftRefinedMetal} 
+                disabled={maxMetal <= 0}
+                tooltipText={getTooltipText([
+                  { amount: metalCost.scrap, current: scrap, text: 'Chatarra' },
+                  { amount: metalCost.energy, current: energy, text: 'Energía' }
+                ])}
+                className={`build-button ${maxMetal > 0 ? 'unlocked' : ''}`}
+              >
+                Encargar {buyAmount === 'max' && `(${maxMetal})`}
+              </BotonConTooltip>
+              {metalRefinadoQueue.queue > 0 && (
+                <QueueControls itemName='metalRefinado' onCancel={onCancel} />
+              )}
+            </div>
           </div>
           <img src={refinedMetalIcon} alt="Metal Refinado" className="foundry-item-image" />
         </div>
 
-        {/* Acero Estructural */}
-        <div className={`foundry-item ${maxSteel > 0 ? 'available' : ''}`}>
+                {/* Acero Estructural */}
+        <div className={`foundry-item ${maxSteel > 0 ? 'unlocked' : ''}`}>
           <div className="foundry-item-content">
             <h4 style={{ color: '#06B6D4' }}>Acero Estructural</h4>
             <p>Coste: {formatNumber(steelCost.scrap)} Chatarra + {steelCost.metal} Metal + {steelCost.energy} Energía</p>
-            <p>En Posesión: {formatNumber(aceroEstructural)}</p>
-            <QueueControls queue={aceroEstructuralQueue} itemName='aceroEstructural' onCancel={onCancel} />
-            <button 
-              onClick={onCraftStructuralSteel} 
-              disabled={maxSteel <= 0}
-              className={`craft-button ${maxSteel > 0 ? 'available' : ''}`}
-            >
-              Encargar {buyAmount === 'max' && `(${maxSteel})`}
-            </button>
+            <p>En Posesión: {formatNumber(aceroEstructural)} | En cola: {aceroEstructuralQueue.queue}</p>
+            
+            {aceroEstructuralQueue.queue > 0 && (
+              <div>
+                <p className="time-info">T/U: {aceroEstructuralQueue.time}s</p>
+                <ProgressBar progress={aceroEstructuralQueue.progress} time={aceroEstructuralQueue.time} />
+              </div>
+            )}
+            
+                        <div className="build-actions">
+              <BotonConTooltip
+                onClick={onCraftStructuralSteel} 
+                disabled={maxSteel <= 0}
+                tooltipText={getTooltipText([
+                  { amount: steelCost.scrap, current: scrap, text: 'Chatarra' },
+                  { amount: steelCost.metal, current: metalRefinado, text: 'Metal' },
+                  { amount: steelCost.energy, current: energy, text: 'Energía' }
+                ])}
+                className={`build-button ${maxSteel > 0 ? 'unlocked' : ''}`}
+              >
+                Encargar {buyAmount === 'max' && `(${maxSteel})`}
+              </BotonConTooltip>
+              {aceroEstructuralQueue.queue > 0 && (
+                <QueueControls itemName='aceroEstructural' onCancel={onCancel} />
+              )}
+            </div>
           </div>
           <img src={structuralSteelIcon} alt="Acero Estructural" className="foundry-item-image" />
         </div>
 
         <h3 className="section-title">Componentes de Nave</h3>
         
-        {/* Placas de Casco */}
-        <div className={`foundry-item ${maxPlate > 0 ? 'available' : ''}`}>
+                {/* Placas de Casco */}
+        <div className={`foundry-item ${maxPlate > 0 ? 'unlocked' : ''}`}>
           <div className="foundry-item-content">
             <h4 style={{ color: '#F59E0B' }}>Placa de Casco Reforzado</h4>
             <p>Coste: {plateCost.fragmentos} Fragmentos + {plateCost.acero} Acero + {plateCost.energy} Energía</p>
-            <p>En Posesión: {formatNumber(placasCasco)}</p>
-            <QueueControls queue={placasCascoQueue} itemName='placasCasco' onCancel={onCancel} />
-            <button 
-              onClick={onCraftHullPlate} 
-              disabled={maxPlate <= 0}
-              className={`craft-button ${maxPlate > 0 ? 'available' : ''}`}
-            >
-              Encargar {buyAmount === 'max' && `(${maxPlate})`}
-            </button>
+            <p>En Posesión: {formatNumber(placasCasco)} | En cola: {placasCascoQueue.queue}</p>
+            
+            {placasCascoQueue.queue > 0 && (
+              <div>
+                <p className="time-info">T/U: {placasCascoQueue.time}s</p>
+                <ProgressBar progress={placasCascoQueue.progress} time={placasCascoQueue.time} />
+              </div>
+            )}
+
+                        <div className="build-actions">
+              <BotonConTooltip
+                onClick={onCraftHullPlate} 
+                disabled={maxPlate <= 0}
+                tooltipText={getTooltipText([
+                  { amount: plateCost.fragmentos, current: fragmentosPlaca, text: 'Fragmentos' },
+                  { amount: plateCost.acero, current: aceroEstructural, text: 'Acero' },
+                  { amount: plateCost.energy, current: energy, text: 'Energía' }
+                ])}
+                className={`build-button ${maxPlate > 0 ? 'unlocked' : ''}`}
+              >
+                Encargar {buyAmount === 'max' && `(${maxPlate})`}
+              </BotonConTooltip>
+              {placasCascoQueue.queue > 0 && (
+                <QueueControls itemName='placasCasco' onCancel={onCancel} />
+              )}
+            </div>
           </div>
           <img src={hullPlateIcon} alt="Placa de Casco" className="foundry-item-image" />
         </div>
 
-        {/* Cableado de Superconductores */}
-        <div className={`foundry-item ${maxWiring > 0 ? 'available' : ''}`}>
+                {/* Cableado de Superconductores */}
+        <div className={`foundry-item ${maxWiring > 0 ? 'unlocked' : ''}`}>
           <div className="foundry-item-content">
             <h4 style={{ color: '#06B6D4' }}>Cableado de Superconductores</h4>
             <p>Coste: {wiringCost.circuitos} Circuitos + {wiringCost.metal} Metal + {wiringCost.energy} Energía</p>
-            <p>En Posesión: {formatNumber(cableadoSuperconductor)}</p>
-            <QueueControls queue={cableadoSuperconductorQueue} itemName='cableadoSuperconductor' onCancel={onCancel} />
-            <button 
-              onClick={onCraftSuperconductorWiring} 
-              disabled={maxWiring <= 0}
-              className={`craft-button ${maxWiring > 0 ? 'available' : ''}`}
-            >
-              Encargar {buyAmount === 'max' && `(${maxWiring})`}
-            </button>
+            <p>En Posesión: {formatNumber(cableadoSuperconductor)} | En cola: {cableadoSuperconductorQueue.queue}</p>
+            
+            {cableadoSuperconductorQueue.queue > 0 && (
+              <div>
+                <p className="time-info">T/U: {cableadoSuperconductorQueue.time}s</p>
+                <ProgressBar progress={cableadoSuperconductorQueue.progress} time={cableadoSuperconductorQueue.time} />
+              </div>
+            )}
+
+                        <div className="build-actions">
+              <BotonConTooltip
+                onClick={onCraftSuperconductorWiring} 
+                disabled={maxWiring <= 0}
+                tooltipText={getTooltipText([
+                  { amount: wiringCost.circuitos, current: circuitosDañados, text: 'Circuitos' },
+                  { amount: wiringCost.metal, current: metalRefinado, text: 'Metal' },
+                  { amount: wiringCost.energy, current: energy, text: 'Energía' }
+                ])}
+                className={`build-button ${maxWiring > 0 ? 'unlocked' : ''}`}
+              >
+                Encargar {buyAmount === 'max' && `(${maxWiring})`}
+              </BotonConTooltip>
+              {cableadoSuperconductorQueue.queue > 0 && (
+                <QueueControls itemName='cableadoSuperconductor' onCancel={onCancel} />
+              )}
+            </div>
           </div>
           <img src={superconductorWiringIcon} alt="Cableado" className="foundry-item-image" />
         </div>
 
-        {/* Barra de Combustible */}
-        <div className={`foundry-item ${maxFuelRod > 0 ? 'available' : ''}`}>
+                {/* Barra de Combustible */}
+        <div className={`foundry-item ${maxFuelRod > 0 ? 'unlocked' : ''}`}>
           <div className="foundry-item-content">
             <h4 style={{ color: '#FCD34D' }}>Barra de Combustible</h4>
             <p>Coste: {fuelRodCost.metal} Metal + {fuelRodCost.acero} Acero + {fuelRodCost.energy} Energía</p>
-            <p>En Posesión: {formatNumber(barraCombustible)}</p>
-            <QueueControls queue={barraCombustibleQueue} itemName='barraCombustible' onCancel={onCancel} />
-            <button 
-              onClick={onCraftFuelRod} 
-              disabled={maxFuelRod <= 0}
-              className={`craft-button ${maxFuelRod > 0 ? 'available' : ''}`}
-            >
-              Encargar {buyAmount === 'max' && `(${maxFuelRod})`}
-            </button>
+            <p>En Posesión: {formatNumber(barraCombustible)} | En cola: {barraCombustibleQueue.queue}</p>
+            
+            {barraCombustibleQueue.queue > 0 && (
+              <div>
+                <p className="time-info">T/U: {barraCombustibleQueue.time}s</p>
+                <ProgressBar progress={barraCombustibleQueue.progress} time={barraCombustibleQueue.time} />
+              </div>
+            )}
+
+                        <div className="build-actions">
+              <BotonConTooltip
+                onClick={onCraftFuelRod} 
+                disabled={maxFuelRod <= 0}
+                tooltipText={getTooltipText([
+                  { amount: fuelRodCost.metal, current: metalRefinado, text: 'Metal' },
+                  { amount: fuelRodCost.acero, current: aceroEstructural, text: 'Acero' },
+                  { amount: fuelRodCost.energy, current: energy, text: 'Energía' }
+                ])}
+                className={`build-button ${maxFuelRod > 0 ? 'unlocked' : ''}`}
+              >
+                Encargar {buyAmount === 'max' && `(${maxFuelRod})`}
+              </BotonConTooltip>
+              {barraCombustibleQueue.queue > 0 && (
+                <QueueControls itemName='barraCombustible' onCancel={onCancel} />
+              )}
+            </div>
           </div>
           <img src={fuelRodIcon} alt="Barra de Combustible" className="foundry-item-image" />
         </div>
@@ -179,14 +279,18 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
                 <p>Convierte una gran cantidad de recursos básicos en Metal Refinado. Es ineficiente, pero útil en emergencias.</p>
                 <p>Coste: {formatNumber(purificationCost.scrap)} Chatarra + {formatNumber(purificationCost.energy)} Energía</p>
               </div>
-              <button 
+                                          <BotonConTooltip
                 onClick={onCraftPurifiedMetal} 
                 disabled={maxPurified <= 0}
-                className={`craft-button ${maxPurified > 0 ? 'available' : ''}`}
+                tooltipText={getTooltipText([
+                  { amount: purificationCost.scrap, current: scrap, text: 'Chatarra' },
+                  { amount: purificationCost.energy, current: energy, text: 'Energía' }
+                ])}
+                className={`build-button ${maxPurified > 0 ? 'unlocked' : ''}`}
                 style={{ backgroundColor: maxPurified > 0 ? '#A855F7' : '', color: maxPurified > 0 ? 'white' : '' }}
               >
                 Purificar Chatarra {buyAmount === 'max' && `(${maxPurified})`}
-              </button>
+              </BotonConTooltip>
       </div>
       </div>
         )}

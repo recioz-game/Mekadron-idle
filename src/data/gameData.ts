@@ -10,8 +10,8 @@ export type GameData = {
 
 export const gameData: GameData = {
   workshop: {
-    basic: { costs: { scrap: 15 }, time: 5, scrapProduction: 1, energyConsumption: 1 },
-    medium: { costs: { scrap: 250 }, time: 20, prerequisites: (s) => s.workshop.drones.basic >= 5, scrapProduction: 5, energyConsumption: 3 },
+    basic: { costs: { scrap: 20 }, time: 5, scrapProduction: 1, energyConsumption: 1 },
+    medium: { costs: { scrap: 300 }, time: 20, prerequisites: (s) => s.workshop.drones.basic >= 10, scrapProduction: 5, energyConsumption: 3 },
     advanced: { costs: { scrap: 1500 }, time: 60, prerequisites: (s) => s.workshop.drones.medium >= 3, scrapProduction: 20, energyConsumption: 5 },
     reinforcedBasic: { costs: { scrap: 600, metalRefinado: 5 }, time: 45, prerequisites: (s) => s.techCenter.upgrades.reinforcedBasicDrones > 0, scrapProduction: 8, energyConsumption: 3 },
     reinforcedMedium: { costs: { scrap: 2500, metalRefinado: 15 }, time: 120, prerequisites: (s) => s.techCenter.upgrades.reinforcedMediumDrones > 0, scrapProduction: 25, energyConsumption: 6 },
@@ -22,7 +22,7 @@ export const gameData: GameData = {
     wyrm: { costs: { scrap: 250000, aceroEstructural: 25 }, time: 1200, prerequisites: (s) => s.workshop.drones.golem >= 1, energyConsumption: 200 },
   },
   energy: {
-    solarPanels: { costs: { scrap: 50 }, time: 8, energyProduction: 3 },
+    solarPanels: { costs: { scrap: 75 }, time: 8, energyProduction: 3 },
     mediumSolarPanels: { costs: { scrap: 200 }, time: 25, prerequisites: (s) => s.energy.solarPanels >= 5, energyProduction: 10 },
     advancedSolar: { costs: { scrap: 500 }, time: 70, prerequisites: (s) => s.energy.mediumSolarPanels >= 1, energyProduction: 30 },
     energyCores: { costs: { scrap: 2000 }, time: 180, prerequisites: (s) => s.energy.advancedSolar >= 3, energyProduction: 50, maxEnergyBonus: 100 },

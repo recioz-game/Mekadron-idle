@@ -24,7 +24,7 @@
   padding-bottom: 2rem;
 }
 
-.close-button {
+.foundry-view-container .close-button {
   position: absolute;
   top: 3.5rem; /* Bajado para alinear con el título */
   right: 1rem;
@@ -45,33 +45,30 @@
   transition: background-color 0.2s;
 }
 
-.close-button:hover {
+.foundry-view-container .close-button:hover {
   background-color: rgba(249, 115, 22, 0.2); /* Naranja con transparencia */
 }
 
 /* Estilos para la barra de scroll personalizada */
-.foundry-content-area::-webkit-scrollbar {
+.foundry-view-container .foundry-content-area::-webkit-scrollbar {
   width: 8px;
 }
-
-.foundry-content-area::-webkit-scrollbar-track {
+.foundry-view-container .foundry-content-area::-webkit-scrollbar-track {
   background: transparent;
 }
-
-.foundry-content-area::-webkit-scrollbar-thumb {
+.foundry-view-container .foundry-content-area::-webkit-scrollbar-thumb {
   background-color: #F97316; /* Color Naranja Intenso */
   border-radius: 20px;
   border: 3px solid transparent;
 }
-
-.foundry-content-area {
+.foundry-view-container .foundry-content-area {
   scrollbar-width: thin;
   scrollbar-color: #F97316 transparent;
 }
 
 /* --- Estilos específicos de Foundry --- */
 
-.foundry-item {
+.foundry-view-container .foundry-item {
   padding: 1.6rem;
   background-color: #1F2937;
   border-radius: 0.8rem;
@@ -81,30 +78,72 @@
   align-items: center;
   gap: 1.6rem;
 }
-
-.foundry-item-image {
+.foundry-view-container .foundry-item-image {
   width: 150px;
   height: 150px;
   object-fit: cover;
   border-radius: 0.4rem;
   flex-shrink: 0;
 }
-
-.foundry-item-content {
+.foundry-view-container .foundry-item-content {
   flex-grow: 1;
 }
-
-.foundry-item h4 {
+.foundry-view-container .foundry-item h4 {
   margin-top: 0;
   font-size: 1.8rem;
 }
-
-.foundry-item p {
+.foundry-view-container .foundry-item p {
   margin: 0.8rem 0; /* Unificado con EnergyView */
   font-size: 1.4rem;
 }
-
-.craft-button {
+.foundry-view-container .build-actions {
+  display: flex;
+  gap: 0.8rem;
+  align-items: stretch;
+  margin-top: 0.8rem;
+}
+.foundry-view-container .time-info {
+  margin: 0 0 0.8rem 0;
+  font-size: 1.2rem;
+  text-align: center;
+}
+.foundry-view-container .progress-bar-container {
+  width: 100%;
+  background-color: #374151;
+  border-radius: 0.4rem;
+  margin-bottom: 0.8rem;
+  border: 1px solid #4B5563;
+}
+.foundry-view-container .progress-bar {
+  background-color: #F97316; /* Color Naranja Intenso */
+  height: 0.8rem;
+  border-radius: 0.4rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 4px #F97316, 0 0 8px #F97316; /* Brillo Naranja Intenso */
+  border: 1px solid #F97316;
+}
+.foundry-view-container .progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 10px,
+    rgba(255, 255, 255, 0.1) 10px,
+    rgba(255, 255, 255, 0.1) 20px
+  );
+  animation: scanline-perfect 1.5s linear infinite;
+}
+@keyframes scanline-perfect {
+  from { background-position: 0 0; }
+  to { background-position: 20px 0; }
+}
+.foundry-view-container .build-button {
   padding: 1.2rem 2.4rem;
   background-color: #9CA3AF;
   color: #0F172A;
@@ -113,18 +152,16 @@
   cursor: not-allowed;
   font-weight: bold;
   font-size: 1.6rem;
-  margin-top: 0.8rem;
-  width: auto; /* Corregido para que no ocupe todo el ancho */
+  width: 100%; /* Ahora ocupa todo el ancho disponible en su contenedor */
 }
-
-.craft-button.available {
+.foundry-view-container .build-button.unlocked {
   background-color: #22C55E;
   cursor: pointer;
 }
-
-.section-title {
+.foundry-view-container .section-title {
   border-bottom: 1px solid #4B5563;
   padding-bottom: 0.8rem;
   margin-top: 3.2rem;
   font-size: 2rem;
 }
+

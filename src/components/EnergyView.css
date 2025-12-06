@@ -23,7 +23,7 @@
   padding-bottom: 2rem;
 }
 
-.close-button {
+.energy-view-container .close-button {
   position: absolute;
   top: 0.2rem; /* Subido un poco más */
   right: 1rem;
@@ -44,62 +44,53 @@
   transition: background-color 0.2s;
 }
 
-.close-button:hover {
+.energy-view-container .close-button:hover {
   background-color: rgba(132, 204, 22, 0.2); /* Verde Lima con transparencia */
 }
 
 /* Estilos para la barra de scroll personalizada */
-.energy-content-area::-webkit-scrollbar {
+.energy-view-container .energy-content-area::-webkit-scrollbar {
   width: 8px;
 }
-
-.energy-content-area::-webkit-scrollbar-track {
+.energy-view-container .energy-content-area::-webkit-scrollbar-track {
   background: transparent;
 }
-
-.energy-content-area::-webkit-scrollbar-thumb {
+.energy-view-container .energy-content-area::-webkit-scrollbar-thumb {
   background-color: #84cc16; /* Color Verde Lima */
   border-radius: 20px;
   border: 3px solid transparent;
 }
-
-.energy-content-area {
+.energy-view-container .energy-content-area {
   scrollbar-width: thin;
   scrollbar-color: #84cc16 transparent;
 }
-
-.energy-summary {
+.energy-view-container .energy-summary {
   padding: 1.6rem;
   background-color: #1F2937;
   border-radius: 0.4rem;
   margin-bottom: 3.2rem;
   border: 2px solid #06B6D4;
 }
-
-.summary-header {
+.energy-view-container .summary-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
 }
-
-.summary-header h3 {
+.energy-view-container .summary-header h3 {
   margin: 0;
   flex-grow: 1;
   text-align: center;
   font-size: 2rem;
 }
-
-.collapse-arrow {
+.energy-view-container .collapse-arrow {
   transition: transform 0.3s ease;
   font-size: 1.5rem;
 }
-
-.collapse-arrow.open {
+.energy-view-container .collapse-arrow.open {
   transform: rotate(90deg);
 }
-
-.energy-summary-content {
+.energy-view-container .energy-summary-content {
   margin-top: 1.6rem;
   display: flex;
   flex-direction: column;
@@ -109,38 +100,31 @@
   border-radius: 0.4rem;
   animation: fadeIn 0.5s ease-in-out;
 }
-
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
-
-.summary-item {
+.energy-view-container .summary-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 1.6rem;
 }
-
-.summary-label {
+.energy-view-container .summary-label {
   color: #9CA3AF;
   font-weight: 500;
 }
-
-.summary-value {
+.energy-view-container .summary-value {
   font-weight: bold;
 }
-
-.summary-details {
+.energy-view-container .summary-details {
   font-size: 1.3rem;
   color: #6B7280;
   text-align: center;
   margin-top: 0.8rem;
   font-style: italic;
 }
-
-.energy-item {
+.energy-view-container .energy-item {
   padding: 1.6rem;
   background-color: #1F2937;
   border-radius: 0.8rem; /* Aumentado */
@@ -150,43 +134,34 @@
   align-items: center; /* Centrar verticalmente */
   gap: 1.6rem; /* Espacio entre imagen y contenido */
 }
-
-.energy-item-image {
+.energy-view-container .energy-item-image {
   width: 150px; /* Ancho fijo para la imagen */
   height: 150px; /* Alto fijo para la imagen */
   object-fit: cover;
   border-radius: 0.4rem;
   flex-shrink: 0; /* Evita que la imagen se encoja */
 }
-
-.energy-item-content {
+.energy-view-container .energy-item-content {
   flex-grow: 1; /* El contenido ocupa el resto del espacio */
 }
-
-.energy-item-content.full-width {
+.energy-view-container .energy-item-content.full-width {
   width: 100%; /* Para items sin imagen */
 }
-
-
-.energy-item.unlocked {
+.energy-view-container .energy-item.unlocked {
   border-color: #22C55E;
 }
-
-.energy-item.locked {
+.energy-view-container .energy-item.locked {
   opacity: 0.6;
 }
-
-.energy-item h3 {
+.energy-view-container .energy-item h3 {
   margin-top: 0;
   font-size: 1.8rem;
 }
-
-.energy-item p {
+.energy-view-container .energy-item p {
   margin: 0.8rem 0;
   font-size: 1.4rem;
 }
-
-.build-button {
+.energy-view-container .build-button {
   padding: 1.2rem 2.4rem;
   background-color: #9CA3AF;
   color: #0F172A;
@@ -194,35 +169,76 @@
   border-radius: 0.4rem;
   font-weight: bold;
   font-size: 1.6rem;
-  margin-top: 0.8rem;
   width: 100%;
 }
-
-.build-button.unlocked {
+.energy-view-container .build-button.unlocked {
   background-color: #22C55E;
 }
-
-.requirement-warning {
+.energy-view-container .build-actions {
+  display: flex;
+  gap: 0.8rem;
+  align-items: stretch;
+  margin-top: 0.8rem;
+}
+.energy-view-container .time-info {
+  margin: 0 0 0.8rem 0;
+  font-size: 1.2rem;
+  text-align: center;
+}
+.energy-view-container .progress-bar-container {
+  width: 100%;
+  background-color: #374151;
+  border-radius: 0.4rem;
+  margin-bottom: 0.8rem;
+  border: 1px solid #4B5563;
+}
+.energy-view-container .progress-bar {
+  background-color: #84cc16; /* Color Verde Lima */
+  height: 0.8rem;
+  border-radius: 0.4rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 4px #84cc16, 0 0 8px #84cc16; /* Brillo Verde */
+  border: 1px solid #84cc16;
+}
+.energy-view-container .progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 10px,
+    rgba(255, 255, 255, 0.1) 10px,
+    rgba(255, 255, 255, 0.1) 20px
+  );
+  animation: scanline-perfect 1.5s linear infinite;
+}
+@keyframes scanline-perfect {
+  from { background-position: 0 0; }
+  to { background-position: 20px 0; }
+}
+.energy-view-container .requirement-warning {
   color: #F59E0B;
   font-size: 1.4rem;
   margin-top: 0.8rem;
 }
-
 @media (max-width: 768px) {
   .energy-view-container {
     padding: 1.2rem;
   }
-  
-  .energy-view-header {
+  .energy-view-container .energy-view-header {
     margin-bottom: 1.6rem;
   }
-  
-  .energy-summary {
+  .energy-view-container .energy-summary {
     padding: 1.2rem;
     margin-bottom: 1.6rem;
   }
-  
-  .energy-item {
+  .energy-view-container .energy-item {
     padding: 1.2rem;
   }
 }
+
