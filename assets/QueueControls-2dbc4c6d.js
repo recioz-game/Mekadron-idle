@@ -1,0 +1,1 @@
+import{j as n}from"./index-bd01013b.js";const c=({itemName:o,onCancel:s})=>n.jsxs("div",{className:"cancel-button-group",children:[n.jsx("button",{onClick:()=>s(o,1),className:"cancel-button",children:"Cancelar 1"}),n.jsx("button",{onClick:()=>s(o,"all"),className:"cancel-button",children:"Cancelar Todo"})]});export{c as Q};
