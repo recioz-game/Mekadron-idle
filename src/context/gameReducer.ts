@@ -4,7 +4,7 @@ import { constructionReducer } from './constructionReducer';
 import { missionsReducer } from './missionsReducer';
 import { combatReducer } from './combatReducer';
 import { processGameTick } from '../gameLogic/tickLogic';
-import { GameState, initialGameState, ActiveExpedition, ResourceType } from '../types/gameState';
+import { GameState, initialGameState, ActiveExpedition, ResourceType, ExpeditionId } from '../types/gameState';
 import { vindicatorLevelData, vindicatorMK2LevelData, vindicatorMK3LevelData, vindicatorMK4LevelData, vindicatorMK5LevelData, vindicatorMK6LevelData, vindicatorMK7LevelData, vindicatorMK8LevelData, vindicatorMK9LevelData } from '../data/battleData';
 import { ActionType } from '../types/actions';
 import { allArmoryMK1Modules } from '../data/armoryMK1Data';
@@ -13,6 +13,8 @@ import { droneData } from '../data/droneData';
 import { updateVindicatorToVM01, updateVindicatorToVM02, updateVindicatorToVM03, updateVindicatorToVM04, updateVindicatorToVM05, updateVindicatorToVM06, updateVindicatorToVM07, updateVindicatorToVM08, updateVindicatorToVM09 } from '../gameLogic/utils';
 import { bodegaData } from '../data/bodegaData';
 import { ResourceCategory } from '../data/categoryData';
+import { deepMerge, rehydrateState } from './contextUtils';
+import { formatNumber } from '../utils/formatNumber';
 
 // Helper function for Vindicator star upgrades
 const handleVindicatorStarUpgrade = (
@@ -66,8 +68,26 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
   newState = constructionReducer(newState, action);
   newState = missionsReducer(newState, action);
 
-    // The rest of the switch handles non-combat actions
+        // The rest of the switch handles non-combat actions
   switch (action.type) {
+    case 'LOAD_STATE': {
+      // Primero, fusiona el estado cargado con el estado inicial por defecto.
+      // Esto asegura que cualquier nueva propiedad en el juego que no exista en el guardado
+      // se inicialice correctamente en lugar de causar errores.
+      const mergedState = deepMerge(initialGameState, action.payload);
+
+      // Luego, rehidrata el estado fusionado.
+      // Esto convierte datos que no sobreviven bien el formato JSON (como los Sets)
+      // de vuelta a su formato original.
+      const hydratedState = rehydrateState(mergedState);
+
+      // Finalmente, actualiza el timestamp de guardado para que el cálculo offline funcione
+      // correctamente la próxima vez que el jugador abra el juego.
+      hydratedState.lastSaveTimestamp = Date.now();
+
+      return hydratedState;
+    }
+    
     case 'SET_WORKSHOP_BUY_AMOUNT':
       return {
         ...state,
@@ -100,10 +120,16 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
           storageBuyAmount: action.payload,
         };
 
-    case 'SET_FOUNDRY_BUY_AMOUNT':
+        case 'SET_FOUNDRY_BUY_AMOUNT':
         return {
             ...state,
             foundryBuyAmount: action.payload,
+        };
+
+    case 'SET_EXPEDITION_BUY_AMOUNT':
+        return {
+            ...state,
+            expeditionBuyAmount: action.payload,
         };
 
     case 'ACTIVATE_FOUNDRY': {
@@ -226,50 +252,59 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         currentView: '' // Asegurarse de que sea un string vacío
       };
 
-    case 'START_EXPEDITION': {
-        const { expeditionId } = action.payload;
-        const expedition = allExpeditionsData.find(e => e.id === expeditionId);
-        if (!expedition) {
-          console.error(`Expedition data not found for id: ${expeditionId}`);
-          return state;
-        }
-        const dronesRequired = expedition.costs.drones;
-        const droneType = expedition.droneType;
-        const dronesInUse = state.activeExpeditions
-          .filter(exp => allExpeditionsData.find(e => e.id === exp.id)?.droneType === droneType)
-          .reduce((sum, exp) => sum + exp.dronesSent, 0);
-        const availableDrones = state.workshop.drones[droneType] - dronesInUse;
-        if (availableDrones < dronesRequired) {
-          console.warn(`Not enough ${droneType} available.`);
-          return state;
-        }
-                        const newBodegaResources = { ...state.vindicator.bodegaResources };
-        let canAfford = true;
-                for (const [resource, cost] of Object.entries(expedition.costs)) {
-          if (resource === 'drones') continue;
-          if (newBodegaResources[resource as keyof typeof newBodegaResources] < cost) {
-            canAfford = false;
-            console.warn(`Not enough ${resource} for expedition.`);
-            break;
-          }
-          newBodegaResources[resource as keyof typeof newBodegaResources] -= cost;
-        }
-                if (!canAfford) {
-          return state;
-        }
+        case 'START_EXPEDITION': {
+      const { expeditionId, amount } = action.payload;
+      const expedition = allExpeditionsData.find(e => e.id === expeditionId);
+      if (!expedition) return state;
 
-        const newActiveExpedition: ActiveExpedition = {
-          id: expeditionId,
-          instanceId: Date.now(), // <-- AÑADIDO
-          completionTimestamp: Date.now() + expedition.duration * 1000,
-          dronesSent: dronesRequired,
-        };
-        return {
-          ...state,
-          vindicator: { ...state.vindicator, bodegaResources: newBodegaResources },
-          activeExpeditions: [...state.activeExpeditions, newActiveExpedition],
-        };
+      const { drones: dronesRequiredPerExpedition, ...resourceCostsPerExpedition } = expedition.costs;
+      const droneType = expedition.droneType;
+
+      const dronesInUse = state.activeExpeditions
+        .filter(exp => allExpeditionsData.find(e => e.id === exp.id)?.droneType === droneType)
+        .reduce((sum, exp) => sum + exp.dronesSent, 0);
+      
+      const availableDrones = state.workshop.drones[droneType] - dronesInUse;
+
+      let maxAffordableByResources = Infinity;
+      for (const [resource, cost] of Object.entries(resourceCostsPerExpedition)) {
+        const resourceKey = resource as keyof typeof state.vindicator.bodegaResources;
+        const availableResource = state.vindicator.bodegaResources[resourceKey] ?? 0;
+        maxAffordableByResources = Math.min(maxAffordableByResources, Math.floor(availableResource / (cost ?? 1)));
       }
+      
+      const maxAffordableByDrones = Math.floor(availableDrones / dronesRequiredPerExpedition);
+      const maxAffordable = Math.min(maxAffordableByDrones, maxAffordableByResources);
+      
+      const amountToSend = amount === 'max' ? maxAffordable : Math.min(amount, maxAffordable);
+
+      if (amountToSend <= 0) return state;
+
+      const totalDronesToSend = amountToSend * dronesRequiredPerExpedition;
+      const totalResourceCosts: { [key: string]: number } = {};
+      for (const [resource, cost] of Object.entries(resourceCostsPerExpedition)) {
+        totalResourceCosts[resource] = (cost ?? 0) * amountToSend;
+      }
+      
+      const newBodegaResources = { ...state.vindicator.bodegaResources };
+      for (const [resource, cost] of Object.entries(totalResourceCosts)) {
+        newBodegaResources[resource as keyof typeof newBodegaResources] -= cost;
+      }
+
+            const newActiveExpedition: ActiveExpedition = {
+        id: expeditionId as ExpeditionId,
+        instanceId: Date.now(),
+        completionTimestamp: Date.now() + expedition.duration * 1000,
+        dronesSent: totalDronesToSend,
+        expeditionCount: amountToSend,
+      };
+
+      return {
+        ...state,
+        vindicator: { ...state.vindicator, bodegaResources: newBodegaResources },
+        activeExpeditions: [...state.activeExpeditions, newActiveExpedition],
+      };
+    }
 
         case 'RESEARCH_UPGRADE': {
       const { upgradeName, cost } = action.payload;
@@ -939,95 +974,82 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       };
     }
 
-                                                case 'CLAIM_EXPEDITION_REWARDS': {
-        const activeExpedition = action.payload;
-        const expeditionData = allExpeditionsData.find(e => e.id === activeExpedition.id);
-        if (!expeditionData) {
-          console.error(`Expedition data not found for id: ${activeExpedition.id}`);
-          return state;
-        }
-                const remainingExpeditions = state.activeExpeditions.filter(exp => exp.instanceId !== activeExpedition.instanceId);
+                                                    case 'CLAIM_EXPEDITION_REWARDS': {
+      const activeExpedition = action.payload;
+      const expeditionData = allExpeditionsData.find(e => e.id === activeExpedition.id);
+      if (!expeditionData) return state;
+
+      const expeditionCount = activeExpedition.expeditionCount || 1;
+      let totalDronesLost = 0;
+      const totalRewards: { [key: string]: number } = {};
+      let successCount = 0;
+
+      for (let i = 0; i < expeditionCount; i++) {
         const wasSuccessful = Math.random() > expeditionData.risk.chance;
-
-        let tempState = { ...state }; // Empezamos con una copia del estado actual
-
         if (wasSuccessful) {
-          const newBodegaResources = { ...state.vindicator.bodegaResources };
-          let finalMessage: string;
-          const gainedRewards: string[] = [];
-
-          // Calcular y añadir recompensas
+          successCount++;
           for (const [resource, range] of Object.entries(expeditionData.rewards)) {
             if (range) {
               const [min, max] = range;
               const amount = Math.floor(Math.random() * (max - min + 1)) + min;
-              
               if (amount > 0) {
-                const key = resource as keyof typeof newBodegaResources;
-                newBodegaResources[key] = (newBodegaResources[key] || 0) + amount;
-                const formattedResourceName = resource.replace(/([A-Z])/g, ' $1').toLowerCase();
-                gainedRewards.push(`${amount} de ${formattedResourceName}`);
+                totalRewards[resource] = (totalRewards[resource] || 0) + amount;
               }
             }
           }
-          
-          if (gainedRewards.length > 0) {
-            finalMessage = `Expedición finalizada con éxito. Recompensas: ${gainedRewards.join(', ')}.`;
-          } else {
-            finalMessage = "Expedición finalizada con éxito, pero no se encontraron recursos valiosos.";
-          }
-
-          // Actualizar el estado temporal con los resultados
-          tempState = {
-            ...state,
-            vindicator: { ...state.vindicator, bodegaResources: newBodegaResources },
-            activeExpeditions: remainingExpeditions,
-            aurora: {
-              ...state.aurora,
-              pendingMessages: [...state.aurora.pendingMessages, { message: finalMessage, key: `exp-success-${Date.now()}`, audioId: 6 }]
-            }
-          };
-
         } else {
-                    // ... (lógica de fracaso sin cambios)
           const droneSelfRepairLevel = state.techCenter.upgrades.droneSelfRepair || 0;
-          const survivalChance = droneSelfRepairLevel * 0.10; // 10% por nivel
-          
-          const initialDronesLost = Math.ceil(activeExpedition.dronesSent * expeditionData.risk.droneLossPercentage);
-          let dronesSurvived = 0;
-          
+          const survivalChance = droneSelfRepairLevel * 0.10;
+          const dronesPerSingleExpedition = expeditionData.costs.drones;
+          const initialDronesLostInThisRun = Math.ceil(dronesPerSingleExpedition * expeditionData.risk.droneLossPercentage);
+          let dronesSurvivedThisRun = 0;
+
           if (droneSelfRepairLevel > 0) {
-            for (let i = 0; i < initialDronesLost; i++) {
+            for (let j = 0; j < initialDronesLostInThisRun; j++) {
               if (Math.random() < survivalChance) {
-                dronesSurvived++;
+                dronesSurvivedThisRun++;
               }
             }
           }
-
-          const finalDronesLost = initialDronesLost - dronesSurvived;
-          const droneType = expeditionData.droneType;
-          
-          const finalMessage = "La expedición ha fracasado.";
-
-
-          // Actualizar el estado temporal con los resultados
-          tempState = {
-            ...state,
-            workshop: {
-              ...state.workshop,
-              drones: {
-                ...state.workshop.drones,
-                [droneType]: state.workshop.drones[droneType] - finalDronesLost,
-              },
-            },
-            activeExpeditions: remainingExpeditions,
-            aurora: {
-              ...state.aurora,
-              pendingMessages: [...state.aurora.pendingMessages, { message: finalMessage, key: `exp-fail-${Date.now()}`, audioId: 7 }]
-            }
-          };
+          totalDronesLost += initialDronesLostInThisRun - dronesSurvivedThisRun;
         }
-        return tempState; // Devolver el estado final y seguro
+      }
+
+      const newBodegaResources = { ...state.vindicator.bodegaResources };
+      for (const [resource, amount] of Object.entries(totalRewards)) {
+        const key = resource as keyof typeof newBodegaResources;
+        newBodegaResources[key] = (newBodegaResources[key] || 0) + amount;
+      }
+      
+      const droneType = expeditionData.droneType;
+      const newDrones = { ...state.workshop.drones };
+      newDrones[droneType] -= totalDronesLost;
+
+      const remainingExpeditions = state.activeExpeditions.filter(exp => exp.instanceId !== activeExpedition.instanceId);
+
+      let finalMessage = `Convoy de ${expeditionCount} expediciones a "${expeditionData.title}" ha regresado.\n`;
+      if (successCount > 0) {
+        const rewardStrings = Object.entries(totalRewards).map(([res, amount]) => `${formatNumber(amount)} de ${res.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
+        finalMessage += `Éxitos: ${successCount}. Recompensas: ${rewardStrings.join(', ') || 'ninguna'}.\n`;
+      }
+      if (totalDronesLost > 0) {
+        finalMessage += `Pérdidas: ${totalDronesLost} drones.`;
+      }
+
+      return {
+        ...state,
+        vindicator: { ...state.vindicator, bodegaResources: newBodegaResources },
+        workshop: { ...state.workshop, drones: newDrones },
+        activeExpeditions: remainingExpeditions,
+        aurora: {
+          ...state.aurora,
+          pendingMessages: [...state.aurora.pendingMessages, { 
+            message: finalMessage.trim(), 
+            key: `exp-group-${Date.now()}`, 
+            audioId: state.settings.voicesMuted ? undefined : (successCount > 0 ? 6 : 7) 
+          }]
+        }
+      };
     }
             case 'SET_MASTER_VOLUME':
       return {

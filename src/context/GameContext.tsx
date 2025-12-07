@@ -3,6 +3,7 @@ import React, { createContext, useReducer, useContext, ReactNode, useState, useC
 import { GameState, initialGameState } from '../types/gameState';
 import { ActionType } from '../types/actions';
 import { gameReducer } from './gameReducer';
+import { deepMerge, rehydrateState } from './contextUtils';
 
 interface FloatingTextData {
   id: number;
@@ -249,18 +250,9 @@ const loadState = (): GameState => {
     }
 
 
-        const mergedState = deepMerge(initialGameState, storedState);
-    
-    // REHIDRATACIÓN FINAL Y DEFINITIVA
-    // Asegurarse de que shownMessages sea siempre un Set antes de calcular los recursos offline
-    if (mergedState.aurora && Array.isArray(mergedState.aurora.shownMessages)) {
-      mergedState.aurora.shownMessages = new Set(mergedState.aurora.shownMessages);
-    } else if (mergedState.aurora) {
-      // Si no es un array (quizás es undefined o null), inicializarlo como un Set vacío
-      mergedState.aurora.shownMessages = new Set();
-    }
-
-    const finalState = calculateOfflineResources(mergedState);
+            const mergedState = deepMerge(initialGameState, storedState);
+    const hydratedState = rehydrateState(mergedState);
+    const finalState = calculateOfflineResources(hydratedState);
     return finalState;
   } catch (err) {
     console.error("No se pudo cargar la partida guardada:", err);
@@ -268,30 +260,7 @@ const loadState = (): GameState => {
   }
 };
 
-// Función auxiliar para una fusión profunda de objetos
-const deepMerge = (target: any, source: any): any => {
-  const output = { ...target };
 
-  if (isObject(target) && isObject(source)) {
-    Object.keys(source).forEach(key => {
-      if (isObject(source[key])) {
-        if (!(key in target)) {
-          Object.assign(output, { [key]: source[key] });
-        } else {
-          output[key] = deepMerge(target[key], source[key]);
-        }
-      } else {
-        Object.assign(output, { [key]: source[key] });
-      }
-    });
-  }
-
-  return output;
-};
-
-const isObject = (item: any): boolean => {
-  return (item && typeof item === 'object' && !Array.isArray(item));
-};
 
 
 export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) => {

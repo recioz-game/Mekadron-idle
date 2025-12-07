@@ -52,9 +52,10 @@ export interface Expedition {
 
 export interface ActiveExpedition {
   id: ExpeditionId;
-  instanceId: number; // <-- AÑADIDO
+  instanceId: number;
   completionTimestamp: number;
   dronesSent: number;
+  expeditionCount: number; // Número de expediciones en este grupo
 }
 
 export interface Mission {
@@ -130,7 +131,7 @@ export interface GameState {
     battlesCompleted: number[];
   };
   workshopBuyAmount: number | 'max';
-    workshop: {
+        workshop: {
     drones: {
       basic: number;
       medium: number;
@@ -143,13 +144,17 @@ export interface GameState {
       expeditionV2Drone: number;
       wyrm: number;
     };
+    hasBuilt: {
+      [key in keyof GameState['workshop']['drones']]?: boolean;
+    };
     queues: ReturnType<typeof createQueues<'workshop'>>;
   };
     rates: {
-    scrapPerClick: number;
+        scrapPerClick: number;
     scrapPerSecond: number;
     metalPerSecond: number;
     steelPerSecond: number;
+    researchPerSecond: number;
   };
     modules: {
     workshop: boolean; // <-- AÑADIDO
@@ -161,7 +166,7 @@ export interface GameState {
     shipyard: boolean;
     expeditions: boolean;
   };
-  energy: {
+    energy: {
     solarPanels: number;
     mediumSolarPanels: number;
         advancedSolar: number;
@@ -169,9 +174,12 @@ export interface GameState {
     stabilizedEnergyCores: number;
     empoweredEnergyCores: number;
     fusionReactor: number; // Nueva propiedad
+    hasBuilt: {
+      [key in keyof Omit<GameState['energy'], 'queues' | 'hasBuilt'>]?: boolean;
+    };
     queues: ReturnType<typeof createQueues<'energy'>>;
   };
-  storage: {
+    storage: {
     basicStorage: number;
     mediumStorage: number;
     advancedStorage: number;
@@ -179,6 +187,9 @@ export interface GameState {
     lithiumIonBattery: number;
     plasmaAccumulator: number;
     harmonicContainmentField: number;
+    hasBuilt: {
+      [key in keyof Omit<GameState['storage'], 'queues' | 'hasBuilt'>]?: boolean;
+    };
     queues: ReturnType<typeof createQueues<'storage'>>;
   };
     aurora: {
@@ -243,8 +254,9 @@ export interface GameState {
     };
   };
   energyBuyAmount: number | 'max';
-  storageBuyAmount: number | 'max';
+    storageBuyAmount: number | 'max';
   foundryBuyAmount: number | 'max';
+  expeditionBuyAmount: number | 'max';
   foundry: {
     queues: ReturnType<typeof createQueues<'foundry'>>;
   };
@@ -521,9 +533,10 @@ export interface GameState {
     voicesMuted: boolean;
         uiAnimationsEnabled: boolean;
     floatingTextEnabled: boolean;
-    numberFormat: 'full' | 'abbreviated' | 'scientific';
+        numberFormat: 'full' | 'abbreviated' | 'scientific';
     auroraNotificationsEnabled: boolean;
     actionConfirmationsEnabled: boolean;
+    devToolsEnabled: boolean; // <-- NUEVA PROP
   };
     lastSaveTimestamp?: number;
 }
@@ -551,7 +564,7 @@ export interface GameState {
     battlesCompleted: []
   },
   workshopBuyAmount: 1,
-  workshop: {
+    workshop: {
     drones: {
       basic: 0,
       medium: 0,
@@ -564,13 +577,15 @@ export interface GameState {
       expeditionV2Drone: 0,
       wyrm: 0
     },
+    hasBuilt: {},
     queues: createQueues('workshop')
   },
     rates: {
-    scrapPerClick: 1,
+        scrapPerClick: 1,
     scrapPerSecond: 0,
     metalPerSecond: 0,
-    steelPerSecond: 0
+    steelPerSecond: 0,
+    researchPerSecond: 0
   },
     modules: {
     workshop: false, // <-- AÑADIDO
@@ -582,7 +597,7 @@ export interface GameState {
     shipyard: false,
     expeditions: false
   },
-  energy: {
+    energy: {
     solarPanels: 0,
     mediumSolarPanels: 0,
     advancedSolar: 0,
@@ -590,9 +605,10 @@ export interface GameState {
     stabilizedEnergyCores: 0,
     empoweredEnergyCores: 0,
     fusionReactor: 0,
+    hasBuilt: {},
     queues: createQueues('energy')
   },
-  storage: {
+    storage: {
     basicStorage: 0,
     mediumStorage: 0,
     advancedStorage: 0,
@@ -600,6 +616,7 @@ export interface GameState {
     lithiumIonBattery: 0,
     plasmaAccumulator: 0,
     harmonicContainmentField: 0,
+    hasBuilt: {},
     queues: createQueues('storage')
   },
   aurora: {
@@ -663,8 +680,9 @@ export interface GameState {
     }
   },
   energyBuyAmount: 1,
-  storageBuyAmount: 1,
+    storageBuyAmount: 1,
   foundryBuyAmount: 1,
+  expeditionBuyAmount: 1,
   foundry: {
     queues: createQueues('foundry')
   },
@@ -1159,9 +1177,10 @@ export interface GameState {
     voicesMuted: false,
         uiAnimationsEnabled: true,
     floatingTextEnabled: true,
-    numberFormat: 'abbreviated',
+        numberFormat: 'abbreviated',
     auroraNotificationsEnabled: true,
     actionConfirmationsEnabled: true,
+    devToolsEnabled: false, // <-- NUEVA PROP
   },
   lastSaveTimestamp: undefined
 };

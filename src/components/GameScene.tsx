@@ -59,7 +59,7 @@ const GameScene: React.FC = () => {
     const interval = setInterval(() => {
       if (!gameState.settings.floatingTextEnabled) return;
 
-      const createFloatingText = (text: string, xPosition: number, type: 'scrap' | 'metal' | 'steel') => {
+      const createFloatingText = (text: string, xPosition: number, type: 'scrap' | 'metal' | 'steel' | 'research') => {
         const mockMouseEvent = {
           clientX: window.innerWidth * xPosition,
           clientY: window.innerHeight * 0.05
@@ -78,12 +78,17 @@ const GameScene: React.FC = () => {
 
       // Metal Refinado
       if (gameState.rates.metalPerSecond > 0) {
-        createFloatingText(`+${gameState.rates.metalPerSecond.toFixed(1)}`, 0.3, 'metal');
+        createFloatingText(`+${gameState.rates.metalPerSecond.toFixed(1)}`, 0.2, 'metal');
       }
       
-      // Acero Estructural
+            // Acero Estructural
       if (gameState.rates.steelPerSecond > 0) {
-        createFloatingText(`+${gameState.rates.steelPerSecond.toFixed(1)}`, 0.35, 'steel');
+        createFloatingText(`+${gameState.rates.steelPerSecond.toFixed(1)}`, 0.25, 'steel');
+      }
+
+            // Puntos de Investigación
+      if (gameState.rates.researchPerSecond > 0) {
+        createFloatingText(`+${gameState.rates.researchPerSecond.toFixed(2)}`, 0.35, 'research');
       }
 
     }, 1000); // Se ejecuta cada segundo
@@ -91,9 +96,10 @@ const GameScene: React.FC = () => {
         return () => clearInterval(interval);
   }, [
     gameState.settings.floatingTextEnabled, 
-    gameState.rates.scrapPerSecond, 
+        gameState.rates.scrapPerSecond, 
     gameState.rates.metalPerSecond, 
-    gameState.rates.steelPerSecond
+    gameState.rates.steelPerSecond,
+    gameState.rates.researchPerSecond
   ]);
 
 
@@ -153,7 +159,7 @@ const GameScene: React.FC = () => {
   const onCancelWorkshopItem = useCallback((itemName: string, amount: number | 'all') => {
     dispatch({ type: 'CANCEL_QUEUE_ITEM', payload: { category: 'workshop', itemName, amount } });
   }, [dispatch]);
-        const onDismantleDrone = useCallback((droneType: string, amount: number | 'max') => {
+        const onDismantleDrone = useCallback((droneType: DroneType, amount: number | 'max') => {
     if (gameState.settings.actionConfirmationsEnabled) {
       if (!window.confirm(`¿Estás seguro de que quieres desmantelar ${amount === 'max' ? 'todos los' : amount} drones de tipo ${droneType}?`)) {
         return; // El usuario canceló la acción
@@ -195,8 +201,8 @@ const GameScene: React.FC = () => {
   const onCloseView = useCallback(() => dispatch({ type: 'CLOSE_CURRENT_VIEW' }), [dispatch]);
 
   // Expedition Callbacks
-    const onStartExpedition = useCallback((expeditionId: ExpeditionId) => {
-    dispatch({ type: 'START_EXPEDITION', payload: { expeditionId } });
+        const onStartExpedition = useCallback((expeditionId: ExpeditionId, amount: number | 'max') => {
+    dispatch({ type: 'START_EXPEDITION', payload: { expeditionId, amount } });
   }, [dispatch]);
   const onClaimExpeditionReward = useCallback((expedition: ActiveExpedition) => {
     dispatch({ type: 'CLAIM_EXPEDITION_REWARDS', payload: expedition });
@@ -223,10 +229,11 @@ const GameScene: React.FC = () => {
     switch (currentView) {
                   case 'workshop':
         return (
-          <Workshop
+                    <Workshop
             resources={resources}
             bodegaResources={gameState.vindicator.bodegaResources}
-            drones={drones}
+                        drones={drones}
+            hasBuilt={workshop.hasBuilt}
             queues={workshopQueues}
             upgrades={techCenter.upgrades}
             onBuildBasicDrone={onBuildBasicDrone}
@@ -260,8 +267,9 @@ const GameScene: React.FC = () => {
             advancedSolar={energy.advancedSolar}
             energyCores={energy.energyCores}
             stabilizedEnergyCores={energy.stabilizedEnergyCores}
-            empoweredEnergyCores={energy.empoweredEnergyCores}
+                        empoweredEnergyCores={energy.empoweredEnergyCores}
             fusionReactors={energy.fusionReactor}
+            hasBuilt={energy.hasBuilt}
             solarPanelsQueue={energy.queues.solarPanels}
             mediumSolarPanelsQueue={energy.queues.mediumSolarPanels}
             advancedSolarQueue={energy.queues.advancedSolar}
@@ -298,9 +306,10 @@ const GameScene: React.FC = () => {
             mediumStorage={storage.mediumStorage}
             advancedStorage={storage.advancedStorage}
             quantumHoardUnit={storage.quantumHoardUnit}
-            lithiumIonBattery={storage.lithiumIonBattery}
+                        lithiumIonBattery={storage.lithiumIonBattery}
             plasmaAccumulator={storage.plasmaAccumulator}
             harmonicContainmentField={storage.harmonicContainmentField}
+            hasBuilt={storage.hasBuilt}
 
             // Storage Queues
             basicStorageQueue={storage.queues.basicStorage}
@@ -321,10 +330,11 @@ const GameScene: React.FC = () => {
             onBuildHarmonicContainmentField={onBuildHarmonicContainmentField}
 
             // Others
-                        buyAmount={storageBuyAmount}
+                                    buyAmount={storageBuyAmount}
             onSetBuyAmount={onSetStorageBuyAmount}
             onClose={onClose}
             onCancel={onCancelStorageItem}
+            numberFormat={gameState.settings.numberFormat}
           />
         );
       case 'missions':
@@ -367,20 +377,23 @@ const GameScene: React.FC = () => {
             onCraftFuelRod={onCraftFuelRod}
             onCraftPurifiedMetal={onCraftPurifiedMetal}
             upgrades={techCenter.upgrades}
-            buyAmount={foundryBuyAmount}
+                        buyAmount={foundryBuyAmount}
             onSetBuyAmount={onSetFoundryBuyAmount}
             onClose={onClose}
             onCancel={onCancelFoundryItem}
+            numberFormat={gameState.settings.numberFormat}
           />
         );
             case 'expeditions':
         return (
-          <ExpeditionView
+                    <ExpeditionView
             resources={resources}
             drones={drones}
             activeExpeditions={activeExpeditions}
+            buyAmount={gameState.expeditionBuyAmount}
             onStartExpedition={onStartExpedition}
             onClaimReward={onClaimExpeditionReward}
+            onSetBuyAmount={(amount) => dispatch({ type: 'SET_EXPEDITION_BUY_AMOUNT', payload: amount })}
             onClose={onClose}
           />
         );

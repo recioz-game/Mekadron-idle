@@ -1,0 +1,20 @@
+/* src/components/TooltipWrapper.css */
+.tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-container {
+  position: fixed; /* Fijo en la pantalla para que no sea cortado por otros elementos */
+  background-color: #1F2937; /* Un fondo oscuro consistente con la UI */
+  color: #E5E7EB; /* Texto claro */
+  padding: 0.8rem 1.2rem;
+  border-radius: 6px;
+  border: 1px solid #06B6D4; /* Borde cian, un color tecnológico recurrente */
+  font-size: 1.4rem;
+  font-family: 'Inter', sans-serif;
+  z-index: 1000; /* Asegura que esté por encima de todo */
+  pointer-events: none; /* El tooltip no debe interferir con el cursor */
+  white-space: nowrap; /* Evita que el texto se parta en varias líneas */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); /* Sombra sutil para darle profundidad */
+}

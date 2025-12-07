@@ -3,6 +3,7 @@ import './SettingsMenu.css'; // Importar el archivo CSS
 import { useGame } from '../context/GameContext';
 import settingsButtonIcon from '../assets/images/ui/settings-button.png';
 import settingsButtonPhase2Icon from '../assets/images/ui/settings-button-phase2.png';
+import LZString from 'lz-string';
 
 type ActiveTab = 'sound' | 'visuals' | 'gameplay' | 'save' | 'dev';
 
@@ -50,24 +51,36 @@ const SettingsMenu: React.FC = () => {
           shownMessages: Array.from(gameState.aurora.shownMessages),
         },
       };
-      const jsonString = JSON.stringify(stateToSave);
-      const base64String = btoa(jsonString);
-      setExportData(base64String);
+            const jsonString = JSON.stringify(stateToSave);
+      const compressedString = LZString.compressToBase64(jsonString);
+      setExportData(compressedString);
     } catch (error) {
       console.error("Error al exportar la partida:", error);
       setExportData("Error al generar el código.");
     }
   };
 
-  const handleImport = () => {
+    const handleImport = () => {
     if (!importData) {
       alert("Pega tu código de guardado en el cuadro de texto antes de importar.");
       return;
     }
+
+    // --- CÓDIGO DE ACTIVACIÓN DE DEBUG ---
+    if (importData.trim() === 'modo_debug_mekadron') {
+      dispatch({ type: 'ENABLE_DEV_TOOLS' });
+      alert("Modo de desarrollo activado.");
+      setIsOpen(false);
+      return;
+    }
+
     if (window.confirm("¿Estás seguro? Esto sobreescribirá tu progreso actual.")) {
       try {
-        const jsonString = atob(importData);
-        const newState = JSON.parse(jsonString);
+        const decompressedString = LZString.decompressFromBase64(importData);
+        if (!decompressedString) {
+          throw new Error("El código de guardado está corrupto o es inválido.");
+        }
+        const newState = JSON.parse(decompressedString);
         dispatch({ type: 'LOAD_STATE', payload: newState });
         setIsOpen(false);
       } catch (error) {
@@ -281,9 +294,9 @@ const SettingsMenu: React.FC = () => {
               <button onClick={() => setActiveTab('sound')} className={activeTab === 'sound' ? 'active' : ''}>Sonido</button>
               <button onClick={() => setActiveTab('visuals')} className={activeTab === 'visuals' ? 'active' : ''}>Visuales</button>
               <button onClick={() => setActiveTab('gameplay')} className={activeTab === 'gameplay' ? 'active' : ''}>Jugabilidad</button>
-              <button onClick={() => setActiveTab('save')} className={activeTab === 'save' ? 'active' : ''}>Partida</button>
+                            <button onClick={() => setActiveTab('save')} className={activeTab === 'save' ? 'active' : ''}>Partida</button>
               <button onClick={() => dispatch({ type: 'SHOW_CREDITS' })}>Créditos</button>
-              {import.meta.env.DEV && (
+              {(import.meta.env.DEV || gameState.settings.devToolsEnabled) && (
                 <button onClick={() => setActiveTab('dev')} className={activeTab === 'dev' ? 'active' : ''}>Desarrollo</button>
               )}
             </div>

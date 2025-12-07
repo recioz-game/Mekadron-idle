@@ -38,3 +38,8 @@
 .floating-text.steel {
   color: #06B6D4; /* Azul claro */
 }
+
+.floating-text.research {
+  color: #06B6D4; /* Cian, como la cruceta del laboratorio */
+  text-shadow: 0 0 5px #06B6D4, 0 0 10px #06B6D4;
+}

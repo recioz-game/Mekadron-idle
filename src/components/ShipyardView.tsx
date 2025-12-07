@@ -31,8 +31,8 @@ const ShipyardView: React.FC<ShipyardViewProps> = ({
   const resourceLabels: { [key: string]: string } = {
     scrap: 'Chatarra',
     metalRefinado: 'Metal Refinado',
-    aceroEstructural: 'Acero Estructural',
-    placasCasco: 'Placas de Casco',
+        aceroEstructural: 'Acero Estructural',
+    placasCasco: 'Placas de Casco Reforzado',
     cableadoSuperconductor: 'Cableado de Superconductores',
     nucleoSingularidad: 'Núcleo de Singularidad',
     researchPoints: 'Puntos de Investigación',

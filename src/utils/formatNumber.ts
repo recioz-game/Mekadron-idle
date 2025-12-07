@@ -36,3 +36,26 @@ export const formatNumber = (num: number, format: 'full' | 'abbreviated' | 'scie
   // Elimina los ".0" al final y los ceros sobrantes
   return parseFloat(formattedNumber).toString() + suffix;
 };
+
+export const formatTime = (totalSeconds: number): string => {
+  if (totalSeconds < 0) {
+    return "0s";
+  }
+
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = Math.floor(totalSeconds % 60);
+
+  let timeString = '';
+  if (hours > 0) {
+    timeString += `${hours}h `;
+  }
+  if (minutes > 0) {
+    timeString += `${minutes}m `;
+  }
+  if (seconds > 0 || timeString === '') {
+    timeString += `${seconds}s`;
+  }
+
+  return timeString.trim();
+};

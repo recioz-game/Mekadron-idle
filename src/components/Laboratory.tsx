@@ -47,7 +47,7 @@ const newTechTree = [
   { id: 'quantumComputing', branch: 'research', tier: 3, row: 2, title: 'Computación Cuántica', description: 'Reduce el coste de todas las investigaciones.', effect: (l: number) => `-${l * 5}% Coste Investigación`, cost: 1500, maxLevel: 3, requirements: ['algorithmOptimization'] },
   { id: 'constructionEfficiency', branch: 'research', tier: 4, row: 2, title: 'Eficiencia de Construcción', description: 'Reduce el tiempo de construcción de todas las unidades.', effect: (l: number) => `-${l * 5}% Tiempo de Construcción`, cost: 600, maxLevel: 5, requirements: ['quantumComputing'] },
   { id: 'swarmAI', branch: 'research', tier: 7, row: 1, title: 'IA de Enjambre', description: 'Por cada 50 drones, +1% a la producción global de chatarra (máx 10%).', effect: (l: number) => `Actualmente: +${l}%`, cost: 5000, maxLevel: 10, requirements: ['golemChassis'] },
-  { id: 'globalEfficiency', branch: 'research', tier: 8, row: 1, title: 'Eficiencia Global (Infinita)', description: 'Aumenta permanentemente toda la producción de chatarra.', effect: (l: number) => `+${l}% Prod. Chatarra`, cost: 10000, maxLevel: Infinity, requirements: ['swarmAI'], isInfinite: true },
+  { id: 'globalEfficiency', branch: 'research', tier: 8, row: 1, title: 'Eficiencia Global (Infinita)', description: 'Aumenta permanentemente toda la producción de chatarra.', effect: (l: number) => `+${(l * 0.1).toFixed(1)}% Prod. Chatarra`, cost: 10000, maxLevel: Infinity, requirements: ['swarmAI'], isInfinite: true },
 
   // === RAMA DE FUNDICIÓN (ROJO COBRE) ===
   { id: 'foundryProtocols', branch: 'foundry', tier: 1, row: 1, title: 'Protocolos de Fundición', description: 'Desbloquea la Fundición.', effect: () => 'Desbloquea la Fundición', cost: 50, maxLevel: 1, requirements: [] },
@@ -89,13 +89,7 @@ const Laboratory: React.FC<LaboratoryProps> = ({ gameState, onResearchUpgrade, o
   // Calcular el número máximo de tiers para que los banners se expandan correctamente
   const maxTier = Math.max(...newTechTree.map(t => t.tier));
 
-  // --- 3. Lógica de Cálculo de RP (movida adentro para acceso a gameState) ---
-  const baseResearch = 0.1 * (1 + (upgrades.researchEfficiency * 0.20));
-  const totalDrones = Object.values(workshop.drones).reduce((sum, count) => sum + count, 0);
-  const droneResearch = (totalDrones * 0.01) * (1 + (upgrades.advancedAnalysis * 0.10));
-  const energySurplus = Math.max(0, resources.energy - resources.energyConsumption);
-  const energyResearch = (energySurplus * 0.005) * (1 + (upgrades.algorithmOptimization * 0.15));
-  const totalResearchPerSecond = (baseResearch + droneResearch + energyResearch) / (1 - (upgrades.quantumComputing * 0.05));
+      const totalResearchPerSecond = gameState.rates.researchPerSecond;
 
   // --- 4. Lógica de Disponibilidad de Tecnología (movida adentro) ---
   const isTechAvailable = (tech: any) => {
@@ -175,10 +169,7 @@ const Laboratory: React.FC<LaboratoryProps> = ({ gameState, onResearchUpgrade, o
             </span>
           </h3>
           {showTooltip && (
-            <ResearchTooltip
-              base={baseResearch}
-              fromDrones={droneResearch}
-              fromEnergy={energyResearch}
+                        <ResearchTooltip
               total={totalResearchPerSecond}
               quantumComputingLevel={upgrades.quantumComputing || 0}
             />
@@ -261,8 +252,8 @@ const Laboratory: React.FC<LaboratoryProps> = ({ gameState, onResearchUpgrade, o
 };
 
 // --- NUEVO COMPONENTE TOOLTIP ---
-const ResearchTooltip: React.FC<{base: number, fromDrones: number, fromEnergy: number, total: number, quantumComputingLevel: number}> = 
-({ base, fromDrones, fromEnergy, total, quantumComputingLevel }) => {
+const ResearchTooltip: React.FC<{total: number, quantumComputingLevel: number}> = 
+({ total, quantumComputingLevel }) => {
   return (
         <div style={{
       position: 'absolute',
@@ -281,15 +272,8 @@ const ResearchTooltip: React.FC<{base: number, fromDrones: number, fromEnergy: n
       zIndex: 10,
     }}>
       <h4 style={{ margin: 0, color: '#06B6D4' }}>Generación de Investigación</h4>
-      <hr style={{ borderColor: '#374151', margin: '0.5rem 0' }} />
-      <p style={{ margin: '0.5rem 0' }}>Tasa Base: <strong>+{base.toFixed(2)} /s</strong></p>
-      <p style={{ margin: '0.5rem 0' }}>Análisis de Drones: <strong>+{fromDrones.toFixed(2)} /s</strong></p>
-      <p style={{ margin: '0.5rem 0' }}>Superávit Energético: <strong>+{fromEnergy.toFixed(2)} /s</strong></p>
-      {quantumComputingLevel > 0 && (
-         <p style={{ margin: '0.5rem 0', color: '#22C55E' }}>
-           Multiplicador Cuántico: <strong>x{(1 / (1 - (quantumComputingLevel * 0.05))).toFixed(2)}</strong>
-         </p>
-      )}
+      <p style={{ margin: '0.5rem 0', fontSize: '1.2rem', color: '#9CA3AF' }}>La tasa de investigación se basa en tu tasa base, el número de drones y tu superávit energético.</p>
+      
       <hr style={{ borderColor: '#374151', margin: '0.5rem 0' }} />
       <p style={{ margin: '0.5rem 0', fontWeight: 'bold' }}>Total: <strong>+{total.toFixed(2)} /s</strong></p>
     </div>
@@ -306,7 +290,15 @@ const TechCard: React.FC<{
   style: React.CSSProperties;
 }> = ({ tech, researchPoints, upgrades, onResearchUpgrade, isAvailable, color, style }) => {
   const currentLevel = (upgrades[tech.id as keyof typeof upgrades] as number) || 0;
-  const canResearch = isAvailable && researchPoints >= tech.cost && currentLevel < tech.maxLevel;
+  
+  // --- LÓGICA DE COSTE INCREMENTAL ---
+  let calculatedCost = tech.cost;
+  if (tech.isInfinite) {
+    // Fórmula: coste_siguiente = coste_base * (1.15 ^ nivel_actual)
+    calculatedCost = Math.floor(tech.cost * Math.pow(1.15, currentLevel));
+  }
+
+  const canResearch = isAvailable && researchPoints >= calculatedCost && currentLevel < tech.maxLevel;
   const effect = typeof tech.effect === 'function' ? tech.effect(currentLevel) : tech.effect;
   const className = `tech-card ${!isAvailable ? 'locked' : canResearch ? 'available' : currentLevel > 0 ? 'researched' : ''}`;
 
@@ -318,12 +310,12 @@ const TechCard: React.FC<{
       <div className="tech-card-footer">
         <span>Nivel: {currentLevel}/{tech.maxLevel === Infinity ? '∞' : tech.maxLevel}</span>
         <button
-          onClick={() => onResearchUpgrade(tech.id, tech.cost)}
+          onClick={() => onResearchUpgrade(tech.id, calculatedCost)}
           disabled={!canResearch}
           className={`research-button ${canResearch ? 'can-research' : ''}`}
           style={{ backgroundColor: canResearch ? color : '' }}
         >
-          {currentLevel > 0 ? 'Mejorar' : 'Investigar'} ({formatNumber(tech.cost)} RP)
+          {currentLevel > 0 ? 'Mejorar' : 'Investigar'} ({formatNumber(calculatedCost)} RP)
         </button>
       </div>
     </div>

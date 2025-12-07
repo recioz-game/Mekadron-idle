@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './ExpeditionView.css'; // Importar el archivo CSS
 import { GameState, ExpeditionId, ActiveExpedition } from '../types/gameState';
 import { allExpeditionsData } from '../data/expeditionsData';
+import BuyAmountSelector from './BuyAmountSelector';
 import { formatNumber } from '../utils/formatNumber';
 import BotonConTooltip from './BotonConTooltip';
 import { useDragToScroll } from '../hooks/useDragToScroll';
@@ -10,8 +11,10 @@ interface ExpeditionViewProps {
   resources: GameState['resources'];
   drones: GameState['workshop']['drones'];
   activeExpeditions: ActiveExpedition[];
-  onStartExpedition: (expeditionId: ExpeditionId) => void;
+  buyAmount: number | 'max';
+  onStartExpedition: (expeditionId: ExpeditionId, amount: number | 'max') => void;
   onClaimReward: (expedition: ActiveExpedition) => void;
+  onSetBuyAmount: (amount: number | 'max') => void;
   onClose: () => void;
 }
 
@@ -49,8 +52,10 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
   resources,
   drones,
   activeExpeditions,
+  buyAmount,
   onStartExpedition,
   onClaimReward,
+  onSetBuyAmount,
   onClose 
 }) => {
 
@@ -77,11 +82,13 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
           &times;
         </button>
 
-        <div className="fleet-status">
+                <div className="fleet-status">
           <h3>Estado de la Flota de Expedición</h3>
           <p>Drones de Expedición (DE-1) Disponibles: <strong style={{color: '#22C55E'}}>{availableDrones.expeditionDrone}</strong> / {drones.expeditionDrone}</p>
           <p>Drones de Expedición (DE-2) Disponibles: <strong style={{color: '#10B981'}}>{availableDrones.expeditionV2Drone}</strong> / {drones.expeditionV2Drone}</p>
         </div>
+
+        <BuyAmountSelector buyAmount={buyAmount} onSetBuyAmount={onSetBuyAmount} />
 
         {/* EXPEDICIONES ACTIVAS */}
         {activeExpeditions.length > 0 && (
@@ -176,12 +183,12 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
 
                 <p><strong>Riesgo:</strong> {exp.risk.chance * 100}% de posibilidad de perder el dron.</p>
                 
-                <button
-                  onClick={() => onStartExpedition(exp.id)}
+                                <button
+                  onClick={() => onStartExpedition(exp.id, buyAmount)}
                   disabled={!canAfford}
                   className="send-button"
                 >
-                  Enviar {dronesRequired} {droneType === 'expeditionV2Drone' ? 'Dron (DE-2)' : 'Dron (DE-1)'}
+                  Enviar {buyAmount === 'max' ? `MAX (${Math.floor(currentAvailableDrones / dronesRequired)})` : buyAmount} {dronesRequired > 1 ? 'grupos' : 'grupo'}
                 </button>
 
               </div>

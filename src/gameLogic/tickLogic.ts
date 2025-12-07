@@ -361,18 +361,15 @@ export const processGameTick = (state: GameState): GameState & { auroraMessages:
     clampedAceroEstructural = prev.vindicator.bodegaResources.aceroEstructural; // No añadir si excede
   }
   
-  const baseResearch = 0.05 * (1 + (prev.techCenter.upgrades.researchEfficiency * 0.20));
-    const totalDrones = Object.values(prev.workshop.drones).reduce((sum, count) => sum + count, 0);
-  const droneResearch = (totalDrones * 0.005) * (1 + (prev.techCenter.upgrades.advancedAnalysis * 0.10));
+  // --- Lógica de Cálculo de RP (NERFEADA Y CENTRALIZADA) ---
+  const baseResearch = 0.1 * (1 + (upgrades.researchEfficiency * 0.10)); 
+  const totalDrones = Object.values(prev.workshop.drones).reduce((sum, count) => sum + count, 0);
+  const droneResearch = (totalDrones * 0.004) * (1 + (upgrades.advancedAnalysis * 0.05));
   const energySurplus = Math.max(0, totalEnergyProduction - totalEnergyConsumption);
-  const energyResearch = (energySurplus * 0.0025) * (1 + (prev.techCenter.upgrades.algorithmOptimization * 0.15));
+  const energyResearch = (energySurplus * 0.0002) * (1 + (upgrades.algorithmOptimization * 0.075));
   
-  // Protección contra división por cero para Quantum Computing
-  const quantumComputingLevel = prev.techCenter.upgrades.quantumComputing || 0;
-  const costMultiplier = 1 - (quantumComputingLevel * 0.05);
-  const safeDivisor = Math.max(0.05, costMultiplier); // Asegura que el divisor no sea <= 0
-
-  const researchPointsToAdd = (baseResearch + droneResearch + energyResearch) / safeDivisor;
+  const totalResearchPerSecond = (baseResearch + droneResearch + energyResearch);
+  const researchPointsToAdd = totalResearchPerSecond;
   const newResearchPoints = prev.techCenter.researchPoints + researchPointsToAdd;
 
   let newBodegaResources = { ...prev.vindicator.bodegaResources };
@@ -410,7 +407,8 @@ export const processGameTick = (state: GameState): GameState & { auroraMessages:
       ...prev.rates, 
       scrapPerSecond: totalScrapProduction - golemScrapConsumption - wyrmScrapConsumption,
       metalPerSecond: golemMetalProduction,
-      steelPerSecond: wyrmSteelProduction
+      steelPerSecond: wyrmSteelProduction,
+      researchPerSecond: totalResearchPerSecond, // <-- GUARDAR LA TASA
     },
     techCenter: { ...prev.techCenter, researchPoints: newResearchPoints },
   };

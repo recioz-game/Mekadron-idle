@@ -30,12 +30,15 @@ const handleBuild = (state: GameState, config: BuildConfiguration): GameState =>
   const costEntries = Object.entries(modifiedCosts);
   if (costEntries.length === 0) return state;
 
+  // CREAMOS UN ÚNICO OBJETO CON TODOS LOS RECURSOS DEL JUGADOR
+  const allPlayerResources = {
+    ...state.resources,
+    ...state.vindicator.bodegaResources,
+  };
+
   const maxAffordableAmounts = costEntries.map(([resource, cost]) => {
     if (cost === 0) return Infinity;
-    const isBodegaResource = resource in state.vindicator.bodegaResources;
-    const currentResource = isBodegaResource 
-      ? state.vindicator.bodegaResources[resource as keyof typeof state.vindicator.bodegaResources] 
-      : state.resources[resource as ResourceType] || 0;
+    const currentResource = allPlayerResources[resource as keyof typeof allPlayerResources] || 0;
     return Math.floor(currentResource / cost);
   });
   const maxAffordable = Math.min(...maxAffordableAmounts);
@@ -69,12 +72,30 @@ const handleBuild = (state: GameState, config: BuildConfiguration): GameState =>
   const newCategoryState = { ...categoryState, [queuesProp]: newQueues };
 
   // 6. Devolver el nuevo objeto de estado
-  return {
+  const finalState = {
     ...state,
     resources: newResources,
     vindicator: { ...state.vindicator, bodegaResources: newBodegaResources },
     [category]: newCategoryState,
   };
+
+  // 7. Si la categoría tiene seguimiento de 'hasBuilt' y el item no se ha construido antes, marcarlo.
+  const categoryStateWithBuilt = state[category as 'workshop' | 'energy' | 'storage'];
+  if (categoryStateWithBuilt && 'hasBuilt' in categoryStateWithBuilt) {
+    const itemNameKey = itemName as keyof typeof categoryStateWithBuilt;
+    if (!categoryStateWithBuilt.hasBuilt[itemNameKey]) {
+      const newCategoryStateWithBuilt = {
+        ...finalState[category as 'workshop' | 'energy' | 'storage'],
+        hasBuilt: {
+          ...finalState[category as 'workshop' | 'energy' | 'storage'].hasBuilt,
+          [itemNameKey]: true,
+        },
+      };
+      finalState[category as 'workshop' | 'energy' | 'storage'] = newCategoryStateWithBuilt;
+    }
+  }
+
+  return finalState;
 };
 
 // Reducer para la construcción

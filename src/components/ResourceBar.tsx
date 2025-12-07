@@ -7,11 +7,13 @@ import { formatNumber } from '../utils/formatNumber';
 // Importar los nuevos iconos de recursos
 import scrapIcon from '../assets/images/ui/scrap-icon.png';
 import energyIcon from '../assets/images/ui/energy-icon.png';
+import researchIcon from '../assets/images/ui/resources/plano.png';
 import refinedMetalIconSm from '../assets/images/ui/refined-metal-icon_sm.png';
 import structuralSteelIconSm from '../assets/images/ui/structural-steel-icon_sm.png';
 import hullPlateIconSm from '../assets/images/ui/hull-plate-icon_sm.png';
 import plateFragmentsIcon from '../assets/images/ui/plate-fragments-icon.png';
 import fuelRodIconSm from '../assets/images/ui/fuel-rod-icon_sm.png';
+import TooltipWrapper from './TooltipWrapper';
 
 const ResourceBar: React.FC = React.memo(() => {
   const { gameState } = useGame(); // Obtener gameState para los ajustes
@@ -36,102 +38,142 @@ const ResourceBar: React.FC = React.memo(() => {
 
   return (
         <div className="resource-bar">
-      {/* CONTENEDOR IZQUIERDA: Recursos principales */}
-                        <div className="resource-group">
-                <div className="resource-item" title="Chatarra">
-          <img src={scrapIcon} alt="Chatarra" className="resource-icon-img" />
-          <span>{formatNumber(scrap, gameState.settings.numberFormat)} / {formatNumber(maxScrap, gameState.settings.numberFormat)}</span>
-        </div>
-        <div className="resource-item" title="Energía">
-          <img src={energyIcon} alt="Energía" className="resource-icon-img" />
-          <span>{formatNumber(energy, gameState.settings.numberFormat)} / {formatNumber(maxEnergy, gameState.settings.numberFormat)}</span>
-        </div>
-        
+            {/* CONTENEDOR IZQUIERDA: Recursos principales */}
+      <div className="resource-group">
+        <TooltipWrapper tooltipText="Chatarra">
+          <div className="resource-item">
+            <img src={scrapIcon} alt="Chatarra" className="resource-icon-img" />
+            <span>{formatNumber(scrap, gameState.settings.numberFormat)} / {formatNumber(maxScrap, gameState.settings.numberFormat)}</span>
+          </div>
+        </TooltipWrapper>
+        <TooltipWrapper tooltipText="Energía">
+          <div className="resource-item">
+            <img src={energyIcon} alt="Energía" className="resource-icon-img" />
+            <span>{formatNumber(energy, gameState.settings.numberFormat)} / {formatNumber(maxEnergy, gameState.settings.numberFormat)}</span>
+          </div>
+        </TooltipWrapper>
+
         {/* RECURSOS DE BODEGA - SIEMPRE VISIBLES SI HAN SIDO DESBLOQUEADOS */}
         {'metalRefinado' in bodegaResources && (
-          <div className="resource-item" title="Metal Refinado">
-            <img src={refinedMetalIconSm} alt="Metal Refinado" className="resource-icon-img" />
-            <span>{formatNumber(bodegaResources.metalRefinado ?? 0, gameState.settings.numberFormat)}</span>
-          </div>
+          <TooltipWrapper tooltipText="Metal Refinado">
+            <div className="resource-item">
+              <img src={refinedMetalIconSm} alt="Metal Refinado" className="resource-icon-img" />
+              <span>{formatNumber(bodegaResources.metalRefinado ?? 0, gameState.settings.numberFormat)}</span>
+            </div>
+          </TooltipWrapper>
         )}
         {'aceroEstructural' in bodegaResources && (
-          <div className="resource-item" title="Acero Estructural">
-            <img src={structuralSteelIconSm} alt="Acero Estructural" className="resource-icon-img" />
-            <span>{formatNumber(bodegaResources.aceroEstructural ?? 0, gameState.settings.numberFormat)}</span>
-          </div>
+          <TooltipWrapper tooltipText="Acero Estructural">
+            <div className="resource-item">
+              <img src={structuralSteelIconSm} alt="Acero Estructural" className="resource-icon-img" />
+              <span>{formatNumber(bodegaResources.aceroEstructural ?? 0, gameState.settings.numberFormat)}</span>
+            </div>
+          </TooltipWrapper>
         )}
         {'placasCasco' in bodegaResources && (
-          <div className="resource-item" title="Placas de Casco">
-            <img src={hullPlateIconSm} alt="Placas de Casco" className="resource-icon-img" />
-            <span>{formatNumber(bodegaResources.placasCasco ?? 0, gameState.settings.numberFormat)}</span>
-          </div>
+          <TooltipWrapper tooltipText="Placas de Casco">
+            <div className="resource-item">
+              <img src={hullPlateIconSm} alt="Placas de Casco" className="resource-icon-img" />
+              <span>{formatNumber(bodegaResources.placasCasco ?? 0, gameState.settings.numberFormat)}</span>
+            </div>
+          </TooltipWrapper>
         )}
         {'fragmentosPlaca' in bodegaResources && (
-          <div className="resource-item" title="Fragmentos de Placa">
-            <img src={plateFragmentsIcon} alt="Fragmentos de Placa" className="resource-icon-img" />
-            <span>{formatNumber(bodegaResources.fragmentosPlaca ?? 0, gameState.settings.numberFormat)}</span>
-          </div>
+          <TooltipWrapper tooltipText="Fragmentos de Placa">
+            <div className="resource-item">
+              <img src={plateFragmentsIcon} alt="Fragmentos de Placa" className="resource-icon-img" />
+              <span>{formatNumber(bodegaResources.fragmentosPlaca ?? 0, gameState.settings.numberFormat)}</span>
+            </div>
+          </TooltipWrapper>
         )}
         {'barraCombustible' in bodegaResources && (
-          <div className="resource-item" title="Barras de Combustible">
-            <img src={fuelRodIconSm} alt="Barras de Combustible" className="resource-icon-img" />
-            <span>{formatNumber(bodegaResources.barraCombustible ?? 0, gameState.settings.numberFormat)}</span>
-          </div>
+          <TooltipWrapper tooltipText="Barras de Combustible">
+            <div className="resource-item">
+              <img src={fuelRodIconSm} alt="Barras de Combustible" className="resource-icon-img" />
+              <span>{formatNumber(bodegaResources.barraCombustible ?? 0, gameState.settings.numberFormat)}</span>
+            </div>
+          </TooltipWrapper>
+        )}
+
+        {/* Puntos de Investigación (si el módulo está desbloqueado) */}
+        {gameState.modules.techCenter && (
+          <TooltipWrapper tooltipText="Puntos de Investigación">
+            <div className="resource-item">
+              <img src={researchIcon} alt="Investigación" className="resource-icon-img" />
+              <span>{formatNumber(gameState.techCenter.researchPoints, gameState.settings.numberFormat)}</span>
+            </div>
+          </TooltipWrapper>
         )}
       </div>
 
       {/* CONTENEDOR CENTRO: Drones */}
       <div className="drones-group">
-        <div className="drones-item" title="Drones Tier 1">
-          <span>T1:</span>
-          <strong>{tier1Drones}</strong>
-        </div>
-        <div className="drones-item" title="Drones Tier 2">
-          <span>T2:</span>
-          <strong>{tier2Drones}</strong>
-        </div>
-        <div className="drones-item" title="Drones Tier 3">
-          <span>T3:</span>
-          <strong>{tier3Drones}</strong>
-        </div>
-        {drones.expeditionDrone > 0 && (
-          <div className="drones-item" title="Drones de Expedición">
-            <span>Exp:</span>
-            <strong>{drones.expeditionDrone}</strong>
+        <TooltipWrapper tooltipText="Drones Tier 1">
+          <div className="drones-item">
+            <span>T1:</span>
+            <strong>{tier1Drones}</strong>
           </div>
+        </TooltipWrapper>
+        <TooltipWrapper tooltipText="Drones Tier 2">
+          <div className="drones-item">
+            <span>T2:</span>
+            <strong>{tier2Drones}</strong>
+          </div>
+        </TooltipWrapper>
+        <TooltipWrapper tooltipText="Drones Tier 3">
+          <div className="drones-item">
+            <span>T3:</span>
+            <strong>{tier3Drones}</strong>
+          </div>
+        </TooltipWrapper>
+        {drones.expeditionDrone > 0 && (
+          <TooltipWrapper tooltipText="Drones de Expedición">
+            <div className="drones-item">
+              <span>Exp:</span>
+              <strong>{drones.expeditionDrone}</strong>
+            </div>
+          </TooltipWrapper>
         )}
       </div>
 
       {/* CONTENEDOR DERECHA: Producciones */}
-            <div className="rates-group">
-                    <div className="rates-item" title="Producción de Chatarra">
-              <img src={scrapIcon} alt="Chatarra/s" className="resource-icon-img" />
-              <span className={((scrapPerSecond - (drones.golem * 500) - (drones.wyrm * 1000)) >= 0) ? 'positive-rate' : 'negative-rate'}>
-                {(scrapPerSecond - (drones.golem * 500) - (drones.wyrm * 1000)).toFixed(1)}
-              </span>
-            </div>
-        {(drones.golem > 0 || drones.wyrm > 0) && (
+      <div className="rates-group">
+                <TooltipWrapper tooltipText="Producción de Chatarra">
+          <div className="rates-item">
+            <img src={scrapIcon} alt="Chatarra/s" className="resource-icon-img" />
+            <span className={rates.scrapPerSecond >= 0 ? 'positive-rate' : 'negative-rate'}>
+              {rates.scrapPerSecond.toFixed(1)}
+            </span>
+          </div>
+        </TooltipWrapper>
+        {(rates.metalPerSecond > 0 || rates.steelPerSecond > 0) && (
           <>
-            <div className="rates-item" title="Producción de Metal Refinado">
-              <img src={refinedMetalIconSm} alt="Metal/s" className="resource-icon-img" />
-              <span className={((drones.golem * 0.5) - (drones.wyrm * 1)) >= 0 ? 'positive-rate' : 'negative-rate'}>
-                {((drones.golem * 0.5) - (drones.wyrm * 1)).toFixed(1)}
-              </span>
-            </div>
-            <div className="rates-item" title="Producción de Acero Estructural">
-              <img src={structuralSteelIconSm} alt="Acero/s" className="resource-icon-img" />
-                            <span className="positive-rate">
-                {(drones.wyrm * 0.25).toFixed(1)}
-              </span>
-            </div>
+            <TooltipWrapper tooltipText="Producción de Metal Refinado">
+              <div className="rates-item">
+                <img src={refinedMetalIconSm} alt="Metal/s" className="resource-icon-img" />
+                <span className={rates.metalPerSecond >= 0 ? 'positive-rate' : 'negative-rate'}>
+                  {rates.metalPerSecond.toFixed(1)}
+                </span>
+              </div>
+            </TooltipWrapper>
+            <TooltipWrapper tooltipText="Producción de Acero Estructural">
+              <div className="rates-item">
+                <img src={structuralSteelIconSm} alt="Acero/s" className="resource-icon-img" />
+                <span className="positive-rate">
+                  {rates.steelPerSecond.toFixed(1)}
+                </span>
+              </div>
+            </TooltipWrapper>
           </>
         )}
-        <div className="rates-item" title="Balance Energético">
-          <img src={energyIcon} alt="Energía/s" className="resource-icon-img" />
-          <span className={(energyProduction - energyConsumption) >= 0 ? 'positive-rate' : 'negative-rate'}>
-            {(energyProduction - energyConsumption).toFixed(1)}
-          </span>
-        </div>
+                <TooltipWrapper tooltipText="Balance Energético">
+          <div className="rates-item">
+            <img src={energyIcon} alt="Energía/s" className="resource-icon-img" />
+            <span className={(energyProduction - energyConsumption) >= 0 ? 'positive-rate' : 'negative-rate'}>
+              {(energyProduction - energyConsumption).toFixed(1)}
+            </span>
+          </div>
+        </TooltipWrapper>
       </div>
     </div>
   );
