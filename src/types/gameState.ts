@@ -21,7 +21,7 @@ const createQueues = <T extends keyof typeof gameData>(category: T): Record<stri
   return queues;
 };
 
-export type ExpeditionId = 'chatarreriaOrbital' | 'cinturonAsteroides' | 'cementerioAcorazados' | 'incursionZonaCorrupta';
+export type ExpeditionId = 'chatarreriaOrbital' | 'cinturonAsteroides' | 'cementerioAcorazados' | 'incursionZonaCorrupta' | 'nebulosaFantasma';
 
 export interface Expedition {
   id: ExpeditionId;
@@ -48,6 +48,8 @@ export interface Expedition {
     chance: number; // 0 to 1
     droneLossPercentage: number; // 0 to 1
   };
+  prerequisites?: (state: GameState) => boolean;
+  tier: number;
 }
 
 export interface ActiveExpedition {
@@ -113,6 +115,7 @@ export interface GameState {
   currentScene: 'startMenu' | 'introScene' | 'main' | 'phase2Intro' | 'phase2Main' | 'combatScene' | 'creditsScene';
     phase2Unlocked: boolean;
   notificationQueue: GameNotification[];
+  recalculationNeeded: boolean;
   godMode: boolean;
   battleCount: number;
   currentBackground: number; // <-- NUEVA PROP: Fondo actual (1-4)
@@ -124,6 +127,17 @@ export interface GameState {
     energyConsumption: number;
     maxEnergy: number;
     maxScrap: number;
+    // --- FASE 1 Recursos ---
+    metalRefinado: number;
+    aceroEstructural: number;
+    fragmentosPlaca: number;
+    circuitosDañados: number;
+    nucleoSingularidad: number;
+    placasCasco: number;
+    cableadoSuperconductor: number;
+    aleacionReforzadaRobada: number;
+    neuroChipCorrupto: number;
+    barraCombustible: number;
   };
               battleRoom: {
     selectedDestination: number | null;
@@ -261,6 +275,7 @@ export interface GameState {
     queues: ReturnType<typeof createQueues<'foundry'>>;
   };
   currentView: string;
+  codexSelectedResource: string | null; // <-- NUEVA PROP
   activeExpeditions: ActiveExpedition[];
         shipyard: {
     unlocked: boolean;
@@ -281,15 +296,7 @@ export interface GameState {
       tactical: string | null;
     };
                 bodegaResources: {
-      metalRefinado: number;
-      aceroEstructural: number;
-      fragmentosPlaca: number;
-      circuitosDañados: number;
-      nucleoSingularidad: number;
-      placasCasco: number;
-      cableadoSuperconductor: number;
-            aleacionReforzadaRobada: number;
-            neuroChipCorrupto: number;
+      // --- FASE 2 Recursos ---
       matrizQuitinaCristal: number;
       nucleoSinapticoFracturado: number;
             planosMK2: number;
@@ -542,13 +549,14 @@ export interface GameState {
 }
 
 
-  export const initialGameState: GameState = {
+  export const   initialGameState: GameState = {
   currentScene: 'startMenu',
   phase2Unlocked: false,
   notificationQueue: [],
   battleCount: 0,
   currentBackground: 1, // <-- NUEVA PROP: Fondo inicial (1)
   previousScene: undefined,
+  recalculationNeeded: true,
   godMode: false,
     resources: {
     scrap: 0,
@@ -556,7 +564,18 @@ export interface GameState {
     energyProduction: 0,
     energyConsumption: 0,
     maxEnergy: 50,
-    maxScrap: 150
+    maxScrap: 150,
+    // --- FASE 1 Recursos ---
+    metalRefinado: 0,
+    aceroEstructural: 0,
+    fragmentosPlaca: 0,
+    circuitosDañados: 0,
+    nucleoSingularidad: 0,
+    placasCasco: 0,
+    cableadoSuperconductor: 0,
+    aleacionReforzadaRobada: 0,
+    neuroChipCorrupto: 0,
+    barraCombustible: 0,
   },
   battleRoom: {
     selectedDestination: null,
@@ -687,6 +706,7 @@ export interface GameState {
     queues: createQueues('foundry')
   },
   currentView: '',
+  codexSelectedResource: null, // <-- NUEVA PROP
   activeExpeditions: [],
   shipyard: {
     unlocked: false,
@@ -711,15 +731,7 @@ export interface GameState {
       tactical: null,
     },
     bodegaResources: {
-      metalRefinado: 0,
-      aceroEstructural: 0,
-      fragmentosPlaca: 0,
-      circuitosDañados: 0,
-      nucleoSingularidad: 0,
-      placasCasco: 0,
-      cableadoSuperconductor: 0,
-            aleacionReforzadaRobada: 0,
-      neuroChipCorrupto: 0,
+      // --- FASE 2 Recursos ---
       matrizQuitinaCristal: 0,
       nucleoSinapticoFracturado: 0,
             planosMK2: 0,

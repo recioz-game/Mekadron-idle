@@ -5,7 +5,9 @@ import settingsButtonIcon from '../assets/images/ui/settings-button.png';
 import settingsButtonPhase2Icon from '../assets/images/ui/settings-button-phase2.png';
 import LZString from 'lz-string';
 
-type ActiveTab = 'sound' | 'visuals' | 'gameplay' | 'save' | 'dev';
+import CodexHub from './CodexHub';
+
+type ActiveTab = 'sound' | 'visuals' | 'gameplay' | 'save' | 'dev' | 'codex';
 
 const SettingsMenu: React.FC = () => {
   const { gameState, dispatch } = useGame();
@@ -260,6 +262,8 @@ const SettingsMenu: React.FC = () => {
             </div>
           </div>
         );
+      case 'codex':
+        return <CodexHub />;
       case 'dev':
         return (
           <div className="dev-settings">
@@ -285,16 +289,19 @@ const SettingsMenu: React.FC = () => {
     }
   };
 
+    const settingsContainerClass = `settings-panel-container ${isPhase2 ? 'theme-phase2' : ''}`;
+
     return (
     <div className="settings-menu-container">
       {isOpen && (
-        <div className="settings-panel-container" onClick={() => setIsOpen(false)}>
+        <div className={settingsContainerClass} onClick={() => setIsOpen(false)}>
           <div className="settings-panel" onClick={(e) => e.stopPropagation()}>
             <div className="settings-sidebar">
               <button onClick={() => setActiveTab('sound')} className={activeTab === 'sound' ? 'active' : ''}>Sonido</button>
               <button onClick={() => setActiveTab('visuals')} className={activeTab === 'visuals' ? 'active' : ''}>Visuales</button>
               <button onClick={() => setActiveTab('gameplay')} className={activeTab === 'gameplay' ? 'active' : ''}>Jugabilidad</button>
-                            <button onClick={() => setActiveTab('save')} className={activeTab === 'save' ? 'active' : ''}>Partida</button>
+              <button onClick={() => setActiveTab('codex')} className={activeTab === 'codex' ? 'active' : ''}>Códice</button>
+              <button onClick={() => setActiveTab('save')} className={activeTab === 'save' ? 'active' : ''}>Partida</button>
               <button onClick={() => dispatch({ type: 'SHOW_CREDITS' })}>Créditos</button>
               {(import.meta.env.DEV || gameState.settings.devToolsEnabled) && (
                 <button onClick={() => setActiveTab('dev')} className={activeTab === 'dev' ? 'active' : ''}>Desarrollo</button>

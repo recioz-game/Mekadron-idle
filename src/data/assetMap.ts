@@ -117,7 +117,7 @@ export const enemyAssets: Record<string, EnemyAsset> = {
   // --- Sector 1: Colmena de Frontera “Nido Espina” ---
   "Zángano Espina": {
     idle: '/src/assets/images/enemies/Capitulo 2/Sector 1/enjambre basico.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 1/ejambre basico disparnado.png'
+    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 1/enjambre basico disparando.png'
   },
   "Larva Guardiana": { // Mini-Boss
     idle: '/src/assets/images/enemies/Capitulo 2/Sector 1/mini boss.png',
@@ -125,7 +125,7 @@ export const enemyAssets: Record<string, EnemyAsset> = {
   },
   "Polinizador Letal": {
     idle: '/src/assets/images/enemies/Capitulo 2/Sector 1/enjambre basico 2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 1/ejambre basico 2 disparnado.png'
+    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 1/enjambre basico 2 disparando.png'
   },
   "Reina Menor Espina Roja": { // Boss
     idle: '/src/assets/images/enemies/Capitulo 2/Sector 1/boss_sector_1.png',
@@ -143,7 +143,7 @@ export const enemyAssets: Record<string, EnemyAsset> = {
   },
   "Acechador Filamento": {
     idle: '/src/assets/images/enemies/Capitulo 2/Sector 2/ejambare_v2_amarillo.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 2/ejambare v2 amarillo disparandoi.png'
+    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 2/ejambare_v2_amarillo_disparando.png'
   },
   "Soberana de Resina": { // Boss
     idle: '/src/assets/images/enemies/Capitulo 2/Sector 2/boss_sector_2.png',
@@ -188,7 +188,7 @@ export const enemyAssets: Record<string, EnemyAsset> = {
 
   // --- Sector 5: Corazón del Enjambre “Púlsar Carmesí” ---
   "Guardián Carmesí": {
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 5/libelula sector 5.png',
+    idle: '/src/assets/images/enemies/Capitulo 2/Sector 5/libelula_sector_5.png',
     shooting: '/src/assets/images/enemies/Capitulo 2/Sector 5/libelula sector 5 disparando.png'
   },
   "Esporo Alfa": { // Mini-Boss
@@ -196,7 +196,7 @@ export const enemyAssets: Record<string, EnemyAsset> = {
     shooting: '/src/assets/images/enemies/Capitulo 2/Sector 5/mini_boss_sector_5_disparando.png'
   },
   "Irradiado del Enjambre": {
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 5/libelula sector 5 v2.png',
+    idle: '/src/assets/images/enemies/Capitulo 2/Sector 5/libelula_sector_5_v2.png',
     shooting: '/src/assets/images/enemies/Capitulo 2/Sector 5/libelula sector 5 v2 disparando.png'
   },
   "Matriarca Sangrecolmena": { // Boss

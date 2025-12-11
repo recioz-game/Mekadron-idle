@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import './Phase2Scene.css'; // Importar el archivo CSS
-import phase2BackgroundUrl from '../assets/images/backgrounds/Vindicator-background.png';
+import phase2BackgroundUrl from '../assets/images/backgrounds/Vindicator-background.webp';
 import SettingsMenu from './SettingsMenu';
 import Phase2ResourceBar from './Phase2ResourceBar';
 import { useGame } from '../context/GameContext';
 import BattleRoom from './BattleRoom';
 import Armory from './Armory';
 import { Bodega } from './Bodega';
+import CodexView from './CodexView'; // <-- AÑADIDO
 
 // Importar las imágenes para los botones
 import battleRoomImage from '../assets/images/ui/buttons/battle-room-button.png';
@@ -33,7 +34,8 @@ const Phase2Scene: React.FC = () => {
   return (
     <div className="phase2-scene-container" style={{ backgroundImage: `url(${phase2BackgroundUrl})` }}>
       {/* 1. Barra de Recursos Simplificada para Fase 2 */}
-          <Phase2ResourceBar />
+      <Phase2ResourceBar />
+      <CodexView theme="phase2" /> {/* <-- AÑADIDO CON TEMA */}
       
       <div className="main-content">
         {/* 2. Área de Contenido Principal */}

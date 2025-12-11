@@ -8,8 +8,8 @@ import ResourceBar from './ResourceBar';
 import CollectionButton from './CollectionButton';
 import ModulesPanel from './ModulesPanel';
 import SettingsMenu from './SettingsMenu';
+import CodexView from './CodexView'; // <-- NUEVO: Importar el Códice
 
-import FloatingTextHandler from './FloatingTextHandler';
 import UnlockRequirements from './UnlockRequirements';
 
 // Lazy load components
@@ -45,7 +45,6 @@ const GameScene: React.FC = () => {
         shipyard,
     foundry,
     rates,
-    notificationQueue,
     phase2Unlocked, // <-- OBTENER EL NUEVO ESTADO
                 currentBackground // <-- NUEVO: Obtener el fondo actual
   } = gameState;
@@ -59,10 +58,14 @@ const GameScene: React.FC = () => {
     const interval = setInterval(() => {
       if (!gameState.settings.floatingTextEnabled) return;
 
-      const createFloatingText = (text: string, xPosition: number, type: 'scrap' | 'metal' | 'steel' | 'research') => {
+      const createFloatingText = (text: string, elementId: string, type: 'scrap' | 'metal' | 'steel' | 'research') => {
+        const targetElement = document.getElementById(elementId);
+        if (!targetElement) return;
+
+        const rect = targetElement.getBoundingClientRect();
         const mockMouseEvent = {
-          clientX: window.innerWidth * xPosition,
-          clientY: window.innerHeight * 0.05
+          clientX: rect.left + rect.width / 2,
+          clientY: rect.top,
         };
         const event = new CustomEvent('showFloatingText', {
           detail: { text, originalEvent: mockMouseEvent, type }
@@ -73,22 +76,22 @@ const GameScene: React.FC = () => {
                   // Chatarra
       if (gameState.rates.scrapPerSecond !== 0) {
         const sign = gameState.rates.scrapPerSecond > 0 ? '+' : '';
-        createFloatingText(`${sign}${gameState.rates.scrapPerSecond.toFixed(1)}`, 0.88, 'scrap');
+        createFloatingText(`${sign}${gameState.rates.scrapPerSecond.toFixed(1)}`, 'rate-display-scrap', 'scrap');
       }
 
       // Metal Refinado
       if (gameState.rates.metalPerSecond > 0) {
-        createFloatingText(`+${gameState.rates.metalPerSecond.toFixed(1)}`, 0.2, 'metal');
+        createFloatingText(`+${gameState.rates.metalPerSecond.toFixed(1)}`, 'resource-display-metalRefinado', 'metal');
       }
       
             // Acero Estructural
       if (gameState.rates.steelPerSecond > 0) {
-        createFloatingText(`+${gameState.rates.steelPerSecond.toFixed(1)}`, 0.25, 'steel');
+        createFloatingText(`+${gameState.rates.steelPerSecond.toFixed(1)}`, 'resource-display-aceroEstructural', 'steel');
       }
 
             // Puntos de Investigación
       if (gameState.rates.researchPerSecond > 0) {
-        createFloatingText(`+${gameState.rates.researchPerSecond.toFixed(2)}`, 0.35, 'research');
+        createFloatingText(`+${gameState.rates.researchPerSecond.toFixed(2)}`, 'resource-display-researchPoints', 'research');
       }
 
     }, 1000); // Se ejecuta cada segundo
@@ -128,10 +131,6 @@ const GameScene: React.FC = () => {
       setIsViewVisible(false);
     }
     }, [currentView]);
-  const onDismissNotification = useCallback(() => {
-    dispatch({ type: 'DISMISS_NOTIFICATION' });
-  }, [dispatch]);
-
         const onModuleSelect = useCallback((module: string) => {
     if (module === 'goToPhase2') {
       dispatch({ type: 'GO_TO_PHASE_2' });
@@ -222,7 +221,7 @@ const GameScene: React.FC = () => {
 
   // Función para obtener la URL del fondo según el estado actual
             const getBackgroundUrl = () => {
-    return new URL(`../assets/images/backgrounds/Phase${currentBackground - 1}-background.png`, import.meta.url).href
+    return new URL(`../assets/images/backgrounds/Phase${currentBackground - 1}-background.webp`, import.meta.url).href
   };
 
     const renderActiveModule = useCallback(() => {
@@ -231,7 +230,6 @@ const GameScene: React.FC = () => {
         return (
                     <Workshop
             resources={resources}
-            bodegaResources={gameState.vindicator.bodegaResources}
                         drones={drones}
             hasBuilt={workshop.hasBuilt}
             queues={workshopQueues}
@@ -258,7 +256,7 @@ const GameScene: React.FC = () => {
       case 'energy':
         return (
                                         <EnergyView
-            scrap={resources.scrap}
+            resources={resources}
             currentEnergy={resources.energy}
             maxEnergy={resources.maxEnergy}
             energyConsumption={resources.energyConsumption}
@@ -289,18 +287,13 @@ const GameScene: React.FC = () => {
             onClose={onClose}
             onCancel={onCancelEnergyItem}
             upgrades={techCenter.upgrades}
-            metalRefinado={gameState.vindicator.bodegaResources.metalRefinado}
             numberFormat={gameState.settings.numberFormat}
           />
         );
             case 'storage':
         return (
                                         <StorageView
-            // Resources
-            scrap={resources.scrap}
-            metalRefinado={gameState.vindicator.bodegaResources.metalRefinado}
-            aceroEstructural={gameState.vindicator.bodegaResources.aceroEstructural}
-
+            resources={resources}
             // Storage Units
             basicStorage={storage.basicStorage}
             mediumStorage={storage.mediumStorage}
@@ -354,22 +347,8 @@ const GameScene: React.FC = () => {
             case 'foundry':
         return (
                     <FoundryView
-            scrap={resources.scrap}
-            energy={resources.energy}
-            metalRefinado={gameState.vindicator.bodegaResources.metalRefinado}
-            aceroEstructural={gameState.vindicator.bodegaResources.aceroEstructural}
-            fragmentosPlaca={gameState.vindicator.bodegaResources.fragmentosPlaca}
-            circuitosDañados={gameState.vindicator.bodegaResources.circuitosDañados}
-            placasCasco={gameState.vindicator.bodegaResources.placasCasco}
-            cableadoSuperconductor={gameState.vindicator.bodegaResources.cableadoSuperconductor}
-            barraCombustible={gameState.vindicator.bodegaResources.barraCombustible}
-
-            metalRefinadoQueue={foundry?.queues?.metalRefinado}
-            aceroEstructuralQueue={foundry?.queues?.aceroEstructural}
-            placasCascoQueue={foundry?.queues?.placasCasco}
-            cableadoSuperconductorQueue={foundry?.queues?.cableadoSuperconductor}
-            barraCombustibleQueue={foundry?.queues?.barraCombustible}
-
+            resources={resources}
+            queues={foundry?.queues}
             onCraftRefinedMetal={onCraftRefinedMetal}
             onCraftStructuralSteel={onCraftStructuralSteel}
             onCraftHullPlate={onCraftHullPlate}
@@ -395,6 +374,7 @@ const GameScene: React.FC = () => {
             onClaimReward={onClaimExpeditionReward}
             onSetBuyAmount={(amount) => dispatch({ type: 'SET_EXPEDITION_BUY_AMOUNT', payload: amount })}
             onClose={onClose}
+            gameState={gameState}
           />
         );
                         case 'shipyard':
@@ -424,6 +404,7 @@ const GameScene: React.FC = () => {
             return (
     <div className="game-scene-container" style={{ backgroundImage: `url(${getBackgroundUrl()})` }}>
       <ResourceBar />
+      <CodexView theme="phase1" /> 
 
       {resources.energy <= 0 && resources.energyProduction < resources.energyConsumption && (
         <div className="energy-warning">

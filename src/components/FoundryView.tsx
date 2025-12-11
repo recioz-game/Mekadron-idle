@@ -24,21 +24,9 @@ import superconductorWiringIcon from '../assets/images/ui/superconductor-wiring-
 import fuelRodIcon from '../assets/images/ui/fuel-rod-icon.png';
 
 interface FoundryViewProps {
-  scrap: number;
-  energy: number;
-  metalRefinado: number;
-  aceroEstructural: number;
-  fragmentosPlaca: number;
-  circuitosDañados: number;
-    placasCasco: number;
-  cableadoSuperconductor: number;
-  barraCombustible: number;
+  resources: GameState['resources'];
   
-  metalRefinadoQueue: { progress: number; queue: number; time: number };
-  aceroEstructuralQueue: { progress: number; queue: number; time: number };
-  placasCascoQueue: { progress: number; queue: number; time: number };
-  cableadoSuperconductorQueue: { progress: number; queue: number; time: number };
-  barraCombustibleQueue: { progress: number; queue: number; time: number };
+  queues: GameState['foundry']['queues'];
 
   onCraftRefinedMetal: () => void;
   onCraftStructuralSteel: () => void;
@@ -57,11 +45,13 @@ interface FoundryViewProps {
 
 
 const FoundryView: React.FC<FoundryViewProps> = React.memo(({ 
-  scrap, energy, metalRefinado, aceroEstructural, fragmentosPlaca, circuitosDañados, placasCasco, cableadoSuperconductor, barraCombustible,
-  metalRefinadoQueue, aceroEstructuralQueue, placasCascoQueue, cableadoSuperconductorQueue, barraCombustibleQueue,
+  resources,
+  queues,
   onCraftRefinedMetal, onCraftStructuralSteel, onCraftHullPlate, onCraftSuperconductorWiring, onCraftFuelRod, onCraftPurifiedMetal,
   upgrades, buyAmount, onSetBuyAmount, onClose, onCancel, numberFormat
 }) => {
+  const { scrap, energy, metalRefinado, aceroEstructural, fragmentosPlaca, circuitosDañados, placasCasco, cableadoSuperconductor, barraCombustible } = resources;
+
 
   // Costes y máximos
   const metalCost = { scrap: 1000, energy: 100 };
@@ -72,11 +62,22 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
   const purificationCost = { scrap: 5000, energy: 500 };
 
   const maxMetal = Math.min(Math.floor(scrap / metalCost.scrap), Math.floor(energy / metalCost.energy));
+  const metalAmount = buyAmount === 'max' ? maxMetal : Math.min(buyAmount, maxMetal);
+
   const maxSteel = Math.min(Math.floor(scrap / steelCost.scrap), Math.floor(metalRefinado / steelCost.metal), Math.floor(energy / steelCost.energy));
+  const steelAmount = buyAmount === 'max' ? maxSteel : Math.min(buyAmount, maxSteel);
+
   const maxPlate = Math.min(Math.floor(fragmentosPlaca / plateCost.fragmentos), Math.floor(aceroEstructural / plateCost.acero), Math.floor(energy / plateCost.energy));
+  const plateAmount = buyAmount === 'max' ? maxPlate : Math.min(buyAmount, maxPlate);
+
   const maxWiring = Math.min(Math.floor(circuitosDañados / wiringCost.circuitos), Math.floor(metalRefinado / wiringCost.metal), Math.floor(energy / wiringCost.energy));
+  const wiringAmount = buyAmount === 'max' ? maxWiring : Math.min(buyAmount, maxWiring);
+
   const maxFuelRod = Math.min(Math.floor(metalRefinado / fuelRodCost.metal), Math.floor(aceroEstructural / fuelRodCost.acero), Math.floor(energy / fuelRodCost.energy));
-    const maxPurified = Math.min(Math.floor(scrap / purificationCost.scrap), Math.floor(energy / purificationCost.energy));
+  const fuelRodAmount = buyAmount === 'max' ? maxFuelRod : Math.min(buyAmount, maxFuelRod);
+
+  const maxPurified = Math.min(Math.floor(scrap / purificationCost.scrap), Math.floor(energy / purificationCost.energy));
+  const purifiedAmount = buyAmount === 'max' ? maxPurified : Math.min(buyAmount, maxPurified);
 
     const scrollRef = useDragToScroll<HTMLDivElement>();
 
@@ -100,12 +101,12 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
           <div className="foundry-item-content">
                         <h4 style={{ color: '#F59E0B' }}>Metal Refinado</h4>
             <p>Coste: {formatNumber(metalCost.scrap, numberFormat)} Chatarra + {formatNumber(metalCost.energy, numberFormat)} Energía</p>
-            <p>En Posesión: {formatNumber(metalRefinado, numberFormat)} | En cola: {metalRefinadoQueue.queue} {metalRefinadoQueue.queue > 0 ? `| Tiempo: ~${formatTime(metalRefinadoQueue.queue * metalRefinadoQueue.time)}` : ''}</p>
+            <p>En Posesión: {formatNumber(metalRefinado, numberFormat)} {queues.metalRefinado?.queue > 0 ? `| En cola: ${queues.metalRefinado.queue} | Tiempo: ~${formatTime(queues.metalRefinado.queue * queues.metalRefinado.time)}` : ''}</p>
             
-            {metalRefinadoQueue.queue > 0 && (
+            {queues.metalRefinado?.queue > 0 && (
               <div>
-                <p className="time-info">T/U: {metalRefinadoQueue.time}s</p>
-                <ProgressBar progress={metalRefinadoQueue.progress} time={metalRefinadoQueue.time} />
+                <p className="time-info">Tiempo/u: {formatTime(queues.metalRefinado.time)}</p>
+                <ProgressBar progress={queues.metalRefinado.progress} time={queues.metalRefinado.time} />
               </div>
             )}
             
@@ -119,9 +120,9 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
                 ], numberFormat)}
                 className={`build-button ${maxMetal > 0 ? 'unlocked' : ''}`}
               >
-                Encargar {buyAmount === 'max' && `(${maxMetal})`}
+                Encargar {metalAmount > 0 && `(${metalAmount})`}
               </BotonConTooltip>
-              {metalRefinadoQueue.queue > 0 && (
+              {queues.metalRefinado?.queue > 0 && (
                 <QueueControls itemName='metalRefinado' onCancel={onCancel} />
               )}
             </div>
@@ -133,13 +134,13 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
         <div className={`foundry-item ${maxSteel > 0 ? 'unlocked' : ''}`}>
           <div className="foundry-item-content">
                         <h4 style={{ color: '#06B6D4' }}>Acero Estructural</h4>
-            <p>Coste: {formatNumber(steelCost.scrap, numberFormat)} Chatarra + {steelCost.metal} Metal + {steelCost.energy} Energía</p>
-            <p>En Posesión: {formatNumber(aceroEstructural, numberFormat)} | En cola: {aceroEstructuralQueue.queue} {aceroEstructuralQueue.queue > 0 ? `| Tiempo: ~${formatTime(aceroEstructuralQueue.queue * aceroEstructuralQueue.time)}` : ''}</p>
+            <p>Coste: {formatNumber(steelCost.scrap, numberFormat)} Chatarra + {steelCost.metal} Metal Refinado + {steelCost.energy} Energía</p>
+            <p>En Posesión: {formatNumber(aceroEstructural, numberFormat)} {queues.aceroEstructural?.queue > 0 ? `| En cola: ${queues.aceroEstructural.queue} | Tiempo: ~${formatTime(queues.aceroEstructural.queue * queues.aceroEstructural.time)}` : ''}</p>
             
-            {aceroEstructuralQueue.queue > 0 && (
+            {queues.aceroEstructural?.queue > 0 && (
               <div>
-                <p className="time-info">T/U: {aceroEstructuralQueue.time}s</p>
-                <ProgressBar progress={aceroEstructuralQueue.progress} time={aceroEstructuralQueue.time} />
+                <p className="time-info">Tiempo/u: {formatTime(queues.aceroEstructural.time)}</p>
+                <ProgressBar progress={queues.aceroEstructural.progress} time={queues.aceroEstructural.time} />
               </div>
             )}
             
@@ -149,14 +150,14 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
                 disabled={maxSteel <= 0}
                                 tooltipText={getTooltipText([
                   { amount: steelCost.scrap, current: scrap, text: 'Chatarra' },
-                  { amount: steelCost.metal, current: metalRefinado, text: 'Metal' },
+                  { amount: steelCost.metal, current: metalRefinado, text: 'Metal Refinado' },
                   { amount: steelCost.energy, current: energy, text: 'Energía' }
                 ], numberFormat)}
                 className={`build-button ${maxSteel > 0 ? 'unlocked' : ''}`}
               >
-                Encargar {buyAmount === 'max' && `(${maxSteel})`}
+                Encargar {steelAmount > 0 && `(${steelAmount})`}
               </BotonConTooltip>
-              {aceroEstructuralQueue.queue > 0 && (
+              {queues.aceroEstructural?.queue > 0 && (
                 <QueueControls itemName='aceroEstructural' onCancel={onCancel} />
               )}
             </div>
@@ -170,13 +171,13 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
         <div className={`foundry-item ${maxPlate > 0 ? 'unlocked' : ''}`}>
           <div className="foundry-item-content">
                         <h4 style={{ color: '#F59E0B' }}>Placa de Casco Reforzado</h4>
-            <p>Coste: {plateCost.fragmentos} Fragmentos + {plateCost.acero} Acero + {plateCost.energy} Energía</p>
-            <p>En Posesión: {formatNumber(placasCasco, numberFormat)} | En cola: {placasCascoQueue.queue} {placasCascoQueue.queue > 0 ? `| Tiempo: ~${formatTime(placasCascoQueue.queue * placasCascoQueue.time)}` : ''}</p>
+            <p>Coste: {plateCost.fragmentos} Fragmentos de Placa + {plateCost.acero} Acero Estructural + {plateCost.energy} Energía</p>
+            <p>En Posesión: {formatNumber(placasCasco, numberFormat)} {queues.placasCasco?.queue > 0 ? `| En cola: ${queues.placasCasco.queue} | Tiempo: ~${formatTime(queues.placasCasco.queue * queues.placasCasco.time)}` : ''}</p>
             
-            {placasCascoQueue.queue > 0 && (
+            {queues.placasCasco?.queue > 0 && (
               <div>
-                <p className="time-info">T/U: {placasCascoQueue.time}s</p>
-                <ProgressBar progress={placasCascoQueue.progress} time={placasCascoQueue.time} />
+                <p className="time-info">Tiempo/u: {formatTime(queues.placasCasco.time)}</p>
+                <ProgressBar progress={queues.placasCasco.progress} time={queues.placasCasco.time} />
               </div>
             )}
 
@@ -185,15 +186,15 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
                 onClick={onCraftHullPlate} 
                 disabled={maxPlate <= 0}
                                 tooltipText={getTooltipText([
-                  { amount: plateCost.fragmentos, current: fragmentosPlaca, text: 'Fragmentos' },
-                  { amount: plateCost.acero, current: aceroEstructural, text: 'Acero' },
+                  { amount: plateCost.fragmentos, current: fragmentosPlaca, text: 'Fragmentos de Placa' },
+                  { amount: plateCost.acero, current: aceroEstructural, text: 'Acero Estructural' },
                   { amount: plateCost.energy, current: energy, text: 'Energía' }
                 ], numberFormat)}
                 className={`build-button ${maxPlate > 0 ? 'unlocked' : ''}`}
               >
-                Encargar {buyAmount === 'max' && `(${maxPlate})`}
+                Encargar {plateAmount > 0 && `(${plateAmount})`}
               </BotonConTooltip>
-              {placasCascoQueue.queue > 0 && (
+              {queues.placasCasco?.queue > 0 && (
                 <QueueControls itemName='placasCasco' onCancel={onCancel} />
               )}
             </div>
@@ -205,13 +206,13 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
         <div className={`foundry-item ${maxWiring > 0 ? 'unlocked' : ''}`}>
           <div className="foundry-item-content">
                         <h4 style={{ color: '#06B6D4' }}>Cableado de Superconductores</h4>
-            <p>Coste: {wiringCost.circuitos} Circuitos + {wiringCost.metal} Metal + {wiringCost.energy} Energía</p>
-            <p>En Posesión: {formatNumber(cableadoSuperconductor, numberFormat)} | En cola: {cableadoSuperconductorQueue.queue} {cableadoSuperconductorQueue.queue > 0 ? `| Tiempo: ~${formatTime(cableadoSuperconductorQueue.queue * cableadoSuperconductorQueue.time)}` : ''}</p>
+            <p>Coste: {wiringCost.circuitos} Circuitos Dañados + {wiringCost.metal} Metal Refinado + {wiringCost.energy} Energía</p>
+            <p>En Posesión: {formatNumber(cableadoSuperconductor, numberFormat)} {queues.cableadoSuperconductor?.queue > 0 ? `| En cola: ${queues.cableadoSuperconductor.queue} | Tiempo: ~${formatTime(queues.cableadoSuperconductor.queue * queues.cableadoSuperconductor.time)}` : ''}</p>
             
-            {cableadoSuperconductorQueue.queue > 0 && (
+            {queues.cableadoSuperconductor?.queue > 0 && (
               <div>
-                <p className="time-info">T/U: {cableadoSuperconductorQueue.time}s</p>
-                <ProgressBar progress={cableadoSuperconductorQueue.progress} time={cableadoSuperconductorQueue.time} />
+                <p className="time-info">Tiempo/u: {formatTime(queues.cableadoSuperconductor.time)}</p>
+                <ProgressBar progress={queues.cableadoSuperconductor.progress} time={queues.cableadoSuperconductor.time} />
               </div>
             )}
 
@@ -220,15 +221,15 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
                 onClick={onCraftSuperconductorWiring} 
                 disabled={maxWiring <= 0}
                                 tooltipText={getTooltipText([
-                  { amount: wiringCost.circuitos, current: circuitosDañados, text: 'Circuitos' },
-                  { amount: wiringCost.metal, current: metalRefinado, text: 'Metal' },
+                  { amount: wiringCost.circuitos, current: circuitosDañados, text: 'Circuitos Dañados' },
+                  { amount: wiringCost.metal, current: metalRefinado, text: 'Metal Refinado' },
                   { amount: wiringCost.energy, current: energy, text: 'Energía' }
                 ], numberFormat)}
                 className={`build-button ${maxWiring > 0 ? 'unlocked' : ''}`}
               >
-                Encargar {buyAmount === 'max' && `(${maxWiring})`}
+                Encargar {wiringAmount > 0 && `(${wiringAmount})`}
               </BotonConTooltip>
-              {cableadoSuperconductorQueue.queue > 0 && (
+              {queues.cableadoSuperconductor?.queue > 0 && (
                 <QueueControls itemName='cableadoSuperconductor' onCancel={onCancel} />
               )}
             </div>
@@ -240,13 +241,13 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
         <div className={`foundry-item ${maxFuelRod > 0 ? 'unlocked' : ''}`}>
           <div className="foundry-item-content">
                         <h4 style={{ color: '#FCD34D' }}>Barra de Combustible</h4>
-            <p>Coste: {fuelRodCost.metal} Metal + {fuelRodCost.acero} Acero + {fuelRodCost.energy} Energía</p>
-            <p>En Posesión: {formatNumber(barraCombustible, numberFormat)} | En cola: {barraCombustibleQueue.queue} {barraCombustibleQueue.queue > 0 ? `| Tiempo: ~${formatTime(barraCombustibleQueue.queue * barraCombustibleQueue.time)}` : ''}</p>
+            <p>Coste: {fuelRodCost.metal} Metal Refinado + {fuelRodCost.acero} Acero Estructural + {fuelRodCost.energy} Energía</p>
+            <p>En Posesión: {formatNumber(barraCombustible, numberFormat)} {queues.barraCombustible?.queue > 0 ? `| En cola: ${queues.barraCombustible.queue} | Tiempo: ~${formatTime(queues.barraCombustible.queue * queues.barraCombustible.time)}` : ''}</p>
             
-            {barraCombustibleQueue.queue > 0 && (
+            {queues.barraCombustible?.queue > 0 && (
               <div>
-                <p className="time-info">T/U: {barraCombustibleQueue.time}s</p>
-                <ProgressBar progress={barraCombustibleQueue.progress} time={barraCombustibleQueue.time} />
+                <p className="time-info">Tiempo/u: {formatTime(queues.barraCombustible.time)}</p>
+                <ProgressBar progress={queues.barraCombustible.progress} time={queues.barraCombustible.time} />
               </div>
             )}
 
@@ -255,15 +256,15 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
                 onClick={onCraftFuelRod} 
                 disabled={maxFuelRod <= 0}
                                 tooltipText={getTooltipText([
-                  { amount: fuelRodCost.metal, current: metalRefinado, text: 'Metal' },
-                  { amount: fuelRodCost.acero, current: aceroEstructural, text: 'Acero' },
+                  { amount: fuelRodCost.metal, current: metalRefinado, text: 'Metal Refinado' },
+                  { amount: fuelRodCost.acero, current: aceroEstructural, text: 'Acero Estructural' },
                   { amount: fuelRodCost.energy, current: energy, text: 'Energía' }
                 ], numberFormat)}
                 className={`build-button ${maxFuelRod > 0 ? 'unlocked' : ''}`}
               >
-                Encargar {buyAmount === 'max' && `(${maxFuelRod})`}
+                Encargar {fuelRodAmount > 0 && `(${fuelRodAmount})`}
               </BotonConTooltip>
-              {barraCombustibleQueue.queue > 0 && (
+              {queues.barraCombustible?.queue > 0 && (
                 <QueueControls itemName='barraCombustible' onCancel={onCancel} />
               )}
             </div>
@@ -290,7 +291,7 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
                 className={`build-button ${maxPurified > 0 ? 'unlocked' : ''}`}
                 style={{ backgroundColor: maxPurified > 0 ? '#A855F7' : '', color: maxPurified > 0 ? 'white' : '' }}
               >
-                Purificar Chatarra {buyAmount === 'max' && `(${maxPurified})`}
+                Purificar Chatarra {purifiedAmount > 0 && `(${purifiedAmount})`}
               </BotonConTooltip>
       </div>
       </div>

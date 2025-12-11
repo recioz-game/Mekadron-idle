@@ -66,6 +66,7 @@ export interface Destination {
 export interface VindicatorLevel {
   level: number;
   blueprintCost: number; // Costo en planos para ALCANZAR este nivel
+  researchPointsCost?: number; // Coste en Puntos de Investigación
   statBonus: { // Bonificación de estadísticas FIJA que se añade al subir a este nivel
     health: number;
     shield: number;
@@ -75,116 +76,111 @@ export interface VindicatorLevel {
 
 // Datos de progresión para el nivel del Vindicator
 export const vindicatorLevelData: VindicatorLevel[] = [
-  // De Nivel 1 a 2
-  { level: 2, blueprintCost: 10, statBonus: { health: 100, shield: 50, damage: 10 } },
-  // De Nivel 2 a 3
-  { level: 3, blueprintCost: 25, statBonus: { health: 150, shield: 75, damage: 15 } },
-  // De Nivel 3 a 4
-  { level: 4, blueprintCost: 50, statBonus: { health: 200, shield: 100, damage: 20 } },
-  // De Nivel 4 a 5
-  { level: 5, blueprintCost: 100, statBonus: { health: 250, shield: 125, damage: 25 } },
-  // ... se pueden añadir más niveles
-  { level: 6, blueprintCost: 175, statBonus: { health: 300, shield: 150, damage: 30 } },
-  { level: 7, blueprintCost: 275, statBonus: { health: 350, shield: 175, damage: 35 } },
-  { level: 8, blueprintCost: 400, statBonus: { health: 400, shield: 200, damage: 40 } },
-  { level: 9, blueprintCost: 550, statBonus: { health: 450, shield: 225, damage: 45 } },
-  { level: 10, blueprintCost: 750, statBonus: { health: 500, shield: 250, damage: 50 } },
+  { level: 2, blueprintCost: 10, researchPointsCost: 10000, statBonus: { health: 100, shield: 50, damage: 10 } },
+  { level: 3, blueprintCost: 15, researchPointsCost: 25000, statBonus: { health: 150, shield: 75, damage: 15 } },
+  { level: 4, blueprintCost: 20, researchPointsCost: 75000, statBonus: { health: 200, shield: 100, damage: 20 } },
+  { level: 5, blueprintCost: 30, researchPointsCost: 200000, statBonus: { health: 250, shield: 125, damage: 25 } },
+  { level: 6, blueprintCost: 35, researchPointsCost: 500000, statBonus: { health: 300, shield: 150, damage: 30 } },
+  { level: 7, blueprintCost: 40, researchPointsCost: 1250000, statBonus: { health: 350, shield: 175, damage: 35 } },
+  { level: 8, blueprintCost: 45, researchPointsCost: 3000000, statBonus: { health: 400, shield: 200, damage: 40 } },
+  { level: 9, blueprintCost: 50, researchPointsCost: 7500000, statBonus: { health: 450, shield: 225, damage: 45 } },
+  { level: 10, blueprintCost: 60, researchPointsCost: 20000000, statBonus: { health: 500, shield: 250, damage: 50 } },
 ];
 
 export const vindicatorMK2LevelData: VindicatorLevel[] = [
-  { level: 2, blueprintCost: 10, statBonus: { health: 250, shield: 125, damage: 25 } },
-  { level: 3, blueprintCost: 15, statBonus: { health: 300, shield: 150, damage: 30 } },
-  { level: 4, blueprintCost: 20, statBonus: { health: 350, shield: 175, damage: 35 } },
-  { level: 5, blueprintCost: 25, statBonus: { health: 400, shield: 200, damage: 40 } },
-  { level: 6, blueprintCost: 30, statBonus: { health: 450, shield: 225, damage: 45 } },
-  { level: 7, blueprintCost: 35, statBonus: { health: 500, shield: 250, damage: 50 } },
-  { level: 8, blueprintCost: 40, statBonus: { health: 550, shield: 275, damage: 55 } },
-  { level: 9, blueprintCost: 45, statBonus: { health: 600, shield: 300, damage: 60 } },
-  { level: 10, blueprintCost: 50, statBonus: { health: 650, shield: 325, damage: 65 } },
+  { level: 2, blueprintCost: 10, researchPointsCost: 25000000, statBonus: { health: 250, shield: 125, damage: 25 } },
+  { level: 3, blueprintCost: 15, researchPointsCost: 37500000, statBonus: { health: 300, shield: 150, damage: 30 } },
+  { level: 4, blueprintCost: 20, researchPointsCost: 56250000, statBonus: { health: 350, shield: 175, damage: 35 } },
+  { level: 5, blueprintCost: 25, researchPointsCost: 84375000, statBonus: { health: 400, shield: 200, damage: 40 } },
+  { level: 6, blueprintCost: 30, researchPointsCost: 126562500, statBonus: { health: 450, shield: 225, damage: 45 } },
+  { level: 7, blueprintCost: 35, researchPointsCost: 189843750, statBonus: { health: 500, shield: 250, damage: 50 } },
+  { level: 8, blueprintCost: 40, researchPointsCost: 284765625, statBonus: { health: 550, shield: 275, damage: 55 } },
+  { level: 9, blueprintCost: 45, researchPointsCost: 427148438, statBonus: { health: 600, shield: 300, damage: 60 } },
+  { level: 10, blueprintCost: 50, researchPointsCost: 640722656, statBonus: { health: 650, shield: 325, damage: 65 } },
 ];
 
 export const vindicatorMK3LevelData: VindicatorLevel[] = [
-  { level: 2, blueprintCost: 10, statBonus: { health: 500, shield: 250, damage: 50 } },
-  { level: 3, blueprintCost: 15, statBonus: { health: 550, shield: 275, damage: 55 } },
-  { level: 4, blueprintCost: 20, statBonus: { health: 600, shield: 300, damage: 60 } },
-  { level: 5, blueprintCost: 25, statBonus: { health: 650, shield: 325, damage: 65 } },
-  { level: 6, blueprintCost: 30, statBonus: { health: 700, shield: 350, damage: 70 } },
-  { level: 7, blueprintCost: 35, statBonus: { health: 750, shield: 375, damage: 75 } },
-  { level: 8, blueprintCost: 40, statBonus: { health: 800, shield: 400, damage: 80 } },
-  { level: 9, blueprintCost: 45, statBonus: { health: 850, shield: 425, damage: 85 } },
-  { level: 10, blueprintCost: 50, statBonus: { health: 900, shield: 450, damage: 90 } },
+  { level: 2, blueprintCost: 10, researchPointsCost: 500000000, statBonus: { health: 500, shield: 250, damage: 50 } },
+  { level: 3, blueprintCost: 15, researchPointsCost: 750000000, statBonus: { health: 550, shield: 275, damage: 55 } },
+  { level: 4, blueprintCost: 20, researchPointsCost: 1125000000, statBonus: { health: 600, shield: 300, damage: 60 } },
+  { level: 5, blueprintCost: 25, researchPointsCost: 1687500000, statBonus: { health: 650, shield: 325, damage: 65 } },
+  { level: 6, blueprintCost: 30, researchPointsCost: 2531250000, statBonus: { health: 700, shield: 350, damage: 70 } },
+  { level: 7, blueprintCost: 35, researchPointsCost: 3796875000, statBonus: { health: 750, shield: 375, damage: 75 } },
+  { level: 8, blueprintCost: 40, researchPointsCost: 5695312500, statBonus: { health: 800, shield: 400, damage: 80 } },
+  { level: 9, blueprintCost: 45, researchPointsCost: 8542968750, statBonus: { health: 850, shield: 425, damage: 85 } },
+  { level: 10, blueprintCost: 50, researchPointsCost: 12814453125, statBonus: { health: 900, shield: 450, damage: 90 } },
 ];
 
 export const vindicatorMK4LevelData: VindicatorLevel[] = [
-  { level: 2, blueprintCost: 10, statBonus: { health: 750, shield: 125, damage: 125 } },
-  { level: 3, blueprintCost: 15, statBonus: { health: 800, shield: 150, damage: 150 } },
-  { level: 4, blueprintCost: 20, statBonus: { health: 850, shield: 175, damage: 175 } },
-  { level: 5, blueprintCost: 25, statBonus: { health: 900, shield: 200, damage: 200 } },
-  { level: 6, blueprintCost: 30, statBonus: { health: 950, shield: 225, damage: 225 } },
-  { level: 7, blueprintCost: 35, statBonus: { health: 1000, shield: 250, damage: 250 } },
-  { level: 8, blueprintCost: 40, statBonus: { health: 1050, shield: 275, damage: 275 } },
-  { level: 9, blueprintCost: 45, statBonus: { health: 1100, shield: 300, damage: 300 } },
-  { level: 10, blueprintCost: 50, statBonus: { health: 1200, shield: 325, damage: 325 } },
+  { level: 2, blueprintCost: 10, researchPointsCost: 15000000000, statBonus: { health: 750, shield: 125, damage: 125 } },
+  { level: 3, blueprintCost: 15, researchPointsCost: 22500000000, statBonus: { health: 800, shield: 150, damage: 150 } },
+  { level: 4, blueprintCost: 20, researchPointsCost: 33750000000, statBonus: { health: 850, shield: 175, damage: 175 } },
+  { level: 5, blueprintCost: 25, researchPointsCost: 50625000000, statBonus: { health: 900, shield: 200, damage: 200 } },
+  { level: 6, blueprintCost: 30, researchPointsCost: 75937500000, statBonus: { health: 950, shield: 225, damage: 225 } },
+  { level: 7, blueprintCost: 35, researchPointsCost: 113906250000, statBonus: { health: 1000, shield: 250, damage: 250 } },
+  { level: 8, blueprintCost: 40, researchPointsCost: 170859375000, statBonus: { health: 1050, shield: 275, damage: 275 } },
+  { level: 9, blueprintCost: 45, researchPointsCost: 256289062500, statBonus: { health: 1100, shield: 300, damage: 300 } },
+  { level: 10, blueprintCost: 50, researchPointsCost: 384433593750, statBonus: { health: 1200, shield: 325, damage: 325 } },
 ];
 
 export const vindicatorMK5LevelData: VindicatorLevel[] = [
-  { level: 2, blueprintCost: 10, statBonus: { health: 1500, shield: 750, damage: 75 } },
-  { level: 3, blueprintCost: 15, statBonus: { health: 1600, shield: 800, damage: 80 } },
-  { level: 4, blueprintCost: 20, statBonus: { health: 1700, shield: 850, damage: 85 } },
-  { level: 5, blueprintCost: 25, statBonus: { health: 1800, shield: 900, damage: 90 } },
-  { level: 6, blueprintCost: 30, statBonus: { health: 1900, shield: 950, damage: 95 } },
-  { level: 7, blueprintCost: 35, statBonus: { health: 2000, shield: 1000, damage: 100 } },
-  { level: 8, blueprintCost: 40, statBonus: { health: 2100, shield: 1050, damage: 105 } },
-  { level: 9, blueprintCost: 45, statBonus: { health: 2200, shield: 1100, damage: 110 } },
-  { level: 10, blueprintCost: 50, statBonus: { health: 2300, shield: 1150, damage: 115 } },
+  { level: 2, blueprintCost: 10, researchPointsCost: 500000000000, statBonus: { health: 1500, shield: 750, damage: 75 } },
+  { level: 3, blueprintCost: 15, researchPointsCost: 750000000000, statBonus: { health: 1600, shield: 800, damage: 80 } },
+  { level: 4, blueprintCost: 20, researchPointsCost: 1125000000000, statBonus: { health: 1700, shield: 850, damage: 85 } },
+  { level: 5, blueprintCost: 25, researchPointsCost: 1687500000000, statBonus: { health: 1800, shield: 900, damage: 90 } },
+  { level: 6, blueprintCost: 30, researchPointsCost: 2531250000000, statBonus: { health: 1900, shield: 950, damage: 95 } },
+  { level: 7, blueprintCost: 35, researchPointsCost: 3796875000000, statBonus: { health: 2000, shield: 1000, damage: 100 } },
+  { level: 8, blueprintCost: 40, researchPointsCost: 5695312500000, statBonus: { health: 2100, shield: 1050, damage: 105 } },
+  { level: 9, blueprintCost: 45, researchPointsCost: 8542968750000, statBonus: { health: 2200, shield: 1100, damage: 110 } },
+  { level: 10, blueprintCost: 50, researchPointsCost: 12814453125000, statBonus: { health: 2300, shield: 1150, damage: 115 } },
 ];
 
 export const vindicatorMK6LevelData: VindicatorLevel[] = [
-  { level: 2, blueprintCost: 10, statBonus: { health: 2500, shield: 1250, damage: 250 } },
-  { level: 3, blueprintCost: 15, statBonus: { health: 2750, shield: 1375, damage: 275 } },
-  { level: 4, blueprintCost: 20, statBonus: { health: 3000, shield: 1500, damage: 300 } },
-  { level: 5, blueprintCost: 25, statBonus: { health: 3250, shield: 1625, damage: 325 } },
-  { level: 6, blueprintCost: 30, statBonus: { health: 3500, shield: 1750, damage: 350 } },
-  { level: 7, blueprintCost: 35, statBonus: { health: 3750, shield: 1875, damage: 375 } },
-  { level: 8, blueprintCost: 40, statBonus: { health: 4000, shield: 2000, damage: 400 } },
-  { level: 9, blueprintCost: 45, statBonus: { health: 4250, shield: 2125, damage: 425 } },
-  { level: 10, blueprintCost: 50, statBonus: { health: 4500, shield: 2250, damage: 450 } },
+  { level: 2, blueprintCost: 10, researchPointsCost: 1.5e13, statBonus: { health: 2500, shield: 1250, damage: 250 } },
+  { level: 3, blueprintCost: 15, researchPointsCost: 2.25e13, statBonus: { health: 2750, shield: 1375, damage: 275 } },
+  { level: 4, blueprintCost: 20, researchPointsCost: 3.375e13, statBonus: { health: 3000, shield: 1500, damage: 300 } },
+  { level: 5, blueprintCost: 25, researchPointsCost: 5.0625e13, statBonus: { health: 3250, shield: 1625, damage: 325 } },
+  { level: 6, blueprintCost: 30, researchPointsCost: 7.59375e13, statBonus: { health: 3500, shield: 1750, damage: 350 } },
+  { level: 7, blueprintCost: 35, researchPointsCost: 1.1390625e14, statBonus: { health: 3750, shield: 1875, damage: 375 } },
+  { level: 8, blueprintCost: 40, researchPointsCost: 1.70859375e14, statBonus: { health: 4000, shield: 2000, damage: 400 } },
+  { level: 9, blueprintCost: 45, researchPointsCost: 2.562890625e14, statBonus: { health: 4250, shield: 2125, damage: 425 } },
+  { level: 10, blueprintCost: 50, researchPointsCost: 3.8443359375e14, statBonus: { health: 4500, shield: 2250, damage: 450 } },
 ];
 
 export const vindicatorMK7LevelData: VindicatorLevel[] = [
-  { level: 2, blueprintCost: 10, statBonus: { health: 5000, shield: 2500, damage: 500 } },
-  { level: 3, blueprintCost: 15, statBonus: { health: 5500, shield: 2750, damage: 550 } },
-  { level: 4, blueprintCost: 20, statBonus: { health: 6000, shield: 3000, damage: 600 } },
-  { level: 5, blueprintCost: 25, statBonus: { health: 6500, shield: 3250, damage: 650 } },
-  { level: 6, blueprintCost: 30, statBonus: { health: 7000, shield: 3500, damage: 700 } },
-  { level: 7, blueprintCost: 35, statBonus: { health: 7500, shield: 3750, damage: 750 } },
-  { level: 8, blueprintCost: 40, statBonus: { health: 8000, shield: 4000, damage: 800 } },
-  { level: 9, blueprintCost: 45, statBonus: { health: 8500, shield: 4250, damage: 850 } },
-  { level: 10, blueprintCost: 50, statBonus: { health: 9000, shield: 4500, damage: 900 } },
+  { level: 2, blueprintCost: 10, researchPointsCost: 5e14, statBonus: { health: 5000, shield: 2500, damage: 500 } },
+  { level: 3, blueprintCost: 15, researchPointsCost: 7.5e14, statBonus: { health: 5500, shield: 2750, damage: 550 } },
+  { level: 4, blueprintCost: 20, researchPointsCost: 1.125e15, statBonus: { health: 6000, shield: 3000, damage: 600 } },
+  { level: 5, blueprintCost: 25, researchPointsCost: 1.6875e15, statBonus: { health: 6500, shield: 3250, damage: 650 } },
+  { level: 6, blueprintCost: 30, researchPointsCost: 2.53125e15, statBonus: { health: 7000, shield: 3500, damage: 700 } },
+  { level: 7, blueprintCost: 35, researchPointsCost: 3.796875e15, statBonus: { health: 7500, shield: 3750, damage: 750 } },
+  { level: 8, blueprintCost: 40, researchPointsCost: 5.6953125e15, statBonus: { health: 8000, shield: 4000, damage: 800 } },
+  { level: 9, blueprintCost: 45, researchPointsCost: 8.54296875e15, statBonus: { health: 8500, shield: 4250, damage: 850 } },
+  { level: 10, blueprintCost: 50, researchPointsCost: 1.2814453125e16, statBonus: { health: 9000, shield: 4500, damage: 900 } },
 ];
 
 export const vindicatorMK8LevelData: VindicatorLevel[] = [
-  { level: 2, blueprintCost: 10, statBonus: { health: 10000, shield: 5000, damage: 1000 } },
-  { level: 3, blueprintCost: 15, statBonus: { health: 11000, shield: 5500, damage: 1100 } },
-  { level: 4, blueprintCost: 20, statBonus: { health: 12000, shield: 6000, damage: 1200 } },
-  { level: 5, blueprintCost: 25, statBonus: { health: 13000, shield: 6500, damage: 1300 } },
-  { level: 6, blueprintCost: 30, statBonus: { health: 14000, shield: 7000, damage: 1400 } },
-  { level: 7, blueprintCost: 35, statBonus: { health: 15000, shield: 7500, damage: 1500 } },
-  { level: 8, blueprintCost: 40, statBonus: { health: 16000, shield: 8000, damage: 1600 } },
-  { level: 9, blueprintCost: 45, statBonus: { health: 17000, shield: 8500, damage: 1700 } },
-  { level: 10, blueprintCost: 50, statBonus: { health: 18000, shield: 9000, damage: 1800 } },
+  { level: 2, blueprintCost: 10, researchPointsCost: 1.5e16, statBonus: { health: 10000, shield: 5000, damage: 1000 } },
+  { level: 3, blueprintCost: 15, researchPointsCost: 2.25e16, statBonus: { health: 11000, shield: 5500, damage: 1100 } },
+  { level: 4, blueprintCost: 20, researchPointsCost: 3.375e16, statBonus: { health: 12000, shield: 6000, damage: 1200 } },
+  { level: 5, blueprintCost: 25, researchPointsCost: 5.0625e16, statBonus: { health: 13000, shield: 6500, damage: 1300 } },
+  { level: 6, blueprintCost: 30, researchPointsCost: 7.59375e16, statBonus: { health: 14000, shield: 7000, damage: 1400 } },
+  { level: 7, blueprintCost: 35, researchPointsCost: 1.1390625e17, statBonus: { health: 15000, shield: 7500, damage: 1500 } },
+  { level: 8, blueprintCost: 40, researchPointsCost: 1.70859375e17, statBonus: { health: 16000, shield: 8000, damage: 1600 } },
+  { level: 9, blueprintCost: 45, researchPointsCost: 2.562890625e17, statBonus: { health: 17000, shield: 8500, damage: 1700 } },
+  { level: 10, blueprintCost: 50, researchPointsCost: 3.8443359375e17, statBonus: { health: 18000, shield: 9000, damage: 1800 } },
 ];
 
 export const vindicatorMK9LevelData: VindicatorLevel[] = [
-  { level: 2, blueprintCost: 10, statBonus: { health: 20000, shield: 10000, damage: 2000 } },
-  { level: 3, blueprintCost: 15, statBonus: { health: 22000, shield: 11000, damage: 2200 } },
-  { level: 4, blueprintCost: 20, statBonus: { health: 24000, shield: 12000, damage: 2400 } },
-  { level: 5, blueprintCost: 25, statBonus: { health: 26000, shield: 13000, damage: 2600 } },
-  { level: 6, blueprintCost: 30, statBonus: { health: 28000, shield: 14000, damage: 2800 } },
-  { level: 7, blueprintCost: 35, statBonus: { health: 30000, shield: 15000, damage: 3000 } },
-  { level: 8, blueprintCost: 40, statBonus: { health: 32000, shield: 16000, damage: 3200 } },
-  { level: 9, blueprintCost: 45, statBonus: { health: 34000, shield: 17000, damage: 3400 } },
-  { level: 10, blueprintCost: 50, statBonus: { health: 36000, shield: 18000, damage: 3600 } },
+  { level: 2, blueprintCost: 10, researchPointsCost: 5e17, statBonus: { health: 20000, shield: 10000, damage: 2000 } },
+  { level: 3, blueprintCost: 15, researchPointsCost: 7.5e17, statBonus: { health: 22000, shield: 11000, damage: 2200 } },
+  { level: 4, blueprintCost: 20, researchPointsCost: 1.125e18, statBonus: { health: 24000, shield: 12000, damage: 2400 } },
+  { level: 5, blueprintCost: 25, researchPointsCost: 1.6875e18, statBonus: { health: 26000, shield: 13000, damage: 2600 } },
+  { level: 6, blueprintCost: 30, researchPointsCost: 2.53125e18, statBonus: { health: 28000, shield: 14000, damage: 2800 } },
+  { level: 7, blueprintCost: 35, researchPointsCost: 3.796875e18, statBonus: { health: 30000, shield: 15000, damage: 3000 } },
+  { level: 8, blueprintCost: 40, researchPointsCost: 5.6953125e18, statBonus: { health: 32000, shield: 16000, damage: 3200 } },
+  { level: 9, blueprintCost: 45, researchPointsCost: 8.54296875e18, statBonus: { health: 34000, shield: 17000, damage: 3400 } },
+  { level: 10, blueprintCost: 50, researchPointsCost: 1.2814453125e19, statBonus: { health: 36000, shield: 18000, damage: 3600 } },
 ];
 
 

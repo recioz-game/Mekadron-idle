@@ -72,7 +72,7 @@ const newTechTree = [
 ];
 
 const Laboratory: React.FC<LaboratoryProps> = ({ gameState, onResearchUpgrade, onClose }) => {
-  const { techCenter, workshop, resources } = gameState;
+  const { techCenter } = gameState;
   const { unlocked, researchPoints, upgrades } = techCenter;
   const scrollRef = useDragToScroll<HTMLDivElement>(); // Hook para el scroll
   const [showTooltip, setShowTooltip] = useState(false);
@@ -168,10 +168,9 @@ const Laboratory: React.FC<LaboratoryProps> = ({ gameState, onResearchUpgrade, o
               ⓘ
             </span>
           </h3>
-          {showTooltip && (
+                    {showTooltip && (
                         <ResearchTooltip
               total={totalResearchPerSecond}
-              quantumComputingLevel={upgrades.quantumComputing || 0}
             />
           )}
         </div>
@@ -252,8 +251,8 @@ const Laboratory: React.FC<LaboratoryProps> = ({ gameState, onResearchUpgrade, o
 };
 
 // --- NUEVO COMPONENTE TOOLTIP ---
-const ResearchTooltip: React.FC<{total: number, quantumComputingLevel: number}> = 
-({ total, quantumComputingLevel }) => {
+const ResearchTooltip: React.FC<{total: number}> = 
+({ total }) => {
   return (
         <div style={{
       position: 'absolute',

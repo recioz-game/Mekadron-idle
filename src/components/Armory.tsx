@@ -5,37 +5,26 @@ import { allArmoryMK1Modules } from '../data/armoryMK1Data';
 import { allArmoryMK2Modules } from '../data/armoryMK2Data';
 import { formatNumber } from '../utils/formatNumber';
 import './Armory.css';
-import { gameConfig } from '../data/gameConfig'; // <-- Importar configuración
-import fuelRodIcon from '../assets/images/ui/fuel-rod-icon.png';
-import scrapIcon from '../assets/images/ui/scrap-icon.png';
-import reinforcedAlloyIcon from '../assets/images/ui/reinforced-alloy-icon.png';
-import corruptNeurochipIcon from '../assets/images/ui/corrupt-neurochip-icon.png';
-import plateFragmentsIcon from '../assets/images/ui/plate-fragments-icon.png';
-import damagedCircuitsIcon from '../assets/images/ui/damaged-circuits-icon.png';
-import matrizQuitinaCristalIcon from '../assets/images/ui/resources/Matriz Quitina-Cristal 32x32.png';
-import nucleoSinapticoFracturadoIcon from '../assets/images/ui/resources/Núcleo Sináptico Fracturado 32x32.png';
-import moduloManiobrasTacticasIcon from '../assets/images/ui/resources/Módulo de Maniobras Tácticas 32x32.png';
-import placasCamuflajeActivoIcon from '../assets/images/ui/resources/Placas de Camuflaje Activo 32x32.png';
-import planosIcon from '../assets/images/ui/resources/plano.png';
+import { gameConfig } from '../data/gameConfig';
+import { resourceMetadata } from '../data/resourceMetadata';
+
 
 interface ArmoryProps {
   onClose: () => void;
 }
 
-
 const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
   const [isVisible, setIsVisible] = useState(false);
   const { gameState, dispatch } = useGame();
-  const { vindicator, resources, blueprints, vindicatorLevel, vindicatorUpgrades, vindicatorMK2Upgrades, vindicatorMK3Upgrades, vindicatorMK4Upgrades, vindicatorMK5Upgrades, vindicatorMK6Upgrades } = gameState;
+  const { vindicator, resources, blueprints, vindicatorLevel, vindicatorUpgrades, vindicatorMK2Upgrades, vindicatorMK3Upgrades, vindicatorMK4Upgrades, vindicatorMK5Upgrades, vindicatorMK6Upgrades, techCenter } = gameState;
+  const { bodegaResources } = vindicator;
+  const allResources = { ...resources, ...bodegaResources };
   
   useEffect(() => {
-    // Activa la animación de entrada justo después de que el componente se monte
     const timer = setTimeout(() => setIsVisible(true), 10);
     return () => clearTimeout(timer);
   }, []);
-  const { bodegaResources } = vindicator;
 
-  
   const vindicatorNameMap: Record<string, string> = {
     base: 'VINDICATOR',
     vm01_origin: 'VM01 — ORIGIN',
@@ -48,7 +37,6 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
     vm08_phantom: 'VM08 — PHANTOM',
     vm09_apex: 'VM09 — APEX',
   };
-  
   
   const isVM01 = vindicator.vindicatorType === 'vm01_origin';
   const isVM02 = vindicator.vindicatorType === 'vm02_interceptor';
@@ -92,7 +80,6 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
     upgradeActionType = 'UPGRADE_VINDICATOR_STAR';
   }
 
-  
   let levelData = vindicatorLevelData;
   let levelUpActionType: 'LEVEL_UP_VINDICATOR' | 'LEVEL_UP_VINDICATOR_MK2' | 'LEVEL_UP_VINDICATOR_MK3' | 'LEVEL_UP_VINDICATOR_MK4' | 'LEVEL_UP_VINDICATOR_MK5' | 'LEVEL_UP_VINDICATOR_MK6' | 'LEVEL_UP_VINDICATOR_MK7' | 'LEVEL_UP_VINDICATOR_MK8' | 'LEVEL_UP_VINDICATOR_MK9' = 'LEVEL_UP_VINDICATOR';
   let blueprintResource = blueprints;
@@ -140,43 +127,14 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
     blueprintLabel = 'Planos MK9';
   }
 
-  
   const showModules = isVM01 || isVM02 || isVM03 || isVM04 || isVM05 || isVM06 || isVM07 || isVM08 || isVM09;
-  const moduleList = isVM01 ? allArmoryMK1Modules : allArmoryMK2Modules; // Necesitará Módulos MK3/4/5
+  const moduleList = isVM01 ? allArmoryMK1Modules : allArmoryMK2Modules;
   const armoryTitle = `Armería del ${vindicatorNameMap[vindicator.vindicatorType] || 'Vindicator'}`;
-
 
   const handleCraftModule = (moduleId: string) => {
     dispatch({ type: 'CRAFT_VINDICATOR_MODULE', payload: { moduleId } });
   };
     
-  const resourceLabels: { [key: string]: string } = {
-    aleacionReforzadaRobada: 'Aleación Reforzada',
-    neuroChipCorrupto: 'Neuro-Chip Corrupto',
-    fragmentosPlaca: 'Fragmentos de Placa',
-    circuitosDañados: 'Circuitos Dañados',
-    matrizQuitinaCristal: 'Matriz Quitina-Cristal',
-    nucleoSinapticoFracturado: 'Núcleo Sináptico Fracturado',
-    planosMK2: 'Planos MK2',
-    moduloManiobrasTácticas: 'Módulo de Maniobras Tácticas',
-    placasCamuflajeActivo: 'Placas de Camuflaje Activo',
-    planosDeInterceptor: 'Planos de Interceptor',
-  };
-
-  const resourceIcons: { [key: string]: string } = {
-    aleacionReforzadaRobada: reinforcedAlloyIcon,
-    neuroChipCorrupto: corruptNeurochipIcon,
-    fragmentosPlaca: plateFragmentsIcon,
-    circuitosDañados: damagedCircuitsIcon,
-    matrizQuitinaCristal: matrizQuitinaCristalIcon,
-    nucleoSinapticoFracturado: nucleoSinapticoFracturadoIcon,
-    planosMK2: planosIcon,
-    moduloManiobrasTácticas: moduloManiobrasTacticasIcon,
-    placasCamuflajeActivo: placasCamuflajeActivoIcon,
-    planosDeInterceptor: '', // Placeholder
-    planos: planosIcon,
-  };
-
   const repairCostMultiplier = (gameConfig.repair.repairCostMultipliers as any)[vindicator.vindicatorType] || 1;
 
   const calculateHealthRepairCost = () => {
@@ -213,7 +171,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
   const shieldRepairCost = calculateShieldRepairCost();
 
   const canRepairHealth = missingHealth > 0 && resources.scrap >= healthRepairCost;
-  const canRepairShield = missingShield > 0 && bodegaResources.barraCombustible >= shieldRepairCost;
+  const canRepairShield = resources.barraCombustible >= shieldRepairCost;
 
   const healthCostPerPoint = (gameConfig.repair.healthCostPerPoint * repairCostMultiplier);
   const shieldCostPerPoint = (gameConfig.repair.shieldCostPerPoint * repairCostMultiplier);
@@ -249,7 +207,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                 <h4 title={`Coste: ${healthCostPerPoint.toFixed(0)} Chatarra por punto`}>Reparar Vida</h4>
                 <p>Repara {formatNumber(missingHealth, gameState.settings.numberFormat)} puntos de vida faltantes</p>
                 <div className="repair-cost">
-                  <img src={scrapIcon} alt="Chatarra" className="cost-icon-img" />
+                  <img src='/src/assets/images/ui/scrap-icon.png' alt="Chatarra" className="cost-icon-img" />
                   <span className="cost-amount">{formatNumber(healthRepairCost, gameState.settings.numberFormat)}</span>
                   <span className="cost-name">Chatarra</span>
                 </div>
@@ -263,7 +221,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                 <h4 title={`Coste: ${shieldCostPerPoint.toFixed(2)} Barras de Combustible por punto`}>Reparar Escudo</h4>
                 <p>Repara {formatNumber(missingShield, gameState.settings.numberFormat)} puntos de escudo faltantes</p>
                 <div className="repair-cost">
-                  <img src={fuelRodIcon} alt="Combustible" className="cost-icon-img" />
+                  <img src='/src/assets/images/ui/fuel-rod-icon.png' alt="Combustible" className="cost-icon-img" />
                   <span className="cost-amount">{shieldRepairCost.toFixed(1)}</span>
                   <span className="cost-name">Barras de Combustible</span>
                 </div>
@@ -275,18 +233,15 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
           </div>
         </div>
 
-                {/* --- SECCIÓN DE MEJORAS DE COMPONENTES Y NIVEL (Vindicator Base) --- */}
         {vindicator.vindicatorType === 'base' && (
           <>
             <div className="upgrades-section">
               <h3>MEJORAS DE COMPONENTES</h3>
               {Object.entries(upgradesToDisplay).map(([upgradeId, upgrade]: [string, any]) => {
                   if (!upgrade) return null;
-                  const { phase1Resources, phase2Resources } = upgrade.costPerStar;
-                  const hasEnoughPhase1 = (Object.entries(phase1Resources) as [string, number][]).every(([res, cost]) => (bodegaResources as any)[res] >= cost);
-                  const hasEnoughPhase2 = (Object.entries(phase2Resources) as [string, number][]).every(([res, cost]) => (bodegaResources as any)[res] >= cost);
+                  const allCosts = { ...upgrade.costPerStar.phase1Resources, ...upgrade.costPerStar.phase2Resources };
                   const isMaxLevel = upgrade.currentStars >= upgrade.maxStars;
-                  const canUpgrade = hasEnoughPhase1 && hasEnoughPhase2 && !isMaxLevel;
+                  const canUpgrade = Object.entries(allCosts).every(([res, cost]) => (allResources[res as keyof typeof allResources] || 0) >= (cost as number)) && !isMaxLevel;
                   const handleUpgrade = () => {
                       if (canUpgrade) {
                           dispatch({ type: upgradeActionType, payload: { upgradeId } });
@@ -312,8 +267,17 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                                   <div className="upgrade-cost">
                                       <h5>COSTE PRÓXIMA MEJORA:</h5>
                                       <ul className="cost-list">
-                                          {(Object.entries(phase1Resources) as [string, number][]).map(([res, cost]) => <li key={res} className={(bodegaResources as any)[res] >= cost ? 'has-enough' : 'not-enough'}><img src={resourceIcons[res]} alt={resourceLabels[res]} className="cost-icon-img" /><span>{resourceLabels[res] || res}:</span><span>{formatNumber((bodegaResources as any)[res], gameState.settings.numberFormat)} / {formatNumber(cost, gameState.settings.numberFormat)}</span></li>)}
-                                          {(Object.entries(phase2Resources) as [string, number][]).map(([res, cost]) => <li key={res} className={(bodegaResources as any)[res] >= cost ? 'has-enough' : 'not-enough'}><img src={resourceIcons[res]} alt={resourceLabels[res]} className="cost-icon-img" /><span>{resourceLabels[res] || res}:</span><span>{formatNumber((bodegaResources as any)[res], gameState.settings.numberFormat)} / {formatNumber(cost, gameState.settings.numberFormat)}</span></li>)}
+                                        {Object.entries(allCosts).map(([res, cost]) => {
+                                          const meta = resourceMetadata[res];
+                                          if (!meta) return null;
+                                          return (
+                                            <li key={res} className={(allResources[res as keyof typeof allResources] || 0) >= (cost as number) ? 'has-enough' : 'not-enough'}>
+                                              <img src={meta.icon} alt={meta.name} className="cost-icon-img" />
+                                              <span>{meta.name}:</span>
+                                              <span>{formatNumber(allResources[res as keyof typeof allResources] || 0, gameState.settings.numberFormat)} / {formatNumber(cost as number, gameState.settings.numberFormat)}</span>
+                                            </li>
+                                          );
+                                        })}
                                       </ul>
                                   </div>
                                   <button className={`upgrade-button ${canUpgrade ? '' : 'disabled'}`} onClick={handleUpgrade} disabled={!canUpgrade}>
@@ -335,8 +299,10 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                             return <p className="max-level">MÁXIMO NIVEL ALCANZADO</p>;
                         }
                         const hasEnoughBlueprints = blueprintResource >= nextLevel.blueprintCost;
+                        const hasEnoughResearchPoints = techCenter.researchPoints >= (nextLevel.researchPointsCost || 0);
+                        const canLevelUp = hasEnoughBlueprints && hasEnoughResearchPoints;
                         const handleLevelUp = () => {
-                            if (hasEnoughBlueprints) {
+                            if (canLevelUp) {
                                 dispatch({ type: levelUpActionType });
                             }
                         };
@@ -354,14 +320,21 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                                     <h5>COSTE PARA NIVEL {nextLevel.level}:</h5>
                                     <ul className="cost-list">
                                         <li className={hasEnoughBlueprints ? 'has-enough' : 'not-enough'}>
-                                            <img src={planosIcon} alt={blueprintLabel} className="cost-icon-img" />
+                                            <img src='/src/assets/images/ui/resources/plano.png' alt={blueprintLabel} className="cost-icon-img" />
                                             <span>{blueprintLabel}:</span>
                                             <span>{formatNumber(blueprintResource, gameState.settings.numberFormat)} / {formatNumber(nextLevel.blueprintCost, gameState.settings.numberFormat)}</span>
                                         </li>
+                                        {nextLevel.researchPointsCost && (
+                                          <li className={hasEnoughResearchPoints ? 'has-enough' : 'not-enough'}>
+                                            
+                                            <span>Puntos de Investigación:</span>
+                                            <span>{formatNumber(techCenter.researchPoints, gameState.settings.numberFormat)} / {formatNumber(nextLevel.researchPointsCost, gameState.settings.numberFormat)}</span>
+                                          </li>
+                                        )}
                                     </ul>
                                 </div>
-                                <button className={`level-up-button ${hasEnoughBlueprints ? '' : 'disabled'}`} onClick={handleLevelUp} disabled={!hasEnoughBlueprints}>
-                                    {hasEnoughBlueprints ? 'SUBIR DE NIVEL' : 'PLANOS INSUFICIENTES'}
+                                <button className={`level-up-button ${canLevelUp ? '' : 'disabled'}`} onClick={handleLevelUp} disabled={!canLevelUp}>
+                                    {canLevelUp ? 'SUBIR DE NIVEL' : (!hasEnoughBlueprints ? 'PLANOS INSUFICIENTES' : 'P. INVESTIGACIÓN INSUFICIENTES')}
                                 </button>
                             </>
                         );
@@ -371,11 +344,10 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
           </>
         )}
 
-        {/* --- SECCIÓN DE MÓDULOS Y NIVEL (MK.I y MK.II) --- */}
         {showModules && (
           <>
             <div className="module-slots-section">
-              <h3>MÓDULOS EQUIPADOS</h3>
+              <h3>MÓdulos EQUIPADOS</h3>
               <div className="module-slot-display"><strong>Ofensivo:</strong><span>{vindicator.modules.offensive || 'Ninguno'}</span></div>
               <div className="module-slot-display"><strong>Defensivo:</strong><span>{vindicator.modules.defensive || 'Ninguno'}</span></div>
               <div className="module-slot-display"><strong>Táctico:</strong><span>{vindicator.modules.tactical || 'Ninguno'}</span></div>
@@ -386,8 +358,8 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                 {moduleList.map(module => {
                   const costs = module.costs;
                   const canAfford = Object.entries(costs).every(([resource, cost]) => {
-                    const resourceKey = resource as keyof typeof bodegaResources;
-                    return bodegaResources[resourceKey] >= (cost as number);
+                    const resourceKey = resource as keyof typeof allResources;
+                    return (allResources[resourceKey] || 0) >= (cost as number);
                   });
                   const isEquipped = Object.values(vindicator.modules).includes(module.id);
                   return (
@@ -398,15 +370,14 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                         <h5>Coste:</h5>
                         <ul className="cost-list">
                           {Object.entries(costs).map(([resource, cost]) => {
-                            const resourceKey = resource as keyof typeof bodegaResources;
-                            const hasEnough = bodegaResources[resourceKey] >= (cost as number);
-                            const icon = resourceIcons[resourceKey];
-                            const label = resourceLabels[resourceKey] || resource;
+                            const meta = resourceMetadata[resource as keyof typeof resourceMetadata];
+                            if (!meta) return null;
+                            const hasEnough = (allResources[resource as keyof typeof allResources] || 0) >= (cost as number);
                             return (
                               <li key={resource} className={hasEnough ? 'has-enough' : 'not-enough'}>
-                                {icon && <img src={icon} alt={label} className="cost-icon-img" />}
-                                <span>{label}:</span>
-                                <span>{formatNumber((bodegaResources as any)[resourceKey] || 0, gameState.settings.numberFormat)} / {formatNumber(cost as number, gameState.settings.numberFormat)}</span>
+                                <img src={meta.icon} alt={meta.name} className="cost-icon-img" />
+                                <span>{meta.name}:</span>
+                                <span>{formatNumber((allResources as any)[resource] || 0, gameState.settings.numberFormat)} / {formatNumber(cost as number, gameState.settings.numberFormat)}</span>
                               </li>
                             );
                           })}
@@ -430,8 +401,10 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                             return <p className="max-level">MÁXIMO NIVEL ALCANZADO</p>;
                         }
                         const hasEnoughBlueprints = blueprintResource >= nextLevel.blueprintCost;
+                        const hasEnoughResearchPoints = techCenter.researchPoints >= (nextLevel.researchPointsCost || 0);
+                        const canLevelUp = hasEnoughBlueprints && hasEnoughResearchPoints;
                         const handleLevelUp = () => {
-                            if (hasEnoughBlueprints) {
+                            if (canLevelUp) {
                                 dispatch({ type: levelUpActionType });
                             }
                         };
@@ -449,14 +422,20 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                                     <h5>COSTE PARA NIVEL {nextLevel.level}:</h5>
                                     <ul className="cost-list">
                                         <li className={hasEnoughBlueprints ? 'has-enough' : 'not-enough'}>
-                                            <img src={planosIcon} alt={blueprintLabel} className="cost-icon-img" />
+                                            <img src='/src/assets/images/ui/resources/plano.png' alt={blueprintLabel} className="cost-icon-img" />
                                             <span>{blueprintLabel}:</span>
                                             <span>{formatNumber(blueprintResource, gameState.settings.numberFormat)} / {formatNumber(nextLevel.blueprintCost, gameState.settings.numberFormat)}</span>
                                         </li>
+                                        {nextLevel.researchPointsCost && (
+                                          <li className={hasEnoughResearchPoints ? 'has-enough' : 'not-enough'}>
+                                            <span>Puntos de Investigación:</span>
+                                            <span>{formatNumber(techCenter.researchPoints, gameState.settings.numberFormat)} / {formatNumber(nextLevel.researchPointsCost, gameState.settings.numberFormat)}</span>
+                                          </li>
+                                        )}
                                     </ul>
                                 </div>
-                                <button className={`level-up-button ${hasEnoughBlueprints ? '' : 'disabled'}`} onClick={handleLevelUp} disabled={!hasEnoughBlueprints}>
-                                    {hasEnoughBlueprints ? 'SUBIR DE NIVEL' : 'PLANOS INSUFICIENTES'}
+                                <button className={`level-up-button ${canLevelUp ? '' : 'disabled'}`} onClick={handleLevelUp} disabled={!canLevelUp}>
+                                    {canLevelUp ? 'SUBIR DE NIVEL' : (!hasEnoughBlueprints ? 'PLANOS INSUFICIENTES' : 'P. INVESTIGACIÓN INSUFICIENTES')}
                                 </button>
                             </>
                         );

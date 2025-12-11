@@ -1,0 +1,187 @@
+/* src/components/CodexView.css */
+
+/* El overlay oscuro se mantiene igual, es un buen estándar. */
+.codex-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+}
+
+/* Contenedor principal del Códice, AHORA con el estilo de Ajustes */
+.codex-container {
+    width: 90%;
+    max-width: 600px; /* Un poco más pequeño que los ajustes para que no sea tan masivo */
+    max-height: 80vh; /* Límite de altura para que no ocupe toda la pantalla */
+    background-color: #0b1c3d; /* Fondo azul oscuro de Ajustes */
+    border: 2px solid #38bdf8; /* Borde azul cian de Ajustes */
+    border-radius: 12px; /* Mismo radio de borde que Ajustes */
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.4); /* Mismo resplandor que Ajustes */
+    padding: 2.5rem;
+    position: relative;
+    color: #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* Permitir scroll si el contenido es largo */
+}
+
+.codex-container h2 {
+    color: #a5f3fc; /* Color de título de sección de Ajustes */
+    font-size: 2rem;
+    text-transform: uppercase;
+    border-bottom: 1px solid #1e3a8a; /* Color de separador de Ajustes */
+    padding-bottom: 1rem;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* Estilo específico para el modo incrustado (usado en CodexHub) */
+.codex-container.embedded {
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    box-shadow: none;
+    border-radius: 0;
+    background-color: transparent;
+    border: none;
+    border-top: 1px solid #1e3a8a;
+    padding: 1rem 0 0 1.5rem;
+}
+
+.codex-container.embedded h2 {
+    text-align: left;
+    padding-bottom: 0.5rem;
+    font-size: 1.6rem;
+}
+
+/* --- TEMA FASE 2 (ROJO) --- */
+.theme-phase2 .codex-container {
+  background-color: #450A0A; /* Fondo rojo oscuro */
+  border-color: #F87171; /* Borde rojo claro */
+  box-shadow: 0 0 25px rgba(248, 113, 113, 0.5); /* Resplandor rojo */
+}
+
+.theme-phase2 .codex-container h2 {
+  color: #FECACA; /* Texto rojo muy claro */
+  border-bottom-color: #7F1D1D;
+}
+
+.theme-phase2 .codex-section {
+  border-top-color: #7F1D1D;
+}
+
+.theme-phase2 .codex-section h3 {
+  color: #FECACA;
+}
+
+.theme-phase2 .codex-section li {
+  background-color: rgba(59, 10, 10, 0.6);
+  border-left-color: #F87171;
+}
+
+.theme-phase2 .codex-section strong {
+  color: #FECACA;
+}
+
+.theme-phase2 .goto-button {
+  background-color: #F87171;
+  border-color: #EF4444;
+  color: #7F1D1D;
+}
+
+.theme-phase2 .goto-button:hover {
+    background-color: #fca5a5;
+}
+
+.theme-phase2 .codex-description {
+    color: #FECACA;
+}
+
+/* Botón de cierre, ya es coherente con el de otras vistas */
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    color: #EF4444; /* Rojo para cerrar */
+    font-size: 28px;
+    cursor: pointer;
+    line-height: 1;
+    text-shadow: 0 0 5px #EF4444;
+}
+
+.close-button:hover {
+    color: #ff7b7b;
+}
+
+/* Secciones dentro del Códice */
+.codex-section {
+    margin-top: 20px;
+    border-top: 1px solid #1e3a8a; /* Color de separador de Ajustes */
+    padding-top: 15px;
+}
+
+.codex-section h3 {
+    color: #a5f3fc;
+    margin-bottom: 10px;
+    font-size: 1.6rem;
+}
+
+/* Listas de orígenes y usos */
+.codex-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.codex-section li {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(13, 33, 66, 0.6);
+    padding: 8px 12px;
+    border-radius: 4px;
+    border-left: 3px solid #38bdf8;
+}
+
+.codex-section strong {
+    color: #a5f3fc;
+    font-weight: normal;
+    margin-right: 1rem;
+}
+
+/* Botón para navegar, AHORA con estilo de Ajustes */
+.goto-button {
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    border: 1px solid;
+    transition: background-color 0.2s ease;
+    background-color: #38bdf8;
+    border-color: #0ea5e9;
+    color: #075985;
+    font-size: 1.2rem;
+    margin-left: 15px;
+    flex-shrink: 0; /* Evita que el botón se encoja */
+}
+
+.goto-button:hover {
+    background-color: #7dd3fc;
+}
+
+.codex-description {
+    font-style: italic;
+    color: #a5f3fc; /* Un color más brillante y legible */
+    margin-bottom: 2rem;
+    text-align: center;
+    font-size: 1.4rem;
+}

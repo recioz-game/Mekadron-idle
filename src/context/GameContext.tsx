@@ -4,6 +4,7 @@ import { GameState, initialGameState } from '../types/gameState';
 import { ActionType } from '../types/actions';
 import { gameReducer } from './gameReducer';
 import { deepMerge, rehydrateState } from './contextUtils';
+import { gameData, GameData } from '../data/gameData';
 
 interface FloatingTextData {
   id: number;
@@ -19,6 +20,94 @@ const FloatingTextContext = createContext<{
   showFloatingText: (text: string, x: number, y: number) => void;
   floatingTexts: FloatingTextData[];
 } | undefined>(undefined);
+
+// Nueva función para procesar colas offline en bloque
+const processOfflineQueues = (
+  state: GameState,
+  seconds: number
+): GameState => {
+  let newState = JSON.parse(JSON.stringify(state)); // Copia profunda para trabajar
+  const { upgrades } = newState.techCenter;
+
+  let globalConstructionSpeed = 1 + (upgrades.constructionEfficiency * 0.05);
+  // Asumimos un escenario promedio para 'poweredFabricators' o lo ignoramos por simplicidad en el cálculo offline.
+
+  // Función interna adaptada de tickLogic.ts
+  const processCategory = <
+    C extends keyof GameData,
+    I extends Record<string, number>
+  >(
+    category: C,
+    inventory: I,
+    speedBonus: number
+  ): { newInventory: I; newQueues: any; } => {
+    
+    const queues = (newState[category] as { queues: any }).queues;
+    let newInventory = { ...inventory };
+    let newQueues = { ...queues };
+    const totalSpeedMultiplier = globalConstructionSpeed + speedBonus;
+
+    for (const key in queues) {
+      if (Object.prototype.hasOwnProperty.call(queues, key)) {
+        let queueItem = { ...queues[key] };
+        
+        if (queueItem.queue > 0) {
+          let itemTime = queueItem.time;
+          // Aplicar bonificaciones específicas de la fundición
+          if (category === 'foundry') {
+            let speedMultiplier = 1;
+            if (key === 'metalRefinado') speedMultiplier += (upgrades.metalSmeltingSpeed || 0) * 0.05;
+            else if (key === 'aceroEstructural') speedMultiplier += (upgrades.steelProductionSpeed || 0) * 0.05;
+            // ... (se pueden añadir más si existen)
+            itemTime /= speedMultiplier;
+          }
+
+          const totalProgressToAdd = (queueItem.progress + seconds * totalSpeedMultiplier);
+          const itemsFinished = Math.floor(totalProgressToAdd / itemTime);
+          const actualItemsFinished = Math.min(itemsFinished, queueItem.queue);
+
+          if (actualItemsFinished > 0) {
+            const itemData = (gameData[category] as any)?.[key];
+            const produceInfo = itemData?.produces;
+            const resourceToIncrement = produceInfo?.resource || key;
+            const amountPerItem = produceInfo?.amount || 1;
+            
+            (newInventory as any)[resourceToIncrement] = ((newInventory as any)[resourceToIncrement] || 0) + actualItemsFinished * amountPerItem;
+            
+            queueItem.queue -= actualItemsFinished;
+            queueItem.progress = totalProgressToAdd - (actualItemsFinished * itemTime);
+          } else {
+            queueItem.progress = totalProgressToAdd;
+          }
+
+          if (queueItem.queue === 0) queueItem.progress = 0;
+          
+          (newQueues as any)[key] = queueItem;
+        }
+      }
+    }
+    return { newInventory, newQueues };
+  };
+
+  // Procesar cada categoría
+  const workshopResult = processCategory('workshop', { ...newState.workshop.drones }, upgrades.droneAssembly * 0.05);
+  const energyResult = processCategory('energy', { solarPanels: newState.energy.solarPanels, mediumSolarPanels: newState.energy.mediumSolarPanels, advancedSolar: newState.energy.advancedSolar, energyCores: newState.energy.energyCores, stabilizedEnergyCores: newState.energy.stabilizedEnergyCores, empoweredEnergyCores: newState.energy.empoweredEnergyCores, fusionReactor: newState.energy.fusionReactor }, upgrades.energyCalibration * 0.05);
+  const storageResult = processCategory('storage', { basicStorage: newState.storage.basicStorage, mediumStorage: newState.storage.mediumStorage, advancedStorage: newState.storage.advancedStorage, quantumHoardUnit: newState.storage.quantumHoardUnit, lithiumIonBattery: newState.storage.lithiumIonBattery, plasmaAccumulator: newState.storage.plasmaAccumulator, harmonicContainmentField: newState.storage.harmonicContainmentField }, upgrades.storageConstruction * 0.05);
+  const foundryResult = processCategory('foundry', { ...newState.resources }, 0);
+  
+  // Fusionar los resultados
+  newState.workshop = { ...newState.workshop, drones: workshopResult.newInventory, queues: workshopResult.newQueues };
+  newState.energy = { ...newState.energy, ...energyResult.newInventory, queues: energyResult.newQueues };
+  newState.storage = { ...newState.storage, ...storageResult.newInventory, queues: storageResult.newQueues };
+  newState.resources = { ...newState.resources, ...foundryResult.newInventory };
+  newState.foundry = { ...newState.foundry, queues: foundryResult.newQueues };
+
+  // Marcar para recalcular tasas después de que se hayan añadido nuevos edificios/drones
+  newState.recalculationNeeded = true; 
+
+  return newState;
+};
+
 
 // Función para calcular recursos generados durante la ausencia
 const calculateOfflineResources = (loadedState: GameState): GameState => {
@@ -47,8 +136,12 @@ const calculateOfflineResources = (loadedState: GameState): GameState => {
     return loadedState;
   }
 
-  // Crear una copia del estado para simular el cálculo
   let simulatedState = JSON.parse(JSON.stringify(loadedState));
+
+  // --- NUEVO: Calcular construcción offline PRIMERO ---
+  if (effectiveSeconds > 0) {
+    simulatedState = processOfflineQueues(simulatedState, effectiveSeconds);
+  }
 
   // OPTIMIZACIÓN: Usar cálculo directo en lugar de loop intensivo
   simulatedState = applyBulkOfflineProduction(simulatedState, effectiveSeconds);
@@ -67,8 +160,8 @@ const calculateOfflineResources = (loadedState: GameState): GameState => {
 
     const resourcesGained = {
       scrap: Math.floor(simulatedState.resources.scrap - loadedState.resources.scrap),
-            metal: Math.floor(simulatedState.vindicator.bodegaResources.metalRefinado - loadedState.vindicator.bodegaResources.metalRefinado),
-      steel: Math.floor(simulatedState.vindicator.bodegaResources.aceroEstructural - loadedState.vindicator.bodegaResources.aceroEstructural),
+            metal: Math.floor(simulatedState.resources.metalRefinado - loadedState.resources.metalRefinado),
+      steel: Math.floor(simulatedState.resources.aceroEstructural - loadedState.resources.aceroEstructural),
       research: Math.floor(simulatedState.techCenter.researchPoints - loadedState.techCenter.researchPoints)
     };
 
@@ -140,8 +233,8 @@ const applyBulkOfflineProduction = (state: GameState, seconds: number): GameStat
     resources.maxScrap
   );
 
-  const newMetalRefinado = state.vindicator.bodegaResources.metalRefinado + wyrmMetalProduction;
-  const newAceroEstructural = state.vindicator.bodegaResources.aceroEstructural + wyrmSteelProduction;
+  const newMetalRefinado = state.resources.metalRefinado + wyrmMetalProduction;
+  const newAceroEstructural = state.resources.aceroEstructural + wyrmSteelProduction;
 
   // Cálculo de investigación
   const baseResearch = 0.1 * (1 + (upgrades.researchEfficiency * 0.20));
@@ -160,13 +253,13 @@ const applyBulkOfflineProduction = (state: GameState, seconds: number): GameStat
       energy: newEnergy,
       energyConsumption: totalEnergyConsumption,
       energyProduction: totalEnergyProduction,
+      metalRefinado: newMetalRefinado,
+      aceroEstructural: newAceroEstructural,
     },
     vindicator: {
       ...state.vindicator,
       bodegaResources: {
         ...state.vindicator.bodegaResources,
-        metalRefinado: newMetalRefinado,
-        aceroEstructural: newAceroEstructural,
       }
     },
     techCenter: {

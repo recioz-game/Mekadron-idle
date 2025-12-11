@@ -8,6 +8,8 @@ export type ActionType =
   | { type: 'COLLECT_SCRAP' }
   | { type: 'SET_CURRENT_VIEW'; payload: string }
   | { type: 'CLOSE_CURRENT_VIEW' }
+  | { type: 'OPEN_CODEX_VIEW'; payload: string }
+  | { type: 'CLOSE_CODEX_VIEW' }
   | { type: 'RESEARCH_UPGRADE'; payload: { upgradeName: string; cost: number } }
   | { type: 'START_EXPEDITION'; payload: { expeditionId: string; amount: number | 'max' } }
   | { type: 'CLAIM_EXPEDITION_REWARDS'; payload: ActiveExpedition }
@@ -39,8 +41,8 @@ export type ActionType =
   | { type: 'DEBUG_UNLOCK_VINDICATOR_MK8' }
   | { type: 'DEBUG_UNLOCK_VINDICATOR_MK9' }
   | { type: 'DONATE_TO_SHIPYARD'; payload: { component: string; resource: string; amount: number } }
-  | { type: 'REPAIR_VINDICATOR_HEALTH'; payload: { scrapCost: number } }
-  | { type: 'REPAIR_VINDICATOR_SHIELD'; payload: { fuelCost: number } }
+  | { type: 'REPAIR_VINDICATOR_HEALTH'; payload: { healthAmount: number; scrapCost: number } }
+  | { type: 'REPAIR_VINDICATOR_SHIELD'; payload: { shieldAmount: number; fuelCost: number } }
   | { type: 'UPGRADE_VINDICATOR_STAR'; payload: { upgradeId: string } }
   | { type: 'UPGRADE_VINDICATOR_MK2_STAR'; payload: { upgradeId: string } }
   | { type: 'UPGRADE_VINDICATOR_MK3_STAR'; payload: { upgradeId: string } }

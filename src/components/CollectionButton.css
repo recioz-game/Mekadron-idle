@@ -1,0 +1,57 @@
+/* src/components/CollectionButton.css */
+
+.collection-button-wrapper {
+  position: absolute;
+  bottom: 5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10; /* Asegura que esté por encima de otros elementos si es necesario */
+}
+
+.collection-button {
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  width: 24.2rem;
+  height: 24.2rem;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+  position: relative;
+  transition: transform 0.2s ease-out;
+}
+
+.collection-button:hover {
+  transform: scale(1.05);
+}
+
+.collection-button:active {
+  transform: scale(0.95);
+}
+
+/* --- Estilos para Móviles --- */
+@media (max-width: 768px) {
+  .collection-button-wrapper {
+    /* Ajusta la posición para que no esté tan abajo y deje espacio a la barra de módulos */
+    bottom: 8rem; 
+  }
+
+  .collection-button {
+    width: 18rem; /* Tamaño reducido para móviles */
+    height: 18rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .collection-button-wrapper {
+    bottom: 12rem; /* Aún más arriba en pantallas muy pequeñas */
+  }
+
+  .collection-button {
+    width: 15rem; /* Tamaño aún más reducido */
+    height: 15rem;
+  }
+}

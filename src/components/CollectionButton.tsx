@@ -1,5 +1,6 @@
 import React from 'react';
 import scrapButtonUrl from '../assets/images/ui/scrap-button.png';
+import './CollectionButton.css'; // <-- AÑADIDO
 
 interface CollectionButtonProps {
   onCollectScrap: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -25,26 +26,12 @@ const CollectionButton: React.FC<CollectionButtonProps> = ({
   };
 
       return (
-    <div style={{
-      position: 'absolute',
-      bottom: '5rem',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center'
-    }}>
+    <div className="collection-button-wrapper">
       <button 
         onClick={handleClick}
+        className="collection-button"
         style={{
-          background: `url(${scrapButtonUrl}) no-repeat center center`,
-          backgroundSize: 'contain',
-          width: '24.2rem', /* Aumentado otro 10% */
-          height: '24.2rem', /* Aumentado otro 10% */
-          border: 'none',
-          cursor: 'pointer',
-          backgroundColor: 'transparent',
-          position: 'relative'
+          backgroundImage: `url(${scrapButtonUrl})`,
         }}
         aria-label={`Recolectar +${scrapPerClick} chatarra`}
       />

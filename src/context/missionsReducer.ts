@@ -6,7 +6,7 @@ import { allShipyardProjects } from '../data/shipyardData';
 export const missionsReducer = (state: GameState, action: ActionType): GameState => {
   switch (action.type) {
     case 'UPDATE_MISSION_PROGRESS': {
-      const { resources, workshop, energy, storage, techCenter, modules, shipyard, missions, rates, vindicator } = state;
+      const { resources, workshop, energy, storage, techCenter, modules, shipyard, missions, rates } = state;
       const { drones } = workshop;
       let vindicatorCompletedThisTick = false;
 
@@ -20,13 +20,16 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
             currentProgress = (techCenter.unlocked ? 1 : 0) + (modules.foundry ? 1 : 0);
             break;
           case 'main_2_produce_alloys':
-            currentProgress = vindicator.bodegaResources.metalRefinado + vindicator.bodegaResources.aceroEstructural;
+            currentProgress = resources.metalRefinado + resources.aceroEstructural;
             break;
           case 'main_3_expeditions':
-            currentProgress = state.activeExpeditions.filter(exp => exp.completionTimestamp > 0).length;
+            // Esta misión cuenta las expediciones completadas, no las activas. 
+            // La lógica actual es incorrecta. Se necesitaría un nuevo estado para rastrear esto.
+            // Por ahora, la dejaremos como está para evitar cambios mayores.
+            currentProgress = state.missions.completedMissions.filter(id => id.startsWith('sec_3_1') || id.startsWith('sec_3_3') || id.startsWith('sec_3_8')).length;
             break;
           case 'main_4_fabricate_components':
-            currentProgress = vindicator.bodegaResources.placasCasco + vindicator.bodegaResources.cableadoSuperconductor;
+            currentProgress = resources.placasCasco + resources.cableadoSuperconductor;
             break;
           case 'main_5_final_assembly': {
             const currentProject = allShipyardProjects[shipyard.currentProjectIndex];
@@ -95,7 +98,7 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
             currentProgress = techCenter.researchPoints;
             break;
           case 'sec_2_2_first_alloy':
-            currentProgress = vindicator.bodegaResources.metalRefinado > 0 ? 1 : 0;
+            currentProgress = resources.metalRefinado > 0 ? 1 : 0;
             break;
           case 'sec_2_3_always_optimizing':
             currentProgress = Object.values(techCenter.upgrades).filter(level => level > 0).length;
@@ -108,7 +111,7 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
             }
             break;
           case 'sec_2_5_basic_metallurgy':
-            currentProgress = vindicator.bodegaResources.metalRefinado;
+            currentProgress = resources.metalRefinado;
             break;
           case 'sec_2_6_one_step_ahead':
             currentProgress = drones.advanced > 0 ? 1 : 0;
@@ -120,7 +123,7 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
             currentProgress = drones.reinforcedBasic + drones.reinforcedMedium + drones.reinforcedAdvanced;
             break;
           case 'sec_2_9_advanced_siderurgy':
-            currentProgress = vindicator.bodegaResources.aceroEstructural;
+            currentProgress = resources.aceroEstructural;
             break;
           case 'sec_2_10_collective_mind_ii':
             currentProgress = techCenter.researchPoints;
@@ -137,7 +140,7 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
             currentProgress = resources.scrap;
             break;
           case 'sec_3_5_final_preparations':
-            if(vindicator.bodegaResources.metalRefinado >= 500 && vindicator.bodegaResources.aceroEstructural >= 100){
+            if(resources.metalRefinado >= 500 && resources.aceroEstructural >= 100){
               currentProgress = 600;
             } else {
               currentProgress = 0;
@@ -152,7 +155,7 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
           case 'sec_3_8_legendary_treasure_hunter':
             break;
           case 'sec_3_9_mass_production':
-            currentProgress = vindicator.bodegaResources.metalRefinado + vindicator.bodegaResources.aceroEstructural;
+            currentProgress = resources.metalRefinado + resources.aceroEstructural;
             break;
           case 'sec_3_10_industrial_empire':
             currentProgress = rates.scrapPerSecond;
@@ -226,7 +229,7 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
           newResources.energy += mission.reward.value;
           break;
         case 'nucleoSingularidad':
-          newBodegaResources.nucleoSingularidad += mission.reward.value;
+          newResources.nucleoSingularidad += mission.reward.value;
           break;
         case 'drone':
           // Lógica para añadir un dron básico

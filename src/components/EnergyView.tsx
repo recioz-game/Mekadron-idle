@@ -26,7 +26,7 @@ import energyCoreEmpoweredImg from '../assets/images/ui/energy-core-empowered.pn
 import fusionReactorImg from '../assets/images/ui/fusion-reactor.png';
 
 interface EnergyViewProps {
-  scrap: number;
+  resources: GameState['resources'];
   currentEnergy: number;
   maxEnergy: number;
   energyConsumption: number;
@@ -57,19 +57,19 @@ interface EnergyViewProps {
   onClose: () => void;
   onCancel: (itemName: string, amount: number | 'all') => void;
     upgrades: GameState['techCenter']['upgrades'];
-  metalRefinado: number;
   numberFormat: 'full' | 'abbreviated' | 'scientific';
 }
 
 const EnergyView: React.FC<EnergyViewProps> = React.memo(({ 
-  scrap, currentEnergy, maxEnergy, energyConsumption,
+  resources, currentEnergy, maxEnergy, energyConsumption,
   solarPanels, mediumSolarPanels, advancedSolar, energyCores, stabilizedEnergyCores, empoweredEnergyCores, fusionReactors,
   hasBuilt,
   solarPanelsQueue, mediumSolarPanelsQueue, advancedSolarQueue, energyCoresQueue, stabilizedEnergyCoresQueue, empoweredEnergyCoresQueue, fusionReactorQueue,
   onBuildSolarPanel, onBuildMediumSolar, onBuildAdvancedSolar, onBuildEnergyCore,   onBuildStabilizedEnergyCore, onBuildEmpoweredEnergyCore, onBuildFusionReactor,
   buyAmount, onSetBuyAmount, onClose, onCancel,
-  upgrades, metalRefinado, numberFormat
+  upgrades, numberFormat
 }) => {
+  const { scrap, metalRefinado } = resources;
   const scrollRef = useDragToScroll<HTMLDivElement>();
 
     const getTooltipText = (requirements: { resource?: string, amount: number, current: number, text: string }[], format: 'full' | 'abbreviated' | 'scientific'): string => {
@@ -91,15 +91,28 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
   }
 
   const solarPanelMax = getMaxAffordable(solarPanelCost);
+  const solarPanelAmount = buyAmount === 'max' ? solarPanelMax : Math.min(buyAmount, solarPanelMax);
+  
   const mediumSolarMax = getMaxAffordable(mediumSolarCost);
+  const mediumSolarAmount = buyAmount === 'max' ? mediumSolarMax : Math.min(buyAmount, mediumSolarMax);
+
   const advancedSolarMax = getMaxAffordable(advancedSolarCost);
+  const advancedSolarAmount = buyAmount === 'max' ? advancedSolarMax : Math.min(buyAmount, advancedSolarMax);
+
   const energyCoreMax = getMaxAffordable(energyCoreCost);
+  const energyCoreAmount = buyAmount === 'max' ? energyCoreMax : Math.min(buyAmount, energyCoreMax);
+
   const stabilizedEnergyCoreMax = getMaxAffordable(stabilizedEnergyCoreCost);
+  const stabilizedEnergyCoreAmount = buyAmount === 'max' ? stabilizedEnergyCoreMax : Math.min(buyAmount, stabilizedEnergyCoreMax);
+
   const empoweredEnergyCoreMax = getMaxAffordable(empoweredEnergyCoreCost);
+  const empoweredEnergyCoreAmount = buyAmount === 'max' ? empoweredEnergyCoreMax : Math.min(buyAmount, empoweredEnergyCoreMax);
+
   const fusionReactorMax = Math.min(
     Math.floor(scrap / fusionReactorCost.scrap),
     Math.floor(metalRefinado / fusionReactorCost.metalRefinado)
   );
+  const fusionReactorAmount = buyAmount === 'max' ? fusionReactorMax : Math.min(buyAmount, fusionReactorMax);
 
     const [isSummaryOpen, setIsSummaryOpen] = useState(true);
 
@@ -155,11 +168,11 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
           <h3 style={{ color: '#F59E0B' }}>Panel Solar Básico</h3>
                     <p>Producción: +{formatNumber(3, numberFormat)} energía/segundo</p>
           <p>Coste: {formatNumber(solarPanelCost, numberFormat)} chatarra</p>
-          <p>Instalados: {solarPanels} | En cola: {solarPanelsQueue.queue} {solarPanelsQueue.queue > 0 ? `| Tiempo: ~${formatTime(solarPanelsQueue.queue * solarPanelsQueue.time)}` : ''}</p>
+          <p>Instalados: {solarPanels} {solarPanelsQueue.queue > 0 ? `| En cola: ${solarPanelsQueue.queue} | Tiempo: ~${formatTime(solarPanelsQueue.queue * solarPanelsQueue.time)}` : ''}</p>
           
           {solarPanelsQueue.queue > 0 && (
             <div>
-              <p className="time-info">T/U: {solarPanelsQueue.time}s | En cola: {solarPanelsQueue.queue}</p>
+              <p className="time-info">T/U: {formatTime(solarPanelsQueue.time)}</p>
               <ProgressBar progress={solarPanelsQueue.progress} time={solarPanelsQueue.time} />
             </div>
           )}
@@ -171,7 +184,7 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
               tooltipText={getTooltipText([{ amount: solarPanelCost, current: scrap, text: 'Chatarra' }], numberFormat)}
               className={`build-button ${scrap >= solarPanelCost ? 'unlocked' : ''}`}
             >
-              Encargar Panel Solar {buyAmount === 'max' && `(${solarPanelMax})`}
+              Encargar Panel Solar {solarPanelAmount > 0 && `(${solarPanelAmount})`}
             </BotonConTooltip>
             {solarPanelsQueue.queue > 0 && (
               <QueueControls itemName='solarPanels' onCancel={onCancel} />
@@ -187,12 +200,12 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
           <h3 style={{ color: '#F59E0B' }}>Panel Solar Medio</h3>
                     <p>Producción: +{formatNumber(10, numberFormat)} energía/segundo</p>
           <p>Coste: {formatNumber(mediumSolarCost, numberFormat)} chatarra</p>
-          <p>Instalados: {mediumSolarPanels} | En cola: {mediumSolarPanelsQueue.queue} {mediumSolarPanelsQueue.queue > 0 ? `| Tiempo: ~${formatTime(mediumSolarPanelsQueue.queue * mediumSolarPanelsQueue.time)}` : ''}</p>
+          <p>Instalados: {mediumSolarPanels} {mediumSolarPanelsQueue.queue > 0 ? `| En cola: ${mediumSolarPanelsQueue.queue} | Tiempo: ~${formatTime(mediumSolarPanelsQueue.queue * mediumSolarPanelsQueue.time)}` : ''}</p>
           <p>Requisitos: 5 Paneles Solares Básicos (solo para el primero)</p>
 
           {mediumSolarPanelsQueue.queue > 0 && (
             <div>
-              <p className="time-info">T/U: {mediumSolarPanelsQueue.time}s | En cola: {mediumSolarPanelsQueue.queue}</p>
+              <p className="time-info">T/U: {formatTime(mediumSolarPanelsQueue.time)}</p>
               <ProgressBar progress={mediumSolarPanelsQueue.progress} time={mediumSolarPanelsQueue.time} />
             </div>
           )}
@@ -207,7 +220,7 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
               ], numberFormat)}
               className={`build-button ${scrap >= mediumSolarCost && (solarPanels >= 5 || hasBuilt.mediumSolarPanels) ? 'unlocked' : ''}`}
             >
-              Encargar Panel Medio {buyAmount === 'max' && `(${mediumSolarMax})`}
+              Encargar Panel Medio {mediumSolarAmount > 0 && `(${mediumSolarAmount})`}
             </BotonConTooltip>
             {mediumSolarPanelsQueue.queue > 0 && (
               <QueueControls itemName='mediumSolarPanels' onCancel={onCancel} />
@@ -228,12 +241,12 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
           <h3 style={{ color: '#06B6D4' }}>Panel Solar Avanzado</h3>
                     <p>Producción: +{formatNumber(30, numberFormat)} energía/segundo</p>
           <p>Coste: {formatNumber(advancedSolarCost, numberFormat)} chatarra</p>
-          <p>Instalados: {advancedSolar} | En cola: {advancedSolarQueue.queue} {advancedSolarQueue.queue > 0 ? `| Tiempo: ~${formatTime(advancedSolarQueue.queue * advancedSolarQueue.time)}` : ''}</p>
+          <p>Instalados: {advancedSolar} {advancedSolarQueue.queue > 0 ? `| En cola: ${advancedSolarQueue.queue} | Tiempo: ~${formatTime(advancedSolarQueue.queue * advancedSolarQueue.time)}` : ''}</p>
           <p>Requisitos: 1 Panel Solar Medio (solo para el primero)</p>
           
           {advancedSolarQueue.queue > 0 && (
             <div>
-              <p className="time-info">T/U: {advancedSolarQueue.time}s | En cola: {advancedSolarQueue.queue}</p>
+              <p className="time-info">T/U: {formatTime(advancedSolarQueue.time)}</p>
               <ProgressBar progress={advancedSolarQueue.progress} time={advancedSolarQueue.time} />
             </div>
           )}
@@ -248,7 +261,7 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
               ], numberFormat)}
               className={`build-button ${scrap >= advancedSolarCost && (mediumSolarPanels >= 1 || hasBuilt.advancedSolar) ? 'unlocked' : ''}`}
             >
-              Encargar Panel Avanzado {buyAmount === 'max' && `(${advancedSolarMax})`}
+              Encargar Panel Avanzado {advancedSolarAmount > 0 && `(${advancedSolarAmount})`}
             </BotonConTooltip>
             {advancedSolarQueue.queue > 0 && (
               <QueueControls itemName='advancedSolar' onCancel={onCancel} />
@@ -270,12 +283,12 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
           <p>Producción: +{formatNumber(50, numberFormat)} energía/segundo</p>
                     <p>Capacidad: +{formatNumber(100, numberFormat)} energía máxima</p>
           <p>Coste: {formatNumber(energyCoreCost, numberFormat)} chatarra</p>
-          <p>Instalados: {energyCores} | En cola: {energyCoresQueue.queue} {energyCoresQueue.queue > 0 ? `| Tiempo: ~${formatTime(energyCoresQueue.queue * energyCoresQueue.time)}` : ''}</p>
+          <p>Instalados: {energyCores} {energyCoresQueue.queue > 0 ? `| En cola: ${energyCoresQueue.queue} | Tiempo: ~${formatTime(energyCoresQueue.queue * energyCoresQueue.time)}` : ''}</p>
           <p>Requisitos: 3 Paneles Solares Avanzados (solo para el primero)</p>
           
           {energyCoresQueue.queue > 0 && (
             <div>
-              <p className="time-info">T/U: {energyCoresQueue.time}s | En cola: {energyCoresQueue.queue}</p>
+              <p className="time-info">T/U: {formatTime(energyCoresQueue.time)}</p>
               <ProgressBar progress={energyCoresQueue.progress} time={energyCoresQueue.time} />
             </div>
           )}
@@ -290,7 +303,7 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
               ], numberFormat)}
               className={`build-button ${scrap >= energyCoreCost && (advancedSolar >= 3 || hasBuilt.energyCores) ? 'unlocked' : ''}`}
             >
-              Encargar Núcleo Averiado {buyAmount === 'max' && `(${energyCoreMax})`}
+              Encargar Núcleo Averiado {energyCoreAmount > 0 && `(${energyCoreAmount})`}
             </BotonConTooltip>
             {energyCoresQueue.queue > 0 && (
               <QueueControls itemName='energyCores' onCancel={onCancel} />
@@ -308,12 +321,12 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
           <p>Producción: +{formatNumber(75, numberFormat)} energía/segundo</p>
                     <p>Capacidad: +{formatNumber(150, numberFormat)} energía máxima</p>
           <p>Coste: {formatNumber(stabilizedEnergyCoreCost, numberFormat)} chatarra</p>
-          <p>Instalados: {stabilizedEnergyCores} | En cola: {stabilizedEnergyCoresQueue.queue} {stabilizedEnergyCoresQueue.queue > 0 ? `| Tiempo: ~${formatTime(stabilizedEnergyCoresQueue.queue * stabilizedEnergyCoresQueue.time)}` : ''}</p>
+          <p>Instalados: {stabilizedEnergyCores} {stabilizedEnergyCoresQueue.queue > 0 ? `| En cola: ${stabilizedEnergyCoresQueue.queue} | Tiempo: ~${formatTime(stabilizedEnergyCoresQueue.queue * stabilizedEnergyCoresQueue.time)}` : ''}</p>
           <p>Requisitos: 3 Núcleos Averiados (solo para el primero)</p>
           
           {stabilizedEnergyCoresQueue.queue > 0 && (
             <div>
-              <p className="time-info">T/U: {stabilizedEnergyCoresQueue.time}s | En cola: {stabilizedEnergyCoresQueue.queue}</p>
+              <p className="time-info">T/U: {formatTime(stabilizedEnergyCoresQueue.time)}</p>
               <ProgressBar progress={stabilizedEnergyCoresQueue.progress} time={stabilizedEnergyCoresQueue.time} />
             </div>
           )}
@@ -328,7 +341,7 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
               ], numberFormat)}
               className={`build-button ${scrap >= stabilizedEnergyCoreCost && (energyCores >= 3 || hasBuilt.stabilizedEnergyCores) ? 'unlocked' : ''}`}
             >
-              Encargar Núcleo Estabilizado {buyAmount === 'max' && `(${stabilizedEnergyCoreMax})`}
+              Encargar Núcleo Estabilizado {stabilizedEnergyCoreAmount > 0 && `(${stabilizedEnergyCoreAmount})`}
             </BotonConTooltip>
             {stabilizedEnergyCoresQueue.queue > 0 && (
               <QueueControls itemName='stabilizedEnergyCores' onCancel={onCancel} />
@@ -346,12 +359,12 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
           <p>Producción: +{formatNumber(150, numberFormat)} energía/segundo</p>
                     <p>Capacidad: +{formatNumber(300, numberFormat)} energía máxima</p>
           <p>Coste: {formatNumber(empoweredEnergyCoreCost, numberFormat)} chatarra</p>
-          <p>Instalados: {empoweredEnergyCores} | En cola: {empoweredEnergyCoresQueue.queue} {empoweredEnergyCoresQueue.queue > 0 ? `| Tiempo: ~${formatTime(empoweredEnergyCoresQueue.queue * empoweredEnergyCoresQueue.time)}` : ''}</p>
+          <p>Instalados: {empoweredEnergyCores} {empoweredEnergyCoresQueue.queue > 0 ? `| En cola: ${empoweredEnergyCoresQueue.queue} | Tiempo: ~${formatTime(empoweredEnergyCoresQueue.queue * empoweredEnergyCoresQueue.time)}` : ''}</p>
           <p>Requisitos: 3 Núcleos Estabilizados (solo para el primero)</p>
           
           {empoweredEnergyCoresQueue.queue > 0 && (
             <div>
-              <p className="time-info">T/U: {empoweredEnergyCoresQueue.time}s | En cola: {empoweredEnergyCoresQueue.queue}</p>
+              <p className="time-info">T/U: {formatTime(empoweredEnergyCoresQueue.time)}</p>
               <ProgressBar progress={empoweredEnergyCoresQueue.progress} time={empoweredEnergyCoresQueue.time} />
             </div>
           )}
@@ -366,7 +379,7 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
               ], numberFormat)}
               className={`build-button ${scrap >= empoweredEnergyCoreCost && (stabilizedEnergyCores >= 3 || hasBuilt.empoweredEnergyCores) ? 'unlocked' : ''}`}
             >
-              Encargar Núcleo Potenciado {buyAmount === 'max' && `(${empoweredEnergyCoreMax})`}
+              Encargar Núcleo Potenciado {empoweredEnergyCoreAmount > 0 && `(${empoweredEnergyCoreAmount})`}
             </BotonConTooltip>
             {empoweredEnergyCoresQueue.queue > 0 && (
               <QueueControls itemName='empoweredEnergyCores' onCancel={onCancel} />
@@ -385,12 +398,12 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
                         <p>Producción: +{formatNumber(250, numberFormat)} energía/segundo</p>
             <p>Capacidad: +{formatNumber(1000, numberFormat)} energía máxima</p>
             <p>Coste: {formatNumber(fusionReactorCost.scrap, numberFormat)} Chatarra + {formatNumber(fusionReactorCost.metalRefinado, numberFormat)} Metal Refinado</p>
-            <p>Construidos: {fusionReactors} | En cola: {fusionReactorQueue.queue} {fusionReactorQueue.queue > 0 ? `| Tiempo: ~${formatTime(fusionReactorQueue.queue * fusionReactorQueue.time)}` : ''}</p>
+            <p>Construidos: {fusionReactors} {fusionReactorQueue.queue > 0 ? `| En cola: ${fusionReactorQueue.queue} | Tiempo: ~${formatTime(fusionReactorQueue.queue * fusionReactorQueue.time)}` : ''}</p>
             <p>Requisitos: 1 Núcleo Potenciado (anteriormente 10 averiados)</p>
             
             {fusionReactorQueue.queue > 0 && (
               <div>
-                <p className="time-info">T/U: {fusionReactorQueue.time}s | En cola: {fusionReactorQueue.queue}</p>
+                <p className="time-info">T/U: {formatTime(fusionReactorQueue.time)}</p>
                 <ProgressBar progress={fusionReactorQueue.progress} time={fusionReactorQueue.time} />
               </div>
             )}
@@ -406,7 +419,7 @@ const EnergyView: React.FC<EnergyViewProps> = React.memo(({
                 ], numberFormat)}
                 className={`build-button ${scrap >= fusionReactorCost.scrap && metalRefinado >= fusionReactorCost.metalRefinado && empoweredEnergyCores >= 1 ? 'unlocked' : ''}`}
               >
-                Encargar Reactor de Fusión {buyAmount === 'max' && `(${fusionReactorMax})`}
+                Encargar Reactor de Fusión {fusionReactorAmount > 0 && `(${fusionReactorAmount})`}
               </BotonConTooltip>
               {fusionReactorQueue.queue > 0 && (
                 <QueueControls itemName='fusionReactor' onCancel={onCancel} />

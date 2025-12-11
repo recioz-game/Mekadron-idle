@@ -3,12 +3,12 @@ import './ShipyardView.css'; // Importar el archivo CSS
 import { GameState } from '../types/gameState';
 import { formatNumber } from '../utils/formatNumber';
 import { allShipyardProjects } from '../data/shipyardData';
+import { resourceMetadata } from '../data/resourceMetadata'; // <-- AÑADIDO
 import { useGameDispatch } from '../context/GameContext';
 import { useDragToScroll } from '../hooks/useDragToScroll';
 
 interface ShipyardViewProps {
   shipyard: GameState['shipyard'];
-  vindicator: GameState['vindicator'];
   resources: GameState['resources'];
   researchPoints: number;
   blueprints: number;
@@ -17,7 +17,6 @@ interface ShipyardViewProps {
 
 const ShipyardView: React.FC<ShipyardViewProps> = ({ 
   shipyard,
-  vindicator,
   resources,
   researchPoints,
   blueprints,
@@ -26,39 +25,8 @@ const ShipyardView: React.FC<ShipyardViewProps> = ({
     const dispatch = useGameDispatch();
   const scrollRef = useDragToScroll<HTMLDivElement>();
   const currentProject = allShipyardProjects[shipyard.currentProjectIndex];
-  const allResources = { ...resources, ...vindicator.bodegaResources, researchPoints, blueprints };
+  const allResources = { ...resources, researchPoints, blueprints };
 
-  const resourceLabels: { [key: string]: string } = {
-    scrap: 'Chatarra',
-    metalRefinado: 'Metal Refinado',
-        aceroEstructural: 'Acero Estructural',
-    placasCasco: 'Placas de Casco Reforzado',
-    cableadoSuperconductor: 'Cableado de Superconductores',
-    nucleoSingularidad: 'Núcleo de Singularidad',
-    researchPoints: 'Puntos de Investigación',
-    aleacionReforzada: 'Aleación Reforzada',
-    neuroChipCorrupto: 'Neuro-Chip Corrupto',
-        blueprints: 'Planos',
-    // --- Recursos MK2 ---
-    matrizDeManiobra: 'Matriz de Maniobra',
-    placasDeSigilo: 'Placas de Sigilo',
-    planosDeInterceptor: 'Planos de Interceptor',
-        IA_Fragmentada: 'IA Fragmentada',
-        matrizCristalina: 'Matriz Cristalina',
-    // --- Recursos MK7 ---
-    esenciaDelVacio: 'Esencia del Vacío',
-        reliquiaCorrupta: 'Reliquia Corrupta',
-    planosMK7: 'Planos MK7',
-    // --- Recursos MK8 ---
-    nucleoEspectral: 'Núcleo Espectral',
-    conexionFantasmal: 'Conexión Fantasmal',
-    planosMK8: 'Planos MK8',
-    // --- Recursos MK9 ---
-    fragmentoDeCiudadela: 'Fragmento de Ciudadela',
-    matrizDeOverlord: 'Matriz de Overlord',
-    planosMK9: 'Planos MK9',
-  };
-  
   const componentLabels: { [key: string]: string } = {
     // --- Base ---
     hull: 'Estructura del Casco',
@@ -126,8 +94,9 @@ const ShipyardView: React.FC<ShipyardViewProps> = ({
         {Object.keys(componentData).map(resourceId => {
           const requiredAmount = componentData[resourceId];
           const currentAmount = progress[resourceId] || 0;
-                    const userHasAmount = (allResources as any)[resourceId] || 0;
-          const label = resourceLabels[resourceId] || resourceId;
+          const userHasAmount = (allResources as any)[resourceId] || 0;
+          const label = resourceMetadata[resourceId]?.name || resourceId.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+
 
           // Calcular la cantidad real que se puede donar con "MAX"
           const neededAmount = requiredAmount - currentAmount;

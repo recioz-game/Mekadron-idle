@@ -9,33 +9,45 @@ export const allExpeditionsData: Expedition[] = [
     duration: 600, // 10 minutos
     costs: { drones: 1 },
     rewards: {
-      scrap: [500, 2000],
-      metalRefinado: [1, 5],
-      aceroEstructural: [1, 2]
+      circuitosDañados: [3, 6]
     },
     risk: { chance: 0.05, droneLossPercentage: 1 },
     droneType: 'expeditionDrone',
+    tier: 1,
   },
   {
     id: 'cinturonAsteroides',
     title: 'Cinturón de Asteroides',
     description: 'Un cinturón rico en minerales, pero inestable. Se requiere equipo más robusto.',
-    duration: 1800, // 30 minutos
-    costs: { drones: 3, metalRefinado: 5 },
+    duration: 1200, // 20 minutos
+    costs: { drones: 1 },
     rewards: {
-      scrap: [3000, 7500],
-      metalRefinado: [10, 30],
-      fragmentosPlaca: [5, 15]
+      fragmentosPlaca: [5, 10]
     },
     risk: { chance: 0.1, droneLossPercentage: 0.5 },
     droneType: 'expeditionDrone',
+    tier: 1,
+  },
+  {
+    id: 'nebulosaFantasma',
+    title: 'Nebulosa Fantasma',
+    description: 'Una nebulosa misteriosa que interfiere con los sensores, pero que esconde valiosos depósitos de aleaciones.',
+    duration: 1800, // 30 minutos
+    costs: { drones: 1 },
+    rewards: {
+      metalRefinado: [10, 20],
+      aceroEstructural: [5, 10]
+    },
+    risk: { chance: 0.1, droneLossPercentage: 0.5 },
+    droneType: 'expeditionDrone',
+    tier: 1,
   },
   {
     id: 'cementerioAcorazados',
     title: 'Cementerio de Acorazados',
     description: 'Los restos de una batalla legendaria. Contiene materiales avanzados y peligros desconocidos.',
     duration: 3600, // 1 hora
-    costs: { drones: 5, aceroEstructural: 10 },
+    costs: { drones: 1, aceroEstructural: 10 },
     rewards: {
       scrap: [8000, 15000],
       aceroEstructural: [5, 12],
@@ -43,6 +55,8 @@ export const allExpeditionsData: Expedition[] = [
     },
     risk: { chance: 0.15, droneLossPercentage: 0.3 },
     droneType: 'expeditionDrone',
+    prerequisites: (s) => s.phase2Unlocked,
+    tier: 2,
   },
 
   // --- EXPEDICIONES DE TIER 2 (NUEVA) ---
@@ -62,5 +76,7 @@ export const allExpeditionsData: Expedition[] = [
     },
     risk: { chance: 0.2, droneLossPercentage: 1 }, // 20% de riesgo, se pierde el dron si falla
     droneType: 'expeditionV2Drone',
+    prerequisites: (s) => s.phase2Unlocked,
+    tier: 2,
   },
 ];

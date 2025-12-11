@@ -30,11 +30,7 @@ const handleBuild = (state: GameState, config: BuildConfiguration): GameState =>
   const costEntries = Object.entries(modifiedCosts);
   if (costEntries.length === 0) return state;
 
-  // CREAMOS UN ÚNICO OBJETO CON TODOS LOS RECURSOS DEL JUGADOR
-  const allPlayerResources = {
-    ...state.resources,
-    ...state.vindicator.bodegaResources,
-  };
+  const allPlayerResources = { ...state.resources };
 
   const maxAffordableAmounts = costEntries.map(([resource, cost]) => {
     if (cost === 0) return Infinity;
@@ -52,30 +48,22 @@ const handleBuild = (state: GameState, config: BuildConfiguration): GameState =>
 
   // 4. Crear un nuevo objeto de recursos (usando los costes modificados)
   const newResources = { ...state.resources };
-  const newBodegaResources = { ...state.vindicator.bodegaResources };
   for (const [resource, cost] of costEntries) {
-    if (resource in newBodegaResources) {
-      newBodegaResources[resource as keyof typeof newBodegaResources] -= amount * cost;
-    } else {
-      newResources[resource as ResourceType] -= amount * cost;
-    }
+    newResources[resource as ResourceType] -= amount * cost;
   }
 
   // 5. Actualizar la cola de producción de forma inmutable
   const [category, queuesProp, itemName] = config.queuePath;
-  const categoryState = state[category as keyof GameState] as any;
-  const queues = categoryState[queuesProp];
-  const itemQueue = queues[itemName];
 
-  const newItemQueue = { ...itemQueue, queue: itemQueue.queue + amount };
-  const newQueues = { ...queues, [itemName]: newItemQueue };
-  const newCategoryState = { ...categoryState, [queuesProp]: newQueues };
+  // Hacemos una copia profunda de la categoría que vamos a modificar para evitar mutaciones
+  const newCategoryState = JSON.parse(JSON.stringify(state[category as keyof GameState])) as any;
+  
+  const itemQueue = newCategoryState[queuesProp][itemName];
+  itemQueue.queue += amount;
 
-  // 6. Devolver el nuevo objeto de estado
   const finalState = {
     ...state,
     resources: newResources,
-    vindicator: { ...state.vindicator, bodegaResources: newBodegaResources },
     [category]: newCategoryState,
   };
 
@@ -95,7 +83,7 @@ const handleBuild = (state: GameState, config: BuildConfiguration): GameState =>
     }
   }
 
-  return finalState;
+  return { ...finalState, recalculationNeeded: true };
 };
 
 // Reducer para la construcción
@@ -205,14 +193,9 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
 
       // 1. Crear un nuevo objeto de recursos con los materiales devueltos
       const newResources = { ...state.resources };
-      const newBodegaResources = { ...state.vindicator.bodegaResources };
       for (const resource in droneData.costs) {
         const cost = droneData.costs[resource as keyof typeof droneData.costs] || 0;
-        if (resource in newBodegaResources) {
-          newBodegaResources[resource as keyof typeof newBodegaResources] += Math.floor(cost * amountToDismantle * 0.75);
-        } else {
-          newResources[resource as keyof typeof newResources] += Math.floor(cost * amountToDismantle * 0.75);
-        }
+        newResources[resource as keyof typeof newResources] += Math.floor(cost * amountToDismantle * 0.75);
       }
 
       // 2. Crear un nuevo objeto de drones con el recuento actualizado
@@ -225,11 +208,11 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
       return {
         ...state,
         resources: newResources,
-        vindicator: { ...state.vindicator, bodegaResources: newBodegaResources },
         workshop: {
           ...state.workshop,
           drones: newDrones,
         },
+        recalculationNeeded: true,
       };
     }
 
@@ -273,11 +256,8 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
 
       // 1. Crear nuevo objeto de recursos con los materiales devueltos
       const newResources = { ...state.resources };
-      const newBodegaResources = { ...state.vindicator.bodegaResources };
       Object.entries(costs).forEach(([resource, cost]) => {
-        if (resource in newBodegaResources) {
-          newBodegaResources[resource as keyof typeof newBodegaResources] += (cost as number) * amountToCancel;
-        } else if (resource in newResources) {
+        if (resource in newResources) {
           newResources[resource as ResourceType] += (cost as number) * amountToCancel;
         }
       });
@@ -293,7 +273,6 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
       return {
         ...state,
         resources: newResources,
-        vindicator: { ...state.vindicator, bodegaResources: newBodegaResources },
         [category]: {
           ...categoryState,
           queues: {
@@ -301,6 +280,7 @@ export const constructionReducer = (state: GameState, action: ActionType): GameS
             [itemName]: newQueue,
           },
         },
+        recalculationNeeded: true,
       };
     }
 

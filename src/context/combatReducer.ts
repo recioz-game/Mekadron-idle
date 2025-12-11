@@ -223,7 +223,7 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
           vindicator.currentHealth
         );
 
-        if (vindicator.vindicatorType === 'mk1' && shieldBeforeAttack > 0 && vindicatorDamageResult.newShield <= 0) {
+        if (state.vindicator.vindicatorType === 'vm01_origin' && shieldBeforeAttack > 0 && vindicatorDamageResult.newShield <= 0) {
           let overloadMultiplier = 1.5;
           if (equippedModules.offensive?.id === 'mod_overload_amp') {
             overloadMultiplier = equippedModules.offensive.effects.overloadDamageMultiplier;
@@ -315,54 +315,26 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
       const destination = allDestinations[activeBattle.destinationIndex];
       const nextBattleIndex = newBattlesCompleted[activeBattle.destinationIndex];
 
-      const newBodegaResources = { ...vindicator.bodegaResources };
       const reward = enemy.reward;
-      if (reward.aleacionReforzadaRobada) newBodegaResources.aleacionReforzadaRobada += reward.aleacionReforzadaRobada;
-      if (reward.neuroChipCorrupto) newBodegaResources.neuroChipCorrupto += reward.neuroChipCorrupto;
-      if (reward.matrizQuitinaCristal) newBodegaResources.matrizQuitinaCristal += reward.matrizQuitinaCristal;
-      if (reward.nucleoSinapticoFracturado) newBodegaResources.nucleoSinapticoFracturado += reward.nucleoSinapticoFracturado;
-      if (reward.planosMK2) newBodegaResources.planosMK2 += reward.planosMK2;
-      if (reward.moduloManiobrasTácticas) newBodegaResources.moduloManiobrasTácticas += reward.moduloManiobrasTácticas;
-      if (reward.placasCamuflajeActivo) newBodegaResources.placasCamuflajeActivo += reward.placasCamuflajeActivo;
-      if (reward.planosDeInterceptor) newBodegaResources.planosDeInterceptor += reward.planosDeInterceptor;
-      if (reward.placasDeAetherium) newBodegaResources.placasDeAetherium += reward.placasDeAetherium;
-      if (reward.nucleoPsionicoArmonico) newBodegaResources.nucleoPsionicoArmonico += reward.nucleoPsionicoArmonico;
-      if (reward.planosMK3) newBodegaResources.planosMK3 += reward.planosMK3;
-      if (reward.tejidoAbisalRetorcido) newBodegaResources.tejidoAbisalRetorcido += reward.tejidoAbisalRetorcido;
-      if (reward.singularidadCorruptaContenida) newBodegaResources.singularidadCorruptaContenida += reward.singularidadCorruptaContenida;
-      if (reward.planosMK4) newBodegaResources.planosMK4 += reward.planosMK4;
-      if (reward.esquirlasDeReliquia) newBodegaResources.esquirlasDeReliquia += reward.esquirlasDeReliquia;
-      if (reward.codexAncestral) newBodegaResources.codexAncestral += reward.codexAncestral;
-      if (reward.planosMK5) newBodegaResources.planosMK5 += reward.planosMK5;
-      if (reward.fragmentoHorizonteSucesos) newBodegaResources.fragmentoHorizonteSucesos += reward.fragmentoHorizonteSucesos;
-      if (reward.energiaPuntoCero) newBodegaResources.energiaPuntoCero += reward.energiaPuntoCero;
-      if (reward.planosMK6) newBodegaResources.planosMK6 += reward.planosMK6;
-      if (reward.esenciaDelVacio) newBodegaResources.esenciaDelVacio += reward.esenciaDelVacio;
-      if (reward.reliquiaCorrupta) newBodegaResources.reliquiaCorrupta += reward.reliquiaCorrupta;
-      if (reward.planosMK7) newBodegaResources.planosMK7 += reward.planosMK7;
-      if (reward.nucleoEspectral) newBodegaResources.nucleoEspectral += reward.nucleoEspectral;
-      if (reward.conexionFantasmal) newBodegaResources.conexionFantasmal += reward.conexionFantasmal;
-      if (reward.planosMK8) newBodegaResources.planosMK8 += reward.planosMK8;
-      if (reward.fragmentoDeCiudadela) newBodegaResources.fragmentoDeCiudadela += reward.fragmentoDeCiudadela;
-      if (reward.matrizDeOverlord) newBodegaResources.matrizDeOverlord += reward.matrizDeOverlord;
-      if (reward.planosMK9) newBodegaResources.planosMK9 += reward.planosMK9;
-      if (reward.aleacionReforzadaElite) newBodegaResources.aleacionReforzadaElite += reward.aleacionReforzadaElite;
-      if (reward.neuroChipCorruptoElite) newBodegaResources.neuroChipCorruptoElite += reward.neuroChipCorruptoElite;
-      if (reward.matrizQuitinaCristalElite) newBodegaResources.matrizQuitinaCristalElite += reward.matrizQuitinaCristalElite;
-      if (reward.nucleoSinapticoFracturadoElite) newBodegaResources.nucleoSinapticoFracturadoElite += reward.nucleoSinapticoFracturadoElite;
-      if (reward.moduloManiobrasTácticasElite) newBodegaResources.moduloManiobrasTácticasElite += reward.moduloManiobrasTácticasElite;
-      if (reward.placasCamuflajeActivoElite) newBodegaResources.placasCamuflajeActivoElite += reward.placasCamuflajeActivoElite;
-      if (reward.placasDeAetheriumElite) newBodegaResources.placasDeAetheriumElite += reward.placasDeAetheriumElite;
-      if (reward.nucleoPsionicoArmonicoElite) newBodegaResources.nucleoPsionicoArmonicoElite += reward.nucleoPsionicoArmonicoElite;
-      if (reward.tejidoAbisalRetorcidoElite) newBodegaResources.tejidoAbisalRetorcidoElite += reward.tejidoAbisalRetorcidoElite;
-      if (reward.singularidadCorruptaContenidaElite) newBodegaResources.singularidadCorruptaContenidaElite += reward.singularidadCorruptaContenidaElite;
+      const newResources = { ...state.resources };
+      const newBodegaResources = { ...vindicator.bodegaResources };
+
+      // Iterar sobre todas las posibles recompensas del enemigo
+      for (const resource in reward) {
+        if (Object.prototype.hasOwnProperty.call(reward, resource) && resource !== 'blueprints') {
+          const amount = reward[resource as keyof typeof reward] as number;
+          // Comprobar si es un recurso de Fase 1 (del inventario principal)
+          if (resource in state.resources) {
+            (newResources as any)[resource] = ((newResources as any)[resource] || 0) + amount;
+          } else if (resource in newBodegaResources) { // Si no, es un recurso de la bodega
+            (newBodegaResources as any)[resource] = ((newBodegaResources as any)[resource] || 0) + amount;
+          }
+        }
+      }
       
       const newState = {
         ...state,
-        resources: {
-          ...state.resources,
-          scrap: state.resources.scrap + (enemy.reward.scrap ?? 0),
-        },
+        resources: newResources,
         vindicator: { 
           ...vindicator,
           bodegaResources: newBodegaResources,

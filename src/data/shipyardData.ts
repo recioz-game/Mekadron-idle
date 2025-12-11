@@ -9,8 +9,8 @@ export const allShipyardProjects: ShipyardProject[] = [
     costs: {
       hull: { placasCasco: 50 },
       powerCore: { cableadoSuperconductor: 50 },
-      targetingSystem: { researchPoints: 1000, cableadoSuperconductor: 25 },
-      warpDrive: { nucleoSingularidad: 1 }
+      targetingSystem: { researchPoints: 100000, cableadoSuperconductor: 25 },
+      warpDrive: { nucleoSingularidad: 1, barraCombustible: 10 }
     },
   },
   {

@@ -203,6 +203,9 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
                 blueprints: { name: 'Planos', icon: { src: blueprintIcon, alt: 'Planos' } }, // Puedes usar una clase para un icono de imagen
               };
 
+              const allResources = { ...gameState.resources, ...gameState.vindicator.bodegaResources };
+              const canAffordFuel = allResources.barraCombustible >= 1;
+
               return (
                 <>
                   <h3 className={destination.isBoss ? 'boss-title' : ''}>{destination.name}</h3>
@@ -244,13 +247,13 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
                     <button 
                       className={`start-battle-btn ${destination.isBoss ? 'boss-battle-btn' : ''}`} 
                       onClick={handleStartBattle}
-                      disabled={gameState.vindicator.bodegaResources.barraCombustible < 1}
+                      disabled={!canAffordFuel}
                     >
                       {destination.isBoss ? '🔥 ' : ''}
                       Iniciar Combate {battlesCompleted > 0 ? `(${battlesCompleted + 1}/${totalBattles})` : ''}
                       {destination.isBoss ? ' 🔥' : ''}
                     </button>
-                    {gameState.vindicator.bodegaResources.barraCombustible < 1 && (
+                    {!canAffordFuel && (
                       <p className="fuel-warning">No tienes suficiente combustible. Fabrica más en la Fundición.</p>
                     )}
                   </div>

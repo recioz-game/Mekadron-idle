@@ -16,6 +16,7 @@ interface ExpeditionViewProps {
   onClaimReward: (expedition: ActiveExpedition) => void;
   onSetBuyAmount: (amount: number | 'max') => void;
   onClose: () => void;
+  gameState: GameState;
 }
 
 const ExpeditionTimer: React.FC<{ completionTimestamp: number }> = ({ completionTimestamp }) => {
@@ -56,8 +57,11 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
   onStartExpedition,
   onClaimReward,
   onSetBuyAmount,
-  onClose 
+  onClose,
+  gameState
 }) => {
+
+const scrollRef = useDragToScroll<HTMLDivElement>();
 
   const dronesInUse = {
     expeditionDrone: activeExpeditions
@@ -73,7 +77,105 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
     expeditionV2Drone: drones.expeditionV2Drone - dronesInUse.expeditionV2Drone,
   };
   
-    const scrollRef = useDragToScroll<HTMLDivElement>();
+  const expeditionsTier1 = allExpeditionsData.filter(e => e.tier === 1);
+  const expeditionsTier2 = allExpeditionsData.filter(e => e.tier === 2);
+
+  const renderExpeditionList = (expeditions: typeof allExpeditionsData) => {
+    return expeditions.map(exp => {
+      const prerequisitesMet = !exp.prerequisites || exp.prerequisites(gameState);
+      const droneType = exp.droneType;
+      const dronesRequired = exp.costs.drones;
+      const currentAvailableDrones = availableDrones[droneType];
+
+      // Calcular el máximo de expediciones que se pueden ejecutar basándose en todos los recursos
+      let maxCanRun = 0;
+      if (prerequisitesMet && dronesRequired > 0) {
+        maxCanRun = Math.floor(currentAvailableDrones / dronesRequired);
+        for (const [resource, cost] of Object.entries(exp.costs)) {
+          if (resource === 'drones' || !cost || cost === 0) continue;
+          const availableAmount = (resources as any)[resource] ?? (gameState.vindicator.bodegaResources as any)[resource] ?? 0;
+          maxCanRun = Math.min(maxCanRun, Math.floor(availableAmount / cost));
+        }
+      } else if (prerequisitesMet) {
+        // Manejar expediciones que no requieren drones
+        let maxByResource = Infinity;
+         for (const [resource, cost] of Object.entries(exp.costs)) {
+          if (resource === 'drones' || !cost || cost === 0) continue;
+          const availableAmount = (resources as any)[resource] ?? (gameState.vindicator.bodegaResources as any)[resource] ?? 0;
+          maxByResource = Math.min(maxByResource, Math.floor(availableAmount / cost));
+        }
+        maxCanRun = maxByResource === Infinity ? 1 : maxByResource; // Asumir 1 si no hay otros costos
+      }
+      
+      const amountForDisplay = buyAmount === 'max' ? (maxCanRun > 0 ? maxCanRun : 1) : buyAmount;
+      const canAfford = prerequisitesMet && (buyAmount === 'max' ? maxCanRun > 0 : maxCanRun >= buyAmount);
+
+      return (
+        <div key={exp.id} className={`expedition-item ${!canAfford ? 'unavailable' : ''} ${!prerequisitesMet ? 'locked' : ''}`}>
+          <h4>{exp.title}</h4>
+          <p>{exp.description}</p>
+          {!prerequisitesMet ? (
+            <div className="requirement-warning">
+              ⚠️ Requiere el Vindicator.
+            </div>
+          ) : (
+            <>
+              <p><strong>Duración:</strong> {exp.duration / 60} minutos</p>
+              
+              <div>
+                <strong>Requisitos (x{buyAmount === 'max' ? maxCanRun : buyAmount}):</strong>
+                <ul>
+                  {dronesRequired > 0 && (
+                    <li className={currentAvailableDrones >= dronesRequired * amountForDisplay ? 'requirement met' : 'requirement unmet'}>
+                      {droneType === 'expeditionV2Drone' ? 'Drones (DE-2):' : 'Drones (DE-1):'} {formatNumber(dronesRequired * amountForDisplay)}
+                    </li>
+                  )}
+                  {Object.entries(exp.costs).map(([resource, cost]) => {
+                    if (resource === 'drones') return null;
+                    const totalCost = (cost || 0) * amountForDisplay;
+                    const availableAmount = (resources as any)[resource] ?? (gameState.vindicator.bodegaResources as any)[resource] ?? 0;
+                    const hasEnough = availableAmount >= totalCost;
+                    const display = rewardDisplayMap[resource] || { name: resource };
+                    return (
+                      <li key={resource} className={hasEnough ? 'requirement met' : 'requirement unmet'}>
+                        {display.name}: {formatNumber(totalCost)}
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
+
+              <div>
+                <strong>Posibles Recompensas:</strong>
+                <ul>
+                  {Object.entries(exp.rewards).map(([key, value]) => {
+                    const display = rewardDisplayMap[key];
+                    if (!display) return null;
+                    const [min, max] = value;
+                    return (
+                      <li key={key}>
+                        {display.name}: {formatNumber(min)} - {formatNumber(max)}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+
+              <p><strong>Riesgo:</strong> {exp.risk.chance * 100}% de posibilidad de perder el dron.</p>
+              
+              <button
+                onClick={() => onStartExpedition(exp.id, buyAmount)}
+                disabled={!canAfford}
+                className="send-button"
+              >
+                Enviar {buyAmount === 'max' ? `MAX (${maxCanRun})` : buyAmount}
+              </button>
+            </>
+          )}
+        </div>
+      );
+    });
+  };
 
     return (
     <div className="expedition-view-container">
@@ -125,75 +227,15 @@ const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({
 
         {/* EXPEDICIONES DISPONIBLES */}
         <div className="available-expeditions">
-          <h3 className="section-title">Destinos Disponibles</h3>
-          {allExpeditionsData.map(exp => {
-            const droneType = exp.droneType;
-            const dronesRequired = exp.costs.drones;
-            const currentAvailableDrones = availableDrones[droneType];
+          <h3 className="section-title">Destinos Disponibles - TIER 1</h3>
+          {renderExpeditionList(expeditionsTier1)}
 
-            let canAfford = currentAvailableDrones >= dronesRequired;
-            for (const [resource, cost] of Object.entries(exp.costs)) {
-              if (resource === 'drones') continue;
-              if ((resources as any)[resource] < cost) {
-                canAfford = false;
-                break;
-              }
-            }
-
-            return (
-              <div key={exp.id} className={`expedition-item ${!canAfford ? 'unavailable' : ''}`}>
-                <h4>{exp.title}</h4>
-                <p>{exp.description}</p>
-                <p><strong>Duración:</strong> {exp.duration / 60} minutos</p>
-                
-                <div>
-                  <strong>Requisitos:</strong>
-                  <ul>
-                    <li className={currentAvailableDrones >= dronesRequired ? 'requirement met' : 'requirement unmet'}>
-                      {droneType === 'expeditionV2Drone' ? 'Drones (DE-2):' : 'Drones (DE-1):'} {dronesRequired}
-                    </li>
-                    {Object.entries(exp.costs).map(([resource, cost]) => {
-                      if (resource === 'drones') return null;
-                                          const hasEnough = (resources as any)[resource] >= cost;
-                      const display = rewardDisplayMap[resource] || { name: resource };
-                      return (
-                        <li key={resource} className={hasEnough ? 'requirement met' : 'requirement unmet'}>
-                          {display.name}: {formatNumber(cost)}
-                        </li>
-                      )
-                    })}
-                  </ul>
-                </div>
-
-                <div>
-                  <strong>Posibles Recompensas:</strong>
-                  <ul>
-                                      {Object.entries(exp.rewards).map(([key, value]) => {
-                      const display = rewardDisplayMap[key];
-                      if (!display) return null;
-                      const [min, max] = value;
-                      return (
-                        <li key={key}>
-                          {display.name}: {formatNumber(min)} - {formatNumber(max)}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-
-                <p><strong>Riesgo:</strong> {exp.risk.chance * 100}% de posibilidad de perder el dron.</p>
-                
-                                <button
-                  onClick={() => onStartExpedition(exp.id, buyAmount)}
-                  disabled={!canAfford}
-                  className="send-button"
-                >
-                  Enviar {buyAmount === 'max' ? `MAX (${Math.floor(currentAvailableDrones / dronesRequired)})` : buyAmount} {dronesRequired > 1 ? 'grupos' : 'grupo'}
-                </button>
-
-              </div>
-            );
-          })}
+          {expeditionsTier2.length > 0 && (
+            <>
+              <h3 className="section-title tier2-title">Destinos Disponibles - TIER 2</h3>
+              {renderExpeditionList(expeditionsTier2)}
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -40,6 +40,10 @@
   margin-right: 0.7rem; /* Reducido */
 }
 
+.resource-item.clickable {
+  cursor: pointer;
+}
+
 .drones-group {
   display: flex;
   align-items: center;

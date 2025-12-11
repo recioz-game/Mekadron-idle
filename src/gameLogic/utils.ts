@@ -1,4 +1,6 @@
-import { GameState } from '../types/gameState';
+import { GameState, ActiveExpedition } from '../types/gameState';
+import { allExpeditionsData } from '../data/expeditionsData';
+import { formatNumber } from '../utils/formatNumber';
 
 export const updateVindicatorToVM01 = (state: GameState): GameState => {
   const newUpgrades = { ...state.vindicatorUpgrades };
@@ -318,4 +320,70 @@ export const updateVindicatorToVM09 = (state: GameState): GameState => {
     vindicatorLevel: 1,
   };
   return newState;
+};
+
+export const calculateExpeditionResults = (state: GameState, activeExpedition: ActiveExpedition) => {
+  const expeditionData = allExpeditionsData.find(e => e.id === activeExpedition.id);
+  if (!expeditionData) {
+    return {
+      dronesLost: 0,
+      rewards: {},
+      message: "Error: No se encontraron datos de la expedición.",
+      audioId: 7,
+      droneType: 'expeditionDrone' // Un valor por defecto seguro
+    };
+  }
+
+  const expeditionCount = activeExpedition.expeditionCount || 1;
+  let totalDronesLost = 0;
+  const totalRewards: { [key: string]: number } = {};
+  let successCount = 0;
+
+  for (let i = 0; i < expeditionCount; i++) {
+    const wasSuccessful = Math.random() > expeditionData.risk.chance;
+    if (wasSuccessful) {
+      successCount++;
+      for (const [resource, range] of Object.entries(expeditionData.rewards)) {
+        if (range) {
+          const [min, max] = range;
+          const amount = Math.floor(Math.random() * (max - min + 1)) + min;
+          if (amount > 0) {
+            totalRewards[resource] = (totalRewards[resource] || 0) + amount;
+          }
+        }
+      }
+    } else {
+      const droneSelfRepairLevel = state.techCenter.upgrades.droneSelfRepair || 0;
+      const survivalChance = droneSelfRepairLevel * 0.10;
+      const dronesPerSingleExpedition = expeditionData.costs.drones;
+      const initialDronesLostInThisRun = Math.ceil(dronesPerSingleExpedition * expeditionData.risk.droneLossPercentage);
+      let dronesSurvivedThisRun = 0;
+
+      if (droneSelfRepairLevel > 0) {
+        for (let j = 0; j < initialDronesLostInThisRun; j++) {
+          if (Math.random() < survivalChance) {
+            dronesSurvivedThisRun++;
+          }
+        }
+      }
+      totalDronesLost += initialDronesLostInThisRun - dronesSurvivedThisRun;
+    }
+  }
+
+  let finalMessage = `Convoy de ${expeditionCount} expediciones a "${expeditionData.title}" ha regresado.\n`;
+  if (successCount > 0) {
+    const rewardStrings = Object.entries(totalRewards).map(([res, amount]) => `${formatNumber(amount, 'abbreviated')} de ${res.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
+    finalMessage += `Éxitos: ${successCount}. Recompensas: ${rewardStrings.join(', ') || 'ninguna'}.\n`;
+  }
+  if (totalDronesLost > 0) {
+    finalMessage += `Pérdidas: ${totalDronesLost} drones.`;
+  }
+
+  return {
+    dronesLost: totalDronesLost,
+    rewards: totalRewards,
+    message: finalMessage.trim(),
+    audioId: state.settings.voicesMuted ? undefined : (successCount > 0 ? 6 : 7),
+    droneType: expeditionData.droneType
+  };
 };

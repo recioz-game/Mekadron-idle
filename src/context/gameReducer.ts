@@ -4,17 +4,16 @@ import { constructionReducer } from './constructionReducer';
 import { missionsReducer } from './missionsReducer';
 import { combatReducer } from './combatReducer';
 import { processGameTick } from '../gameLogic/tickLogic';
-import { GameState, initialGameState, ActiveExpedition, ResourceType, ExpeditionId } from '../types/gameState';
+import { GameState, initialGameState, ActiveExpedition, ResourceType, ExpeditionId, DroneType } from '../types/gameState';
 import { vindicatorLevelData, vindicatorMK2LevelData, vindicatorMK3LevelData, vindicatorMK4LevelData, vindicatorMK5LevelData, vindicatorMK6LevelData, vindicatorMK7LevelData, vindicatorMK8LevelData, vindicatorMK9LevelData } from '../data/battleData';
 import { ActionType } from '../types/actions';
 import { allArmoryMK1Modules } from '../data/armoryMK1Data';
 import { allArmoryMK2Modules } from '../data/armoryMK2Data';
 import { droneData } from '../data/droneData';
-import { updateVindicatorToVM01, updateVindicatorToVM02, updateVindicatorToVM03, updateVindicatorToVM04, updateVindicatorToVM05, updateVindicatorToVM06, updateVindicatorToVM07, updateVindicatorToVM08, updateVindicatorToVM09 } from '../gameLogic/utils';
+import { updateVindicatorToVM01, updateVindicatorToVM02, updateVindicatorToVM03, updateVindicatorToVM04, updateVindicatorToVM05, updateVindicatorToVM06, updateVindicatorToVM07, updateVindicatorToVM08, updateVindicatorToVM09, calculateExpeditionResults } from '../gameLogic/utils';
 import { bodegaData } from '../data/bodegaData';
 import { ResourceCategory } from '../data/categoryData';
 import { deepMerge, rehydrateState } from './contextUtils';
-import { formatNumber } from '../utils/formatNumber';
 
 // Helper function for Vindicator star upgrades
 const handleVindicatorStarUpgrade = (
@@ -56,7 +55,58 @@ const handleVindicatorStarUpgrade = (
     [upgradesKey]: {
       ...upgradesData,
       [upgradeId]: { ...upgrade, currentStars: upgrade.currentStars + 1 }
-    }
+    },
+    recalculationNeeded: true
+  };
+};
+
+// Helper function for Vindicator level upgrades
+const handleLevelUpVindicator = (
+  state: GameState,
+  levelData: { level: number; blueprintCost: number; researchPointsCost?: number; statBonus: { health: number; shield: number; damage: number; } }[],
+  blueprintType: keyof GameState['vindicator']['bodegaResources'] | 'blueprints'
+): GameState => {
+  const currentLevel = state.vindicatorLevel;
+  const nextLevelData = levelData.find(level => level.level === currentLevel + 1);
+
+  if (!nextLevelData) {
+    return state;
+  }
+
+  const blueprintResource = blueprintType === 'blueprints' ? state.blueprints : state.vindicator.bodegaResources[blueprintType];
+  
+  if (blueprintResource < nextLevelData.blueprintCost || state.techCenter.researchPoints < (nextLevelData.researchPointsCost || 0)) {
+    return state;
+  }
+
+  const { statBonus } = nextLevelData;
+  const newBodegaResources = { ...state.vindicator.bodegaResources };
+  let newBlueprints = state.blueprints;
+
+  if (blueprintType === 'blueprints') {
+    newBlueprints -= nextLevelData.blueprintCost;
+  } else {
+    newBodegaResources[blueprintType] = (newBodegaResources[blueprintType] || 0) - nextLevelData.blueprintCost;
+  }
+
+  return {
+    ...state,
+    blueprints: newBlueprints,
+    techCenter: {
+      ...state.techCenter,
+      researchPoints: state.techCenter.researchPoints - (nextLevelData.researchPointsCost || 0),
+    },
+    vindicator: {
+      ...state.vindicator,
+      bodegaResources: newBodegaResources,
+      maxHealth: state.vindicator.maxHealth + statBonus.health,
+      currentHealth: state.vindicator.currentHealth + statBonus.health,
+      maxShield: state.vindicator.maxShield + statBonus.shield,
+      currentShield: state.vindicator.currentShield + statBonus.shield,
+      damage: state.vindicator.damage + statBonus.damage,
+    },
+    vindicatorLevel: currentLevel + 1,
+    recalculationNeeded: true
   };
 };
 
@@ -80,6 +130,17 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       // Esto convierte datos que no sobreviven bien el formato JSON (como los Sets)
       // de vuelta a su formato original.
       const hydratedState = rehydrateState(mergedState);
+
+      // --- INICIO DEL SCRIPT DE MIGRACIÓN ---
+      // Mueve los recursos de Fase 1 del lugar incorrecto (bodega) al correcto (resources)
+      const resourcesToMigrate = ['fragmentosPlaca', 'circuitosDañados', 'aleacionReforzadaRobada', 'neuroChipCorrupto'];
+      for (const resource of resourcesToMigrate) {
+        if ((hydratedState.vindicator.bodegaResources as any)[resource] > 0) {
+          (hydratedState.resources as any)[resource] = ((hydratedState.resources as any)[resource] || 0) + (hydratedState.vindicator.bodegaResources as any)[resource];
+          delete (hydratedState.vindicator.bodegaResources as any)[resource];
+        }
+      }
+      // --- FIN DEL SCRIPT DE MIGRACIÓN ---
 
       // Finalmente, actualiza el timestamp de guardado para que el cálculo offline funcione
       // correctamente la próxima vez que el jugador abra el juego.
@@ -252,10 +313,26 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         currentView: '' // Asegurarse de que sea un string vacío
       };
 
+    case 'OPEN_CODEX_VIEW':
+      return {
+        ...state,
+        codexSelectedResource: action.payload,
+      };
+
+    case 'CLOSE_CODEX_VIEW':
+      return {
+        ...state,
+        codexSelectedResource: null,
+      };
+
         case 'START_EXPEDITION': {
       const { expeditionId, amount } = action.payload;
       const expedition = allExpeditionsData.find(e => e.id === expeditionId);
       if (!expedition) return state;
+
+      if (expedition.prerequisites && !expedition.prerequisites(state)) {
+        return state;
+      }
 
       const { drones: dronesRequiredPerExpedition, ...resourceCostsPerExpedition } = expedition.costs;
       const droneType = expedition.droneType;
@@ -266,10 +343,12 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       
       const availableDrones = state.workshop.drones[droneType] - dronesInUse;
 
+      // Unificar todos los recursos del jugador para una comprobación fácil
+      const allPlayerResources = { ...state.resources, ...state.vindicator.bodegaResources };
+
       let maxAffordableByResources = Infinity;
       for (const [resource, cost] of Object.entries(resourceCostsPerExpedition)) {
-        const resourceKey = resource as keyof typeof state.vindicator.bodegaResources;
-        const availableResource = state.vindicator.bodegaResources[resourceKey] ?? 0;
+        const availableResource = allPlayerResources[resource as keyof typeof allPlayerResources] ?? 0;
         maxAffordableByResources = Math.min(maxAffordableByResources, Math.floor(availableResource / (cost ?? 1)));
       }
       
@@ -281,14 +360,19 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       if (amountToSend <= 0) return state;
 
       const totalDronesToSend = amountToSend * dronesRequiredPerExpedition;
-      const totalResourceCosts: { [key: string]: number } = {};
-      for (const [resource, cost] of Object.entries(resourceCostsPerExpedition)) {
-        totalResourceCosts[resource] = (cost ?? 0) * amountToSend;
-      }
       
+      // Preparar nuevos objetos de inventario para la resta
+      const newResources = { ...state.resources };
       const newBodegaResources = { ...state.vindicator.bodegaResources };
-      for (const [resource, cost] of Object.entries(totalResourceCosts)) {
-        newBodegaResources[resource as keyof typeof newBodegaResources] -= cost;
+
+      for (const [resource, cost] of Object.entries(resourceCostsPerExpedition)) {
+        const totalCost = (cost ?? 0) * amountToSend;
+        // Comprobar si es un recurso de Fase 1 (del inventario principal)
+        if (resource in initialGameState.resources) {
+          (newResources as any)[resource] -= totalCost;
+        } else { // Si no, es un recurso de la bodega
+          (newBodegaResources as any)[resource] -= totalCost;
+        }
       }
 
             const newActiveExpedition: ActiveExpedition = {
@@ -301,7 +385,8 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
 
       return {
         ...state,
-        vindicator: { ...state.vindicator, bodegaResources: newBodegaResources },
+        resources: newResources, // <-- Actualizar inventario principal
+        vindicator: { ...state.vindicator, bodegaResources: newBodegaResources }, // <-- Actualizar bodega
         activeExpeditions: [...state.activeExpeditions, newActiveExpedition],
       };
     }
@@ -325,7 +410,8 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
           ...state,
           currentBackground: newBackground,
           modules: { ...state.modules, ...(upgradeName === 'foundryProtocols' && { foundry: true }) },
-          techCenter: { ...state.techCenter, researchPoints: state.techCenter.researchPoints - cost, upgrades: newUpgrades }
+          techCenter: { ...state.techCenter, researchPoints: state.techCenter.researchPoints - cost, upgrades: newUpgrades },
+          recalculationNeeded: true
         };
       }
       return state;
@@ -382,12 +468,15 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
               drones: { ...state.workshop.drones, medium: Math.max(state.workshop.drones.medium, 3), reinforcedMedium: Math.max(state.workshop.drones.reinforcedMedium, 3), reinforcedAdvanced: Math.max(state.workshop.drones.reinforcedAdvanced, 5), golem: Math.max(state.workshop.drones.golem, 1), expeditionDrone: Math.max(state.workshop.drones.expeditionDrone, 1) }
             },
             energy: { ...state.energy, advancedSolar: Math.max(state.energy.advancedSolar, 1) },
-            resources: { ...state.resources, scrap: Math.max(state.resources.scrap, 150000) },
+            resources: { 
+              ...state.resources, 
+              scrap: Math.max(state.resources.scrap, 150000),
+              metalRefinado: Math.max(state.resources.metalRefinado, 5000)
+            },
             vindicator: { 
               ...state.vindicator, 
               bodegaResources: { 
-                ...state.vindicator.bodegaResources, 
-                metalRefinado: Math.max(state.vindicator.bodegaResources.metalRefinado, 5000) 
+                ...state.vindicator.bodegaResources
               } 
             },
         };
@@ -630,12 +719,25 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
 
       let newState = { ...state };
 
-      if (resource === 'researchPoints') {
+      // Restar los recursos del lugar correcto
+      // La clave es comprobar primero si el recurso pertenece al inventario principal de Fase 1
+      if (resource in initialGameState.resources) {
+        const currentAmount = resources[resource as keyof typeof resources] || 0;
+        newState.resources = {
+          ...resources,
+          [resource]: currentAmount - amountToDonate
+        };
+      } else if (resource === 'researchPoints') {
         newState.techCenter = { ...techCenter, researchPoints: techCenter.researchPoints - amountToDonate };
       } else if (resource in vindicator.bodegaResources) {
-        newState.vindicator = { ...vindicator, bodegaResources: { ...vindicator.bodegaResources, [resource]: currentResourceAmount - amountToDonate } };
-      } else {
-        newState.resources = { ...resources, [resource]: currentResourceAmount - amountToDonate };
+        const currentAmount = vindicator.bodegaResources[resource as keyof typeof vindicator.bodegaResources] || 0;
+        newState.vindicator = {
+          ...vindicator,
+          bodegaResources: {
+            ...vindicator.bodegaResources,
+            [resource]: currentAmount - amountToDonate
+          }
+        };
       }
 
       const newProgress = {
@@ -705,8 +807,15 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
             newState = updateVindicatorToVM09(newState);
           }
           
-          // Llamada recursiva para añadir el mensaje de Aurora
-          return gameReducer(newState, { type: 'ADD_AURORA_MESSAGE', payload: auroraMessage });
+          // Añadir el mensaje de Aurora directamente en lugar de usar recursividad
+          const newShownMessages = new Set(newState.aurora.shownMessages);
+          newShownMessages.add(auroraMessage.messageKey);
+
+          newState.aurora = {
+            ...newState.aurora,
+            pendingMessages: [...newState.aurora.pendingMessages, { message: auroraMessage.message, key: auroraMessage.messageKey, audioId: auroraMessage.audioId }],
+            shownMessages: newShownMessages,
+          };
         }
         return newState;
       }
@@ -766,289 +875,72 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       return handleVindicatorStarUpgrade(state, action.payload.upgradeId, state.vindicatorMK9Upgrades, 'vindicatorMK9Upgrades');
     }
 
-    case 'LEVEL_UP_VINDICATOR': {
-        const currentLevel = state.vindicatorLevel;
-        const nextLevelData = vindicatorLevelData.find(level => level.level === currentLevel + 1);
-        if (!nextLevelData || state.blueprints < nextLevelData.blueprintCost) return state;
-                const { statBonus } = nextLevelData;
-        return { ...state, blueprints: state.blueprints - nextLevelData.blueprintCost, vindicatorLevel: currentLevel + 1, vindicator: { ...state.vindicator, maxHealth: state.vindicator.maxHealth + statBonus.health, currentHealth: state.vindicator.currentHealth + statBonus.health, maxShield: state.vindicator.maxShield + statBonus.shield, currentShield: state.vindicator.currentShield + statBonus.shield, damage: state.vindicator.damage + statBonus.damage, } };
-    }
+    case 'LEVEL_UP_VINDICATOR': 
+      return handleLevelUpVindicator(state, vindicatorLevelData, 'blueprints');
 
-                case 'LEVEL_UP_VINDICATOR_MK2': {
-      const currentLevel = state.vindicatorLevel;
-      const nextLevelData = vindicatorMK2LevelData.find(level => level.level === currentLevel + 1);
-      
-      if (!nextLevelData || state.vindicator.bodegaResources.planosDeInterceptor < nextLevelData.blueprintCost) return state;
+    case 'LEVEL_UP_VINDICATOR_MK2': 
+      return handleLevelUpVindicator(state, vindicatorMK2LevelData, 'planosDeInterceptor');
 
-      const { statBonus } = nextLevelData;
-      return { 
-        ...state, 
-        vindicator: { 
-          ...state.vindicator, 
-          bodegaResources: {
-            ...state.vindicator.bodegaResources,
-            planosDeInterceptor: state.vindicator.bodegaResources.planosDeInterceptor - nextLevelData.blueprintCost,
-          },
-          maxHealth: state.vindicator.maxHealth + statBonus.health, 
-          currentHealth: state.vindicator.currentHealth + statBonus.health, 
-          maxShield: state.vindicator.maxShield + statBonus.shield, 
-          currentShield: state.vindicator.currentShield + statBonus.shield, 
-          damage: state.vindicator.damage + statBonus.damage, 
-        },
-                vindicatorLevel: currentLevel + 1,
-      };
-    }
+    case 'LEVEL_UP_VINDICATOR_MK3':
+      return handleLevelUpVindicator(state, vindicatorMK3LevelData, 'planosMK3');
 
-        case 'LEVEL_UP_VINDICATOR_MK3': {
-      const currentLevel = state.vindicatorLevel;
-      const nextLevelData = vindicatorMK3LevelData.find(level => level.level === currentLevel + 1);
-      
-      if (!nextLevelData || state.vindicator.bodegaResources.planosMK3 < nextLevelData.blueprintCost) return state;
+    case 'LEVEL_UP_VINDICATOR_MK4':
+      return handleLevelUpVindicator(state, vindicatorMK4LevelData, 'planosMK4');
 
-      const { statBonus } = nextLevelData;
-      return { 
-        ...state, 
-        vindicator: { 
-          ...state.vindicator, 
-          bodegaResources: {
-            ...state.vindicator.bodegaResources,
-            planosMK3: state.vindicator.bodegaResources.planosMK3 - nextLevelData.blueprintCost,
-          },
-          maxHealth: state.vindicator.maxHealth + statBonus.health, 
-          currentHealth: state.vindicator.currentHealth + statBonus.health, 
-          maxShield: state.vindicator.maxShield + statBonus.shield, 
-          currentShield: state.vindicator.currentShield + statBonus.shield, 
-          damage: state.vindicator.damage + statBonus.damage, 
-        },
-        vindicatorLevel: currentLevel + 1,
-      };
-    }
+    case 'LEVEL_UP_VINDICATOR_MK5':
+      return handleLevelUpVindicator(state, vindicatorMK5LevelData, 'planosMK5');
 
-    case 'LEVEL_UP_VINDICATOR_MK4': {
-      const currentLevel = state.vindicatorLevel;
-      const nextLevelData = vindicatorMK4LevelData.find(level => level.level === currentLevel + 1);
-      
-      if (!nextLevelData || state.vindicator.bodegaResources.planosMK4 < nextLevelData.blueprintCost) return state;
+    case 'LEVEL_UP_VINDICATOR_MK6':
+      return handleLevelUpVindicator(state, vindicatorMK6LevelData, 'planosMK6');
 
-      const { statBonus } = nextLevelData;
-      return { 
-        ...state, 
-        vindicator: { 
-          ...state.vindicator, 
-          bodegaResources: {
-            ...state.vindicator.bodegaResources,
-            planosMK4: state.vindicator.bodegaResources.planosMK4 - nextLevelData.blueprintCost,
-          },
-          maxHealth: state.vindicator.maxHealth + statBonus.health, 
-          currentHealth: state.vindicator.currentHealth + statBonus.health, 
-          maxShield: state.vindicator.maxShield + statBonus.shield, 
-          currentShield: state.vindicator.currentShield + statBonus.shield, 
-          damage: state.vindicator.damage + statBonus.damage, 
-        },
-        vindicatorLevel: currentLevel + 1,
-      };
-    }
+    case 'LEVEL_UP_VINDICATOR_MK7':
+      return handleLevelUpVindicator(state, vindicatorMK7LevelData, 'planosMK7');
 
-        case 'LEVEL_UP_VINDICATOR_MK5': {
-      const currentLevel = state.vindicatorLevel;
-      const nextLevelData = vindicatorMK5LevelData.find(level => level.level === currentLevel + 1);
-      
-      if (!nextLevelData || state.vindicator.bodegaResources.planosMK5 < nextLevelData.blueprintCost) return state;
+    case 'LEVEL_UP_VINDICATOR_MK8':
+      return handleLevelUpVindicator(state, vindicatorMK8LevelData, 'planosMK8');
 
-      const { statBonus } = nextLevelData;
-      return { 
-        ...state, 
-        vindicator: { 
-          ...state.vindicator, 
-          bodegaResources: {
-            ...state.vindicator.bodegaResources,
-            planosMK5: state.vindicator.bodegaResources.planosMK5 - nextLevelData.blueprintCost,
-          },
-          maxHealth: state.vindicator.maxHealth + statBonus.health, 
-          currentHealth: state.vindicator.currentHealth + statBonus.health, 
-          maxShield: state.vindicator.maxShield + statBonus.shield, 
-          currentShield: state.vindicator.currentShield + statBonus.shield, 
-          damage: state.vindicator.damage + statBonus.damage, 
-        },
-        vindicatorLevel: currentLevel + 1,
-      };
-    }
-
-    case 'LEVEL_UP_VINDICATOR_MK6': {
-      const currentLevel = state.vindicatorLevel;
-      const nextLevelData = vindicatorMK6LevelData.find(level => level.level === currentLevel + 1);
-      
-      if (!nextLevelData || state.vindicator.bodegaResources.planosMK6 < nextLevelData.blueprintCost) return state;
-
-      const { statBonus } = nextLevelData;
-      return { 
-        ...state, 
-        vindicator: { 
-          ...state.vindicator, 
-          bodegaResources: {
-            ...state.vindicator.bodegaResources,
-            planosMK6: state.vindicator.bodegaResources.planosMK6 - nextLevelData.blueprintCost,
-          },
-          maxHealth: state.vindicator.maxHealth + statBonus.health, 
-          currentHealth: state.vindicator.currentHealth + statBonus.health, 
-          maxShield: state.vindicator.maxShield + statBonus.shield, 
-          currentShield: state.vindicator.currentShield + statBonus.shield, 
-          damage: state.vindicator.damage + statBonus.damage, 
-        },
-                vindicatorLevel: currentLevel + 1,
-      };
-    }
-
-    case 'LEVEL_UP_VINDICATOR_MK7': {
-      const currentLevel = state.vindicatorLevel;
-      const nextLevelData = vindicatorMK7LevelData.find(level => level.level === currentLevel + 1);
-      
-      if (!nextLevelData || state.vindicator.bodegaResources.planosMK7 < nextLevelData.blueprintCost) return state;
-
-      const { statBonus } = nextLevelData;
-      return { 
-        ...state, 
-        vindicator: { 
-          ...state.vindicator, 
-          bodegaResources: {
-            ...state.vindicator.bodegaResources,
-            planosMK7: state.vindicator.bodegaResources.planosMK7 - nextLevelData.blueprintCost,
-          },
-          maxHealth: state.vindicator.maxHealth + statBonus.health, 
-          currentHealth: state.vindicator.currentHealth + statBonus.health, 
-          maxShield: state.vindicator.maxShield + statBonus.shield, 
-          currentShield: state.vindicator.currentShield + statBonus.shield, 
-          damage: state.vindicator.damage + statBonus.damage, 
-        },
-                vindicatorLevel: currentLevel + 1,
-      };
-    }
-
-    case 'LEVEL_UP_VINDICATOR_MK8': {
-      const currentLevel = state.vindicatorLevel;
-      const nextLevelData = vindicatorMK8LevelData.find(level => level.level === currentLevel + 1);
-
-      if (!nextLevelData || state.vindicator.bodegaResources.planosMK8 < nextLevelData.blueprintCost) return state;
-
-      const { statBonus } = nextLevelData;
-      return {
-        ...state,
-        vindicator: {
-          ...state.vindicator,
-          bodegaResources: {
-            ...state.vindicator.bodegaResources,
-            planosMK8: state.vindicator.bodegaResources.planosMK8 - nextLevelData.blueprintCost,
-          },
-          maxHealth: state.vindicator.maxHealth + statBonus.health,
-          currentHealth: state.vindicator.currentHealth + statBonus.health,
-          maxShield: state.vindicator.maxShield + statBonus.shield,
-          currentShield: state.vindicator.currentShield + statBonus.shield,
-          damage: state.vindicator.damage + statBonus.damage,
-        },
-                vindicatorLevel: currentLevel + 1,
-      };
-    }
-
-    case 'LEVEL_UP_VINDICATOR_MK9': {
-      const currentLevel = state.vindicatorLevel;
-      const nextLevelData = vindicatorMK9LevelData.find(level => level.level === currentLevel + 1);
-
-      if (!nextLevelData || state.vindicator.bodegaResources.planosMK9 < nextLevelData.blueprintCost) return state;
-
-      const { statBonus } = nextLevelData;
-      return {
-        ...state,
-        vindicator: {
-          ...state.vindicator,
-          bodegaResources: {
-            ...state.vindicator.bodegaResources,
-            planosMK9: state.vindicator.bodegaResources.planosMK9 - nextLevelData.blueprintCost,
-          },
-          maxHealth: state.vindicator.maxHealth + statBonus.health,
-          currentHealth: state.vindicator.currentHealth + statBonus.health,
-          maxShield: state.vindicator.maxShield + statBonus.shield,
-          currentShield: state.vindicator.currentShield + statBonus.shield,
-          damage: state.vindicator.damage + statBonus.damage,
-        },
-        vindicatorLevel: currentLevel + 1,
-      };
-    }
+    case 'LEVEL_UP_VINDICATOR_MK9':
+      return handleLevelUpVindicator(state, vindicatorMK9LevelData, 'planosMK9');
 
                                                     case 'CLAIM_EXPEDITION_REWARDS': {
       const activeExpedition = action.payload;
-      const expeditionData = allExpeditionsData.find(e => e.id === activeExpedition.id);
-      if (!expeditionData) return state;
+      const results = calculateExpeditionResults(state, activeExpedition);
 
-      const expeditionCount = activeExpedition.expeditionCount || 1;
-      let totalDronesLost = 0;
-      const totalRewards: { [key: string]: number } = {};
-      let successCount = 0;
+      const newResources = { ...state.resources };
+      const newBodegaResources = { ...state.vindicator.bodegaResources };
 
-      for (let i = 0; i < expeditionCount; i++) {
-        const wasSuccessful = Math.random() > expeditionData.risk.chance;
-        if (wasSuccessful) {
-          successCount++;
-          for (const [resource, range] of Object.entries(expeditionData.rewards)) {
-            if (range) {
-              const [min, max] = range;
-              const amount = Math.floor(Math.random() * (max - min + 1)) + min;
-              if (amount > 0) {
-                totalRewards[resource] = (totalRewards[resource] || 0) + amount;
-              }
-            }
-          }
-        } else {
-          const droneSelfRepairLevel = state.techCenter.upgrades.droneSelfRepair || 0;
-          const survivalChance = droneSelfRepairLevel * 0.10;
-          const dronesPerSingleExpedition = expeditionData.costs.drones;
-          const initialDronesLostInThisRun = Math.ceil(dronesPerSingleExpedition * expeditionData.risk.droneLossPercentage);
-          let dronesSurvivedThisRun = 0;
-
-          if (droneSelfRepairLevel > 0) {
-            for (let j = 0; j < initialDronesLostInThisRun; j++) {
-              if (Math.random() < survivalChance) {
-                dronesSurvivedThisRun++;
-              }
-            }
-          }
-          totalDronesLost += initialDronesLostInThisRun - dronesSurvivedThisRun;
+      for (const [resource, amount] of Object.entries(results.rewards)) {
+        // Comprobar si el recurso pertenece al inventario principal (Fase 1)
+        if (resource in initialGameState.resources) {
+          (newResources as any)[resource] = (newResources[resource as keyof typeof newResources] || 0) + amount;
+        } else { // Si no, es un recurso de la bodega (Fase 2+)
+          const key = resource as keyof typeof newBodegaResources;
+          newBodegaResources[key] = (newBodegaResources[key] || 0) + amount;
         }
       }
-
-      const newBodegaResources = { ...state.vindicator.bodegaResources };
-      for (const [resource, amount] of Object.entries(totalRewards)) {
-        const key = resource as keyof typeof newBodegaResources;
-        newBodegaResources[key] = (newBodegaResources[key] || 0) + amount;
-      }
       
-      const droneType = expeditionData.droneType;
       const newDrones = { ...state.workshop.drones };
-      newDrones[droneType] -= totalDronesLost;
+      if (results.dronesLost > 0) {
+        newDrones[results.droneType as DroneType] -= results.dronesLost;
+      }
 
       const remainingExpeditions = state.activeExpeditions.filter(exp => exp.instanceId !== activeExpedition.instanceId);
 
-      let finalMessage = `Convoy de ${expeditionCount} expediciones a "${expeditionData.title}" ha regresado.\n`;
-      if (successCount > 0) {
-        const rewardStrings = Object.entries(totalRewards).map(([res, amount]) => `${formatNumber(amount)} de ${res.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
-        finalMessage += `Éxitos: ${successCount}. Recompensas: ${rewardStrings.join(', ') || 'ninguna'}.\n`;
-      }
-      if (totalDronesLost > 0) {
-        finalMessage += `Pérdidas: ${totalDronesLost} drones.`;
-      }
-
       return {
         ...state,
+        resources: newResources,
         vindicator: { ...state.vindicator, bodegaResources: newBodegaResources },
         workshop: { ...state.workshop, drones: newDrones },
         activeExpeditions: remainingExpeditions,
         aurora: {
           ...state.aurora,
           pendingMessages: [...state.aurora.pendingMessages, { 
-            message: finalMessage.trim(), 
+            message: results.message, 
             key: `exp-group-${Date.now()}`, 
-            audioId: state.settings.voicesMuted ? undefined : (successCount > 0 ? 6 : 7) 
+            audioId: results.audioId
           }]
-        }
+        },
+        recalculationNeeded: true
       };
     }
             case 'SET_MASTER_VOLUME':
@@ -1233,6 +1125,7 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
               [toDrone]: (workshop.drones[toDrone] || 0) + 1,
             },
           },
+          recalculationNeeded: true,
         };
       }
       return state;

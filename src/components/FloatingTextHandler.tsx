@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import './FloatingTextHandler.css';
 
@@ -12,10 +12,11 @@ interface FloatingText {
 
 const FloatingTextHandler: React.FC = () => {
   const [texts, setTexts] = useState<FloatingText[]>([]);
+  const idCounter = useRef(0); // Añadimos el contador
 
   const showFloatingText = useCallback((e: MouseEvent, textToShow: string, type: FloatingText['type'] = 'click') => {
     const newText: FloatingText = {
-      id: Date.now(),
+      id: Date.now() + (idCounter.current++), // ID único
       text: textToShow,
       x: e.clientX,
       y: e.clientY,

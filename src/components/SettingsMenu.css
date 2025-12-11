@@ -52,6 +52,14 @@
   border-radius: 12px;
   display: flex;
   box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+  transition: border-color 0.3s, background-color 0.3s, box-shadow 0.3s;
+}
+
+/* --- TEMA FASE 2 (ROJO) --- */
+.theme-phase2 .settings-panel {
+  background-color: #450A0A; /* Fondo rojo oscuro */
+  border-color: #F87171; /* Borde rojo claro */
+  box-shadow: 0 0 25px rgba(248, 113, 113, 0.5); /* Resplandor rojo */
 }
 
 .settings-sidebar {
@@ -63,6 +71,12 @@
   flex-direction: column;
   gap: 0.5rem;
   flex-shrink: 0;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.theme-phase2 .settings-sidebar {
+  background-color: rgba(59, 10, 10, 0.8);
+  border-right: 1px solid #7F1D1D;
 }
 
 .settings-sidebar button {
@@ -78,15 +92,29 @@
   transition: all 0.2s ease;
 }
 
+.theme-phase2 .settings-sidebar button {
+  color: #FECACA; /* Texto rojo muy claro */
+}
+
 .settings-sidebar button:hover {
   background-color: rgba(56, 189, 248, 0.1);
   border-color: rgba(56, 189, 248, 0.3);
+}
+
+.theme-phase2 .settings-sidebar button:hover {
+  background-color: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.3);
 }
 
 .settings-sidebar button.active {
   background-color: rgba(56, 189, 248, 0.2);
   border-color: #38bdf8;
   font-weight: bold;
+}
+
+.theme-phase2 .settings-sidebar button.active {
+  background-color: rgba(248, 113, 113, 0.2);
+  border-color: #F87171;
 }
 
 .settings-content {
@@ -110,6 +138,13 @@
   border-bottom: 1px solid #1e3a8a;
   padding-bottom: 1rem;
   margin-bottom: 1rem;
+  transition: color 0.3s, border-color 0.3s;
+}
+
+.theme-phase2 .settings-section-title,
+.theme-phase2 .dev-section-title {
+  color: #FECACA;
+  border-bottom-color: #7F1D1D;
 }
 
 .volume-control, .toggle-control, .setting-option, .setting-option-vertical {
@@ -131,6 +166,11 @@ input[type="range"] {
   background: #1e3a8a;
   border-radius: 5px;
   outline: none;
+  transition: background-color 0.3s;
+}
+
+.theme-phase2 input[type="range"] {
+  background: #7F1D1D;
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -142,6 +182,12 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 0 5px #38bdf8;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.theme-phase2 input[type="range"]::-webkit-slider-thumb {
+  background: #F87171;
+  box-shadow: 0 0 5px #F87171;
 }
 
 .toggle-button {
@@ -189,10 +235,20 @@ input[type="range"]::-webkit-slider-thumb {
   gap: 2rem;
   padding: 1.5rem 0;
   border-bottom: 1px solid #1e3a8a; /* Línea separadora */
+  transition: border-color 0.3s;
+}
+
+.theme-phase2 .button-choice {
+  border-bottom-color: #7F1D1D;
 }
 
 .button-choice:first-of-type {
   border-top: 1px solid #1e3a8a; /* Línea superior para el primero */
+  transition: border-color 0.3s;
+}
+
+.theme-phase2 .button-choice:first-of-type {
+  border-top-color: #7F1D1D;
 }
 
 .button-choice .toggle-button {
@@ -204,6 +260,11 @@ input[type="range"]::-webkit-slider-thumb {
   margin: 0 0 0.5rem 0;
   font-size: 1.4rem;
   color: #a5f3fc;
+  transition: color 0.3s;
+}
+
+.theme-phase2 .choice-description p {
+  color: #FECACA;
 }
 
 .choice-description span {
@@ -216,7 +277,12 @@ input[type="range"]::-webkit-slider-thumb {
 .save-description p {
   margin: 0 0 0.5rem 0;
   color: #a5f3fc;
+  transition: color 0.3s;
 }
+.theme-phase2 .save-description p {
+  color: #FECACA;
+}
+
 .save-description strong {
   color: #ef4444;
   font-weight: bold;
@@ -231,6 +297,12 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: 4px;
   padding: 0.5rem;
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.theme-phase2 .save-textarea {
+  background-color: #7F1D1D;
+  border-color: #F87171;
 }
 
 .action-button {
@@ -244,6 +316,12 @@ input[type="range"]::-webkit-slider-thumb {
   background-color: #38bdf8;
   border-color: #0ea5e9;
   color: #075985;
+}
+
+.theme-phase2 .action-button {
+  background-color: #F87171;
+  border-color: #EF4444;
+  color: #7F1D1D;
 }
 
 .action-button.import {
