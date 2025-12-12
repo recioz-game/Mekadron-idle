@@ -1,21 +1,6 @@
 // src/utils/encryption.ts
 
-// Since crypto-js is loaded as a script that creates a global CryptoJS object,
-// and we don't have proper typings installed, we declare it here to satisfy TypeScript.
-// We also need to import it to make sure the script is loaded before this module.
-import '../lib/crypto.js';
-
-// Define a type for the global CryptoJS object.
-// This is a simplified version focusing on what we need (AES).
-declare const CryptoJS: {
-  AES: {
-    encrypt: (message: string, key: string) => { toString: () => string };
-    decrypt: (ciphertext: string, key: string) => { toString: (encoder: any) => string };
-  };
-  enc: {
-    Utf8: any;
-  };
-};
+import { AES, enc } from 'crypto-js';
 
 // A simple way to hide the key slightly. In a real-world scenario,
 // this would need more advanced obfuscation.
@@ -49,7 +34,7 @@ export const decryptData = (ciphertext: string): object | null => {
         return JSON.parse(decryptedJson);
     } catch (error) {
         // This can happen if the data is not valid JSON or other decryption errors occur.
-        // console.error("Failed to decrypt or parse data:", error);
+        console.error("Failed to decrypt or parse data:", error);
         return null;
     }
 };
