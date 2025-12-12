@@ -1,6 +1,6 @@
 // src/utils/encryption.ts
 
-import { AES, enc } from 'crypto-js';
+import CryptoJS from 'crypto-js';
 
 // A simple way to hide the key slightly. In a real-world scenario,
 // this would need more advanced obfuscation.
