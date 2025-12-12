@@ -237,13 +237,16 @@ const applyBulkOfflineProduction = (state: GameState, seconds: number): GameStat
   const newAceroEstructural = state.resources.aceroEstructural + wyrmSteelProduction;
 
   // Cálculo de investigación
-  const baseResearch = 0.1 * (1 + (upgrades.researchEfficiency * 0.20));
-  const totalDrones = Object.values(drones).reduce((sum, count) => sum + count, 0);
-  const droneResearch = (totalDrones * 0.01) * (1 + (upgrades.advancedAnalysis * 0.10));
-  const energySurplus = Math.max(0, resources.energy - totalEnergyConsumption);
-  const energyResearch = (energySurplus * 0.005) * (1 + (upgrades.algorithmOptimization * 0.15));
-  const researchPointsToAdd = ((baseResearch + droneResearch + energyResearch) /
-    (1 - (upgrades.quantumComputing * 0.05))) * seconds;
+  let researchPointsToAdd = 0;
+  if (state.techCenter.unlocked) {
+    const baseResearch = 0.1 * (1 + (upgrades.researchEfficiency * 0.20));
+    const totalDrones = Object.values(drones).reduce((sum, count) => sum + count, 0);
+    const droneResearch = (totalDrones * 0.01) * (1 + (upgrades.advancedAnalysis * 0.10));
+    const energySurplus = Math.max(0, resources.energy - totalEnergyConsumption);
+    const energyResearch = (energySurplus * 0.005) * (1 + (upgrades.algorithmOptimization * 0.15));
+    researchPointsToAdd = ((baseResearch + droneResearch + energyResearch) /
+      (1 - (upgrades.quantumComputing * 0.05))) * seconds;
+  }
 
     return {
     ...state,

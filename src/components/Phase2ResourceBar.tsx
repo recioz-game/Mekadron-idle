@@ -5,6 +5,10 @@ import { useGame, useGameDispatch } from '../context/GameContext'; // <-- dispat
 import { resourceMetadata } from '../data/resourceMetadata'; // Importar metadatos
 import { allArmoryMK1Modules } from '../data/armoryMK1Data';
 import { allArmoryMK2Modules } from '../data/armoryMK2Data';
+import scrapIcon from '../assets/images/ui/scrap-icon.png';
+import healthIcon from '../assets/images/ui/health-icon.png';
+import shieldIcon from '../assets/images/ui/shield-icon.png';
+import attackIcon from '../assets/images/ui/attack-icon.png';
 
 
 
@@ -58,7 +62,7 @@ const Phase2ResourceBar: React.FC = () => {
       <div className="resource-group">
         {/* Chatarra (siempre visible) */}
         <div className="resource-item clickable" title="Chatarra (clic para más detalles)" onClick={() => handleResourceClick('scrap')}>
-          <img src="/src/assets/images/ui/scrap-icon.png" alt="Chatarra" className="resource-icon-img" />
+          <img src={scrapIcon} alt="Chatarra" className="resource-icon-img" />
           <span>{formatNumber(resources.scrap)}</span>
         </div>
         
@@ -83,19 +87,19 @@ const Phase2ResourceBar: React.FC = () => {
       {/* Stats de la Nave Vindicator - Parte derecha */}
       <div className="vindicator-stats">
         <div className="stat-item clickable" title="Salud (clic para más detalles)" onClick={() => handleResourceClick('vindicatorHealth')}>
-          <img src="/src/assets/images/ui/health-icon.png" alt="Salud" className="resource-icon-img" />
+          <img src={healthIcon} alt="Salud" className="resource-icon-img" />
           <span className="value">
             {formatNumber(vindicator.currentHealth)}/{formatNumber(vindicator.maxHealth)}
           </span>
         </div>
         <div className="stat-item clickable" title="Escudo (clic para más detalles)" onClick={() => handleResourceClick('vindicatorShield')}>
-          <img src="/src/assets/images/ui/shield-icon.png" alt="Escudo" className="resource-icon-img" />
+          <img src={shieldIcon} alt="Escudo" className="resource-icon-img" />
           <span className="value">
             {formatNumber(vindicator.currentShield)}/{formatNumber(vindicator.maxShield)}
           </span>
         </div>
         <div className="stat-item clickable" title="Daño (clic para más detalles)" onClick={() => handleResourceClick('vindicatorDamage')}>
-          <img src="/src/assets/images/ui/attack-icon.png" alt="Ataque" className="resource-icon-img" />
+          <img src={attackIcon} alt="Ataque" className="resource-icon-img" />
           <span className="value">{formatNumber(vindicator.damage)}</span>
         </div>
       </div>

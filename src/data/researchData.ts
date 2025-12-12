@@ -1,3 +1,16 @@
+
+export const calculateResearchCost = (upgradeId: string, currentLevel: number): number => {
+  const researchItem = researchData[upgradeId];
+  if (!researchItem) {
+    console.error(`[calculateResearchCost] No se encontró la mejora con ID: ${upgradeId}`);
+    return Infinity;
+  }
+
+  const rawCost = researchItem.baseCost * Math.pow(researchItem.costMultiplier, currentLevel);
+
+  // Redondeamos al múltiplo de 5 más cercano para tener números más limpios
+  return Math.round(rawCost / 5) * 5;
+};
 export interface ResearchItem {
   id: string;
   name: string;

@@ -13,6 +13,7 @@ import { droneData } from '../data/droneData';
 import { updateVindicatorToVM01, updateVindicatorToVM02, updateVindicatorToVM03, updateVindicatorToVM04, updateVindicatorToVM05, updateVindicatorToVM06, updateVindicatorToVM07, updateVindicatorToVM08, updateVindicatorToVM09, calculateExpeditionResults } from '../gameLogic/utils';
 import { bodegaData } from '../data/bodegaData';
 import { ResourceCategory } from '../data/categoryData';
+import { researchData, calculateResearchCost } from '../data/researchData';
 import { deepMerge, rehydrateState } from './contextUtils';
 
 // Helper function for Vindicator star upgrades
@@ -391,16 +392,29 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       };
     }
 
-        case 'RESEARCH_UPGRADE': {
-      const { upgradeName, cost } = action.payload;
-      if (state.techCenter.researchPoints >= cost) {
+            case 'RESEARCH_UPGRADE': {
+      // El payload ahora solo contiene `upgradeName`, ya no confiamos en el coste del cliente.
+      const { upgradeName } = action.payload;
+      const { techCenter } = state;
+      
+      const researchItem = researchData[upgradeName];
+      if (!researchItem) {
+        console.error(`Intento de investigar una mejora inválida: ${upgradeName}`);
+        return state; // No hacer nada si la mejora no existe
+      }
+      
+      const currentLevel = techCenter.upgrades[upgradeName as keyof typeof techCenter.upgrades] || 0;
+      
+      // El reducer calcula el coste real, convirtiéndose en la fuente de la verdad.
+      const cost = calculateResearchCost(upgradeName, currentLevel);
+
+      if (techCenter.researchPoints >= cost && currentLevel < researchItem.maxLevel) {
         const newUpgrades = {
-          ...state.techCenter.upgrades,
-          [upgradeName]: (state.techCenter.upgrades[upgradeName as keyof typeof state.techCenter.upgrades] || 0) + 1
+          ...techCenter.upgrades,
+          [upgradeName]: currentLevel + 1
         };
 
-        // --- Lógica de Cambio de Fondo ---
-        // Transición a Phase 3 (fondo 4) al investigar Foundry
+        // Lógica de cambio de fondo (se mantiene)
         let newBackground = state.currentBackground;
         if (upgradeName === 'foundryProtocols' && state.currentBackground < 4) {
           newBackground = 4;
@@ -410,11 +424,11 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
           ...state,
           currentBackground: newBackground,
           modules: { ...state.modules, ...(upgradeName === 'foundryProtocols' && { foundry: true }) },
-          techCenter: { ...state.techCenter, researchPoints: state.techCenter.researchPoints - cost, upgrades: newUpgrades },
+          techCenter: { ...techCenter, researchPoints: techCenter.researchPoints - cost, upgrades: newUpgrades },
           recalculationNeeded: true
         };
       }
-      return state;
+      return state; // No hacer nada si no se puede pagar
     }
 
                         case 'GAME_TICK': {
