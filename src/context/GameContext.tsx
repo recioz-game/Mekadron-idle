@@ -272,6 +272,7 @@ const applyBulkOfflineProduction = (state: GameState, seconds: number): GameStat
   };
 };
 
+import { decryptData } from '../utils/encryption';
 // Carga el estado inicial, intentando recuperarlo de localStorage
 const loadState = (): GameState => {
   try {
@@ -279,7 +280,21 @@ const loadState = (): GameState => {
     if (serializedState === null) {
       return initialGameState;
     }
-    const storedState = JSON.parse(serializedState);
+
+    // Intentar desencriptar primero, con fallback a JSON.parse para saves antiguos
+    let storedState = decryptData(serializedState);
+    if (storedState === null) {
+      // Si la desencriptación falla, podría ser un save antiguo sin encriptar.
+      // Intentamos parsearlo como JSON normal.
+      try {
+        storedState = JSON.parse(serializedState);
+      } catch (e) {
+        // Si ambos fallan, el dato está corrupto.
+        console.error("No se pudo parsear el save (ni encriptado ni plano):", e);
+        return initialGameState;
+      }
+    }
+    
 
     // --- MIGRACIÓN DE DATOS ESTRUCTURAL: workshop.drones ---
     if (storedState.drones && !storedState.workshop?.drones) {

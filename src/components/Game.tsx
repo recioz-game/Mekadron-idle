@@ -5,6 +5,7 @@ import GameScene from './GameScene';
 import AuroraMessage from './AuroraMessage';
 import AuroraMessageHandler from './AuroraMessageHandler'; // <-- AÑADIR IMPORTACIÓN
 import { TICK_INTERVAL } from '../data/gameConfig';
+import { encryptData } from '../utils/encryption';
 
 const Game: React.FC = () => {
         const { gameState, dispatch } = useGame();
@@ -47,7 +48,7 @@ const Game: React.FC = () => {
           shownMessages: Array.from(gameState.aurora.shownMessages),
         }
       };
-      localStorage.setItem('mekadron-savegame', JSON.stringify(stateToSave));
+      localStorage.setItem('mekadron-savegame', encryptData(stateToSave));
     } catch (err) {
       console.error("No se pudo guardar la partida:", err);
     }
