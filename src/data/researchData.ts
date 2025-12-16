@@ -14,6 +14,7 @@ export const calculateResearchCost = (upgradeId: string, currentLevel: number): 
 export interface ResearchItem {
   id: string;
   name: string;
+  baseDescription?: string; // Descripción estática para la UI
   description: (level: number) => string;
   maxLevel: number;
   baseCost: number;
@@ -31,7 +32,7 @@ export const researchData: Record<string, ResearchItem> = {
   droneAssembly: { id: 'droneAssembly', name: 'Línea de Ensamblaje', description: (l: number) => `-${l * 5}% Tiempo Constr. Drones`, baseCost: 150, costMultiplier: 1.25, maxLevel: 5, branch: 'production', tier: 2, row: 1, requirements: ['collectionEfficiency'] },
   droneScrapCost: { id: 'droneScrapCost', name: 'Geometría Optimizada', description: (l: number) => `-${l * 5}% Coste Chatarra Drones`, baseCost: 250, costMultiplier: 1.3, maxLevel: 4, branch: 'production', tier: 3, row: 1, requirements: ['droneAssembly'] },
   droneSelfRepair: { id: 'droneSelfRepair', name: 'Autómatas de Auto-Reparación', description: (l: number) => `${l * 10}% Prob. Supervivencia`, baseCost: 500, costMultiplier: 1.4, maxLevel: 5, branch: 'production', tier: 4, row: 1, requirements: ['droneScrapCost'] },
-  reassignProtocols: { id: 'reassignProtocols', name: 'Protocolos de Reasignación', description: () => 'Desbloquea Desmantelamiento', baseCost: 300, costMultiplier: 1, maxLevel: 1, branch: 'production', tier: 2, row: 2, requirements: ['collectionEfficiency'] },
+  reassignProtocols: { id: 'reassignProtocols', name: 'Protocolos de Reasignación', baseDescription: 'Permite desmantelar drones y edificios.', description: () => 'Desbloquea Desmantelamiento', baseCost: 300, costMultiplier: 1, maxLevel: 1, branch: 'production', tier: 2, row: 2, requirements: ['collectionEfficiency'] },
   droneRetrofitting: { id: 'droneRetrofitting', name: 'Reacondicionamiento de Chasis', description: () => 'Desbloquea Reacondicionamiento', baseCost: 400, costMultiplier: 1, maxLevel: 1, branch: 'production', tier: 3, row: 3, requirements: ['reassignProtocols'] },
   powerOptimization: { id: 'powerOptimization', name: 'Optimización Energética', description: (l: number) => `-${l * 5}% Consumo Energía Drones`, baseCost: 120, costMultiplier: 1.25, maxLevel: 5, branch: 'production', tier: 3, row: 2, requirements: ['reassignProtocols'] },
   energyCalibration: { id: 'energyCalibration', name: 'Calibración de Componentes', description: (l: number) => `-${l * 5}% Tiempo Constr. Energía`, baseCost: 180, costMultiplier: 1.3, maxLevel: 5, branch: 'production', tier: 4, row: 2, requirements: ['powerOptimization'] },
@@ -69,7 +70,7 @@ export const researchData: Record<string, ResearchItem> = {
   // === RAMA DE LOGÍSTICA (NARANJA) ===
   storageOptimization: { id: 'storageOptimization', name: 'Logística Mejorada', description: (l: number) => `+${l * 15}% Cap. Chatarra`, baseCost: 80, costMultiplier: 1.2, maxLevel: 5, branch: 'logistics', tier: 1, row: 1, requirements: [] },
   storageConstruction: { id: 'storageConstruction', name: 'Logística Eficiente', description: (l: number) => `-${l * 5}% Tiempo Constr. Almacenes`, baseCost: 130, costMultiplier: 1.25, maxLevel: 5, branch: 'logistics', tier: 2, row: 1, requirements: ['storageOptimization'] },
-  cargoDrones: { id: 'cargoDrones', name: 'Drones de Carga', description: (l: number) => `+${l * 10}% Bono Almacenamiento`, baseCost: 220, costMultiplier: 1.3, maxLevel: 4, branch: 'logistics', tier: 3, row: 1, requirements: ['storageConstruction'] },
+  cargoDrones: { id: 'cargoDrones', name: 'Drones de Carga', baseDescription: 'Aumenta el bono de almacenamiento de los almacenes.', description: (l: number) => `+${l * 10}% Bono Almacenamiento`, baseCost: 220, costMultiplier: 1.3, maxLevel: 4, branch: 'logistics', tier: 3, row: 1, requirements: ['storageConstruction'] },
   batteryTech: { id: 'batteryTech', name: 'Tecnología de Baterías', description: (l: number) => `+${l * 15}% Cap. Energía`, baseCost: 300, costMultiplier: 1.3, maxLevel: 5, branch: 'logistics', tier: 2, row: 2, requirements: ['storageOptimization'] },
   energyStorage: { id: 'energyStorage', name: 'Almacenamiento Energético', description: (l: number) => `+${l * 10}% Bono Baterías`, baseCost: 350, costMultiplier: 1.35, maxLevel: 4, branch: 'logistics', tier: 3, row: 2, requirements: ['batteryTech'] },
   automatedDistribution: { id: 'automatedDistribution', name: 'Logística de Enjambre', description: (l: number) => `+${l * 5}% Cap. Chatarra y Energía`, baseCost: 800, costMultiplier: 1.4, maxLevel: 3, branch: 'logistics', tier: 4, row: 1, requirements: ['cargoDrones'] },

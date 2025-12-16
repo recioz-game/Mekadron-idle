@@ -203,8 +203,9 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
                 blueprints: { name: 'Planos', icon: { src: blueprintIcon, alt: 'Planos' } }, // Puedes usar una clase para un icono de imagen
               };
 
-              const allResources = { ...gameState.resources, ...gameState.vindicator.bodegaResources };
-              const canAffordFuel = allResources.barraCombustible >= 1;
+              // Sumar las barras de combustible de ambas fuentes para evitar problemas de estado inconsistente
+              const totalFuelRods = (gameState.resources.barraCombustible || 0) + (gameState.vindicator.bodegaResources.barraCombustible || 0);
+              const canAffordFuel = totalFuelRods >= 1;
 
               return (
                 <>

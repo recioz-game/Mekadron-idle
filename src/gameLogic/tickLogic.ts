@@ -259,7 +259,11 @@ export const processGameTick = (state: GameState): GameState & { auroraMessages:
 
   // --- FASE 2: APLICAR TASAS Y RECURSOS ---
   let stateWithRates = stateAfterQueues;
-  if (stateWithRates.recalculationNeeded) {
+  
+  // Forzar el recálculo si se ha construido algo que pueda afectar las tasas.
+  const ratesNeedRecalc = workshopResult.changed || energyResult.changed || storageResult.changed;
+
+  if (stateWithRates.recalculationNeeded || ratesNeedRecalc) {
     stateWithRates = recalculateRates(stateAfterQueues);
     stateWithRates.recalculationNeeded = false;
   }

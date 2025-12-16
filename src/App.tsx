@@ -10,12 +10,16 @@ import CombatScene from './components/CombatScene';
 import CreditsScene from './components/CreditsScene'; // <-- Importar CreditsScene
 import ErrorBoundary from './components/ErrorBoundary';
 import FloatingTextHandler from './components/FloatingTextHandler'; // <-- Importar FloatingTextHandler
+import NotificationToast from './components/NotificationToast'; // <-- AÑADIDO
 import { useEffect, useRef } from 'react';
 import mainThemeAudio from './assets/audio/music/main-theme.mp3';
 
 const App: React.FC = () => {
     const { gameState, dispatch } = useGame();
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  // --- Notification Handler ---
+  const currentNotification = gameState.notificationQueue.length > 0 ? gameState.notificationQueue[0] : null;
 
   // --- Music Director ---
   useEffect(() => {
@@ -78,6 +82,10 @@ const App: React.FC = () => {
       <ErrorBoundary>
         {renderCurrentScene()}
       </ErrorBoundary>
+      <NotificationToast 
+        notification={currentNotification} 
+        onDismiss={() => dispatch({ type: 'DISMISS_NOTIFICATION' })} 
+      />
       <audio ref={audioRef} src={mainThemeAudio} loop />
       <FloatingTextHandler />
     </div>

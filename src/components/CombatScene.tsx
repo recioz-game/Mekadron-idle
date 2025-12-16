@@ -10,13 +10,39 @@ type AnimationPhase = 'idle' | 'playerAttack' | 'enemyDamage' | 'enemyAttack' | 
 
 const CombatScene: React.FC = () => {
   const { gameState, dispatch } = useGame();
-  const { vindicator, activeBattle } = gameState;
+  const { vindicator, activeBattle, battleRoom } = gameState;
 
   const [animationPhase, setAnimationPhase] = useState<AnimationPhase>('idle');
+  const [playerShake, setPlayerShake] = useState(false);
+  const [enemyShake, setEnemyShake] = useState(false);
 
   // Busca los assets del enemigo y del vindicator en el mapa
-  const enemySprite = activeBattle ? enemyAssets[activeBattle.enemyName] : null;
-  const vindicatorSprite = vindicatorAssets[vindicator.vindicatorType];
+      const enemySprite = activeBattle ? enemyAssets[activeBattle.enemyName] : null;
+    const vindicatorSprite = vindicatorAssets[vindicator.vindicatorType];
+  
+    useEffect(() => {
+      if (activeBattle) {
+        console.log('Active Battle Enemy Name:', activeBattle.enemyName);
+        if (enemySprite) {
+          console.log('Enemy Sprite Path:', enemySprite.idle);
+        } else {
+          console.log('Enemy Sprite is null or undefined.');
+        }
+      }
+    }, [activeBattle, enemySprite]); // Log whenever activeBattle or enemySprite changes
+    // Determina el fondo de combate dinámicamente
+    const getBackgroundPath = () => {
+      let path = '/src/assets/images/enemies/Capitulo 1/fondo combate 1.webp'; // Default fallback
+      if (battleRoom.selectedChapterIndex !== null) {
+        const chapterIndex = battleRoom.selectedChapterIndex;
+        // Hay 5 fondos únicos (1-5). Los modos difíciles (índice 5+) los reutilizan.
+        const backgroundChapterNumber = (chapterIndex % 5) + 1;
+        path = `/src/assets/images/enemies/Capitulo ${backgroundChapterNumber}/fondo combate ${backgroundChapterNumber}.webp`;
+      }
+      // Usa new URL() para que Vite procese la ruta del asset
+      return new URL(path, import.meta.url).href;
+    };
+    const backgroundPath = getBackgroundPath();
 
   const [audioVindicator] = useState(new Audio(laserVindicatorSfx));
   const [audioEnemy] = useState(new Audio(laserEnemySfx));
@@ -60,6 +86,8 @@ const CombatScene: React.FC = () => {
 
       case 'playerAttack':
         audioVindicator.play();
+        setPlayerShake(true);
+        setTimeout(() => setPlayerShake(false), 300); // Duración de la animación de shake
         timeoutId = setTimeout(() => {
           dispatch({ type: 'PLAYER_ATTACK' });
           setAnimationPhase('enemyDamage');
@@ -73,6 +101,8 @@ const CombatScene: React.FC = () => {
 
       case 'enemyAttack':
         audioEnemy.play();
+        setEnemyShake(true);
+        setTimeout(() => setEnemyShake(false), 300); // Duración de la animación de shake
         timeoutId = setTimeout(() => {
           dispatch({ type: 'ENEMY_RESPONSE' });
           setAnimationPhase('playerDamage');
@@ -106,22 +136,22 @@ const CombatScene: React.FC = () => {
   }
 
   return (
-    <div className="combat-scene">
+    <div className="combat-scene" style={{ backgroundImage: `url(${backgroundPath})` }}>
       <div className="combat-area">
-        <div className={`combatant vindicator-combatant ${animationPhase === 'playerDamage' ? 'shake' : ''}`}>
+        <div className={`combatant vindicator-combatant ${playerShake || animationPhase === 'playerDamage' ? 'shake' : ''} ${animationPhase === 'playerDamage' ? 'flash' : ''}`}>
           {vindicatorSprite && (
             <img 
-              src={(animationPhase === 'playerAttack') ? vindicatorSprite.shooting : vindicatorSprite.idle} 
+              src={vindicatorSprite.idle} 
               alt="Vindicator" 
               className="unit-sprite" 
             />
           )}
         </div>
 
-        <div className={`combatant enemy-combatant ${animationPhase === 'enemyDamage' ? 'shake' : ''}`}>
+        <div className={`combatant enemy-combatant ${enemyShake || animationPhase === 'enemyDamage' ? 'shake' : ''} ${animationPhase === 'enemyDamage' ? 'flash' : ''}`}>
           {enemySprite && (
             <img 
-              src={(animationPhase === 'enemyAttack') ? enemySprite.shooting : enemySprite.idle} 
+              src={enemySprite.idle} 
               alt={activeBattle.enemyName} 
               className="unit-sprite" 
             />
@@ -130,7 +160,7 @@ const CombatScene: React.FC = () => {
       </div>
 
       <UnitDisplay
-        name={vindicator.vindicatorType.includes('_') ? vindicator.vindicatorType.split('_')[1].toUpperCase() : vindicator.vindicatorType.toUpperCase()}
+        name={vindicator.vindicatorType === 'base' ? 'VINDICATOR' : vindicator.vindicatorType.includes('_') ? vindicator.vindicatorType.split('_')[1].toUpperCase() : vindicator.vindicatorType.toUpperCase()}
         currentHealth={vindicator.currentHealth}
         maxHealth={vindicator.maxHealth}
         currentShield={vindicator.currentShield}
@@ -153,13 +183,13 @@ const CombatScene: React.FC = () => {
             <h2>VICTORIA</h2>
           </div>
           <button 
-            className="secondary-button escape-button victory-button-left" 
+            className="combat-button secondary victory-button-left" 
             onClick={() => dispatch({ type: 'ESCAPE_COMBAT' })}
           >
             Volver al Hangar
           </button>
           <button 
-            className="central-action-button victory-button-right" 
+            className="combat-button primary victory-button-right" 
             onClick={handleNextBattle}
           >
             Siguiente Combate

@@ -22,18 +22,37 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
       };
 
     case 'START_BATTLE': {
-      if (state.vindicator.bodegaResources.barraCombustible < 1) {
-        console.warn("No hay suficiente combustible para iniciar la batalla.");
-        return state;
+      // Comprobación de combustible, anulada por el modo dios
+      if (!state.godMode && state.resources.barraCombustible < 1) {
+        return {
+          ...state,
+          notificationQueue: [
+            ...state.notificationQueue,
+            { id: Date.now().toString(), title: 'Sin Combustible', message: 'Necesitas Barras de Combustible para combatir.' }
+          ]
+        };
       }
 
-      if (state.battleRoom.selectedDestination === null) {
-        return state;
-      }
-
+      const chapterIndex = state.battleRoom.selectedChapterIndex;
       const destinationIndex = state.battleRoom.selectedDestination;
-      const destination = allDestinations[destinationIndex];
-      const battleIndex = state.battleRoom.battlesCompleted[destinationIndex] || 0;
+
+      if (chapterIndex === null || destinationIndex === null) {
+        return state; // No chapter or destination selected
+      }
+
+      const currentChapter = gameChapters[chapterIndex];
+      if (!currentChapter) {
+        console.error(`Chapter with index ${chapterIndex} not found.`);
+        return state;
+      }
+
+      const destination = currentChapter.destinations[destinationIndex];
+      if (!destination) {
+        console.error(`Destination with index ${destinationIndex} not found in chapter ${chapterIndex}.`);
+        return state;
+      }
+      
+      const battleIndex = state.battleRoom.battlesCompleted[chapterIndex]?.[destinationIndex] || 0;
 
       if (battleIndex >= destination.battles.length) {
         return state;
@@ -51,12 +70,13 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
 
       return {
         ...state,
+        resources: {
+          ...state.resources,
+          // Solo consume combustible si el modo dios está desactivado
+          barraCombustible: state.godMode ? state.resources.barraCombustible : state.resources.barraCombustible - 1,
+        },
         vindicator: {
           ...state.vindicator,
-          bodegaResources: {
-            ...state.vindicator.bodegaResources,
-            barraCombustible: state.vindicator.bodegaResources.barraCombustible - 1,
-          },
           currentShield: state.vindicator.maxShield,
         },
         battleCount: state.battleCount + 1,
@@ -114,21 +134,35 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
 
       // --- 1. JUGADOR ATACA ---
       let playerDamage = vindicator.damage;
-      let critMultiplier = 1.5;
 
+      // Apply post-dodge buff first
       if (activeBattle.dodgeBonusNextTurn && equippedModules.tactical?.effects.postDodgeDamageBuff) {
         playerDamage *= equippedModules.tactical.effects.postDodgeDamageBuff;
         activeBattle = { ...activeBattle, dodgeBonusNextTurn: false };
       }
-      
+
+      let critChance = 0;
+      let critMultiplier = 1.5;
+
+      // Check for modules that grant crit chance
       if (equippedModules.tactical?.effects.critChance) {
-        critMultiplier = equippedModules.tactical.effects.critDamageMultiplier;
+        critChance = equippedModules.tactical.effects.critChance;
+      }
+      
+      // Check for modules that modify crit damage
+      if (equippedModules.tactical?.effects.critDamageMultiplier) {
+        critMultiplier = Math.max(critMultiplier, equippedModules.tactical.effects.critDamageMultiplier);
       }
       if (equippedModules.offensive?.effects.critDamageMultiplier) {
-        critMultiplier = equippedModules.offensive.effects.critDamageMultiplier;
+        critMultiplier = Math.max(critMultiplier, equippedModules.offensive.effects.critDamageMultiplier);
+        // If the offensive module is equipped but no chance is present, grant a base chance
+        if (critChance === 0) {
+          critChance = 0.1; // Base 10% chance
+        }
       }
 
-      if (equippedModules.tactical?.effects.critChance && Math.random() < equippedModules.tactical.effects.critChance) {
+      // Perform the critical hit check
+      if (critChance > 0 && Math.random() < critChance) {
         playerDamage *= critMultiplier;
       }
 
@@ -275,11 +309,9 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
             ...state.battleRoom,
             battlesCompleted: newBattlesCompleted,
           },
-          vindicator: {
-            ...vindicator,
-            currentHealth: vindicator.maxHealth,
-            currentShield: 0,
-          }
+          // La vida y el escudo se mantienen en su estado post-batalla (derrotado)
+          // para forzar al jugador a reparar.
+          vindicator: updatedVindicator,
         };
 
       } else if (updatedActiveBattle.enemyCurrentHealth <= 0) {

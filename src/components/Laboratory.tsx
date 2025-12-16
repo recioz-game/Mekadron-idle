@@ -238,7 +238,7 @@ const TechCard: React.FC<{
   return (
     <div id={tech.id} className={className} style={{ ...style, borderLeftColor: color }}>
       <h4>{tech.name}</h4>
-      <p className="tech-card-description">{tech.description(0).split('+')[0].split('-')[0].split('D')[0]}</p> {/* Pequeño truco para obtener la desc base */}
+      <p className="tech-card-description">{tech.baseDescription || tech.description(0).split('+')[0].split('-')[0].split('D')[0]}</p> {/* Pequeño truco para obtener la desc base */}
       <p className="tech-card-effect">{effect}</p>
       <div className="tech-card-footer">
         <span>Nivel: {currentLevel}/{tech.maxLevel === Infinity ? '∞' : tech.maxLevel}</span>

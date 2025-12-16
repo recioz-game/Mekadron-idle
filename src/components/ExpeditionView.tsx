@@ -24,10 +24,17 @@ const ExpeditionTimer: React.FC<{ completionTimestamp: number }> = ({ completion
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setRemainingTime(prev => Math.max(0, prev - 1000));
+      const newRemainingTime = completionTimestamp - Date.now();
+      setRemainingTime(newRemainingTime > 0 ? newRemainingTime : 0);
     }, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [completionTimestamp]);
+
+  if (remainingTime <= 0) {
+    // El componente padre ya muestra un botón de reclamar,
+    // así que no necesitamos mostrar 'Completado' aquí para evitar redundancia.
+    return <span>0m 0s</span>;
+  }
 
   const minutes = Math.floor(remainingTime / 60000);
   const seconds = Math.floor((remainingTime % 60000) / 1000);
@@ -205,8 +212,8 @@ const scrollRef = useDragToScroll<HTMLDivElement>();
                   <h4>{data.title}</h4>
                   <p>{activeExp.dronesSent} {data.droneType === 'expeditionV2Drone' ? 'Drones (DE-2)' : 'Drones (DE-1)'} enviados.</p>
                                     {isComplete ? (
-                    <div>
-                      <p style={{color: '#22C55E'}}>¡Expedición Completada!</p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <p style={{color: '#22C55E', margin: 0}}>¡Expedición Completada!</p>
                                             <BotonConTooltip
                         onClick={() => onClaimReward(activeExp)}
                         className="claim-button"

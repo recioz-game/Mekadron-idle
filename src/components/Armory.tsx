@@ -171,7 +171,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
   const shieldRepairCost = calculateShieldRepairCost();
 
   const canRepairHealth = missingHealth > 0 && resources.scrap >= healthRepairCost;
-  const canRepairShield = resources.barraCombustible >= shieldRepairCost;
+  const canRepairShield = missingShield > 0 && bodegaResources.barraCombustible >= shieldRepairCost;
 
   const healthCostPerPoint = (gameConfig.repair.healthCostPerPoint * repairCostMultiplier);
   const shieldCostPerPoint = (gameConfig.repair.shieldCostPerPoint * repairCostMultiplier);

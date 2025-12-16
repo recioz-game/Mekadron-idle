@@ -124,7 +124,7 @@ export type ActionType =
   | { type: 'DISMANTLE_DRONE'; payload: { droneType: DroneType; amount: number | 'max' } }
   | { type: 'CANCEL_QUEUE_ITEM'; payload: { category: string; itemName: string; amount: number | 'all' } }
   // Combat Actions
-  | { type: 'SELECT_BATTLE_DESTINATION'; payload: number }
+  | { type: 'SELECT_BATTLE_DESTINATION'; payload: { chapterIndex: number; destinationIndex: number } }
   | { type: 'ENEMY_RESPONSE' }
   | { type: 'ADVANCE_TO_NEXT_BATTLE' }
   | { type: 'ESCAPE_COMBAT' }

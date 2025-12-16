@@ -1,5 +1,7 @@
 export interface Battle {
   enemyName: string;
+  assetFolder: string;
+  assetFilename: string;
   health: number;
   shield: number;
   damage: number;

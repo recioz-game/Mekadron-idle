@@ -30,25 +30,37 @@ const handleVindicatorStarUpgrade = (
 
   const { phase1Resources, phase2Resources } = upgrade.costPerStar;
 
-  const hasEnoughResources = 
-    Object.entries(phase1Resources).every(([res, amount]) => state.vindicator.bodegaResources[res as keyof typeof state.vindicator.bodegaResources] >= (amount as number)) &&
-    Object.entries(phase2Resources).every(([res, amount]) => state.vindicator.bodegaResources[res as keyof typeof state.vindicator.bodegaResources] >= (amount as number));
+  // Correctly check resources from their respective locations
+  const hasEnoughPhase1 = Object.entries(phase1Resources).every(
+    ([res, amount]) => (state.resources[res as keyof typeof state.resources] || 0) >= (amount as number)
+  );
+  const hasEnoughPhase2 = Object.entries(phase2Resources).every(
+    ([res, amount]) => (state.vindicator.bodegaResources[res as keyof typeof state.vindicator.bodegaResources] || 0) >= (amount as number)
+  );
 
-  if (!hasEnoughResources) {
-    return state;
+  if (!hasEnoughPhase1 || !hasEnoughPhase2) {
+    return state; // Not enough resources
   }
 
+  // Deduct resources from their correct locations
+  const newResources = { ...state.resources };
   const newBodegaResources = { ...state.vindicator.bodegaResources };
-  Object.entries(phase1Resources).forEach(([resource, amount]) => { newBodegaResources[resource as keyof typeof newBodegaResources] -= (amount as number); });
-  Object.entries(phase2Resources).forEach(([resource, amount]) => { newBodegaResources[resource as keyof typeof newBodegaResources] -= (amount as number); });
+
+  Object.entries(phase1Resources).forEach(([resource, amount]) => {
+    (newResources as any)[resource] -= amount as number;
+  });
+  Object.entries(phase2Resources).forEach(([resource, amount]) => {
+    (newBodegaResources as any)[resource] -= amount as number;
+  });
 
   const { health, shield, damage } = upgrade.statIncreasePerStar;
 
   return {
     ...state,
+    resources: newResources, // <-- Update phase 1 resources
     vindicator: {
       ...state.vindicator,
-      bodegaResources: newBodegaResources,
+      bodegaResources: newBodegaResources, // <-- Update phase 2 resources
       maxHealth: state.vindicator.maxHealth + (health || 0),
       maxShield: state.vindicator.maxShield + (shield || 0),
       damage: state.vindicator.damage + (damage || 0),
@@ -847,8 +859,12 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
 
             case 'REPAIR_VINDICATOR_SHIELD': {
       const { fuelCost } = action.payload;
-      if (state.vindicator.bodegaResources.barraCombustible >= fuelCost && state.vindicator.currentShield < state.vindicator.maxShield) {
-        return { ...state, vindicator: { ...state.vindicator, bodegaResources: { ...state.vindicator.bodegaResources, barraCombustible: state.vindicator.bodegaResources.barraCombustible - fuelCost }, currentShield: state.vindicator.maxShield } };
+      if (state.resources.barraCombustible >= fuelCost && state.vindicator.currentShield < state.vindicator.maxShield) {
+        return { 
+          ...state, 
+          resources: { ...state.resources, barraCombustible: state.resources.barraCombustible - fuelCost },
+          vindicator: { ...state.vindicator, currentShield: state.vindicator.maxShield } 
+        };
       }
       return state;
     }

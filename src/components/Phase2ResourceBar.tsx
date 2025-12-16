@@ -65,15 +65,24 @@ const Phase2ResourceBar: React.FC = () => {
           <img src={scrapIcon} alt="Chatarra" className="resource-icon-img" />
           <span>{formatNumber(resources.scrap)}</span>
         </div>
+
+        {/* Barra de Combustible (siempre visible) */}
+        <div className="resource-item clickable" title="Barras de Combustible (clic para más detalles)" onClick={() => handleResourceClick('barraCombustible')}>
+          <img src={resourceMetadata.barraCombustible.icon} alt="Barras de Combustible" className="resource-icon-img" />
+          <span>{formatNumber(resources.barraCombustible || 0)}</span>
+        </div>
         
         <div className="separator"></div>
         
         {/* Recursos Dinámicos */}
         {requiredResources.map(resourceKey => {
-          const meta = resourceMetadata[resourceKey];
-          if (!meta) return null; // O manejar un ícono por defecto
+          // No volver a renderizar la barra de combustible si ya está fija
+          if (resourceKey === 'barraCombustible') return null;
 
-          const amount = (bodegaResources[resourceKey as keyof typeof bodegaResources] || resources[resourceKey as keyof typeof resources]) || 0;
+          const meta = resourceMetadata[resourceKey];
+          if (!meta) return null;
+
+          const amount = (bodegaResources[resourceKey as keyof typeof bodegaResources] || 0) + (resources[resourceKey as keyof typeof resources] || 0);
 
           return (
             <div className="resource-item clickable" title={`${meta.name} (clic para más detalles)`} key={resourceKey} onClick={() => handleResourceClick(resourceKey)}>

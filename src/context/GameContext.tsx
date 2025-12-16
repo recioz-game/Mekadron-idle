@@ -332,23 +332,28 @@ const loadState = (): GameState => {
     }
 
     // --- MIGRACIÓN DE DATOS DE BODEGA ---
-    if (storedState.vindicator && storedState.vindicator.bodega) {
+    // Esta migración mueve los recursos de la ubicación antigua (raíz de `resources`) a la nueva (`vindicator.bodegaResources`)
+    if (storedState.vindicator) {
+      // Asegurar que bodegaResources existe
       if (!storedState.vindicator.bodegaResources) {
-        storedState.vindicator.bodegaResources = storedState.vindicator.bodega.resources;
+        storedState.vindicator.bodegaResources = { ...initialGameState.vindicator.bodegaResources };
       }
-      delete storedState.vindicator.bodega;
-    }
-    if (storedState.resources.metalRefinado) { // Mover recursos de la raíz a la bodega
-      if (!storedState.vindicator.bodegaResources) {
-        storedState.vindicator.bodegaResources = initialGameState.vindicator.bodegaResources;
-      }
+
+      // Mover cualquier recurso de la lista de la bodega que todavía esté en la ubicación antigua
       Object.keys(initialGameState.vindicator.bodegaResources).forEach(key => {
-        if (storedState.resources[key]) {
-          storedState.vindicator.bodegaResources[key] = storedState.resources[key];
+        if (storedState.resources && key in storedState.resources) {
+          // Sumar al valor existente en lugar de sobrescribir, por si acaso
+          storedState.vindicator.bodegaResources[key] = (storedState.vindicator.bodegaResources[key] || 0) + storedState.resources[key];
           delete storedState.resources[key];
         }
       });
     }
+
+    // Limpieza de una estructura antigua (`bodega` anidada)
+    if (storedState.vindicator && storedState.vindicator.bodega) {
+      delete storedState.vindicator.bodega;
+    }
+
     // Asegurar que las estructuras de bodega por nivel existen
     if (storedState.vindicator && !storedState.vindicator.bodegaBase) {
       storedState.vindicator.bodegaBase = initialGameState.vindicator.bodegaBase;

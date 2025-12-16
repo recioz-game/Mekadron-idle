@@ -7,7 +7,6 @@
   width: 100%;
   height: 100vh;
   padding: 1rem;
-  background-image: url('/src/assets/images/enemies/Capitulo 1/fondo para combates.png');
   background-size: cover;
   background-position: center;
   color: #E5E7EB;
@@ -365,6 +364,16 @@
   animation: shake 0.3s linear;
 }
 
+/* Animación de Flash */
+@keyframes flash {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(2.5); }
+}
+
+.flash {
+  animation: flash 0.3s linear;
+}
+
 /* --- Estilos para la Pantalla de Victoria --- */
 
 .victory-message {
@@ -405,3 +414,44 @@
   right: 5%;
   z-index: 20;
 }
+
+.combat-button {
+  width: 220px; /* Ancho unificado */
+  height: 50px; /* Altura unificada */
+  border: none;
+  color: #EDF2F7;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.combat-button.primary {
+  background: linear-gradient(90deg, #8B5CF6, #6D28D9);
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.7);
+  clip-path: polygon(10% 0%, 100% 0%, 100% 100%, 0% 100%);
+  text-shadow: 0 0 5px #fff;
+}
+
+.combat-button.primary:hover {
+  filter: brightness(1.2);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 1);
+}
+
+.combat-button.secondary {
+  background-color: #1A202C;
+  border: 2px solid #8B5CF6;
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+  clip-path: polygon(0 0, 90% 0%, 100% 100%, 0% 100%);
+}
+
+.combat-button.secondary:hover {
+  background-color: #2D3748;
+  color: white;
+}
+

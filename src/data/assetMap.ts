@@ -1,213 +1,279 @@
 // src/data/assetMap.ts
 
+import asset0 from '/src/assets/images/enemies/Capitulo 1/sector 1/caza_ligero_dañado.png';
+import asset1 from '/src/assets/images/enemies/Capitulo 1/sector 1/mini boss sector 1.png';
+import asset2 from '/src/assets/images/enemies/Capitulo 1/sector 1/caza_ligero_dañado_rojo.png';
+import asset3 from '/src/assets/images/enemies/Capitulo 1/sector 1/boss_sector_1.png';
+import asset4 from '/src/assets/images/enemies/Capitulo 1/sector 2/dron_de_combate_ligero-removebg-preview.png';
+import asset5 from '/src/assets/images/enemies/Capitulo 1/sector 2/mini_boss-removebg-preview.png';
+import asset6 from '/src/assets/images/enemies/Capitulo 1/sector 2/dron_de_combate_liegero_2-removebg-preview.png';
+import asset7 from '/src/assets/images/enemies/Capitulo 1/sector 2/boss_sector_2.png';
+import asset8 from '/src/assets/images/enemies/Capitulo 1/sector 3/caza_sector_3.png';
+import asset9 from '/src/assets/images/enemies/Capitulo 1/sector 3/mini_boss_sector_3.png';
+import asset10 from '/src/assets/images/enemies/Capitulo 1/sector 3/caza_sector_3_amarillo-removebg-preview.png';
+import asset11 from '/src/assets/images/enemies/Capitulo 1/sector 3/boss_sector_3.png';
+import asset12 from '/src/assets/images/enemies/Capitulo 1/sector 4/caza_pirata_sector_4.png';
+import asset13 from '/src/assets/images/enemies/Capitulo 1/sector 4/mini_boss_sector_4.png';
+import asset14 from '/src/assets/images/enemies/Capitulo 1/sector 4/caza_pirata_sector_4_verde.png';
+import asset15 from '/src/assets/images/enemies/Capitulo 1/sector 4/boss_sector_4.png';
+import asset16 from '/src/assets/images/enemies/Capitulo 1/sector 5/caza_liguero_sector_5.png';
+import asset17 from '/src/assets/images/enemies/Capitulo 1/sector 5/mini_boss_sector_5.png';
+import asset18 from '/src/assets/images/enemies/Capitulo 1/sector 5/caza_ligero_sector_5_verde.png';
+import asset19 from '/src/assets/images/enemies/Capitulo 1/sector 5/boss_sector_5.png';
+import asset20 from '/src/assets/images/enemies/Capitulo 1/boss capitulo.png';
+import asset21 from "/src/assets/images/enemies/Capitulo 2/Sector 1/enjambre_basico-removebg-preview.png";
+import asset22 from "/src/assets/images/enemies/Capitulo 2/Sector 1/mini_boss.png";
+import asset23 from '/src/assets/images/enemies/Capitulo 2/Sector 1/enjambre_basico_2.png';
+import asset24 from '/src/assets/images/enemies/Capitulo 2/Sector 1/boss_sector_1.png';
+import asset25 from '/src/assets/images/enemies/Capitulo 2/Sector 2/ejambre_v2.png';
+import asset26 from '/src/assets/images/enemies/Capitulo 2/Sector 2/mini_boss_sector_2.png';
+import asset27 from '/src/assets/images/enemies/Capitulo 2/Sector 2/ejambare_v2_amarillo.png';
+import asset28 from '/src/assets/images/enemies/Capitulo 2/Sector 2/boss_sector_2.png';
+import asset29 from '/src/assets/images/enemies/Capitulo 2/Sector 3/ejambre_sector_3.png';
+import asset30 from '/src/assets/images/enemies/Capitulo 2/Sector 3/mini_boss_sector_3.png';
+import asset31 from '/src/assets/images/enemies/Capitulo 2/Sector 3/ejambre_sector_3_naranja.png';
+import asset32 from '/src/assets/images/enemies/Capitulo 2/Sector 3/boss_sector_3.png';
+import asset33 from '/src/assets/images/enemies/Capitulo 2/Sector 4/ejambre_sector_4-.png';
+import asset34 from '/src/assets/images/enemies/Capitulo 2/Sector 4/mini_boss_sector_4.png';
+import asset35 from '/src/assets/images/enemies/Capitulo 2/Sector 4/ejambre_sector_4_v2.png';
+import asset36 from '/src/assets/images/enemies/Capitulo 2/Sector 4/boss_sector_4.png';
+import asset37 from '/src/assets/images/enemies/Capitulo 2/Sector 5/libelula_sector_5.png';
+import asset38 from '/src/assets/images/enemies/Capitulo 2/Sector 5/mini_boss_sector_5.png';
+import asset39 from '/src/assets/images/enemies/Capitulo 2/Sector 5/libelula_sector_5_v2.png';
+import asset40 from '/src/assets/images/enemies/Capitulo 2/Sector 5/boss_sector_5.png';
+import asset41 from '/src/assets/images/enemies/Capitulo 2/boss.png';
+import asset42 from '/src/assets/images/enemies/Capitulo 3/Sector 1/Caza pesado.png';
+import asset43 from '/src/assets/images/enemies/Capitulo 3/Sector 1/mini boss.png';
+import asset44 from '/src/assets/images/enemies/Capitulo 3/Sector 1/caza pesado v2.png';
+import asset45 from '/src/assets/images/enemies/Capitulo 3/Sector 1/boss sector 1.png';
+import asset46 from '/src/assets/images/enemies/Capitulo 3/Sector 2/caza pesado.png';
+import asset47 from '/src/assets/images/enemies/Capitulo 3/Sector 2/mini boss.png';
+import asset48 from '/src/assets/images/enemies/Capitulo 3/Sector 2/caza pesado v2.png';
+import asset49 from '/src/assets/images/enemies/Capitulo 3/Sector 2/boss sector 2.png';
+import asset50 from '/src/assets/images/enemies/Capitulo 3/Sector 3/caza pesado sector 3.png';
+import asset51 from '/src/assets/images/enemies/Capitulo 3/Sector 3/mini boss sector 3.png';
+import asset52 from '/src/assets/images/enemies/Capitulo 3/Sector 3/caza pesado sector 3 v2.png';
+import asset53 from '/src/assets/images/enemies/Capitulo 3/Sector 3/boss sector 3.png';
+import asset54 from '/src/assets/images/enemies/Capitulo 3/Sector 4/bombardero sector 4.png';
+import asset55 from '/src/assets/images/enemies/Capitulo 3/Sector 4/mini boss sector 4.png';
+import asset56 from '/src/assets/images/enemies/Capitulo 3/Sector 4/bombardero sector 4 v2.png';
+import asset57 from '/src/assets/images/enemies/Capitulo 3/Sector 4/boss sector 4.png';
+import asset58 from '/src/assets/images/enemies/Capitulo 3/Sector 5/caza espia.png';
+import asset59 from '/src/assets/images/enemies/Capitulo 3/Sector 5/mini boss.png';
+import asset60 from '/src/assets/images/enemies/Capitulo 3/Sector 5/caza espia v2.png';
+import asset61 from '/src/assets/images/enemies/Capitulo 3/Sector 5/boss sector 5.png';
+import asset62 from '/src/assets/images/enemies/Capitulo 3/Boss.png';
+import asset63 from '/src/assets/images/enemies/Capitulo 4/Sector 1/Protos_1.png';
+import asset64 from '/src/assets/images/enemies/Capitulo 4/Sector 1/mini boss sector 1.png';
+import asset65 from '/src/assets/images/enemies/Capitulo 4/Sector 1/Protos_1_v2.png';
+import asset66 from '/src/assets/images/enemies/Capitulo 4/Sector 1/boss sector 1.png';
+import asset67 from '/src/assets/images/enemies/Capitulo 4/Sector 2/Caza protos sector 2.png';
+import asset68 from '/src/assets/images/enemies/Capitulo 4/Sector 2/mini boss sector 2.png';
+import asset69 from '/src/assets/images/enemies/Capitulo 4/Sector 2/Caza protos sector 2 v2.png';
+import asset70 from '/src/assets/images/enemies/Capitulo 4/Sector 2/boss sector 2.png';
+import asset71 from '/src/assets/images/enemies/Capitulo 4/Sector 3/caza protos sector 3.png';
+import asset72 from '/src/assets/images/enemies/Capitulo 4/Sector 3/mini boss sector 3.png';
+import asset73 from '/src/assets/images/enemies/Capitulo 4/Sector 3/caza protos sector 3 v2.png';
+import asset74 from '/src/assets/images/enemies/Capitulo 4/Sector 3/boss sector 3.png';
+import asset75 from '/src/assets/images/enemies/Capitulo 4/Sector 4/protoss sector 4.png';
+import asset76 from '/src/assets/images/enemies/Capitulo 4/Sector 4/mini boss sector 4.png'; 
+import asset77 from '/src/assets/images/enemies/Capitulo 4/Sector 4/protoss sector 4 v2.png';
+import asset78 from '/src/assets/images/enemies/Capitulo 4/Sector 4/boss sector 4.png';
+import asset79 from '/src/assets/images/enemies/Capitulo 4/Sector 5/caza protos sector 5.png';
+import asset80 from '/src/assets/images/enemies/Capitulo 4/Sector 5/mini boss sector 5.png';
+import asset81 from '/src/assets/images/enemies/Capitulo 4/Sector 5/caza protos sector 5 v2.png';
+import asset82 from '/src/assets/images/enemies/Capitulo 4/Sector 5/boss sector 5.png';
+import asset83 from '/src/assets/images/enemies/Capitulo 5/Sector 1/caos 1.png';
+import asset84 from '/src/assets/images/enemies/Capitulo 5/Sector 1/mini boss.png';
+import asset85 from '/src/assets/images/enemies/Capitulo 5/Sector 1/caos 1 v2.png';
+import asset86 from '/src/assets/images/enemies/Capitulo 5/Sector 1/boss sector.png';
+import asset87 from '/src/assets/images/enemies/Capitulo 5/Sector 2/interceptor 1.png';
+import asset88 from '/src/assets/images/enemies/Capitulo 5/Sector 2/mini boss.png';
+import asset89 from '/src/assets/images/enemies/Capitulo 5/Sector 2/interceptor 1 v2.png';
+import asset90 from '/src/assets/images/enemies/Capitulo 5/Sector 2/boss sector 2.png';
+import asset91 from '/src/assets/images/enemies/Capitulo 5/Sector 3/caza sector 3.png';
+import asset92 from '/src/assets/images/enemies/Capitulo 5/Sector 3/mini boss.png';
+import asset93 from '/src/assets/images/enemies/Capitulo 5/Sector 3/caza sector 3 v2.png';
+import asset94 from '/src/assets/images/enemies/Capitulo 5/Sector 3/boss sector 3.png';
+import asset95 from '/src/assets/images/enemies/Capitulo 5/Sector 4/nave 1.png';
+import asset96 from '/src/assets/images/enemies/Capitulo 5/Sector 4/mini boss.png';
+import asset97 from '/src/assets/images/enemies/Capitulo 5/Sector 4/nave 1 v2.png';
+import asset98 from '/src/assets/images/enemies/Capitulo 5/Sector 4/boss sector 4.png';
+import asset99 from '/src/assets/images/enemies/Capitulo 5/Sector 5/nave 1 sector 5.png';
+import asset100 from '/src/assets/images/enemies/Capitulo 5/Sector 5/mini boss.png';
+import asset101 from '/src/assets/images/enemies/Capitulo 5/Sector 5/nave 1 sector 5 v2.png';
+import asset102 from '/src/assets/images/enemies/Capitulo 5/Sector 5/boss sector 5.png';
+import asset103 from '/src/assets/images/enemies/Capitulo 5/boss.png';
+import asset104 from '/src/assets/images/vindicators/base.png';
+import asset105 from '/src/assets/images/vindicators/vm01_origin.png';
+import asset106 from '/src/assets/images/vindicators/vm02_interceptor.png';
+import asset107 from '/src/assets/images/vindicators/vm03_devastator.png';
+import asset108 from '/src/assets/images/vindicators/vm04_reaper.png';
+import asset109 from '/src/assets/images/vindicators/vm05_aegis.png';
+import asset110 from '/src/assets/images/vindicators/vm06_tempest.png';
+import asset111 from '/src/assets/images/vindicators/vm07_wraith.png';
+import asset112 from '/src/assets/images/vindicators/vm08_phantom.png';
+import asset113 from '/src/assets/images/vindicators/vm09_apex.png';
+import asset114 from '/src/assets/images/enemies/Capitulo 4/boss.png';
+
 export interface EnemyAsset {
-  idle: string;
-  shooting: string;
+  idle?: string;
 }
 
-/**
- * Mapeo de nombres de enemigos a sus archivos de assets.
- * La ruta debe ser relativa a la raíz del proyecto para que Vite la maneje correctamente.
- */
-export const enemyAssets: Record<string, EnemyAsset> = {
-  // ===================================================================
-  // CAPÍTULO 1 — Hermandad del Vacío
-  // ===================================================================
 
-  // --- Sector 1: Cinturón Khelar ---
+export const enemyAssets: Record<string, EnemyAsset> = {
+
   "Desguazador Khelar": {
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 1/caza_ligero_dañado.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 1/caza ligero dañado disparando.png'
+    idle: asset0,
   },
   "Triturador Óxido": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 1/mini boss sector 1.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 1/mini boss sector 1 disparando.png'
+    idle: asset1,
   },
   "Recolector Errante": {
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 1/caza_ligero_dañado_rojo.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 1/caza ligero dañado disparando rojo.png'
+    idle: asset2,
   },
   "Capataz Chatarra": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 1/boss_sector_1.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 1/boss_sector_1_disparando.png'
+    idle: asset3,
   },
 
   // --- Sector 2: Ancla Roja ---
   "Vigilante Carmesí": {
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 2/dron_de_combate_ligero-removebg-preview.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 2/don_de_combate_liegro_disparo-removebg-preview.png'
+    idle: asset4,
   },
   "Martillo Rojo": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 2/mini_boss-removebg-preview.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 2/mini_boss_disparando-removebg-preview.png'
+    idle: asset5,
   },
   "Garfio del Vacío": {
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 2/dron_de_combate_liegero_2-removebg-preview.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 2/don_de_combate_ligero_disparando_2-removebg-preview.png'
+    idle: asset6,
   },
   "Contramaestre Sangrefría": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 2/boss_sector_2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 2/boss sector 2 disparando.png'
+    idle: asset7,
   },
 
   // --- Sector 3: Nebulosa del Rumor Azul ---
   "Sombra Azul": {
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 3/caza_sector_3.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 3/caza_sector_3_disparando.png'
+    idle: asset8,
   },
   "Acechador Nebular": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 3/mini_boss_sector_3.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 3/mini boss sector 3 disparando.png'
+    idle: asset9,
   },
   "Espectro Turquesa": {
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 3/caza_sector_3_amarillo-removebg-preview.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 3/caza_amarillo_sector_3_disparando.png'
+    idle: asset10,
   },
   "Capitán Brumahelada": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 3/boss_sector_3.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 3/boss_sector_3_disparando.png'
+    idle: asset11,
   },
 
   // --- Sector 4: Dominio Grifo ---
   "Ala Grifo": {
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 4/caza_pirata_sector_4.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 4/caza_pirata_sector_4_disparando.png'
+    idle: asset12,
   },
   "Heraldo del Grifo": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 4/mini_boss_sector_4.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 4/mini_boss_sector_4_disparando.png'
+    idle: asset13,
   },
   "Talón Férreo": {
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 4/caza_pirata_sector_4_verde.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 4/caza_pirata_sector_4_verde_disparando.png'
+    idle: asset14,
   },
   "Jefe Picoteador": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 4/boss_sector_4.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 4/boss_sector_4_disparando.png'
+    idle: asset15,
   },
 
   // --- Sector 5: Fortaleza Garra Negra ---
   "Ronda Negra": {
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 5/caza_liguero_sector_5.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 5/caza_ligero_sector_5_disparando.png'
+    idle: asset16,
   },
   "Azote del Vacío": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 5/mini_boss_sector_5.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 5/mini_boss_sector_5 disparando.png'
+    idle: asset17,
   },
   "Saqueador Élite": {
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 5/caza_ligero_sector_5_verde.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 5/caza_ligero_sector_5_verde_disparando.png'
+    idle: asset18,
   },
   "Capitán Atronador": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 1/sector 5/boss_sector_5.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/sector 5/boss_sector_5 disparando.png'
+    idle: asset19,
   },
 
   // --- Final Boss ---
   "Fragata Skullbreaker": {
-    idle: '/src/assets/images/enemies/Capitulo 1/boss capitulo.png',
-    shooting: '/src/assets/images/enemies/Capitulo 1/boss capitulo disparando.png'
+    idle: asset20,
   },
 
   // ===================================================================
-  // CAPÍTULO 2 — “Enjambre Carminis”
+  // CAPÍTULO 2 — “Enjambre Carminis” 
   // ===================================================================
 
   // --- Sector 1: Colmena de Frontera “Nido Espina” ---
   "Zángano Espina": {
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 1/enjambre basico.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 1/enjambre basico disparando.png'
+    idle: asset21,
   },
   "Larva Guardiana": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 1/mini boss.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 1/mini boss disparando.png'
+    idle: asset22,
   },
   "Polinizador Letal": {
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 1/enjambre basico 2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 1/enjambre basico 2 disparando.png'
+    idle: asset23,
   },
   "Reina Menor Espina Roja": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 1/boss_sector_1.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 1/boss_sector_1_disparando.png'
+    idle: asset24,
   },
 
   // --- Sector 2: Barranco Bioluminiscente “Hueco Ámbar” ---
   "Cortador Ámbar": {
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 2/ejambre v2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 2/ejambre v2 disparando.png'
+    idle: asset25,
   },
   "Centinela Resinario": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 2/mini boss sector 2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 2/mini boss sector 2 disparando.png'
+    idle: asset26,
   },
   "Acechador Filamento": {
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 2/ejambare_v2_amarillo.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 2/ejambare_v2_amarillo_disparando.png'
+    idle: asset27,
   },
   "Soberana de Resina": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 2/boss_sector_2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 2/boss_sector_2_disparando.png'
+    idle: asset28,
   },
 
   // --- Sector 3: Nebulosa “Velo Melífero” ---
   "Recolector Néctar": {
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 3/ejambre sector 3.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 3/ejambre sector 3 disparando.png'
+    idle: asset29,
   },
   "Emisor de Feromonas": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 3/mini boss sector 3.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 3/mini boss sector 3 disparando.png'
+    idle: asset30,
   },
   "Ala Melífera": {
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 3/ejambre sector 3 naranja.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 3/ejambre sector 3 naranja disparando.png'
+    idle: asset31,
   },
   "Dama del Velo Dulce": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 3/boss_sector_3.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 3/boss_sector_3_disparando.png'
+    idle: asset32,
   },
 
   // --- Sector 4: Túneles del Caparazón “Cripta Quitina” ---
   "Quitinoide Raso": {
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 4/ejambre sector 4.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 4/ejambre sector 4 disparando.png'
+    idle: asset33,
   },
   "Destructor Mandíbula": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 4/mini boss sector 4.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 4/mini boss sector 4 disparando.png'
+    idle: asset34,
   },
   "Ala Serrada": {
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 4/ejambre sector 4 v2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 4/ejambre sector 4 v2 disparando.png'
+    idle: asset35,
   },
   "Señora Mandibular": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 4/boss_sector_4.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 4/boss_sector_4_disparando.png'
+    idle: asset36,
   },
 
   // --- Sector 5: Corazón del Enjambre “Púlsar Carmesí” ---
   "Guardián Carmesí": {
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 5/libelula_sector_5.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 5/libelula sector 5 disparando.png'
+    idle: asset37,
   },
   "Esporo Alfa": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 5/mini_boss_sector_5.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 5/mini_boss_sector_5_disparando.png'
+    idle: asset38,
   },
   "Irradiado del Enjambre": {
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 5/libelula_sector_5_v2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 5/libelula sector 5 v2 disparando.png'
+    idle: asset39,
   },
   "Matriarca Sangrecolmena": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 2/Sector 5/boss_sector_5.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/Sector 5/boss_sector_5_disparando.png'
+    idle: asset40,
   },
 
   // --- Final Boss ---
-  "Emperatriz Carminis": {
-    idle: '/src/assets/images/enemies/Capitulo 2/boss.png',
-    shooting: '/src/assets/images/enemies/Capitulo 2/boss disparando.png'
+  "Emperatriz Carminis": { // Boss
+    idle: asset41,
   },
 
   // ===================================================================
@@ -216,98 +282,77 @@ export const enemyAssets: Record<string, EnemyAsset> = {
 
   // --- Sector 1: Perímetro Gris ---
   "Patrulla Gris": {
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 1/Caza pesado.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 1/caza pesado disparando.png'
+    idle: asset42,
   },
   "Blindado Scout": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 1/mini boss.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 1/mini boss disparando.png'
+    idle: asset43,
   },
   "Recluta Armado": {
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 1/caza pesado v2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 1/caza pesado v2 disparando.png'
+    idle: asset44,
   },
   "Teniente Centinela": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 1/boss sector 1.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 1/boss disparando.png'
+    idle: asset45,
   },
 
   // --- Sector 2: Corredor de Interdicción ---
   "Interdictor Delta": {
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 2/caza pesado.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 2/caza pesado disparando.png'
+    idle: asset46,
   },
   "Operador Jammer": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 2/mini boss.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 2/mini boss disparando.png'
+    idle: asset47,
   },
   "Asaltante Táctico": {
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 2/caza pesado v2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 2/caza pesado disparando v2.png'
+    idle: asset48,
   },
   "Capitán Vector": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 2/boss sector 2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 2/boss sector 2 disparando.png'
+    idle: asset49,
   },
 
   // --- Sector 3: Base Móvil “Ilex-03” ---
   "Mecaguarida": {
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 3/caza pesado sector 3.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 3/caza pesado sector 3 disparando.png'
+    idle: asset50,
   },
   "Supervisor de Hangar": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 3/mini boss sector 3.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 3/mini boss sector 3 disparando.png'
+    idle: asset51,
   },
   "Técnico de Choque": {
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 3/caza pesado sector 3 v2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 3/caza pesado sector 3 v2 disparando.png'
+    idle: asset52,
   },
   "Comandante Argón": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 3/boss sector 3.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 3/boss sector 3 disparando.png'
+    idle: asset53,
   },
 
   // --- Sector 4: Zona Cráneo Verde ---
   "Cadete Esmeralda": {
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 4/bombardero sector 4.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 4/bombardero sector 4 disparando.png'
+    idle: asset54,
   },
   "Instructor Sierra": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 4/mini boss sector 4.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 4/mini boss sector 4 disparando.png'
+    idle: asset55,
   },
   "Tirador Musgo": {
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 4/bombardero sector 4 v2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 4/bombardero sector 4 v2 disparando.png'
+    idle: asset56,
   },
   "Mayor Coraza Verde": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 4/boss sector 4.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 4/boss sector 4 disparando.png'
+    idle: asset57,
   },
 
   // --- Sector 5: Línea Férrea Cerberus ---
   "Vigía Cerberus": {
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 5/caza espia.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 5/caza espia.png' // Placeholder
+    idle: asset58,
   },
   "Unidad Cerberus-β": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 5/mini boss.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 5/mini boss.png' // Placeholder
+    idle: asset59,
   },
   "Operador Férreo": {
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 5/caza espia v2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 5/caza espia v2.png' // Placeholder
+    idle: asset60,
   },
   "Coronel Muralla": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 3/Sector 5/boss sector 5.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/Sector 5/boss sector 5.png' // Placeholder
+    idle: asset61,
   },
 
   // --- Final Boss ---
   "Destructor “Iron Howl”": {
-    idle: '/src/assets/images/enemies/Capitulo 3/Boss.png',
-    shooting: '/src/assets/images/enemies/Capitulo 3/boss disparando.png'
+    idle: asset62,
   },
 
   // ===================================================================
@@ -316,99 +361,77 @@ export const enemyAssets: Record<string, EnemyAsset> = {
 
   // --- Sector 1: Umbral Celeste ---
   "Centinela Celeste": {
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 1/Protos_1.png',
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 1/Protos 1 disparando.png'
+    idle: asset63,
   },
   "Vigilante Prismático": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 1/mini boss sector 1.png',
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 1/mini boss disparando sector 1.png'
+    idle: asset64,
   },
   "Eco de Luz": {
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 1/Protos_1_v2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 1/Protos 1 disparando v2.png'
+    idle: asset65,
   },
   "Custodio Aural": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 1/boss sector 1.png',
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 1/boss sector 1 disparando.png'
+    idle: asset66,
   },
 
   // --- Sector 2: Campos Resonantes ---
   "Iniciado Resonante": {
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 2/Caza protos sector 2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 2/Caza protos sector 2 disparando.png'
+    idle: asset67,
   },
   "Agravio Armónico": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 2/mini boss sector 2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 2/mini boss sector 2 disparando.png'
+    idle: asset68,
   },
   "Disonancia Errante": {
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 3/Caza protos sector 2 v2.png', // Reutilizado de la carpeta del Sector 3
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 2/Caza protos sector 2 v2 disparando.png'
+    idle: asset69, // Reutilizado de la carpeta del Sector 3
   },
   "Maestro de la Resonancia": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 2/boss sector 2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 2/boss sector 2 disparando.png'
+    idle: asset70,
   },
 
   // --- Sector 3: Sagrario de Aurora ---
   "Guardián de Aurora": {
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 3/caza protos sector 3.png',
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 3/caza protos sector 3 disparando.png'
+    idle: asset71,
   },
   "Portador de la Llama": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 3/mini boss sector 3.png',
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 3/mini boss sector 3 disparando.png'
+    idle: asset72,
   },
   "Chispa Ancestral": {
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 3/caza protos sector 3 v2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 3/caza protos sector 3 v2 disparando.png'
+    idle: asset73,
   },
   "Orador Lumínico": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 3/boss disparando.png', // Asumiendo que es el boss del capítulo
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 3/boss sector 3 disparando.png'
+    idle: asset74, 
   },
 
   // --- Sector 4: Bastión Dorado ---
   "Arconte Dorado": {
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 4/protoss sector 4.png',
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 4/protoss sector 4 disparando.png'
+    idle: asset75,
   },
   "Escudo Viviente": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 4/mini boss ssector 4.png',
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 4/mini boss ssector 4 disparnado.png'
+    idle: asset76,
   },
   "Lanza Radiante": {
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 4/protoss sector 4 v2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 4/protoss sector 4 v2 disparando.png'
+    idle: asset77,
   },
   "Prelado Solemne": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 4/boss sector 4.png',
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 4/boss sector 4 dispararndo.png'
+    idle: asset78,
   },
 
   // --- Sector 5: Horizonte Sacro ---
   "Aureano Sagrado": {
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 5/caza protos sector 5.png',
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 5/caza protos sector 5.png' // Placeholder, falta 'disparando'
+    idle: asset79,
   },
   "Disruptor del Horizonte": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 5/mini boss sector 5.png',
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 5/mini boss sector 5 disparando.png'
+    idle: asset80,
   },
   "Rayo Custodio": {
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 5/caza protos sector 5 v2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 5/caza protos sector 5 v2.png' // Placeholder, falta 'disparando'
+    idle: asset81,
   },
   "Sumo Guardián del Vórtice": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 5/boss sector 5.png',
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 5/boss sector 5 disparando.png'
+    idle: asset82,
   },
 
   // --- Final Boss ---
   "Arconte Supremo Seraphys": {
-    // No hay un asset específico para este jefe final de capítulo, usando uno genérico.
-    idle: '/src/assets/images/enemies/Capitulo 4/Sector 3/boss disparando.png',
-    shooting: '/src/assets/images/enemies/Capitulo 4/Sector 3/boss disparando.png'
+        idle: asset114,
   },
 
   // ===================================================================
@@ -417,139 +440,108 @@ export const enemyAssets: Record<string, EnemyAsset> = {
 
   // --- Sector 1: Penumbra Sangrante ---
   "Engendro Penumbrio": {
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 1/caos 1.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 1/caos 1 disparar.png'
+    idle: asset83,
   },
   "Vástago Hemolítico": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 1/mini boss.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 1/mini boss disparando.png'
+    idle: asset84,
   },
   "Deforme Sanguinas": {
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 1/caos 1 v2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 1/caos 1 v2 disparando.png'
+    idle: asset85,
   },
   "Heraldo Carmesí": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 1/boss sector.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 1/boss disparando.png'
+    idle: asset86,
   },
 
   // --- Sector 2: Forja Profanada ---
   "Fragmento Profano": {
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 2/interceptor 1.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 2/interceptor 1 disparando.png'
+    idle: asset87,
   },
   "Operario del Vacío": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 2/mini boss.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 2/mini boss.png' // Placeholder
+    idle: asset88,
   },
   "Masa Forjada": {
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 2/interceptor 1 v2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 2/interceptor 1 v2 disparando.png'
+    idle: asset89,
   },
   "Artífice del Abismo": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 2/boss sector 2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 2/boss sector 2.png' // Placeholder
+    idle: asset90,
   },
 
   // --- Sector 3: Madriguera del Susurro ---
   "Eco Torturado": {
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 3/caza sector 3.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 3/caza sector 3 disparando.png'
+    idle: asset91,
   },
   "Devoramente": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 3/mini boss.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 3/mini boss.png' // Placeholder
+    idle: asset92,
   },
   "Aullador del Silencio": {
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 3/caza sector 3 v2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 3/caza sector 3 v2 disparando.png'
+    idle: asset93,
   },
   "Profeta de los Susurros": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 3/boss sector 3.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 3/boss sector 3.png' // Placeholder
+    idle: asset94,
   },
 
   // --- Sector 4: Desgarro Onírico ---
   "Rastro Abismal": {
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 4/nave 1.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 4/nave 1 disparando.png'
+    idle: asset95,
   },
   "Quimera Delirante": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 4/mini boss.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 4/mini boss disparando.png'
+    idle: asset96,
   },
   "Reptante de Pesadilla": {
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 4/nave 1 v2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 4/nave 1 v2 disparando.png'
+    idle: asset97,
   },
   "Guardián del Desgarro": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 4/boss sector 4.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 4/boss sector 4 disparando.png'
+    idle: asset98,
   },
 
   // --- Sector 5: Santuario de la Ruina ---
   "Adepto de Ruina": {
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 5/nave 1 sector 5.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 5/nave 1 sector 5 disparando.png'
+    idle: asset99,
   },
   "Desolador Ritual": { // Mini-Boss
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 5/mini boss.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 5/mini boss disparando.png'
+    idle: asset100,
   },
   "Sombra Flagelante": {
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 5/nave 1 sector 5 v2.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 5/nave 1 sector 5 v2 disparando.png'
+    idle: asset101,
   },
   "Alto Sacerdote del Vacío": { // Boss
-    idle: '/src/assets/images/enemies/Capitulo 5/Sector 5/boss sector 5.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/Sector 5/boss sector 5 disparando.png'
+    idle: asset102,
   },
 
   "Señor del Abismo Vorgrath": {
-    idle: '/src/assets/images/enemies/Capitulo 5/boss.png',
-    shooting: '/src/assets/images/enemies/Capitulo 5/boss.png' // Placeholder
+    idle: asset103,
   }
 };
 
 export const vindicatorAssets: Record<string, EnemyAsset> = {
   base: {
-    idle: '/src/assets/images/vindicators/base.png',
-    shooting: '/src/assets/images/vindicators/base_shooting.png'
+    idle: asset104,
   },
   vm01_origin: {
-    idle: '/src/assets/images/vindicators/vm01_origin.png',
-    shooting: '/src/assets/images/vindicators/vm01_origin_shooting.png'
+    idle: asset105,
   },
   vm02_interceptor: {
-    idle: '/src/assets/images/vindicators/vm02_interceptor.png',
-    shooting: '/src/assets/images/vindicators/vm02_interceptor_shooting.png'
+    idle: asset106,
   },
   vm03_devastator: {
-    idle: '/src/assets/images/vindicators/vm03_devastator.png',
-    shooting: '/src/assets/images/vindicators/vm03_devastator_shooting.png'
+    idle: asset107,
   },
   vm04_reaper: {
-    idle: '/src/assets/images/vindicators/vm04_reaper.png',
-    shooting: '/src/assets/images/vindicators/vm04_reaper_shooting.png'
+    idle: asset108,
   },
   vm05_aegis: {
-    idle: '/src/assets/images/vindicators/vm05_aegis.png',
-    shooting: '/src/assets/images/vindicators/vm05_aegis_shooting.png'
+    idle: asset109,
   },
   vm06_tempest: {
-    idle: '/src/assets/images/vindicators/vm06_tempest.png',
-    shooting: '/src/assets/images/vindicators/vm06_tempest_shooting.png'
+    idle: asset110,
   },
   vm07_wraith: {
-    idle: '/src/assets/images/vindicators/vm07_wraith.png',
-    shooting: '/src/assets/images/vindicators/vm07_wraith_shooting.png'
+    idle: asset111,
   },
   vm08_phantom: {
-    idle: '/src/assets/images/vindicators/vm08_phantom.png',
-    shooting: '/src/assets/images/vindicators/vm08_phantom_shooting.png'
+    idle: asset112,
   },
   vm09_apex: {
-    idle: '/src/assets/images/vindicators/vm09_apex.png',
-    shooting: '/src/assets/images/vindicators/vm09_apex_shooting.png'
+    idle: asset113,
   },
 };

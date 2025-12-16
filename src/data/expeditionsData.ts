@@ -47,7 +47,7 @@ export const allExpeditionsData: Expedition[] = [
     title: 'Cementerio de Acorazados',
     description: 'Los restos de una batalla legendaria. Contiene materiales avanzados y peligros desconocidos.',
     duration: 3600, // 1 hora
-    costs: { drones: 1, aceroEstructural: 10 },
+    costs: { drones: 1, barraCombustible: 1 },
     rewards: {
       scrap: [8000, 15000],
       aceroEstructural: [5, 12],
