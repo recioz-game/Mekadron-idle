@@ -60,6 +60,22 @@ export interface ActiveExpedition {
   expeditionCount: number; // Número de expediciones en este grupo
 }
 
+export interface ExpeditionState {
+  completedCount: {
+    lowRisk: number;
+    mediumRisk: number;
+    highRisk: number;
+    total: number;
+  };
+}
+
+export interface ProductionStats {
+  totalMetalRefinado: number;
+  totalAceroEstructural: number;
+  totalPlacasCasco: number;
+  totalCableadoSuperconductor: number;
+}
+
 export interface Mission {
   id: string;
   title: string;
@@ -277,6 +293,8 @@ export interface GameState {
   currentView: string;
   codexSelectedResource: string | null; // <-- NUEVA PROP
   activeExpeditions: ActiveExpedition[];
+  expeditions: ExpeditionState;
+  productionStats: ProductionStats;
         shipyard: {
     unlocked: boolean;
     currentProjectIndex: number; // Índice del proyecto actual en allShipyardProjects
@@ -708,6 +726,20 @@ export interface GameState {
   currentView: '',
   codexSelectedResource: null, // <-- NUEVA PROP
   activeExpeditions: [],
+  expeditions: {
+    completedCount: {
+      lowRisk: 0,
+      mediumRisk: 0,
+      highRisk: 0,
+      total: 0,
+    },
+  },
+  productionStats: {
+    totalMetalRefinado: 0,
+    totalAceroEstructural: 0,
+    totalPlacasCasco: 0,
+    totalCableadoSuperconductor: 0,
+  },
   shipyard: {
     unlocked: false,
     currentProjectIndex: 0,

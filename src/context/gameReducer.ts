@@ -123,6 +123,89 @@ const handleLevelUpVindicator = (
   };
 };
 
+function checkAndCompleteShipyardProject(state: GameState): GameState {
+  let newState = { ...state };
+  const { shipyard } = newState;
+  const currentProject = allShipyardProjects[shipyard.currentProjectIndex];
+
+  // Si no hay proyecto, no hay nada que hacer
+  if (!currentProject) {
+    return newState;
+  }
+
+  const isProjectComplete = Object.keys(currentProject.costs).every(componentId =>
+    Object.keys(currentProject.costs[componentId]).every(resourceId => {
+      const required = currentProject.costs[componentId][resourceId];
+      const donated = shipyard.progress[componentId]?.[resourceId] || 0;
+      return donated >= required;
+    })
+  );
+
+  if (isProjectComplete) {
+    const nextProjectIndex = shipyard.currentProjectIndex + 1;
+
+    // Solo si hay un siguiente proyecto
+    if (allShipyardProjects[nextProjectIndex]) {
+      const nextProject = allShipyardProjects[nextProjectIndex];
+      const newEmptyProgress: GameState['shipyard']['progress'] = {};
+
+      Object.keys(nextProject.costs).forEach(componentId => {
+        newEmptyProgress[componentId] = {};
+        Object.keys(nextProject.costs[componentId]).forEach(resourceId => {
+          newEmptyProgress[componentId][resourceId] = 0;
+        });
+      });
+
+      newState.shipyard = {
+        ...shipyard,
+        currentProjectIndex: nextProjectIndex,
+        progress: newEmptyProgress,
+      };
+
+      const auroraMessage = {
+        message: "Nueva nave de combate construida. ¡A combatir!",
+        messageKey: `ship-built-${currentProject.id}-${Date.now()}`,
+        audioId: 8
+      };
+
+      // Actualizar estado del Vindicator según el proyecto completado
+      if (currentProject.id === 'vindicator_base') {
+        newState.phase2Unlocked = true;
+        newState.currentScene = 'phase2Intro';
+        newState.vindicator.bodegaResources.barraCombustible += 500;
+      } else if (currentProject.id === 'vindicator_mk1') {
+        newState = updateVindicatorToVM01(newState);
+      } else if (currentProject.id === 'vindicator_mk2_interceptor') {
+        newState = updateVindicatorToVM02(newState);
+      } else if (currentProject.id === 'vindicator_mk3_devastator') {
+        newState = updateVindicatorToVM03(newState);
+      } else if (currentProject.id === 'vindicator_mk4_reaper') {
+        newState = updateVindicatorToVM04(newState);
+      } else if (currentProject.id === 'vindicator_mk5_aegis') {
+        newState = updateVindicatorToVM05(newState);
+      } else if (currentProject.id === 'vindicator_mk6_tempest') {
+        newState = updateVindicatorToVM06(newState);
+      } else if (currentProject.id === 'vindicator_mk7_wraith') {
+        newState = updateVindicatorToVM07(newState);
+      } else if (currentProject.id === 'vindicator_mk8_phantom') {
+        newState = updateVindicatorToVM08(newState);
+      } else if (currentProject.id === 'vindicator_mk9_apex') {
+        newState = updateVindicatorToVM09(newState);
+      }
+
+      const newShownMessages = new Set(newState.aurora.shownMessages);
+      newShownMessages.add(auroraMessage.messageKey);
+
+      newState.aurora = {
+        ...newState.aurora,
+        pendingMessages: [...newState.aurora.pendingMessages, { message: auroraMessage.message, key: auroraMessage.messageKey, audioId: auroraMessage.audioId }],
+        shownMessages: newShownMessages,
+      };
+    }
+  }
+  return newState;
+}
+
 export const gameReducer = (state: GameState, action: ActionType): GameState => {
   let newState = { ...state };
 
@@ -517,12 +600,10 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         newProgress[componentId] = { ...currentProject.costs[componentId] };
       });
       
-      const tempState = { ...state, shipyard: { ...shipyard, progress: newProgress } };
+      let tempState = { ...state, shipyard: { ...shipyard, progress: newProgress } };
       
-      // Simula una donación final (con cantidad 0) para activar la lógica de transición en el reducer
-      const lastComponent = Object.keys(currentProject.costs).pop()!;
-      const lastResource = Object.keys(currentProject.costs[lastComponent]).pop()!;
-      return gameReducer(tempState, { type: 'DONATE_TO_SHIPYARD', payload: { component: lastComponent, resource: lastResource, amount: 0 } });
+      // Llama directamente a la función de ayuda para completar el proyecto
+      return checkAndCompleteShipyardProject(tempState);
     }
         case 'DEBUG_FINISH_EXPEDITIONS': {
       const finishedExpeditions = state.activeExpeditions.map(exp => ({ ...exp, completionTimestamp: Date.now() }));
@@ -775,78 +856,8 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
       };
       newState.shipyard = { ...shipyard, progress: newProgress };
 
-      const isProjectComplete = Object.keys(currentProject.costs).every(componentId => {
-        return Object.keys(currentProject.costs[componentId]).every(resourceId => {
-          const required = currentProject.costs[componentId][resourceId];
-          const donated = newProgress[componentId]?.[resourceId] || 0;
-          return donated >= required;
-        });
-      });
-
-      if (isProjectComplete) {
-        const nextProjectIndex = shipyard.currentProjectIndex + 1;
-                if (allShipyardProjects[nextProjectIndex]) {
-          const nextProject = allShipyardProjects[nextProjectIndex];
-          const newEmptyProgress: GameState['shipyard']['progress'] = {};
-          Object.keys(nextProject.costs).forEach(componentId => {
-            newEmptyProgress[componentId] = {};
-            Object.keys(nextProject.costs[componentId]).forEach(resourceId => {
-              newEmptyProgress[componentId][resourceId] = 0;
-            });
-          });
-
-                    newState.shipyard = {
-            ...shipyard,
-            currentProjectIndex: nextProjectIndex,
-            progress: newEmptyProgress,
-          };
-          
-                    // Unificar todos los mensajes de construcción en uno solo de Aurora
-          const auroraMessage = {
-            message: "Nueva nave de combate construida. ¡A combatir!",
-            messageKey: `ship-built-${currentProject.id}-${Date.now()}`,
-            audioId: 8 // <-- AUDIO AÑADIDO
-          };
-          
-          // Actualizar estado del Vindicator según el proyecto
-          if (currentProject.id === 'vindicator_base') {
-            newState.phase2Unlocked = true;
-            newState.currentScene = 'phase2Intro';
-            newState.vindicator.bodegaResources.barraCombustible = (newState.vindicator.bodegaResources.barraCombustible || 0) + 500;
-          } else if (currentProject.id === 'vindicator_mk1') {
-            newState = updateVindicatorToVM01(newState);
-          } else if (currentProject.id === 'vindicator_mk2_interceptor') {
-            newState = updateVindicatorToVM02(newState);
-          } else if (currentProject.id === 'vindicator_mk3_devastator') {
-            newState = updateVindicatorToVM03(newState);
-          } else if (currentProject.id === 'vindicator_mk4_reaper') {
-            newState = updateVindicatorToVM04(newState);
-          } else if (currentProject.id === 'vindicator_mk5_aegis') {
-            newState = updateVindicatorToVM05(newState);
-          } else if (currentProject.id === 'vindicator_mk6_tempest') {
-            newState = updateVindicatorToVM06(newState);
-          } else if (currentProject.id === 'vindicator_mk7_wraith') {
-            newState = updateVindicatorToVM07(newState);
-          } else if (currentProject.id === 'vindicator_mk8_phantom') {
-            newState = updateVindicatorToVM08(newState);
-          } else if (currentProject.id === 'vindicator_mk9_apex') {
-            newState = updateVindicatorToVM09(newState);
-          }
-          
-          // Añadir el mensaje de Aurora directamente en lugar de usar recursividad
-          const newShownMessages = new Set(newState.aurora.shownMessages);
-          newShownMessages.add(auroraMessage.messageKey);
-
-          newState.aurora = {
-            ...newState.aurora,
-            pendingMessages: [...newState.aurora.pendingMessages, { message: auroraMessage.message, key: auroraMessage.messageKey, audioId: auroraMessage.audioId }],
-            shownMessages: newShownMessages,
-          };
-        }
-        return newState;
-      }
-      
-      return newState;
+      // Comprueba si el proyecto se ha completado y actualiza el estado si es necesario.
+      return checkAndCompleteShipyardProject(newState);
     }
 
     case 'REPAIR_VINDICATOR_HEALTH': {
@@ -932,8 +943,11 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
     case 'LEVEL_UP_VINDICATOR_MK9':
       return handleLevelUpVindicator(state, vindicatorMK9LevelData, 'planosMK9');
 
-                                                    case 'CLAIM_EXPEDITION_REWARDS': {
+    case 'CLAIM_EXPEDITION_REWARDS': {
       const activeExpedition = action.payload;
+      const expeditionData = allExpeditionsData.find(e => e.id === activeExpedition.id);
+      if (!expeditionData) return state; // Should not happen
+
       const results = calculateExpeditionResults(state, activeExpedition);
 
       const newResources = { ...state.resources };
@@ -954,6 +968,21 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         newDrones[results.droneType as DroneType] -= results.dronesLost;
       }
 
+      // Update expedition completion counters
+      const newCompletedCount = { ...state.expeditions.completedCount };
+      const successfulRuns = results.individualResults.filter(r => r.wasSuccessful).length;
+
+      if (successfulRuns > 0) {
+        newCompletedCount.total += successfulRuns;
+        if (expeditionData.tier === 1) { // Assuming tier 1 is low risk
+            newCompletedCount.lowRisk += successfulRuns;
+        } else if (expeditionData.tier === 2) { // Assuming tier 2 is medium risk
+            newCompletedCount.mediumRisk += successfulRuns;
+        } else if (expeditionData.tier === 3) { // Assuming tier 3 is high risk
+            newCompletedCount.highRisk += successfulRuns;
+        }
+      }
+
       const remainingExpeditions = state.activeExpeditions.filter(exp => exp.instanceId !== activeExpedition.instanceId);
 
       return {
@@ -962,6 +991,10 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
         vindicator: { ...state.vindicator, bodegaResources: newBodegaResources },
         workshop: { ...state.workshop, drones: newDrones },
         activeExpeditions: remainingExpeditions,
+        expeditions: {
+            ...state.expeditions,
+            completedCount: newCompletedCount,
+        },
         aurora: {
           ...state.aurora,
           pendingMessages: [...state.aurora.pendingMessages, { 

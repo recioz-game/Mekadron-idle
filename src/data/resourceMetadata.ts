@@ -36,6 +36,7 @@ import planosMK8Icon from '../assets/images/ui/resources/plano.png';
 import tejidoAbisalRetorcidoEliteIcon from '../assets/images/ui/resources/Tejido Abisal Retorcido.png';
 import singularidadCorruptaContenidaEliteIcon from '../assets/images/ui/resources/Singularidad Corrupta Contenida.png';
 import planosMK9Icon from '../assets/images/ui/resources/plano.png';
+import planoGenericoIcon from '../assets/images/ui/resources/plano.png'; // Nuevo import para el plano genérico
 
 export const resourceMetadata: Record<string, { name: string; icon: string }> = {
   // Capítulo 1
@@ -85,5 +86,6 @@ export const resourceMetadata: Record<string, { name: string; icon: string }> = 
   tejidoAbisalRetorcidoElite: { name: 'Tejido Abisal Retorcido (Élite)', icon: tejidoAbisalRetorcidoEliteIcon },
   singularidadCorruptaContenidaElite: { name: 'Singularidad Corrupta Contenida (Élite)', icon: singularidadCorruptaContenidaEliteIcon },
   planosMK9: { name: 'Planos MK9', icon: planosMK9Icon },
+  planosGenericos: { name: 'Planos', icon: planoGenericoIcon },
 };
 

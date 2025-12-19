@@ -338,9 +338,12 @@ export const calculateExpeditionResults = (state: GameState, activeExpedition: A
   let totalDronesLost = 0;
   const totalRewards: { [key: string]: number } = {};
   let successCount = 0;
+  const individualResults: { wasSuccessful: boolean }[] = [];
 
   for (let i = 0; i < expeditionCount; i++) {
     const wasSuccessful = Math.random() > expeditionData.risk.chance;
+    individualResults.push({ wasSuccessful });
+
     if (wasSuccessful) {
       successCount++;
       for (const [resource, range] of Object.entries(expeditionData.rewards)) {
@@ -384,6 +387,7 @@ export const calculateExpeditionResults = (state: GameState, activeExpedition: A
     rewards: totalRewards,
     message: finalMessage.trim(),
     audioId: state.settings.voicesMuted ? undefined : (successCount > 0 ? 6 : 7),
-    droneType: expeditionData.droneType
+    droneType: expeditionData.droneType,
+    individualResults,
   };
 };

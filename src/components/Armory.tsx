@@ -80,51 +80,60 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
     upgradeActionType = 'UPGRADE_VINDICATOR_STAR';
   }
 
-  let levelData = vindicatorLevelData;
+  let levelData = vindicatorLevelData; // Initialize it here
   let levelUpActionType: 'LEVEL_UP_VINDICATOR' | 'LEVEL_UP_VINDICATOR_MK2' | 'LEVEL_UP_VINDICATOR_MK3' | 'LEVEL_UP_VINDICATOR_MK4' | 'LEVEL_UP_VINDICATOR_MK5' | 'LEVEL_UP_VINDICATOR_MK6' | 'LEVEL_UP_VINDICATOR_MK7' | 'LEVEL_UP_VINDICATOR_MK8' | 'LEVEL_UP_VINDICATOR_MK9' = 'LEVEL_UP_VINDICATOR';
-  let blueprintResource = blueprints;
+  let blueprintResource: number | undefined = blueprints;
   let blueprintLabel = 'Planos';
+  let blueprintMetadataKey: keyof typeof resourceMetadata = 'planosGenericos'; // Default key
 
   if (isVM02) {
     levelData = vindicatorMK2LevelData;
     levelUpActionType = 'LEVEL_UP_VINDICATOR_MK2';
     blueprintResource = bodegaResources.planosDeInterceptor;
     blueprintLabel = 'Planos de Interceptor';
+    blueprintMetadataKey = 'planosDeInterceptor';
   } else if (isVM03) {
     levelData = vindicatorMK3LevelData;
     levelUpActionType = 'LEVEL_UP_VINDICATOR_MK3';
     blueprintResource = bodegaResources.planosMK3;
     blueprintLabel = 'Planos MK3';
+    blueprintMetadataKey = 'planosMK3';
   } else if (isVM04) {
     levelData = vindicatorMK4LevelData;
     levelUpActionType = 'LEVEL_UP_VINDICATOR_MK4';
     blueprintResource = bodegaResources.planosMK4;
     blueprintLabel = 'Planos MK4';
+    blueprintMetadataKey = 'planosMK4';
   } else if (isVM05) {
     levelData = vindicatorMK5LevelData;
     levelUpActionType = 'LEVEL_UP_VINDICATOR_MK5';
     blueprintResource = bodegaResources.planosMK5;
     blueprintLabel = 'Planos MK5';
+    blueprintMetadataKey = 'planosMK5';
   } else if (isVM06) {
     levelData = vindicatorMK6LevelData;
     levelUpActionType = 'LEVEL_UP_VINDICATOR_MK6';
     blueprintResource = bodegaResources.planosMK6;
     blueprintLabel = 'Planos MK6';
+    blueprintMetadataKey = 'planosMK6';
   } else if (isVM07) {
     levelData = vindicatorMK7LevelData;
     levelUpActionType = 'LEVEL_UP_VINDICATOR_MK7';
     blueprintResource = bodegaResources.planosMK7;
     blueprintLabel = 'Planos MK7';
+    blueprintMetadataKey = 'planosMK7';
   } else if (isVM08) {
     levelData = vindicatorMK8LevelData;
     levelUpActionType = 'LEVEL_UP_VINDICATOR_MK8';
     blueprintResource = bodegaResources.planosMK8;
     blueprintLabel = 'Planos MK8';
+    blueprintMetadataKey = 'planosMK8';
   } else if (isVM09) {
     levelData = vindicatorMK9LevelData;
     levelUpActionType = 'LEVEL_UP_VINDICATOR_MK9';
     blueprintResource = bodegaResources.planosMK9;
     blueprintLabel = 'Planos MK9';
+    blueprintMetadataKey = 'planosMK9';
   }
 
   const showModules = isVM01 || isVM02 || isVM03 || isVM04 || isVM05 || isVM06 || isVM07 || isVM08 || isVM09;
@@ -320,7 +329,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                                     <h5>COSTE PARA NIVEL {nextLevel.level}:</h5>
                                     <ul className="cost-list">
                                         <li className={hasEnoughBlueprints ? 'has-enough' : 'not-enough'}>
-                                            <img src='/src/assets/images/ui/resources/plano.png' alt={blueprintLabel} className="cost-icon-img" />
+                                            <img src={resourceMetadata[blueprintMetadataKey].icon} alt={blueprintLabel} className="cost-icon-img" />
                                             <span>{blueprintLabel}:</span>
                                             <span>{formatNumber(blueprintResource, gameState.settings.numberFormat)} / {formatNumber(nextLevel.blueprintCost, gameState.settings.numberFormat)}</span>
                                         </li>
@@ -422,7 +431,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                                     <h5>COSTE PARA NIVEL {nextLevel.level}:</h5>
                                     <ul className="cost-list">
                                         <li className={hasEnoughBlueprints ? 'has-enough' : 'not-enough'}>
-                                            <img src='/src/assets/images/ui/resources/plano.png' alt={blueprintLabel} className="cost-icon-img" />
+                                            <img src={resourceMetadata[blueprintMetadataKey].icon} alt={blueprintLabel} className="cost-icon-img" />
                                             <span>{blueprintLabel}:</span>
                                             <span>{formatNumber(blueprintResource, gameState.settings.numberFormat)} / {formatNumber(nextLevel.blueprintCost, gameState.settings.numberFormat)}</span>
                                         </li>

@@ -246,6 +246,26 @@ export const processGameTick = (state: GameState): GameState & { auroraMessages:
   const storageResult = processQueuesForCategory('storage', { basicStorage: currentState.storage.basicStorage, mediumStorage: currentState.storage.mediumStorage, advancedStorage: currentState.storage.advancedStorage, quantumHoardUnit: currentState.storage.quantumHoardUnit, lithiumIonBattery: currentState.storage.lithiumIonBattery, plasmaAccumulator: currentState.storage.plasmaAccumulator, harmonicContainmentField: currentState.storage.harmonicContainmentField }, upgrades.storageConstruction * 0.05, currentState);
   const foundryResult = processQueuesForCategory('foundry', { ...currentState.resources }, 0, currentState);
   
+  const newProductionStats = { ...currentState.productionStats };
+  if (foundryResult.changed) {
+    const producedMetal = (foundryResult.newInventory.metalRefinado || 0) - (currentState.resources.metalRefinado || 0);
+    if (producedMetal > 0) {
+      newProductionStats.totalMetalRefinado = (newProductionStats.totalMetalRefinado || 0) + producedMetal;
+    }
+    const producedAcero = (foundryResult.newInventory.aceroEstructural || 0) - (currentState.resources.aceroEstructural || 0);
+    if (producedAcero > 0) {
+      newProductionStats.totalAceroEstructural = (newProductionStats.totalAceroEstructural || 0) + producedAcero;
+    }
+    const producedPlacas = (foundryResult.newInventory.placasCasco || 0) - (currentState.resources.placasCasco || 0);
+    if (producedPlacas > 0) {
+        newProductionStats.totalPlacasCasco = (newProductionStats.totalPlacasCasco || 0) + producedPlacas;
+    }
+    const producedCableado = (foundryResult.newInventory.cableadoSuperconductor || 0) - (currentState.resources.cableadoSuperconductor || 0);
+    if (producedCableado > 0) {
+        newProductionStats.totalCableadoSuperconductor = (newProductionStats.totalCableadoSuperconductor || 0) + producedCableado;
+    }
+  }
+
   const stateAfterQueues = {
     ...currentState,
     workshop: workshopResult.changed 
@@ -255,6 +275,7 @@ export const processGameTick = (state: GameState): GameState & { auroraMessages:
     storage: storageResult.changed ? { ...currentState.storage, ...storageResult.newInventory, queues: storageResult.newQueues } : currentState.storage,
     resources: foundryResult.changed ? { ...currentState.resources, ...foundryResult.newInventory } : currentState.resources,
     foundry: foundryResult.changed ? { ...currentState.foundry, queues: foundryResult.newQueues } : currentState.foundry,
+    productionStats: newProductionStats,
   };
 
   // --- FASE 2: APLICAR TASAS Y RECURSOS ---

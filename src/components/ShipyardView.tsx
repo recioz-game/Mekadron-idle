@@ -70,8 +70,7 @@ const ShipyardView: React.FC<ShipyardViewProps> = ({
     dispatch({ type: 'DONATE_TO_SHIPYARD', payload: { component, resource, amount: 1 } });
   };
   
-  const handleDonateMax = (component: string, resource: string) => {
-    const amountToDonate = (allResources as any)[resource] || 0;
+  const handleDonateMax = (component: string, resource: string, amountToDonate: number) => {
     if (amountToDonate > 0) {
       dispatch({ type: 'DONATE_TO_SHIPYARD', payload: { component, resource, amount: amountToDonate } });
     }
@@ -121,7 +120,7 @@ const ShipyardView: React.FC<ShipyardViewProps> = ({
                     Donar 1
                   </button>
                   <button 
-                    onClick={() => handleDonateMax(componentId, resourceId)}
+                    onClick={() => handleDonateMax(componentId, resourceId, maxDonationAmount)}
                     disabled={userHasAmount <= 0}
                     className="donate-max-button"
                   >

@@ -20,16 +20,13 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
             currentProgress = (techCenter.unlocked ? 1 : 0) + (modules.foundry ? 1 : 0);
             break;
           case 'main_2_produce_alloys':
-            currentProgress = resources.metalRefinado + resources.aceroEstructural;
+            currentProgress = (state.productionStats.totalMetalRefinado || 0) + (state.productionStats.totalAceroEstructural || 0);
             break;
           case 'main_3_expeditions':
-            // Esta misión cuenta las expediciones completadas, no las activas. 
-            // La lógica actual es incorrecta. Se necesitaría un nuevo estado para rastrear esto.
-            // Por ahora, la dejaremos como está para evitar cambios mayores.
-            currentProgress = state.missions.completedMissions.filter(id => id.startsWith('sec_3_1') || id.startsWith('sec_3_3') || id.startsWith('sec_3_8')).length;
+            currentProgress = state.expeditions.completedCount.total;
             break;
           case 'main_4_fabricate_components':
-            currentProgress = resources.placasCasco + resources.cableadoSuperconductor;
+            currentProgress = (state.productionStats.totalPlacasCasco || 0) + (state.productionStats.totalCableadoSuperconductor || 0);
             break;
           case 'main_5_final_assembly': {
             const currentProject = allShipyardProjects[shipyard.currentProjectIndex];
@@ -98,7 +95,7 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
             currentProgress = techCenter.researchPoints;
             break;
           case 'sec_2_2_first_alloy':
-            currentProgress = resources.metalRefinado > 0 ? 1 : 0;
+            currentProgress = (state.productionStats.totalMetalRefinado || 0) > 0 ? 1 : 0;
             break;
           case 'sec_2_3_always_optimizing':
             currentProgress = Object.values(techCenter.upgrades).filter(level => level > 0).length;
@@ -111,7 +108,7 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
             }
             break;
           case 'sec_2_5_basic_metallurgy':
-            currentProgress = resources.metalRefinado;
+            currentProgress = state.productionStats.totalMetalRefinado || 0;
             break;
           case 'sec_2_6_one_step_ahead':
             currentProgress = drones.advanced > 0 ? 1 : 0;
@@ -123,18 +120,20 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
             currentProgress = drones.reinforcedBasic + drones.reinforcedMedium + drones.reinforcedAdvanced;
             break;
           case 'sec_2_9_advanced_siderurgy':
-            currentProgress = resources.aceroEstructural;
+            currentProgress = state.productionStats.totalAceroEstructural || 0;
             break;
           case 'sec_2_10_collective_mind_ii':
             currentProgress = techCenter.researchPoints;
             break;
 
           case 'sec_3_1_rookie_explorer':
+            currentProgress = state.expeditions.completedCount.lowRisk;
             break;
           case 'sec_3_2_a_titan_is_born':
             currentProgress = drones.golem > 0 ? 1 : 0;
             break;
           case 'sec_3_3_seasoned_adventurer':
+            currentProgress = state.expeditions.completedCount.mediumRisk;
             break;
           case 'sec_3_4_dragons_hoard':
             currentProgress = resources.scrap;
@@ -153,9 +152,10 @@ export const missionsReducer = (state: GameState, action: ActionType): GameState
             currentProgress = drones.wyrm > 0 ? 1 : 0;
             break;
           case 'sec_3_8_legendary_treasure_hunter':
+            currentProgress = state.expeditions.completedCount.highRisk;
             break;
           case 'sec_3_9_mass_production':
-            currentProgress = resources.metalRefinado + resources.aceroEstructural;
+            currentProgress = (state.productionStats.totalMetalRefinado || 0) + (state.productionStats.totalAceroEstructural || 0);
             break;
           case 'sec_3_10_industrial_empire':
             currentProgress = rates.scrapPerSecond;

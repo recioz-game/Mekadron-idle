@@ -116,9 +116,7 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
             const totalBattles = dest.battles.length;
             const isCompleted = totalBattles > 0 && battlesCompleted >= totalBattles;
             
-            // Lógica de bloqueo de destinos desactivada para pruebas
             let isLocked = false;
-            /*
             if (index > 0) {
               const prevDestination = chapter.destinations[index - 1];
               const prevBattlesCompleted = gameState.battleRoom.battlesCompleted[index - 1] || 0;
@@ -129,9 +127,9 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
             }
             
             // Lógica específica para el jefe final (índice 5)
-            if (dest.isBoss && index === 5) {
+            if (dest.isBoss && index === 5) { // Assuming index 5 is always the boss based on the current data structure
               const allPreviousCompleted = chapter.destinations
-                .slice(0, 5)
+                .slice(0, 5) // Check completion for destinations from index 0 to 4 (i.e., the first 5 destinations)
                 .every((prevDest, prevIndex) => {
                   const prevBattlesDone = gameState.battleRoom.battlesCompleted[prevIndex] || 0;
                   return prevBattlesDone >= prevDest.battles.length;
@@ -140,7 +138,6 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
                 isLocked = true;
               }
             }
-            */
 
             return (
               <button
