@@ -2,6 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useGame } from '../context/GameContext';
 import './CombatScene.css';
 import { enemyAssets, vindicatorAssets } from '../data/assetMap';
+import { gameChapters, Battle } from '../data/battleData';
+import { resourceMetadata } from '../data/resourceMetadata';
+import { formatNumber } from '../utils/formatNumber';
 import UnitDisplay from './UnitDisplay';
 import laserVindicatorSfx from '../assets/audio/sfx/Laser vindicator.ogg';
 import laserEnemySfx from '../assets/audio/sfx/laser.mp3';
@@ -130,6 +133,14 @@ const CombatScene: React.FC = () => {
     dispatch({ type: 'ADVANCE_TO_NEXT_BATTLE' });
     setAnimationPhase('transition'); // Previene bucles y espera a que el estado se actualice
   }
+
+  let currentBattleData: Battle | null = null;
+  if (activeBattle && battleRoom.selectedChapterIndex !== null) {
+    currentBattleData = gameChapters[battleRoom.selectedChapterIndex]
+      ?.destinations[activeBattle.destinationIndex]
+      ?.battles[activeBattle.battleIndex];
+  }
+  const battleRewards = currentBattleData?.reward;
   
   if (!activeBattle) {
     return <div className="combat-scene"><div>Cargando...</div></div>;
@@ -179,8 +190,28 @@ const CombatScene: React.FC = () => {
 
       {animationPhase === 'victory' && (
         <>
-          <div className="victory-message">
-            <h2>VICTORIA</h2>
+          <div className="victory-overlay">
+            <div className="victory-message">
+              <h2>VICTORIA</h2>
+              <div className="rewards-summary">
+                <h4>Recompensas Obtenidas:</h4>
+                <ul>
+                  {battleRewards && Object.entries(battleRewards).map(([resource, amount]) => {
+                    if (!amount || amount <= 0) return null;
+                    const meta = resourceMetadata[resource as keyof typeof resourceMetadata];
+                    if (!meta) return null; // No mostrar si no hay metadatos
+
+                    return (
+                      <li key={resource}>
+                        <img src={meta.icon} alt={meta.name} className="reward-icon" />
+                        <span>{meta.name}: </span>
+                        <span className="reward-amount">+{formatNumber(amount)}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </div>
           </div>
           <button 
             className="combat-button secondary victory-button-left" 

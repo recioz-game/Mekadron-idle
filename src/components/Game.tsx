@@ -38,16 +38,46 @@ const Game: React.FC = () => {
   // Guardado automático en localStorage
   useEffect(() => {
     try {
-            // Preparamos el estado para la serialización
-      const stateToSave = {
-        ...gameState,
-        lastSaveTimestamp: Date.now(),
-        aurora: {
-          ...gameState.aurora,
-          // Convertimos el Set a un Array para que sea compatible con JSON
-          shownMessages: Array.from(gameState.aurora.shownMessages),
-        }
+      // Función para limpiar el estado antes de guardarlo
+      const getSanitizedState = (state: typeof gameState) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const {
+          rates,
+          recalculationNeeded,
+          currentScene,
+          previousScene,
+          currentView,
+          codexSelectedResource,
+          notificationQueue,
+          activeBattle,
+          ...restOfState
+        } = state;
+
+        const sanitizedState = {
+          ...restOfState,
+          // Restablecer valores transitorios o de UI
+          currentScene: 'main' as const, // Siempre cargar en la escena principal
+          // Limpiar recursos calculados
+          resources: {
+            ...restOfState.resources,
+            energyProduction: 0,
+            energyConsumption: 0,
+          },
+          // Limpiar mensajes activos/pendientes de Aurora, pero conservar el historial
+          aurora: {
+            ...restOfState.aurora,
+            activeMessages: [],
+            pendingMessages: [],
+            shownMessages: Array.from(state.aurora.shownMessages),
+          },
+          lastSaveTimestamp: Date.now(),
+        };
+
+        return sanitizedState;
       };
+
+      const stateToSave = getSanitizedState(gameState);
+
       localStorage.setItem('mekadron-savegame', encryptData(stateToSave));
     } catch (err) {
       console.error("No se pudo guardar la partida:", err);

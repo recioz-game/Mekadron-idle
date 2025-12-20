@@ -44,7 +44,7 @@ export const gameData: GameData = {
     aceroEstructural: { costs: { scrap: 1000, metalRefinado: 10, energy: 250 }, time: 30, produces: { resource: 'aceroEstructural' } },
     placasCasco: { costs: { fragmentosPlaca: 10, aceroEstructural: 5, energy: 500 }, time: 50, produces: { resource: 'placasCasco' } },
     cableadoSuperconductor: { costs: { circuitosDañados: 10, metalRefinado: 25, energy: 1000 }, time: 75, produces: { resource: 'cableadoSuperconductor' } },
-    barraCombustible: { costs: { metalRefinado: 10, aceroEstructural: 5, energy: 1500 }, time: 120, produces: { resource: 'barraCombustible' } },
+    barraCombustible: { costs: { metalRefinado: 5, aceroEstructural: 3, energy: 3000 }, time: 90, produces: { resource: 'barraCombustible' } },
   },
 };
 

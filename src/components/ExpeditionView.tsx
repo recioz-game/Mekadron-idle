@@ -54,6 +54,7 @@ const rewardDisplayMap: Record<string, { name: string }> = {
   circuitosDañados: { name: 'Circuitos Dañados' },
   aleacionReforzada: { name: 'Aleación Reforzada' },
   neuroChipCorrupto: { name: 'Neuro-Chip Corrupto' },
+  barraCombustible: { name: 'Barra de Combustible' },
 };
 
 const ExpeditionView: React.FC<ExpeditionViewProps> = React.memo(({ 

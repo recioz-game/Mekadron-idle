@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { gameChapters } from '../data/battleData'; // Cambiado
+import { resourceMetadata as rewardMetadata } from '../data/resourceMetadata';
 import './BattleRoom.css';
 import { formatNumber } from '../utils/formatNumber';
 import chapter1Image from '../assets/images/chapters/chapters_cap_1.png';
@@ -166,7 +167,18 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
               const battlesCompleted = gameState.battleRoom.battlesCompleted[selectedDestinationIndex] || 0;
               const totalBattles = destination.battles.length;
 
+
+
               if (battlesCompleted >= totalBattles) {
+                const totalRewards = destination.battles.reduce((acc, battle) => {
+                  for (const [resource, amount] of Object.entries(battle.reward)) {
+                    if (amount && amount > 0) {
+                      acc[resource] = (acc[resource] || 0) + amount;
+                    }
+                  }
+                  return acc;
+                }, {} as { [key: string]: number });
+
                 return (
                   <>
                     <h3 className={destination.isBoss ? 'boss-title' : ''}>{destination.name}</h3>
@@ -174,7 +186,7 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
                     <p className="completed-message">
                       {destination.isBoss ? '¡Jefe final derrotado! Capítulo completado.' : '¡Destino completado!'}
                     </p>
-                    {destination.isBoss && (
+                    {destination.isBoss ? (
                       <div className="chapter-rewards">
                         <h4>🎉 ¡Has completado {chapter.name}!</h4>
                         <p>Recompensas desbloqueadas:</p>
@@ -182,23 +194,31 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
                           <li>Siguiente Capítulo</li>
                         </ul>
                       </div>
+                    ) : (
+                      <div className="battle-rewards">
+                        <h5>Recompensas Totales de la Zona:</h5>
+                        <div className="rewards-list">
+                          {Object.entries(totalRewards).map(([resource, amount]) => {
+                            const meta = rewardMetadata[resource as keyof typeof rewardMetadata];
+                            if (!meta) return null;
+                            return (
+                              <div className="reward-item" key={resource}>
+                                <span className="reward-icon">
+                                  <img src={meta.icon} alt={meta.name} style={{ width: '32px', height: '32px' }} />
+                                </span>
+                                <span className="reward-amount">{formatNumber(amount, gameState.settings.numberFormat)}</span>
+                                <span className="reward-name">{meta.name}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
                     )}
                   </>
                 );
               }
 
               const nextBattle = destination.battles[battlesCompleted];
-
-              // Diccionario de metadatos de recompensas
-              const rewardMetadata: { [key: string]: { name: string; icon: string | { src: string; alt: string } } } = {
-                scrap: { name: 'Chatarra', icon: { src: scrapIcon, alt: 'Chatarra' } },
-                aleacionReforzada: { name: 'Aleación Reforzada', icon: '🛡️' },
-                neuroChipCorrupto: { name: 'Neuro-Chip Corrupto', icon: { src: corruptNeurochipIcon, alt: 'Neuro-Chip Corrupto' } },
-                matrizCristalina: { name: 'Matriz Cristalina', icon: '💎' },
-                IA_Fragmentada: { name: 'IA Fragmentada', icon: '💾' },
-                planosMK2: { name: 'Planos MK2', icon: { src: blueprintIcon, alt: 'Planos MK2' } },
-                blueprints: { name: 'Planos', icon: { src: blueprintIcon, alt: 'Planos' } }, // Puedes usar una clase para un icono de imagen
-              };
 
               // Sumar las barras de combustible de ambas fuentes para evitar problemas de estado inconsistente
               const totalFuelRods = (gameState.resources.barraCombustible || 0) + (gameState.vindicator.bodegaResources.barraCombustible || 0);
@@ -212,7 +232,7 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
                     <h4>Próxima Batalla: {nextBattle.enemyName}</h4>
                     
                     <div className="battle-rewards">
-                      <h5>🎁 Recompensas de Victoria:</h5>
+                      <h5>Recompensas de Victoria:</h5>
                       <div className="rewards-list">
                         {Object.entries(nextBattle.reward).map(([key, value]) => {
                           if (!value || value <= 0) return null;
@@ -222,7 +242,7 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
                           return (
                             <div className="reward-item" key={key}>
                               <span className="reward-icon">
-                                {typeof meta.icon === 'string' ? meta.icon : <img src={meta.icon.src} alt={meta.icon.alt} style={{ width: '32px', height: '32px' }} />}
+                                <img src={meta.icon} alt={meta.name} style={{ width: '32px', height: '32px' }} />
                               </span>
                               <span className="reward-amount">{formatNumber(value, gameState.settings.numberFormat)}</span>
                               <span className="reward-name">{meta.name}</span>

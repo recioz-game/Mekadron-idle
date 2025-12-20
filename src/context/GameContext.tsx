@@ -58,7 +58,9 @@ const processOfflineQueues = (
             let speedMultiplier = 1;
             if (key === 'metalRefinado') speedMultiplier += (upgrades.metalSmeltingSpeed || 0) * 0.05;
             else if (key === 'aceroEstructural') speedMultiplier += (upgrades.steelProductionSpeed || 0) * 0.05;
-            // ... (se pueden añadir más si existen)
+            else if (key === 'placasCasco') speedMultiplier += (upgrades.hullPlateProduction || 0) * 0.05;
+            else if (key === 'cableadoSuperconductor') speedMultiplier += (upgrades.wiringProduction || 0) * 0.05;
+            else if (key === 'barraCombustible') speedMultiplier += (upgrades.fuelRodProduction || 0) * 0.05;
             itemTime /= speedMultiplier;
           }
 
@@ -282,7 +284,7 @@ const loadState = (): GameState => {
     }
 
     // Intentar desencriptar primero, con fallback a JSON.parse para saves antiguos
-    let storedState = decryptData(serializedState);
+    let storedState: any = decryptData(serializedState);
     if (storedState === null) {
       // Si la desencriptación falla, podría ser un save antiguo sin encriptar.
       // Intentamos parsearlo como JSON normal.
@@ -295,6 +297,11 @@ const loadState = (): GameState => {
       }
     }
     
+    // Comprobación de seguridad para asegurar que el estado no es nulo
+    if (!storedState) {
+      console.error("Error crítico: storedState es nulo después de la carga y el parseo. Se devuelve el estado inicial.");
+      return initialGameState;
+    }
 
     // --- MIGRACIÓN DE DATOS ESTRUCTURAL: workshop.drones ---
     if (storedState.drones && !storedState.workshop?.drones) {
