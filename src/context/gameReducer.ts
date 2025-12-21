@@ -29,16 +29,13 @@ const handleVindicatorStarUpgrade = (
   }
 
   const { phase1Resources, phase2Resources } = upgrade.costPerStar;
+  const allResources = { ...state.resources, ...state.vindicator.bodegaResources };
 
-  // Correctly check resources from their respective locations
-  const hasEnoughPhase1 = Object.entries(phase1Resources).every(
-    ([res, amount]) => (state.resources[res as keyof typeof state.resources] || 0) >= (amount as number)
-  );
-  const hasEnoughPhase2 = Object.entries(phase2Resources).every(
-    ([res, amount]) => (state.vindicator.bodegaResources[res as keyof typeof state.vindicator.bodegaResources] || 0) >= (amount as number)
+  const canAfford = Object.entries({ ...phase1Resources, ...phase2Resources }).every(
+    ([res, amount]) => (allResources[res as keyof typeof allResources] || 0) >= (amount as number)
   );
 
-  if (!hasEnoughPhase1 || !hasEnoughPhase2) {
+  if (!canAfford) {
     return state; // Not enough resources
   }
 
@@ -46,21 +43,22 @@ const handleVindicatorStarUpgrade = (
   const newResources = { ...state.resources };
   const newBodegaResources = { ...state.vindicator.bodegaResources };
 
-  Object.entries(phase1Resources).forEach(([resource, amount]) => {
-    (newResources as any)[resource] -= amount as number;
-  });
-  Object.entries(phase2Resources).forEach(([resource, amount]) => {
-    (newBodegaResources as any)[resource] -= amount as number;
+  Object.entries({ ...phase1Resources, ...phase2Resources }).forEach(([resource, amount]) => {
+    if (resource in newBodegaResources) {
+      (newBodegaResources as any)[resource] -= amount as number;
+    } else if (resource in newResources) {
+      (newResources as any)[resource] -= amount as number;
+    }
   });
 
   const { health, shield, damage } = upgrade.statIncreasePerStar;
 
   return {
     ...state,
-    resources: newResources, // <-- Update phase 1 resources
+    resources: newResources,
     vindicator: {
       ...state.vindicator,
-      bodegaResources: newBodegaResources, // <-- Update phase 2 resources
+      bodegaResources: newBodegaResources,
       maxHealth: state.vindicator.maxHealth + (health || 0),
       maxShield: state.vindicator.maxShield + (shield || 0),
       damage: state.vindicator.damage + (damage || 0),
@@ -870,11 +868,33 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
 
             case 'REPAIR_VINDICATOR_SHIELD': {
       const { fuelCost } = action.payload;
-      if (state.resources.barraCombustible >= fuelCost && state.vindicator.currentShield < state.vindicator.maxShield) {
+      const { resources, vindicator } = state;
+
+      // 1. Unificar recursos para la comprobación, igual que en la UI.
+      const allResources = { ...resources, ...vindicator.bodegaResources };
+
+      // 2. Comprobar si hay suficientes recursos en el inventario unificado.
+      if (allResources.barraCombustible >= fuelCost && vindicator.currentShield < vindicator.maxShield) {
+        const newResources = { ...resources };
+        const newBodegaResources = { ...vindicator.bodegaResources };
+
+        // 3. Deducir del inventario correcto. Como barraCombustible es de Fase 2, estará en la bodega.
+        //    Esta lógica es más segura por si en el futuro se necesitara un recurso de Fase 1.
+        if (newBodegaResources.barraCombustible >= fuelCost) {
+          newBodegaResources.barraCombustible -= fuelCost;
+        } else {
+          // Fallback por si el recurso estuviera (incorrectamente) en el inventario principal.
+          newResources.barraCombustible -= fuelCost;
+        }
+        
         return { 
           ...state, 
-          resources: { ...state.resources, barraCombustible: state.resources.barraCombustible - fuelCost },
-          vindicator: { ...state.vindicator, currentShield: state.vindicator.maxShield } 
+          resources: newResources,
+          vindicator: { 
+            ...vindicator, 
+            bodegaResources: newBodegaResources,
+            currentShield: vindicator.maxShield 
+          } 
         };
       }
       return state;
@@ -970,7 +990,7 @@ export const gameReducer = (state: GameState, action: ActionType): GameState => 
 
       // Update expedition completion counters
       const newCompletedCount = { ...state.expeditions.completedCount };
-      const successfulRuns = results.individualResults.filter(r => r.wasSuccessful).length;
+      const successfulRuns = results.individualResults?.filter(r => r.wasSuccessful).length || 0;
 
       if (successfulRuns > 0) {
         newCompletedCount.total += successfulRuns;
