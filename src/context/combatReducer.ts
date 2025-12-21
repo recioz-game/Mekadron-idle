@@ -17,7 +17,7 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
         ...state,
         battleRoom: {
           ...state.battleRoom,
-          selectedDestination: action.payload,
+          selectedDestination: action.payload.destinationIndex,
         },
       };
 
@@ -52,7 +52,7 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
         return state;
       }
       
-      const battleIndex = state.battleRoom.battlesCompleted[chapterIndex]?.[destinationIndex] || 0;
+      const battleIndex = state.battleRoom.battlesCompleted[destinationIndex] || 0;
 
       if (battleIndex >= destination.battles.length) {
         return state;
@@ -77,7 +77,6 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
         },
         vindicator: {
           ...state.vindicator,
-          currentShield: state.vindicator.maxShield,
         },
         battleCount: state.battleCount + 1,
         currentScene: 'combatScene',

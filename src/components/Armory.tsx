@@ -7,6 +7,8 @@ import { formatNumber } from '../utils/formatNumber';
 import './Armory.css';
 import { gameConfig } from '../data/gameConfig';
 import { resourceMetadata } from '../data/resourceMetadata';
+import scrapIcon from '../assets/images/ui/scrap-icon.png';
+import fuelRodIcon from '../assets/images/ui/fuel-rod-icon.png';
 
 
 interface ArmoryProps {
@@ -48,7 +50,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
   const isVM08 = vindicator.vindicatorType === 'vm08_phantom';
   const isVM09 = vindicator.vindicatorType === 'vm09_apex';
 
-  let upgradesToDisplay: any = {};
+  let upgradesToDisplay: any = vindicatorUpgrades; // Default to base upgrades
   let upgradeActionType: 'UPGRADE_VINDICATOR_STAR' | 'UPGRADE_VINDICATOR_MK1_STAR' | 'UPGRADE_VINDICATOR_MK2_STAR' | 'UPGRADE_VINDICATOR_MK3_STAR' | 'UPGRADE_VINDICATOR_MK4_STAR' | 'UPGRADE_VINDICATOR_MK5_STAR' | 'UPGRADE_VINDICATOR_MK6_STAR' | 'UPGRADE_VINDICATOR_MK7_STAR' | 'UPGRADE_VINDICATOR_MK8_STAR' | 'UPGRADE_VINDICATOR_MK9_STAR' = 'UPGRADE_VINDICATOR_STAR';
   
   if (isVM09) {
@@ -75,7 +77,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
   } else if (isVM02) {
     upgradesToDisplay = vindicatorMK2Upgrades;
     upgradeActionType = 'UPGRADE_VINDICATOR_MK2_STAR';
-  } else if (!isVM01) { 
+  } else if (vindicator.vindicatorType !== 'base') { 
     upgradesToDisplay = vindicatorUpgrades;
     upgradeActionType = 'UPGRADE_VINDICATOR_STAR';
   }
@@ -216,7 +218,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                 <h4 title={`Coste: ${healthCostPerPoint.toFixed(0)} Chatarra por punto`}>Reparar Vida</h4>
                 <p>Repara {formatNumber(missingHealth, gameState.settings.numberFormat)} puntos de vida faltantes</p>
                 <div className="repair-cost">
-                  <img src='/src/assets/images/ui/scrap-icon.png' alt="Chatarra" className="cost-icon-img" />
+                  <img src={scrapIcon} alt="Chatarra" className="cost-icon-img" />
                   <span className="cost-amount">{formatNumber(healthRepairCost, gameState.settings.numberFormat)}</span>
                   <span className="cost-name">Chatarra</span>
                 </div>
@@ -230,7 +232,7 @@ const Armory: React.FC<ArmoryProps> = ({ onClose }) => {
                 <h4 title={`Coste: ${shieldCostPerPoint.toFixed(2)} Barras de Combustible por punto`}>Reparar Escudo</h4>
                 <p>Repara {formatNumber(missingShield, gameState.settings.numberFormat)} puntos de escudo faltantes</p>
                 <div className="repair-cost">
-                  <img src='/src/assets/images/ui/fuel-rod-icon.png' alt="Combustible" className="cost-icon-img" />
+                  <img src={fuelRodIcon} alt="Combustible" className="cost-icon-img" />
                   <span className="cost-amount">{shieldRepairCost.toFixed(1)}</span>
                   <span className="cost-name">Barras de Combustible</span>
                 </div>

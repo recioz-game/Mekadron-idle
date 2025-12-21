@@ -3,6 +3,7 @@ import './FoundryView.css'; // Importar el archivo CSS
 import { GameState } from '../types/gameState';
 import BuyAmountSelector from './BuyAmountSelector';
 import { formatNumber, formatTime } from '../utils/formatNumber';
+import { gameData } from '../data/gameData';
 import BotonConTooltip from './BotonConTooltip';
 import { useDragToScroll } from '../hooks/useDragToScroll';
 import QueueControls from './QueueControls';
@@ -58,7 +59,6 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
   const steelCost = { scrap: 1000, metal: 10, energy: 250 };
     const plateCost = { fragmentos: 10, acero: 5, energy: 500 };
   const wiringCost = { circuitos: 10, metal: 25, energy: 1000 };
-  const fuelRodCost = { metal: 10, acero: 5, energy: 1500 };
   const purificationCost = { scrap: 5000, energy: 500 };
 
   const maxMetal = Math.min(Math.floor(scrap / metalCost.scrap), Math.floor(energy / metalCost.energy));
@@ -73,7 +73,11 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
   const maxWiring = Math.min(Math.floor(circuitosDañados / wiringCost.circuitos), Math.floor(metalRefinado / wiringCost.metal), Math.floor(energy / wiringCost.energy));
   const wiringAmount = buyAmount === 'max' ? maxWiring : Math.min(buyAmount, maxWiring);
 
-  const maxFuelRod = Math.min(Math.floor(metalRefinado / fuelRodCost.metal), Math.floor(aceroEstructural / fuelRodCost.acero), Math.floor(energy / fuelRodCost.energy));
+  const maxFuelRod = Math.min(
+    Math.floor(metalRefinado / gameData.foundry.barraCombustible.costs.metalRefinado),
+    Math.floor(aceroEstructural / gameData.foundry.barraCombustible.costs.aceroEstructural),
+    Math.floor(energy / gameData.foundry.barraCombustible.costs.energy)
+  );
   const fuelRodAmount = buyAmount === 'max' ? maxFuelRod : Math.min(buyAmount, maxFuelRod);
 
   const maxPurified = Math.min(Math.floor(scrap / purificationCost.scrap), Math.floor(energy / purificationCost.energy));
@@ -241,7 +245,8 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
         <div className={`foundry-item ${maxFuelRod > 0 ? 'unlocked' : ''}`}>
           <div className="foundry-item-content">
                         <h4 style={{ color: '#FCD34D' }}>Barra de Combustible</h4>
-            <p>Coste: {fuelRodCost.metal} Metal Refinado + {fuelRodCost.acero} Acero Estructural + {fuelRodCost.energy} Energía</p>
+            <p>Coste: {gameData.foundry.barraCombustible.costs.metalRefinado} Metal Refinado + {gameData.foundry.barraCombustible.costs.aceroEstructural} Acero Estructural + {gameData.foundry.barraCombustible.costs.energy} Energía</p>
+            <p>Tiempo de Crafteo Base: {formatTime(gameData.foundry.barraCombustible.time)}</p>
             <p>En Posesión: {formatNumber(barraCombustible, numberFormat)} {queues.barraCombustible?.queue > 0 ? `| En cola: ${queues.barraCombustible.queue} | Tiempo: ~${formatTime(queues.barraCombustible.queue * queues.barraCombustible.time)}` : ''}</p>
             
             {queues.barraCombustible?.queue > 0 && (
@@ -256,9 +261,9 @@ const FoundryView: React.FC<FoundryViewProps> = React.memo(({
                 onClick={onCraftFuelRod} 
                 disabled={maxFuelRod <= 0}
                                 tooltipText={getTooltipText([
-                  { amount: fuelRodCost.metal, current: metalRefinado, text: 'Metal Refinado' },
-                  { amount: fuelRodCost.acero, current: aceroEstructural, text: 'Acero Estructural' },
-                  { amount: fuelRodCost.energy, current: energy, text: 'Energía' }
+                  { amount: gameData.foundry.barraCombustible.costs.metalRefinado, current: metalRefinado, text: 'Metal Refinado' },
+                  { amount: gameData.foundry.barraCombustible.costs.aceroEstructural, current: aceroEstructural, text: 'Acero Estructural' },
+                  { amount: gameData.foundry.barraCombustible.costs.energy, current: energy, text: 'Energía' }
                 ], numberFormat)}
                 className={`build-button ${maxFuelRod > 0 ? 'unlocked' : ''}`}
               >
