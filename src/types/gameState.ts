@@ -537,20 +537,20 @@ export interface GameState {
     matrizDefensiva: VindicatorUpgrade;
     canonOverlord: VindicatorUpgrade;
   };
-  blueprints: number; // Planos para subir de estrella
-  vindicatorLevel: number; // Nivel general del Vindicator
+   blueprints: number; 
+   vindicatorLevel: number; 
     activeBattle: {
+    chapterIndex: number; 
     destinationIndex: number;
     battleIndex: number;
     enemyName: string;
     enemyMaxHealth: number;
-        enemyCurrentHealth: number;
+    enemyCurrentHealth: number;
     enemyMaxShield: number;
     enemyCurrentShield: number;
     cloakTurnsRemaining?: number;
     dodgeBonusNextTurn?: boolean;
-  } | null;
-      settings: {
+  } | null;      settings: {
     masterVolume: number; // 0-100
     musicVolume: number; // 0-100
     sfxVolume: number; // 0-100

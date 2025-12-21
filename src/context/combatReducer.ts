@@ -6,8 +6,7 @@ import { allArmoryMK2Modules } from '../data/armoryMK2Data';
 
 const allModules = [...allArmoryMK1Modules, ...allArmoryMK2Modules];
 
-// Aplanamos los destinos de todos los capítulos en una sola lista
-const allDestinations = gameChapters.flatMap(chapter => chapter.destinations);
+
 
 
 export const combatReducer = (state: GameState, action: ActionType): GameState => {
@@ -53,7 +52,6 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
       }
       
       const battleIndex = state.battleRoom.battlesCompleted[destinationIndex] || 0;
-
       if (battleIndex >= destination.battles.length) {
         return state;
       }
@@ -81,6 +79,7 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
         battleCount: state.battleCount + 1,
         currentScene: 'combatScene',
         activeBattle: {
+          chapterIndex,
           destinationIndex,
           battleIndex,
           enemyName: enemy.enemyName,
@@ -100,7 +99,7 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
       }
       
       let { activeBattle, vindicator } = state; // 'let' para poder reasignar
-      const enemy = allDestinations[activeBattle.destinationIndex].battles[activeBattle.battleIndex];
+      const enemy = gameChapters[activeBattle.chapterIndex].destinations[activeBattle.destinationIndex].battles[activeBattle.battleIndex];
 
       const equippedModules = {
         offensive: allModules.find(m => m.id === vindicator.modules.offensive),
@@ -201,7 +200,7 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
       }
 
       let { activeBattle, vindicator } = state;
-      const enemy = allDestinations[activeBattle.destinationIndex].battles[activeBattle.battleIndex];
+      const enemy = gameChapters[activeBattle.chapterIndex].destinations[activeBattle.destinationIndex].battles[activeBattle.battleIndex];
 
       const equippedModules = {
         offensive: allModules.find(m => m.id === vindicator.modules.offensive),
@@ -242,11 +241,11 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
         let enemyAttackDamage = state.godMode ? 0 : enemyDamage; // <-- MODO DIOS
         if (activeBattle.cloakTurnsRemaining && activeBattle.cloakTurnsRemaining > 0) {
           enemyAttackDamage = 0;
-          activeBattle = { ...activeBattle, cloakTurnsRemaining: activeBattle.cloakTurnsRemaining - 1 };
+          activeBattle = { ...activeBattle, cloakTurnsRemaining: activeBattle.cloakTurnsRemaining - 1, chapterIndex: activeBattle.chapterIndex };
         } else if (equippedModules.defensive?.effects.dodgeChance && Math.random() < equippedModules.defensive.effects.dodgeChance) {
           enemyAttackDamage = 0;
           if (equippedModules.tactical?.effects.postDodgeDamageBuff) {
-            activeBattle = { ...activeBattle, dodgeBonusNextTurn: true };
+            activeBattle = { ...activeBattle, dodgeBonusNextTurn: true, chapterIndex: activeBattle.chapterIndex };
           }
         }
         
@@ -336,14 +335,14 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
       if (!state.activeBattle) return state;
 
       const { activeBattle, vindicator } = state;
-      const enemy = allDestinations[activeBattle.destinationIndex].battles[activeBattle.battleIndex];
+      const enemy = gameChapters[activeBattle.chapterIndex].destinations[activeBattle.destinationIndex].battles[activeBattle.battleIndex];
 
       // --- Lógica de recompensas y avance ---
       const newBattlesCompleted = [...state.battleRoom.battlesCompleted];
       const currentWins = newBattlesCompleted[activeBattle.destinationIndex] || 0;
       newBattlesCompleted[activeBattle.destinationIndex] = currentWins + 1;
 
-      const destination = allDestinations[activeBattle.destinationIndex];
+      const destination = gameChapters[activeBattle.chapterIndex].destinations[activeBattle.destinationIndex];
       const nextBattleIndex = newBattlesCompleted[activeBattle.destinationIndex];
 
       const reward = enemy.reward;
@@ -377,20 +376,29 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
         },
       };
 
-      if (nextBattleIndex < destination.battles.length) {
+            if (nextBattleIndex < destination.battles.length) {
+        const equippedModules = {
+          offensive: allModules.find(m => m.id === state.vindicator.modules.offensive),
+          defensive: allModules.find(m => m.id === state.vindicator.modules.defensive),
+          tactical: allModules.find(m => m.id === state.vindicator.modules.tactical),
+        };
+        const initialCloakTurns = equippedModules.defensive?.effects.cloakTurns || 0;
         // Cargar siguiente enemigo
         const nextEnemy = destination.battles[nextBattleIndex];
         return {
           ...newState,
           battleCount: state.battleCount + 1, // Forzamos un re-renderizado de la escena de combate
           activeBattle: {
-            ...activeBattle,
+            chapterIndex: activeBattle.chapterIndex,
+            destinationIndex: activeBattle.destinationIndex,
             battleIndex: nextBattleIndex,
             enemyName: nextEnemy.enemyName,
             enemyMaxHealth: nextEnemy.health,
             enemyCurrentHealth: nextEnemy.health,
             enemyMaxShield: nextEnemy.shield,
             enemyCurrentShield: nextEnemy.shield,
+            cloakTurnsRemaining: initialCloakTurns,
+            dodgeBonusNextTurn: false,
           },
         };
       } else {

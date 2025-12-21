@@ -9,10 +9,7 @@ import chapter2Image from '../assets/images/chapters/chapters_cap_2.png';
 import chapter3Image from '../assets/images/chapters/chapters_cap_3.png';
 import chapter4Image from '../assets/images/chapters/chapters_cap_4.png';
 import chapter5Image from '../assets/images/chapters/chapters_cap_5.png';
-import scrapIcon from '../assets/images/ui/scrap-icon.png';
 import fuelRodIcon from '../assets/images/ui/fuel-rod-icon.png';
-import corruptNeurochipIcon from '../assets/images/ui/corrupt-neurochip-icon.png';
-import blueprintIcon from '../assets/images/ui/resources/plano 32x32.png';
 import navArrowLeft from '../assets/images/ui/buttons/nav-arrow-left.png';
 import navArrowRight from '../assets/images/ui/buttons/nav-arrow-right.png';
 import enterButton from '../assets/images/ui/buttons/enter-button.png';
@@ -60,7 +57,13 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
   };
   
   const handleSelectDestination = (destinationIndex: number) => {
-    dispatch({ type: 'SELECT_BATTLE_DESTINATION', payload: destinationIndex });
+    dispatch({ 
+      type: 'SELECT_BATTLE_DESTINATION', 
+      payload: { 
+        chapterIndex: gameState.battleRoom.selectedChapterIndex!, 
+        destinationIndex 
+      } 
+    });
   };
 
 
