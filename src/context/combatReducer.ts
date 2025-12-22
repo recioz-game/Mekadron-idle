@@ -345,6 +345,18 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
       const destination = gameChapters[activeBattle.chapterIndex].destinations[activeBattle.destinationIndex];
       const nextBattleIndex = newBattlesCompleted[activeBattle.destinationIndex];
 
+      // --- INICIO: Lógica de finalización de capítulo ---
+      let newHighestChapterCompleted = state.highestChapterCompleted;
+      const chapter = gameChapters[activeBattle.chapterIndex];
+      const isLastDestination = activeBattle.destinationIndex === chapter.destinations.length - 1;
+      const isLastBattle = nextBattleIndex >= destination.battles.length;
+
+      if (isLastDestination && isLastBattle) {
+        // Si se completó el último destino del capítulo, actualiza el progreso
+        newHighestChapterCompleted = Math.max(state.highestChapterCompleted, activeBattle.chapterIndex + 1);
+      }
+      // --- FIN: Lógica de finalización de capítulo ---
+
       const reward = enemy.reward;
       const newResources = { ...state.resources };
       const newBodegaResources = { ...vindicator.bodegaResources };
@@ -364,6 +376,7 @@ export const combatReducer = (state: GameState, action: ActionType): GameState =
       
       const newState = {
         ...state,
+        highestChapterCompleted: newHighestChapterCompleted, // <-- Actualizar estado
         resources: newResources,
         vindicator: { 
           ...vindicator,

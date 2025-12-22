@@ -74,8 +74,9 @@ const BattleRoom: React.FC<BattleRoomProps> = ({ onClose }) => {
   // --- VISTA DE SELECCIÓN DE CAPÍTULOS ---
   const renderChapterSelection = () => {
     const chapter = gameChapters[currentChapterIndex];
-    // Aquí puedes agregar la lógica para deshabilitar botones si el capítulo está bloqueado
-    const isLocked = false; 
+    // Un capítulo está desbloqueado si es el primero (índice 0) o si el capítulo anterior ha sido completado.
+    // gameState.highestChapterCompleted almacena el número del último capítulo completado (p. ej. 1 si el cap 1 está listo)
+    const isLocked = currentChapterIndex > gameState.highestChapterCompleted; 
 
     return (
       <div className="chapter-carousel">

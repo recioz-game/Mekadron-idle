@@ -130,6 +130,7 @@ export type DroneType = keyof GameState['workshop']['drones'];
 export interface GameState {
   currentScene: 'startMenu' | 'introScene' | 'main' | 'phase2Intro' | 'phase2Main' | 'combatScene' | 'creditsScene';
     phase2Unlocked: boolean;
+    highestChapterCompleted: number;
   notificationQueue: GameNotification[];
   recalculationNeeded: boolean;
   godMode: boolean;
@@ -570,6 +571,7 @@ export interface GameState {
   export const   initialGameState: GameState = {
   currentScene: 'startMenu',
   phase2Unlocked: false,
+  highestChapterCompleted: 0,
   notificationQueue: [],
   battleCount: 0,
   currentBackground: 1, // <-- NUEVA PROP: Fondo inicial (1)

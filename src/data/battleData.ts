@@ -66,16 +66,15 @@ export interface Destination {
 
 export interface VindicatorLevel {
   level: number;
-  blueprintCost: number; // Costo en planos para ALCANZAR este nivel
-  researchPointsCost?: number; // Coste en Puntos de Investigación
-  statBonus: { // Bonificación de estadísticas FIJA que se añade al subir a este nivel
+  blueprintCost: number; 
+  researchPointsCost?: number; 
+  statBonus: { 
     health: number;
     shield: number;
     damage: number;
   };
 }
 
-// Datos de progresión para el nivel del Vindicator
 export const vindicatorLevelData: VindicatorLevel[] = [
   { level: 2, blueprintCost: 10, researchPointsCost: 10000, statBonus: { health: 100, shield: 50, damage: 10 } },
   { level: 3, blueprintCost: 15, researchPointsCost: 25000, statBonus: { health: 150, shield: 75, damage: 15 } },
@@ -662,5 +661,475 @@ export const gameChapters: Chapter[] = [
         ]
       }
     ]
+  },
+  {
+    name: "CAPÍTULO 1 — Hermandad del Vacío (Difícil)",
+    lore: "Una alianza pirata controla las rutas olvidadas del sector. Operan entre escombros, estaciones destruidas y nebulosas cargadas de interferencias. Con cazas antiguos, brutalidad y tácticas sucias, la Hermandad del Vacío domina el contrabando y el saqueo. Para avanzar, debes desmantelar zona por zona su red criminal.",
+    destinations: [
+      {
+        name: "Cinturón Khelar",
+        description: "Un anillo de chatarra espacial lleno de restos de guerra. Pequeñas bandas se esconden entre montañas de metal oxidado.",
+        battles: [
+            { enemyName: "Desguazador Khelar", health: 57000, shield: 21500, damage: 7800, reward: { aleacionReforzadaElite: 5 } },
+            { enemyName: "Desguazador Khelar", health: 58000, shield: 22000, damage: 7900, reward: { aleacionReforzadaElite: 6 } },
+            { enemyName: "Desguazador Khelar", health: 59000, shield: 22500, damage: 8000, reward: { neuroChipCorruptoElite: 3 } },
+            { enemyName: "Desguazador Khelar", health: 60000, shield: 23000, damage: 8100, reward: { neuroChipCorruptoElite: 4 } },
+            { enemyName: "Triturador Óxido", health: 65000, shield: 25000, damage: 8500, reward: { aleacionReforzadaElite: 10, neuroChipCorruptoElite: 5, planosMK5: 1 }, type: 'mini-boss' },
+            { enemyName: "Recolector Errante", health: 61000, shield: 23500, damage: 8200, reward: { aleacionReforzadaElite: 7 } },
+            { enemyName: "Recolector Errante", health: 62000, shield: 24000, damage: 8300, reward: { aleacionReforzadaElite: 8 } },
+            { enemyName: "Recolector Errante", health: 63000, shield: 24500, damage: 8400, reward: { neuroChipCorruptoElite: 5 } },
+            { enemyName: "Recolector Errante", health: 64000, shield: 24800, damage: 8450, reward: { neuroChipCorruptoElite: 6 } },
+            { enemyName: "Capataz Chatarra", health: 70000, shield: 28000, damage: 9000, reward: { aleacionReforzadaElite: 15, neuroChipCorruptoElite: 10, planosMK5: 3 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "Ancla Roja",
+        description: "Asteroide hueco convertido en refugio pirata. Talleres clandestinos, torretas robadas y pilotos veteranos.",
+        battles: [
+            { enemyName: "Vigilante Carmesí", health: 71000, shield: 28500, damage: 9100, reward: { neuroChipCorruptoElite: 12 } },
+            { enemyName: "Vigilante Carmesí", health: 72000, shield: 29000, damage: 9200, reward: { neuroChipCorruptoElite: 14 } },
+            { enemyName: "Vigilante Carmesí", health: 73000, shield: 29500, damage: 9300, reward: { aleacionReforzadaElite: 18 } },
+            { enemyName: "Vigilante Carmesí", health: 74000, shield: 30000, damage: 9400, reward: { aleacionReforzadaElite: 20 } },
+            { enemyName: "Martillo Rojo", health: 80000, shield: 32000, damage: 9800, reward: { neuroChipCorruptoElite: 20, aleacionReforzadaElite: 25, planosMK5: 2 }, type: 'mini-boss' },
+            { enemyName: "Garfio del Vacío", health: 75000, shield: 30500, damage: 9500, reward: { neuroChipCorruptoElite: 16 } },
+            { enemyName: "Garfio del Vacío", health: 76000, shield: 31000, damage: 9600, reward: { neuroChipCorruptoElite: 18 } },
+            { enemyName: "Garfio del Vacío", health: 77000, shield: 31500, damage: 9700, reward: { aleacionReforzadaElite: 22 } },
+            { enemyName: "Garfio del Vacío", health: 78000, shield: 31800, damage: 9750, reward: { aleacionReforzadaElite: 24 } },
+            { enemyName: "Contramaestre Sangrefría", health: 85000, shield: 35000, damage: 10500, reward: { neuroChipCorruptoElite: 30, aleacionReforzadaElite: 30, planosMK5: 5 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "Nebulosa del Rumor Azul",
+        description: "Una nebulosa densa que distorsiona todos los sensores. Los piratas usan la niebla para emboscadas precisas.",
+        battles: [
+            { enemyName: "Sombra Azul", health: 86000, shield: 35500, damage: 10600, reward: { aleacionReforzadaElite: 30 } },
+            { enemyName: "Sombra Azul", health: 87000, shield: 36000, damage: 10700, reward: { aleacionReforzadaElite: 32 } },
+            { enemyName: "Sombra Azul", health: 88000, shield: 36500, damage: 10800, reward: { neuroChipCorruptoElite: 25 } },
+            { enemyName: "Sombra Azul", health: 89000, shield: 37000, damage: 10900, reward: { neuroChipCorruptoElite: 28 } },
+            { enemyName: "Acechador Nebular", health: 95000, shield: 39000, damage: 11500, reward: { aleacionReforzadaElite: 40, neuroChipCorruptoElite: 35, planosMK5: 4 }, type: 'mini-boss' },
+            { enemyName: "Espectro Turquesa", health: 90000, shield: 37500, damage: 11000, reward: { aleacionReforzadaElite: 35 } },
+            { enemyName: "Espectro Turquesa", health: 91000, shield: 38000, damage: 11100, reward: { aleacionReforzadaElite: 38 } },
+            { enemyName: "Espectro Turquesa", health: 92000, shield: 38500, damage: 11200, reward: { neuroChipCorruptoElite: 30 } },
+            { enemyName: "Espectro Turquesa", health: 93000, shield: 38800, damage: 11300, reward: { neuroChipCorruptoElite: 32 } },
+            { enemyName: "Capitán Brumahelada", health: 100000, shield: 42000, damage: 12000, reward: { aleacionReforzadaElite: 50, neuroChipCorruptoElite: 40, planosMK5: 8 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "Dominio Grifo",
+        description: "Restos orbitales de una antigua colonia minera. El Clan Grifo domina con tácticas directas y drones reciclados.",
+        battles: [
+            { enemyName: "Ala Grifo", health: 101000, shield: 42500, damage: 12100, reward: { neuroChipCorruptoElite: 40 } },
+            { enemyName: "Ala Grifo", health: 102000, shield: 43000, damage: 12200, reward: { neuroChipCorruptoElite: 42 } },
+            { enemyName: "Ala Grifo", health: 103000, shield: 43500, damage: 12300, reward: { aleacionReforzadaElite: 50 } },
+            { enemyName: "Ala Grifo", health: 104000, shield: 44000, damage: 12400, reward: { aleacionReforzadaElite: 52 } },
+            { enemyName: "Heraldo del Grifo", health: 110000, shield: 46000, damage: 13000, reward: { neuroChipCorruptoElite: 50, aleacionReforzadaElite: 60, planosMK5: 6 }, type: 'mini-boss' },
+            { enemyName: "Talón Férreo", health: 105000, shield: 44500, damage: 12500, reward: { neuroChipCorruptoElite: 45 } },
+            { enemyName: "Talón Férreo", health: 106000, shield: 45000, damage: 12600, reward: { neuroChipCorruptoElite: 48 } },
+            { enemyName: "Talón Férreo", health: 107000, shield: 45500, damage: 12700, reward: { aleacionReforzadaElite: 55 } },
+            { enemyName: "Talón Férreo", health: 108000, shield: 45800, damage: 12800, reward: { neuroChipCorruptoElite: 58 } },
+            { enemyName: "Jefe Picoteador", health: 115000, shield: 49000, damage: 13500, reward: { neuroChipCorruptoElite: 60, aleacionReforzadaElite: 70, planosMK5: 10 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "Fortaleza Garra Negra",
+        description: "Una fortaleza espacial móvil, núcleo defensivo de la Hermandad. Cargada de torretas, cazas y escudos improvisados.",
+        battles: [
+            { enemyName: "Ronda Negra", health: 116000, shield: 49500, damage: 13600, reward: { aleacionReforzadaElite: 70 } },
+            { enemyName: "Ronda Negra", health: 117000, shield: 50000, damage: 13700, reward: { aleacionReforzadaElite: 72 } },
+            { enemyName: "Ronda Negra", health: 118000, shield: 50500, damage: 13800, reward: { neuroChipCorruptoElite: 60 } },
+            { enemyName: "Ronda Negra", health: 119000, shield: 51000, damage: 13900, reward: { neuroChipCorruptoElite: 62 } },
+            { enemyName: "Azote del Vacío", health: 125000, shield: 53000, damage: 14500, reward: { aleacionReforzadaElite: 80, neuroChipCorruptoElite: 70, planosMK5: 8 }, type: 'mini-boss' },
+            { enemyName: "Saqueador Élite", health: 120000, shield: 51500, damage: 14000, reward: { aleacionReforzadaElite: 75 } },
+            { enemyName: "Saqueador Élite", health: 121000, shield: 52000, damage: 14100, reward: { aleacionReforzadaElite: 78 } },
+            { enemyName: "Saqueador Élite", health: 122000, shield: 52500, damage: 14200, reward: { neuroChipCorruptoElite: 65 } },
+            { enemyName: "Saqueador Élite", health: 123000, shield: 52800, damage: 14300, reward: { neuroChipCorruptoElite: 68 } },
+            { enemyName: "Capitán Atronador", health: 130000, shield: 56000, damage: 15000, reward: { aleacionReforzadaElite: 90, neuroChipCorruptoElite: 80, planosMK5: 12 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "Señor Kraag",
+        description: "El caudillo de la Hermandad del Vacío y pirata más temido del sector. Su fragata ha sobrevivido a más batallas de las que se registran oficialmente.",
+        isBoss: true,
+        battles: [
+            { enemyName: "Fragata Skullbreaker", health: 145000, shield: 63000, damage: 17000, reward: { neuroChipCorruptoElite: 150, aleacionReforzadaElite: 150, planosMK5: 25 }, type: 'boss' },
+        ]
+      }
+    ]
+  },
+  {
+    name: "CAPÍTULO 2 — “Enjambre Carminis” (Difícil)",
+    lore: "En los bordes del sector se ha detectado actividad de una especie insectoide conocida como los Carminis. Sus naves no son construidas: son criadas. Cada unidad del enjambre cumple una función biológica y militar, y se comunican por impulsos bioeléctricos. Tras detectar presencia humana, el enjambre ha iniciado un proceso de expansión agresiva.Si no destruyes sus colmenas adelantadas, acabarán multiplicándose hasta consumir todo el sector.",
+    destinations: [
+      {
+        name: "Colmena de Frontera “Nido Espina”",
+        description: "Pequeña colmena avanzada creada sobre un asteroide. Aquí se incuban las primeras naves vivas del enjambre: rápidas, frágiles y agresivas.",
+        battles: [
+            { enemyName: "Zángano Espina", health: 106000, shield: 45500, damage: 10200, reward: { matrizQuitinaCristalElite: 5 } },
+            { enemyName: "Zángano Espina", health: 107000, shield: 46000, damage: 10300, reward: { matrizQuitinaCristalElite: 6 } },
+            { enemyName: "Zángano Espina", health: 108000, shield: 46500, damage: 10400, reward: { nucleoSinapticoFracturadoElite: 3 } },
+            { enemyName: "Zángano Espina", health: 109000, shield: 47000, damage: 10500, reward: { nucleoSinapticoFracturadoElite: 4 } },
+            { enemyName: "Larva Guardiana", health: 115000, shield: 50000, damage: 11000, reward: { matrizQuitinaCristalElite: 10, nucleoSinapticoFracturadoElite: 5, planosMK6: 1 }, type: 'mini-boss' },
+            { enemyName: "Polinizador Letal", health: 110000, shield: 47500, damage: 10600, reward: { matrizQuitinaCristalElite: 7 } },
+            { enemyName: "Polinizador Letal", health: 111000, shield: 48000, damage: 10700, reward: { matrizQuitinaCristalElite: 8 } },
+            { enemyName: "Polinizador Letal", health: 112000, shield: 48500, damage: 10800, reward: { nucleoSinapticoFracturadoElite: 5 } },
+            { enemyName: "Polinizador Letal", health: 113000, shield: 49000, damage: 10900, reward: { nucleoSinapticoFracturadoElite: 6 } },
+            { enemyName: "Reina Menor Espina Roja", health: 120000, shield: 53000, damage: 11500, reward: { matrizQuitinaCristalElite: 15, nucleoSinapticoFracturadoElite: 10, planosMK6: 3 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "Barranco Bioluminiscente “Hueco Ámbar”",
+        description: "Un campo de asteroides convertidos en criaderos conectados por tubos orgánicos. La bioluminiscencia ámbar disimula el movimiento del enjambre.",
+        battles: [
+            { enemyName: "Cortador Ámbar", health: 121000, shield: 53500, damage: 11600, reward: { nucleoSinapticoFracturadoElite: 12 } },
+            { enemyName: "Cortador Ámbar", health: 122000, shield: 54000, damage: 11700, reward: { nucleoSinapticoFracturadoElite: 14 } },
+            { enemyName: "Cortador Ámbar", health: 123000, shield: 54500, damage: 11800, reward: { matrizQuitinaCristalElite: 18 } },
+            { enemyName: "Cortador Ámbar", health: 124000, shield: 55000, damage: 11900, reward: { matrizQuitinaCristalElite: 20 } },
+            { enemyName: "Centinela Resinario", health: 130000, shield: 58000, damage: 12500, reward: { nucleoSinapticoFracturadoElite: 20, matrizQuitinaCristalElite: 25, planosMK6: 2 }, type: 'mini-boss' },
+            { enemyName: "Acechador Filamento", health: 125000, shield: 55500, damage: 12000, reward: { nucleoSinapticoFracturadoElite: 16 } },
+            { enemyName: "Acechador Filamento", health: 126000, shield: 56000, damage: 12100, reward: { nucleoSinapticoFracturadoElite: 18 } },
+            { enemyName: "Acechador Filamento", health: 127000, shield: 56500, damage: 12200, reward: { nucleoSinapticoFracturadoElite: 22 } },
+            { enemyName: "Acechador Filamento", health: 128000, shield: 57000, damage: 12300, reward: { nucleoSinapticoFracturadoElite: 24 } },
+            { enemyName: "Soberana de Resina", health: 135000, shield: 61000, damage: 13000, reward: { nucleoSinapticoFracturadoElite: 30, matrizQuitinaCristalElite: 30, planosMK6: 5 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "Nebulosa “Velo Melífero”",
+        description: "Una nebulosa cargada de partículas dulces que los Carminis usan para nutrir sus naves. Todo aquí es pegajoso, denso y lleno de formas vivas.",
+        battles: [
+            { enemyName: "Recolector Néctar", health: 136000, shield: 61500, damage: 13100, reward: { matrizQuitinaCristalElite: 30 } },
+            { enemyName: "Recolector Néctar", health: 137000, shield: 62000, damage: 13200, reward: { matrizQuitinaCristalElite: 32 } },
+            { enemyName: "Recolector Néctar", health: 138000, shield: 62500, damage: 13300, reward: { nucleoSinapticoFracturadoElite: 25 } },
+            { enemyName: "Recolector Néctar", health: 139000, shield: 63000, damage: 13400, reward: { nucleoSinapticoFracturadoElite: 28 } },
+            { enemyName: "Emisor de Feromonas", health: 145000, shield: 66000, damage: 14000, reward: { matrizQuitinaCristalElite: 40, nucleoSinapticoFracturadoElite: 35, planosMK6: 4 }, type: 'mini-boss' },
+            { enemyName: "Ala Melífera", health: 140000, shield: 63500, damage: 13500, reward: { matrizQuitinaCristalElite: 35 } },
+            { enemyName: "Ala Melífera", health: 141000, shield: 64000, damage: 13600, reward: { matrizQuitinaCristalElite: 38 } },
+            { enemyName: "Ala Melífera", health: 142000, shield: 64500, damage: 13700, reward: { nucleoSinapticoFracturadoElite: 30 } },
+            { enemyName: "Ala Melífera", health: 143000, shield: 65000, damage: 13800, reward: { nucleoSinapticoFracturadoElite: 32 } },
+            { enemyName: "Dama del Velo Dulce", health: 150000, shield: 69000, damage: 14500, reward: { matrizQuitinaCristalElite: 50, nucleoSinapticoFracturadoElite: 40, planosMK6: 8 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "Túneles del Caparazón “Cripta Quitina”",
+        description: "Una antigua estación espacial ha sido absorbida y convertida en una colmena orgánica. La estructura está cubierta de placas de quitina.",
+        battles: [
+            { enemyName: "Quitinoide Raso", health: 151000, shield: 69500, damage: 14600, reward: { nucleoSinapticoFracturadoElite: 40 } },
+            { enemyName: "Quitinoide Raso", health: 152000, shield: 70000, damage: 14700, reward: { nucleoSinapticoFracturadoElite: 42 } },
+            { enemyName: "Quitinoide Raso", health: 153000, shield: 70500, damage: 14800, reward: { nucleoSinapticoFracturadoElite: 50 } },
+            { enemyName: "Quitinoide Raso", health: 154000, shield: 71000, damage: 14900, reward: { matrizQuitinaCristalElite: 52 } },
+            { enemyName: "Destructor Mandíbula", health: 160000, shield: 74000, damage: 15500, reward: { nucleoSinapticoFracturadoElite: 50, matrizQuitinaCristalElite: 60, planosMK6: 6 }, type: 'mini-boss' },
+            { enemyName: "Ala Serrada", health: 155000, shield: 71500, damage: 15000, reward: { nucleoSinapticoFracturadoElite: 45 } },
+            { enemyName: "Ala Serrada", health: 156000, shield: 72000, damage: 15100, reward: { nucleoSinapticoFracturadoElite: 48 } },
+            { enemyName: "Ala Serrada", health: 157000, shield: 72500, damage: 15200, reward: { nucleoSinapticoFracturadoElite: 55 } },
+            { enemyName: "Ala Serrada", health: 158000, shield: 73000, damage: 15300, reward: { nucleoSinapticoFracturadoElite: 58 } },
+            { enemyName: "Señora Mandibular", health: 165000, shield: 77000, damage: 16000, reward: { nucleoSinapticoFracturadoElite: 60, matrizQuitinaCristalElite: 70, planosMK6: 10 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "Corazón del Enjambre “Púlsar Carmesí”",
+        description: "Aquí late la colmena principal. Naves enormes, biotecnología compleja y un flujo constante de criaturas naciendo y muriendo en ciclos de minutos.",
+        battles: [
+            { enemyName: "Guardián Carmesí", health: 166000, shield: 77500, damage: 16100, reward: { nucleoSinapticoFracturadoElite: 70 } },
+            { enemyName: "Guardián Carmesí", health: 167000, shield: 78000, damage: 16200, reward: { matrizQuitinaCristalElite: 72 } },
+            { enemyName: "Guardián Carmesí", health: 168000, shield: 78500, damage: 16300, reward: { nucleoSinapticoFracturadoElite: 60 } },
+            { enemyName: "Guardián Carmesí", health: 169000, shield: 79000, damage: 16400, reward: { nucleoSinapticoFracturadoElite: 62 } },
+            { enemyName: "Esporo Alfa", health: 175000, shield: 82000, damage: 17000, reward: { matrizQuitinaCristalElite: 80, nucleoSinapticoFracturadoElite: 70, planosMK6: 8 }, type: 'mini-boss' },
+            { enemyName: "Irradiado del Enjambre", health: 170000, shield: 79500, damage: 16500, reward: { nucleoSinapticoFracturadoElite: 75 } },
+            { enemyName: "Irradiado del Enjambre", health: 171000, shield: 80000, damage: 16600, reward: { nucleoSinapticoFracturadoElite: 78 } },
+            { enemyName: "Irradiado del Enjambre", health: 172000, shield: 80500, damage: 16700, reward: { nucleoSinapticoFracturadoElite: 65 } },
+            { enemyName: "Irradiado del Enjambre", health: 173000, shield: 81000, damage: 16800, reward: { nucleoSinapticoFracturadoElite: 68 } },
+            { enemyName: "Matriarca Sangrecolmena", health: 180000, shield: 85000, damage: 17500, reward: { matrizQuitinaCristalElite: 90, nucleoSinapticoFracturadoElite: 80, planosMK6: 12 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "“La Emperatriz Carminis”",
+        description: "La reina suprema del enjambre en este sector. Una nave viva del tamaño de un crucero, protegida por placas de quitina cristalizada y un núcleo bioenergético capaz de lanzar descargas masivas.Si la Emperatriz cae, el enjambre entra en caos.",
+        isBoss: true,
+        battles: [
+          { enemyName: "Emperatriz Carminis", health: 200000, shield: 95000, damage: 19500, reward: { nucleoSinapticoFracturadoElite: 150, matrizQuitinaCristalElite: 150, planosMK6: 25 }, type: 'boss' },
+        ]
+      }
+    ]
+  },
+  {
+    name: "CAPÍTULO 3 — “Legión Ilex” (Difícil)",
+    lore: "La Legión Ilex es una compañía militar privada que opera fuera de toda jurisdicción. Sus naves no muestran matrículas, sus pilotos no responden llamadas, y sus contratos incluyen “neutralización preventiva” de cualquier objetivo que pueda comprometer sus intereses.Aunque oficialmente dicen ofrecer “seguridad corporativa”, en realidad actúan como un ejército mercenario al servicio del mejor postor.Has entrado en territorio contratado —y ellos no negocian con intrusos.",
+    destinations: [
+        {
+            name: "Perímetro Gris",
+            description: "Zona de contención exterior. Patrullas ligeras con camuflaje gris polar mantienen un bloqueo frío y sistemático.",
+            battles: [
+                { enemyName: "Patrulla Gris", health: 161000, shield: 72500, damage: 17600, reward: { moduloManiobrasTácticasElite: 5 } },
+                { enemyName: "Patrulla Gris", health: 162000, shield: 73000, damage: 17700, reward: { moduloManiobrasTácticasElite: 6 } },
+                { enemyName: "Patrulla Gris", health: 163000, shield: 73500, damage: 17800, reward: { placasCamuflajeActivoElite: 3 } },
+                { enemyName: "Patrulla Gris", health: 164000, shield: 74000, damage: 17900, reward: { placasCamuflajeActivoElite: 4 } },
+                { enemyName: "Blindado Scout", health: 170000, shield: 77000, damage: 18500, reward: { moduloManiobrasTácticasElite: 10, placasCamuflajeActivoElite: 5, planosMK7: 1 }, type: 'mini-boss' },
+                { enemyName: "Recluta Armado", health: 165000, shield: 74500, damage: 18000, reward: { moduloManiobrasTácticasElite: 7 } },
+                { enemyName: "Recluta Armado", health: 166000, shield: 75000, damage: 18100, reward: { moduloManiobrasTácticasElite: 8 } },
+                { enemyName: "Recluta Armado", health: 167000, shield: 75500, damage: 18200, reward: { placasCamuflajeActivoElite: 5 } },
+                { enemyName: "Recluta Armado", health: 168000, shield: 76000, damage: 18300, reward: { placasCamuflajeActivoElite: 6 } },
+                { enemyName: "Teniente Centinela", health: 175000, shield: 80000, damage: 19000, reward: { moduloManiobrasTácticasElite: 15, placasCamuflajeActivoElite: 10, planosMK7: 3 }, type: 'boss' },
+            ]
+        },
+        {
+            name: "Corredor de Interdicción",
+            description: "Un corredor de tránsito militarizado, lleno de balizas inhibidoras y radares inteligentes. Nadie pasa sin ser registrado… o destruido.",
+            battles: [
+                { enemyName: "Interdictor Delta", health: 176000, shield: 80500, damage: 19100, reward: { placasCamuflajeActivoElite: 12 } },
+                { enemyName: "Interdictor Delta", health: 177000, shield: 81000, damage: 19200, reward: { placasCamuflajeActivoElite: 14 } },
+                { enemyName: "Interdictor Delta", health: 178000, shield: 81500, damage: 19300, reward: { moduloManiobrasTácticasElite: 18 } },
+                { enemyName: "Interdictor Delta", health: 179000, shield: 82000, damage: 19400, reward: { moduloManiobrasTácticasElite: 20 } },
+                { enemyName: "Operador Jammer", health: 185000, shield: 85000, damage: 20000, reward: { placasCamuflajeActivoElite: 20, moduloManiobrasTácticasElite: 25, planosMK7: 2 }, type: 'mini-boss' },
+                { enemyName: "Asaltante Táctico", health: 180000, shield: 82500, damage: 19500, reward: { placasCamuflajeActivoElite: 16 } },
+                { enemyName: "Asaltante Táctico", health: 181000, shield: 83000, damage: 19600, reward: { placasCamuflajeActivoElite: 18 } },
+                { enemyName: "Asaltante Táctico", health: 182000, shield: 83500, damage: 19700, reward: { moduloManiobrasTácticasElite: 22 } },
+                { enemyName: "Asaltante Táctico", health: 183000, shield: 84000, damage: 19800, reward: { moduloManiobrasTácticasElite: 24 } },
+                { enemyName: "Capitán Vector", health: 190000, shield: 88000, damage: 21000, reward: { placasCamuflajeActivoElite: 30, moduloManiobrasTácticasElite: 30, planosMK7: 5 }, type: 'boss' },
+            ]
+        },
+        {
+            name: "Base Móvil “Ilex-03”",
+            description: "Una megaestructura modular que sirve de cuartel itinerante. Talleres móviles, hangares plegables y lanzaderas de combate salen sin pausa.",
+            battles: [
+                { enemyName: "Mecaguarida", health: 191000, shield: 88500, damage: 21100, reward: { moduloManiobrasTácticasElite: 30 } },
+                { enemyName: "Mecaguarida", health: 192000, shield: 89000, damage: 21200, reward: { moduloManiobrasTácticasElite: 32 } },
+                { enemyName: "Mecaguarida", health: 193000, shield: 89500, damage: 21300, reward: { placasCamuflajeActivoElite: 25 } },
+                { enemyName: "Mecaguarida", health: 194000, shield: 90000, damage: 21400, reward: { placasCamuflajeActivoElite: 28 } },
+                { enemyName: "Supervisor de Hangar", health: 200000, shield: 93000, damage: 22000, reward: { moduloManiobrasTácticasElite: 40, placasCamuflajeActivoElite: 35, planosMK7: 4 }, type: 'mini-boss' },
+                { enemyName: "Técnico de Choque", health: 195000, shield: 90500, damage: 21500, reward: { moduloManiobrasTácticasElite: 35 } },
+                { enemyName: "Técnico de Choque", health: 196000, shield: 91000, damage: 21600, reward: { moduloManiobrasTácticasElite: 38 } },
+                { enemyName: "Técnico de Choque", health: 197000, shield: 91500, damage: 21700, reward: { placasCamuflajeActivoElite: 30 } },
+                { enemyName: "Técnico de Choque", health: 198000, shield: 92000, damage: 21800, reward: { placasCamuflajeActivoElite: 32 } },
+                { enemyName: "Comandante Argón", health: 205000, shield: 96000, damage: 23000, reward: { moduloManiobrasTácticasElite: 50, placasCamuflajeActivoElite: 40, planosMK7: 8 }, type: 'boss' },
+            ]
+        },
+        {
+            name: "Zona Cráneo Verde",
+            description: "Sector de entrenamiento avanzado. Aquí se realizan simulacros reales, usando munición de guerra y tácticas corporativas brutalmente eficientes.",
+            battles: [
+                { enemyName: "Cadete Esmeralda", health: 206000, shield: 96500, damage: 23100, reward: { placasCamuflajeActivoElite: 40 } },
+                { enemyName: "Cadete Esmeralda", health: 207000, shield: 97000, damage: 23200, reward: { placasCamuflajeActivoElite: 42 } },
+                { enemyName: "Cadete Esmeralda", health: 208000, shield: 97500, damage: 23300, reward: { moduloManiobrasTácticasElite: 50 } },
+                { enemyName: "Cadete Esmeralda", health: 209000, shield: 98000, damage: 23400, reward: { moduloManiobrasTácticasElite: 52 } },
+                { enemyName: "Instructor Sierra", health: 215000, shield: 101000, damage: 24000, reward: { placasCamuflajeActivoElite: 50, moduloManiobrasTácticasElite: 60, planosMK7: 6 }, type: 'mini-boss' },
+                { enemyName: "Tirador Musgo", health: 210000, shield: 98500, damage: 23500, reward: { placasCamuflajeActivoElite: 45 } },
+                { enemyName: "Tirador Musgo", health: 211000, shield: 99000, damage: 23600, reward: { placasCamuflajeActivoElite: 48 } },
+                { enemyName: "Tirador Musgo", health: 212000, shield: 99500, damage: 23700, reward: { moduloManiobrasTácticasElite: 55 } },
+                { enemyName: "Tirador Musgo", health: 213000, shield: 100000, damage: 23800, reward: { moduloManiobrasTácticasElite: 58 } },
+                { enemyName: "Mayor Coraza Verde", health: 220000, shield: 104000, damage: 25000, reward: { placasCamuflajeActivoElite: 60, moduloManiobrasTácticasElite: 70, planosMK7: 10 }, type: 'boss' },
+            ]
+        },
+        {
+            name: "Línea Férrea Cerberus",
+            description: "La zona de contención interna final. Tres cinturones defensivos, torres automáticas y fragatas de escolta dan forma a una muralla móvil impenetrable.",
+            battles: [
+                { enemyName: "Vigía Cerberus", health: 221000, shield: 104500, damage: 25100, reward: { esenciaDelVacio: 80 } },
+                { enemyName: "Vigía Cerberus", health: 222000, shield: 105000, damage: 25200, reward: { esenciaDelVacio: 82 } },
+                { enemyName: "Vigía Cerberus", health: 223000, shield: 105500, damage: 25300, reward: { reliquiaCorrupta: 90 } },
+                { enemyName: "Vigía Cerberus", health: 224000, shield: 106000, damage: 25400, reward: { reliquiaCorrupta: 92 } },
+                { enemyName: "Unidad Cerberus-β", health: 230000, shield: 109000, damage: 26000, reward: { esenciaDelVacio: 100, reliquiaCorrupta: 100, planosMK7: 15 }, type: 'mini-boss' },
+                { enemyName: "Operador Férreo", health: 225000, shield: 106500, damage: 25500, reward: { esenciaDelVacio: 85 } },
+                { enemyName: "Operador Férreo", health: 226000, shield: 107000, damage: 25600, reward: { esenciaDelVacio: 88 } },
+                { enemyName: "Operador Férreo", health: 227000, shield: 107500, damage: 25700, reward: { reliquiaCorrupta: 95 } },
+                { enemyName: "Operador Férreo", health: 228000, shield: 108000, damage: 25800, reward: { reliquiaCorrupta: 98 } },
+                { enemyName: "Coronel Muralla", health: 240000, shield: 115000, damage: 27000, reward: { moduloManiobrasTácticasElite: 150, placasCamuflajeActivoElite: 150, planosMK7: 25 }, type: 'boss' },
+            ]
+        },
+        {
+            name: "Bastión Regimental “Ilex Prime”",
+            description: "El cuartel general flotante de la Legión Ilex. Un coloso blindado con camuflaje adaptativo, artillería orbital y un núcleo táctico que coordina toda la red mercenaria.Ninguna nave ha conseguido atravesar sus defensas… hasta ahora.",
+            isBoss: true,
+            battles: [
+              { enemyName: "Destructor “Iron Howl”", health: 240000, shield: 115000, damage: 27000, reward: { moduloManiobrasTácticasElite: 150, placasCamuflajeActivoElite: 150, planosMK7: 25 }, type: 'boss' },
+            ]
+        }
+    ]
+  },
+  {
+    name: "CAPÍTULO 4 — “El Dominio Aureano” (Difícil)",
+    lore: "Los Aureanos son una antigua civilización tecno-espiritual que canaliza energía pura mediante cristales resonantes. Sus naves no están construidas: están esculpidas en luz solidificada.Consideran su territorio sagrado y ven a cualquier intruso como una amenaza para el “Equilibrio Cósmico”.Tu entrada ha despertado a sus Custodios.",
+    destinations: [
+      {
+        name: "Umbral Celeste",
+        description: "Puertas de entrada al territorio aureano. Torres flotantes proyectan escudos de luz que examinan todo lo que cruza.",
+        battles: [
+            { enemyName: "Centinela Celeste", health: 266000, shield: 125500, damage: 32100, reward: { placasDeAetheriumElite: 5 } },
+            { enemyName: "Centinela Celeste", health: 267000, shield: 126000, damage: 32200, reward: { placasDeAetheriumElite: 6 } },
+            { enemyName: "Centinela Celeste", health: 268000, shield: 126500, damage: 32300, reward: { nucleoPsionicoArmonicoElite: 3 } },
+            { enemyName: "Centinela Celeste", health: 269000, shield: 127000, damage: 32400, reward: { nucleoPsionicoArmonicoElite: 4 } },
+            { enemyName: "Vigilante Prismático", health: 275000, shield: 130000, damage: 33000, reward: { placasDeAetheriumElite: 10, nucleoPsionicoArmonicoElite: 5, planosMK8: 1 }, type: 'mini-boss' },
+            { enemyName: "Eco de Luz", health: 270000, shield: 127500, damage: 32500, reward: { placasDeAetheriumElite: 7 } },
+            { enemyName: "Eco de Luz", health: 271000, shield: 128000, damage: 32600, reward: { placasDeAetheriumElite: 8 } },
+            { enemyName: "Eco de Luz", health: 272000, shield: 128500, damage: 32700, reward: { nucleoPsionicoArmonicoElite: 5 } },
+            { enemyName: "Eco de Luz", health: 273000, shield: 129000, damage: 32800, reward: { nucleoPsionicoArmonicoElite: 6 } },
+            { enemyName: "Custodio Aural", health: 280000, shield: 135000, damage: 34000, reward: { placasDeAetheriumElite: 15, nucleoPsionicoArmonicoElite: 10, planosMK8: 3 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "Campos Resonantes",
+        description: "Amplias llanuras de energía cristalizada donde los Aureanos entrenan a sus naves vivas. La energía vibra como un coro.",
+        battles: [
+            { enemyName: "Iniciado Resonante", health: 281000, shield: 135500, damage: 34100, reward: { nucleoPsionicoArmonicoElite: 12 } },
+            { enemyName: "Iniciado Resonante", health: 282000, shield: 136000, damage: 34200, reward: { nucleoPsionicoArmonicoElite: 14 } },
+            { enemyName: "Iniciado Resonante", health: 283000, shield: 136500, damage: 34300, reward: { placasDeAetheriumElite: 18 } },
+            { enemyName: "Iniciado Resonante", health: 284000, shield: 137000, damage: 34400, reward: { placasDeAetheriumElite: 20 } },
+            { enemyName: "Agravio Armónico", health: 290000, shield: 140000, damage: 35000, reward: { nucleoPsionicoArmonicoElite: 20, placasDeAetheriumElite: 25, planosMK8: 2 }, type: 'mini-boss' },
+            { enemyName: "Disonancia Errante", health: 285000, shield: 137500, damage: 34500, reward: { nucleoPsionicoArmonicoElite: 16 } },
+            { enemyName: "Disonancia Errante", health: 286000, shield: 138000, damage: 34600, reward: { nucleoPsionicoArmonicoElite: 18 } },
+            { enemyName: "Disonancia Errante", health: 287000, shield: 138500, damage: 34700, reward: { placasDeAetheriumElite: 22 } },
+            { enemyName: "Disonancia Errante", health: 288000, shield: 139000, damage: 34800, reward: { placasDeAetheriumElite: 24 } },
+            { enemyName: "Maestro de la Resonancia", health: 295000, shield: 143000, damage: 36000, reward: { nucleoPsionicoArmonicoElite: 30, placasDeAetheriumElite: 30, planosMK8: 5 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "Sagrario de Aurora",
+        description: "Un templo flotante donde los Aureanos canalizan la “Llama Interior”, una fuente energética consciente.",
+        battles: [
+            { enemyName: "Guardián de Aurora", health: 296000, shield: 143500, damage: 36100, reward: { placasDeAetheriumElite: 30 } },
+            { enemyName: "Guardián de Aurora", health: 297000, shield: 144000, damage: 36200, reward: { placasDeAetheriumElite: 32 } },
+            { enemyName: "Guardián de Aurora", health: 298000, shield: 144500, damage: 36300, reward: { nucleoPsionicoArmonicoElite: 25 } },
+            { enemyName: "Guardián de Aurora", health: 299000, shield: 145000, damage: 36400, reward: { nucleoPsionicoArmonicoElite: 28 } },
+            { enemyName: "Portador de la Llama", health: 305000, shield: 148000, damage: 37000, reward: { placasDeAetheriumElite: 40, nucleoPsionicoArmonicoElite: 35, planosMK8: 4 }, type: 'mini-boss' },
+            { enemyName: "Chispa Ancestral", health: 300000, shield: 145500, damage: 36500, reward: { placasDeAetheriumElite: 35 } },
+            { enemyName: "Chispa Ancestral", health: 301000, shield: 146000, damage: 36600, reward: { placasDeAetheriumElite: 38 } },
+            { enemyName: "Chispa Ancestral", health: 302000, shield: 146500, damage: 36700, reward: { nucleoPsionicoArmonicoElite: 30 } },
+            { enemyName: "Chispa Ancestral", health: 303000, shield: 147000, damage: 36800, reward: { nucleoPsionicoArmonicoElite: 32 } },
+            { enemyName: "Orador Lumínico", health: 310000, shield: 150000, damage: 38000, reward: { placasDeAetheriumElite: 45, nucleoPsionicoArmonicoElite: 40, planosMK8: 7 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "Bastión Dorado",
+        description: "Nudos de defensa hechos con placas de luz endurecida. Cada estructura cambia de forma según la amenaza detectada.",
+        battles: [
+            { enemyName: "Arconte Dorado", health: 304000, shield: 147500, damage: 36900, reward: { placasDeAetheriumElite: 40 } },
+            { enemyName: "Arconte Dorado", health: 305000, shield: 148000, damage: 37000, reward: { placasDeAetheriumElite: 42 } },
+            { enemyName: "Arconte Dorado", health: 306000, shield: 148500, damage: 37100, reward: { nucleoPsionicoArmonicoElite: 35 } },
+            { enemyName: "Arconte Dorado", health: 307000, shield: 149000, damage: 37200, reward: { nucleoPsionicoArmonicoElite: 38 } },
+            { enemyName: "Escudo Viviente", health: 315000, shield: 155000, damage: 38500, reward: { placasDeAetheriumElite: 50, nucleoPsionicoArmonicoElite: 45, planosMK8: 6 }, type: 'mini-boss' },
+            { enemyName: "Lanza Radiante", health: 308000, shield: 149500, damage: 37300, reward: { placasDeAetheriumElite: 42 } },
+            { enemyName: "Lanza Radiante", health: 309000, shield: 150000, damage: 37400, reward: { placasDeAetheriumElite: 44 } },
+            { enemyName: "Lanza Radiante", health: 310000, shield: 150500, damage: 37500, reward: { nucleoPsionicoArmonicoElite: 40 } },
+            { enemyName: "Lanza Radiante", health: 311000, shield: 151000, damage: 37600, reward: { nucleoPsionicoArmonicoElite: 42 } },
+            { enemyName: "Prelado Solemne", health: 320000, shield: 160000, damage: 40000, reward: { placasDeAetheriumElite: 60, nucleoPsionicoArmonicoElite: 50, planosMK8: 9 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "Horizonte Sacro",
+        description: "Un anillo de plataformas levitantes que protege la capital aureana. Aquí la energía vibra como si tuviera voluntad propia.",
+        battles: [
+            { enemyName: "Aureano Sagrado", health: 312000, shield: 151500, damage: 37700, reward: {  nucleoPsionicoArmonicoElite: 45 } },
+            { enemyName: "Aureano Sagrado", health: 313000, shield: 152000, damage: 37800, reward: { nucleoPsionicoArmonicoElite: 48 } },
+            { enemyName: "Aureano Sagrado", health: 314000, shield: 152500, damage: 37900, reward: { placasDeAetheriumElite: 50 } },
+            { enemyName: "Aureano Sagrado", health: 315000, shield: 153000, damage: 38000, reward: { placasDeAetheriumElite: 52 } },
+            { enemyName: "Disruptor del Horizonte", health: 325000, shield: 160000, damage: 41000, reward: { nucleoPsionicoArmonicoElite: 55, placasDeAetheriumElite: 55, planosMK8: 8 }, type: 'mini-boss' },
+            { enemyName: "Rayo Custodio", health: 316000, shield: 153500, damage: 38100, reward: { nucleoPsionicoArmonicoElite: 50 } },
+            { enemyName: "Rayo Custodio", health: 317000, shield: 154000, damage: 38200, reward: { nucleoPsionicoArmonicoElite: 52 } },
+            { enemyName: "Rayo Custodio", health: 318000, shield: 154500, damage: 38300, reward: { placasDeAetheriumElite: 58 } },
+            { enemyName: "Rayo Custodio", health: 319000, shield: 155000, damage: 38400, reward: { placasDeAetheriumElite: 60 } },
+            { enemyName: "Sumo Guardián del Vórtice", health: 330000, shield: 165000, damage: 43000, reward: { nucleoPsionicoArmonicoElite: 65, placasDeAetheriumElite: 60, planosMK8: 10 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "Ciudad-Luz \"Solarion Primus\"",
+        description: "La capital flotante de los Aureanos. Un mundo-nave formado por capas de luz cristalizada, guiado por la conciencia colectiva de toda su especie.Aqui reside la encarnacion suprema de su voluntad.",
+        isBoss: true,
+        battles: [
+          { enemyName: "Arconte Supremo Seraphys", health: 350000, shield: 175000, damage: 45000, reward: { nucleoPsionicoArmonicoElite: 100, placasDeAetheriumElite: 100, planosMK8: 20 }, type: 'boss' },
+        ]
+      }
+    ]
+  },
+  {
+    name: "CAPÍTULO 5 — “El Culto del Abismo” (Difícil)",
+    lore: "En los confines olvidados del espacio, una fuerza corrupta conocida como El Culto del Abismo devora sistemas enteros. Sus naves son amalgamas de metal retorcido, carne mutada y símbolos prohibidos que palpitan como si estuvieran vivos. Siguen a entidades extradimensionales llamadas Los Susurrantes, cuyas voces turban la mente de cualquier piloto que se acerque.\\nLa corrupción avanza como una enfermedad, reescribiendo la materia… y la voluntad.",
+    destinations: [
+      {
+        name: "Penumbra Sangrante",
+        description: "Un corredor espacial impregnado de niebla rojiza. Estructuras flotantes, deformadas por la corrupción, laten como órganos gigantescos.",
+        battles: [
+          { enemyName: "Engendro Penumbrio", health: 335000, shield: 167500, damage: 33500, reward: { tejidoAbisalRetorcidoElite: 5 } },
+          { enemyName: "Engendro Penumbrio", health: 340000, shield: 170000, damage: 34000, reward: { tejidoAbisalRetorcidoElite: 6 } },
+          { enemyName: "Engendro Penumbrio", health: 345000, shield: 172500, damage: 34500, reward: { singularidadCorruptaContenidaElite: 3 } },
+          { enemyName: "Engendro Penumbrio", health: 350000, shield: 175000, damage: 35000, reward: { singularidadCorruptaContenidaElite: 4 } },
+          { enemyName: "Vástago Hemolítico", health: 370000, shield: 185000, damage: 37000, reward: { tejidoAbisalRetorcidoElite: 10, singularidadCorruptaContenidaElite: 5, planosMK9: 1 }, type: 'mini-boss' },
+          { enemyName: "Deforme Sanguinas", health: 355000, shield: 177500, damage: 35500, reward: { tejidoAbisalRetorcidoElite: 7 } },
+          { enemyName: "Deforme Sanguinas", health: 360000, shield: 180000, damage: 36000, reward: { tejidoAbisalRetorcidoElite: 8 } },
+          { enemyName: "Deforme Sanguinas", health: 365000, shield: 182500, damage: 36500, reward: { singularidadCorruptaContenidaElite: 5 } },
+          { enemyName: "Deforme Sanguinas", health: 370000, shield: 185000, damage: 37000, reward: { singularidadCorruptaContenidaElite: 6 } },
+          { enemyName: "Heraldo Carmesí", health: 400000, shield: 200000, damage: 40000, reward: { tejidoAbisalRetorcidoElite: 15, singularidadCorruptaContenidaElite: 10, planosMK9: 3 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "Forja Profanada",
+        description: "Una antigua estación industrial tomada por el Culto. Los hornos ahora funden metal y carne por igual, creando naves vivientes.",
+        battles: [
+          { enemyName: "Fragmento Profano", health: 405000, shield: 202500, damage: 40500, reward: { singularidadCorruptaContenidaElite: 10 } },
+          { enemyName: "Fragmento Profano", health: 410000, shield: 205000, damage: 41000, reward: { singularidadCorruptaContenidaElite: 12 } },
+          { enemyName: "Fragmento Profano", health: 415000, shield: 207500, damage: 41500, reward: { tejidoAbisalRetorcidoElite: 10 } },
+          { enemyName: "Fragmento Profano", health: 420000, shield: 210000, damage: 42000, reward: { tejidoAbisalRetorcidoElite: 12 } },
+          { enemyName: "Operario del Vacío", health: 450000, shield: 225000, damage: 45000, reward: { singularidadCorruptaContenidaElite: 20, tejidoAbisalRetorcidoElite: 15, planosMK9: 2 }, type: 'mini-boss' },
+          { enemyName: "Masa Forjada", health: 425000, shield: 212500, damage: 42500, reward: { singularidadCorruptaContenidaElite: 14 } },
+          { enemyName: "Masa Forjada", health: 430000, shield: 215000, damage: 43000, reward: { singularidadCorruptaContenidaElite: 16 } },
+          { enemyName: "Masa Forjada", health: 435000, shield: 217500, damage: 43500, reward: { tejidoAbisalRetorcidoElite: 14 } },
+          { enemyName: "Masa Forjada", health: 440000, shield: 220000, damage: 44000, reward: { tejidoAbisalRetorcidoElite: 16 } },
+          { enemyName: "Artífice del Abismo", health: 480000, shield: 240000, damage: 48000, reward: { singularidadCorruptaContenidaElite: 30, tejidoAbisalRetorcidoElite: 25, planosMK9: 5 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "Madriguera del Susurro",
+        description: "Zonas colapsadas donde ecos distorsionados repiten frases imposibles. Los Susurrantes habitan aquí… o quizás solo sus voces.",
+        battles: [
+          { enemyName: "Eco Torturado", health: 485000, shield: 242500, damage: 48500, reward: { tejidoAbisalRetorcidoElite: 20 } },
+          { enemyName: "Eco Torturado", health: 490000, shield: 245000, damage: 49000, reward: { tejidoAbisalRetorcidoElite: 22 } },
+          { enemyName: "Eco Torturado", health: 495000, shield: 247500, damage: 49500, reward: { singularidadCorruptaContenidaElite: 25 } },
+          { enemyName: "Eco Torturado", health: 500000, shield: 250000, damage: 50000, reward: { singularidadCorruptaContenidaElite: 28 } },
+          { enemyName: "Devoramente", health: 530000, shield: 265000, damage: 53000, reward: { tejidoAbisalRetorcidoElite: 30, singularidadCorruptaContenidaElite: 35, planosMK9: 4 }, type: 'mini-boss' },
+          { enemyName: "Aullador del Silencio", health: 505000, shield: 252500, damage: 50500, reward: { tejidoAbisalRetorcidoElite: 25 } },
+          { enemyName: "Aullador del Silencio", health: 510000, shield: 255000, damage: 51000, reward: { tejidoAbisalRetorcidoElite: 28 } },
+          { enemyName: "Aullador del Silencio", health: 515000, shield: 257500, damage: 51500, reward: { singularidadCorruptaContenidaElite: 30 } },
+          { enemyName: "Aullador del Silencio", health: 520000, shield: 260000, damage: 52000, reward: { singularidadCorruptaContenidaElite: 32 } },
+          { enemyName: "Profeta de los Susurros", health: 560000, shield: 280000, damage: 56000, reward: { tejidoAbisalRetorcidoElite: 40, singularidadCorruptaContenidaElite: 40, planosMK9: 8 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "Desgarro Onírico",
+        description: "Una grieta dimensional convertida en bastión. La realidad aquí es inconsistente: el espacio se dobla, vibra y se retuerce.",
+        battles: [
+          { enemyName: "Rastro Abismal", health: 565000, shield: 282500, damage: 56500, reward: { singularidadCorruptaContenidaElite: 40 } },
+          { enemyName: "Rastro Abismal", health: 570000, shield: 285000, damage: 57000, reward: { singularidadCorruptaContenidaElite: 42 } },
+          { enemyName: "Rastro Abismal", health: 575000, shield: 287500, damage: 57500, reward: { tejidoAbisalRetorcidoElite: 40 } },
+          { enemyName: "Rastro Abismal", health: 580000, shield: 290000, damage: 58000, reward: { tejidoAbisalRetorcidoElite: 42 } },
+          { enemyName: "Quimera Delirante", health: 610000, shield: 305000, damage: 61000, reward: { singularidadCorruptaContenidaElite: 50, tejidoAbisalRetorcidoElite: 50, planosMK9: 6 }, type: 'mini-boss' },
+          { enemyName: "Reptante de Pesadilla", health: 585000, shield: 292500, damage: 58500, reward: { singularidadCorruptaContenidaElite: 45 } },
+          { enemyName: "Reptante de Pesadilla", health: 590000, shield: 295000, damage: 59000, reward: { singularidadCorruptaContenidaElite: 48 } },
+          { enemyName: "Reptante de Pesadilla", health: 595000, shield: 297500, damage: 59500, reward: { tejidoAbisalRetorcidoElite: 45 } },
+          { enemyName: "Reptante de Pesadilla", health: 600000, shield: 300000, damage: 60000, reward: { tejidoAbisalRetorcidoElite: 48 } },
+          { enemyName: "Guardián del Desgarro", health: 640000, shield: 320000, damage: 64000, reward: { singularidadCorruptaContenidaElite: 60, tejidoAbisalRetorcidoElite: 60, planosMK9: 10 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "Santuario de la Ruina",
+        description: "Altar mecano-orgánico donde el Culto realiza sus rituales. Las paredes están cubiertas por símbolos que sangran luz negra.",
+        battles: [
+          { enemyName: "Adepto de Ruina", health: 645000, shield: 322500, damage: 64500, reward: { tejidoAbisalRetorcidoElite: 50 } },
+          { enemyName: "Adepto de Ruina", health: 650000, shield: 325000, damage: 65000, reward: { tejidoAbisalRetorcidoElite: 52 } },
+          { enemyName: "Adepto de Ruina", health: 655000, shield: 327500, damage: 65500, reward: { singularidadCorruptaContenidaElite: 55 } },
+          { enemyName: "Adepto de Ruina", health: 660000, shield: 330000, damage: 66000, reward: { singularidadCorruptaContenidaElite: 58 } },
+          { enemyName: "Desolador Ritual", health: 690000, shield: 345000, damage: 69000, reward: { tejidoAbisalRetorcidoElite: 70, singularidadCorruptaContenidaElite: 70, planosMK9: 8 }, type: 'mini-boss' },
+          { enemyName: "Sombra Flagelante", health: 665000, shield: 332500, damage: 66500, reward: { tejidoAbisalRetorcidoElite: 60 } },
+          { enemyName: "Sombra Flagelante", health: 670000, shield: 335000, damage: 67000, reward: { tejidoAbisalRetorcidoElite: 62 } },
+          { enemyName: "Sombra Flagelante", health: 675000, shield: 337500, damage: 67500, reward: { singularidadCorruptaContenidaElite: 65 } },
+          { enemyName: "Sombra Flagelante", health: 680000, shield: 340000, damage: 68000, reward: { singularidadCorruptaContenidaElite: 68 } },
+          { enemyName: "Alto Sacerdote del Vacío", health: 720000, shield: 360000, damage: 72000, reward: { tejidoAbisalRetorcidoElite: 80, singularidadCorruptaContenidaElite: 80, planosMK9: 12 }, type: 'boss' },
+        ]
+      },
+      {
+        name: "Colmena Abisal “Xal-Horuun”",
+        description: "La nave-capital del Culto del Abismo: una colmena viviente del tamaño de una luna, hecha de hueso, metal y oscuridad pura.Un núcleo energético corrupto late en su interior como un corazón demoníaco.La entidad líder del Culto mora aquí, conectada a cada nave y cada grito.",
+        isBoss: true,
+        battles: [
+          { enemyName: "Señor del Abismo Vorgrath", health: 800000, shield: 400000, damage: 80000, reward: { singularidadCorruptaContenidaElite: 150, tejidoAbisalRetorcidoElite: 150, planosMK9: 25 }, type: 'boss' },
+        ]
+      }
+    ]
   }
-];
+]
