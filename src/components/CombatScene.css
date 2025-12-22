@@ -15,6 +15,38 @@
   overflow: hidden;
 }
 
+.combat-info-display {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #4a5568;
+  text-align: center;
+  color: #E5E7EB;
+  z-index: 10;
+}
+
+.combat-info-display h3 {
+  margin: 0;
+  font-size: 2rem; /* Further increased size */
+  color: #ecc94b; /* Goldish color for chapter name */
+}
+
+.combat-info-display h4 {
+  margin: 0.2rem 0;
+  font-size: 1.5rem; /* Further increased size */
+  color: #cbd5e0; /* Lighter color for destination name */
+}
+
+.combat-info-display p {
+  margin: 0;
+  font-size: 1.3rem; /* Further increased size */
+  color: #a0aec0; /* Even lighter for battle progress */
+}
+
 /* Header with health bars - Advance Wars style */
 .combat-header {
   grid-column: 1 / -1;
@@ -409,6 +441,39 @@
   text-shadow: 
     0 0 15px rgba(229, 62, 62, 0.7),
     4px 4px 2px #000;
+}
+
+.victory-message h4 {
+  font-size: 1.5rem; /* For "Recompensas Obtenidas:" */
+  color: #a0aec0;
+  margin-top: 1rem;
+}
+
+.rewards-summary ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 0.5rem;
+  font-size: 1.2rem;
+  display: flex; /* Added for centering */
+  flex-direction: column; /* Added for centering */
+  align-items: center; /* Added for centering */
+}
+
+.rewards-summary li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.rewards-summary .reward-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.rewards-summary .reward-amount {
+  font-weight: bold;
+  color: #68d391; /* Green for positive amounts */
 }
 
 .victory-button-left {

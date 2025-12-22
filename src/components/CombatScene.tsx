@@ -135,10 +135,23 @@ const CombatScene: React.FC = () => {
   }
 
   let currentBattleData: Battle | null = null;
-  if (activeBattle && battleRoom.selectedChapterIndex !== null) {
-    currentBattleData = gameChapters[battleRoom.selectedChapterIndex]
-      ?.destinations[activeBattle.destinationIndex]
-      ?.battles[activeBattle.battleIndex];
+  let currentChapterName: string = '';
+  let currentDestinationName: string = '';
+  let currentBattleNumber: number = 0;
+  let totalBattlesInDestination: number = 0;
+
+  if (activeBattle && battleRoom.selectedChapterIndex !== null && battleRoom.selectedDestination !== null) {
+    const chapter = gameChapters[battleRoom.selectedChapterIndex];
+    const destination = chapter?.destinations[battleRoom.selectedDestination];
+
+    if (chapter && destination) {
+      currentChapterName = chapter.name;
+      currentDestinationName = destination.name;
+      currentBattleNumber = activeBattle.battleIndex + 1;
+      totalBattlesInDestination = destination.battles.length;
+
+      currentBattleData = destination.battles[activeBattle.battleIndex];
+    }
   }
   const battleRewards = currentBattleData?.reward;
   
@@ -148,6 +161,13 @@ const CombatScene: React.FC = () => {
 
   return (
     <div className="combat-scene" style={{ backgroundImage: `url(${backgroundPath})` }}>
+      {activeBattle && (
+        <div className="combat-info-display">
+          <h3>{currentChapterName}</h3>
+          <h4>{currentDestinationName}</h4>
+          <p>Batalla {currentBattleNumber} / {totalBattlesInDestination}</p>
+        </div>
+      )}
       <div className="combat-area">
         <div className={`combatant vindicator-combatant ${playerShake || animationPhase === 'playerDamage' ? 'shake' : ''} ${animationPhase === 'playerDamage' ? 'flash' : ''}`}>
           {vindicatorSprite && (
